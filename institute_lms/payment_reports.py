@@ -27,4 +27,6 @@ def history(start_date=None, end_date=None, status='All', page=0):
         filters['status'] = status
     count = frappe.db.count('IL Invoice', filters)
     rows = frappe.get_all('IL Invoice', filters=filters, fields=['*'], order_by='due_date desc, name asc', limit_start=page*25, limit_page_length=25)
+    pending=set(frappe.get_all('IL Bank Slip',filters={'invoice':['in',[r.name for r in rows] or ['__none__']],'status':'Pending','institute':inst.name},pluck='invoice')) if rows else set()
+    for row in rows:row['review_pending']=row.name in pending and row.status!='Paid'
     return {'rows': rows, 'totals': totals, 'count': count, 'page': page, 'start_date': str(start), 'end_date': str(stop-timedelta(days=1)), 'date_basis': 'Invoice due date'}

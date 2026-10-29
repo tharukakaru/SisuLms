@@ -5,7 +5,7 @@ from pathlib import Path
 import frappe
 from frappe.utils import now_datetime
 from .api import classroom_for, accessible_room, scoped
-from .material_contract import MAX_BYTES, TYPES, validate_file, require_download, require_preview
+from .material_contract import MAX_BYTES, TYPES, INLINE_TYPES, validate_file, require_download, require_preview
 
 
 @frappe.whitelist(methods=['POST'])
@@ -76,12 +76,12 @@ def content(material, action='view'):
         except PermissionError as exc:frappe.throw(str(exc),frappe.PermissionError)
         file_id=doc.file_id;filename=doc.filename
     else:
-        file_id=doc.file_id if doc.file_type=='pdf' else doc.preview_file_id
-        filename='preview.pdf'
+        file_id=doc.file_id if doc.file_type in INLINE_TYPES else doc.preview_file_id
+        filename=doc.filename if doc.file_type in INLINE_TYPES else 'preview.pdf'
     if not file_id:frappe.throw('No PDF preview has been uploaded for this material')
     file,path=checked_file(file_id,room)
     raw=path.read_bytes()
-    try:suffix,mime=validate_file(file.file_name,raw,preview=action=='view')
+    try:suffix,mime=validate_file(file.file_name,raw,preview=action=='view' and doc.file_type not in INLINE_TYPES)
     except ValueError as exc:frappe.throw(str(exc))
     from .workspace import consume_view,settings_for
     from .commercial import account_for

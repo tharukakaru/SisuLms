@@ -3,7 +3,7 @@ import re
 import frappe
 from frappe.utils import now_datetime, get_datetime
 from .commercial import account_for, locked_reason
-from .commercial_rules import plan_features
+from .plan_catalog import plan_features
 
 KINDS={'payment_approved':'Payment approved','enrolment_reminder':'Enrolment reminder','class_scheduled':'Class scheduled'}
 

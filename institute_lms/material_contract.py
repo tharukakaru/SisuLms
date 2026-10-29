@@ -4,7 +4,8 @@ from pathlib import PurePosixPath
 from zipfile import ZipFile, BadZipFile
 
 MAX_BYTES = 10 * 1024 * 1024
-TYPES = {'txt':'text/plain', 'pdf':'application/pdf', 'ppt':'application/vnd.ms-powerpoint',
+INLINE_TYPES = ('pdf','png','jpg','jpeg')
+TYPES = {'png':'image/png','jpg':'image/jpeg','jpeg':'image/jpeg','csv':'text/csv','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','xls':'application/vnd.ms-excel','txt':'text/plain', 'pdf':'application/pdf', 'ppt':'application/vnd.ms-powerpoint',
          'pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation',
          'doc':'application/msword', 'docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}
 
@@ -13,25 +14,32 @@ def validate_file(filename, content, preview=False):
     if not isinstance(filename,str) or not filename or len(filename)>180 or any(c in filename for c in '/\\\r\n\x00'):
         raise ValueError('Use a simple filename of at most 180 characters')
     suffix=filename.rsplit('.',1)[-1].lower()
-    if suffix not in TYPES or (preview and suffix!='pdf'):raise ValueError('Use PDF, PPT/PPTX, DOC/DOCX or UTF-8 TXT; previews must be PDF')
+    if suffix not in TYPES or (preview and suffix!='pdf'):raise ValueError('Use PDF, Office documents, UTF-8 TXT/CSV, PNG or JPEG; companion previews must be PDF')
     if not isinstance(content,bytes) or not content or len(content)>MAX_BYTES:raise ValueError('Choose a nonempty document of at most 10 MB')
-    if suffix=='txt':
+    if suffix in ('txt','csv'):
         if b'\x00' in content:raise ValueError('Plain text must not contain binary data')
         try:content.decode('utf-8-sig')
         except UnicodeDecodeError:raise ValueError('Plain text must use UTF-8') from None
     if suffix=='pdf' and not content.startswith(b'%PDF-'):raise ValueError('File is not a PDF')
-    if suffix in ('ppt','doc') and not content.startswith(bytes.fromhex('D0CF11E0A1B11AE1')):raise ValueError('Invalid legacy Office file')
-    if suffix in ('pptx','docx'):
+    if suffix in ('ppt','doc','xls') and not content.startswith(bytes.fromhex('D0CF11E0A1B11AE1')):raise ValueError('Invalid legacy Office file')
+    if suffix in ('pptx','docx','xlsx'):
         try:
             with ZipFile(BytesIO(content)) as archive:
                 entries=archive.infolist();names={e.filename for e in entries}
-                required='ppt/presentation.xml' if suffix=='pptx' else 'word/document.xml'
+                required={'pptx':'ppt/presentation.xml','docx':'word/document.xml','xlsx':'xl/workbook.xml'}[suffix]
                 if len(entries)>2000 or sum(e.file_size for e in entries)>50*1024*1024:raise ValueError('Office document is too complex; use a smaller file')
                 if required not in names or '[Content_Types].xml' not in names:raise ValueError('Invalid Office document type')
                 for e in entries:
                     path=PurePosixPath(e.filename)
                     if path.is_absolute() or '..' in path.parts or '\\' in e.filename or e.flag_bits&1 or 'vbaproject' in e.filename.lower():raise ValueError('Encrypted or macro-bearing Office files are not supported')
         except BadZipFile:raise ValueError('Invalid Office archive') from None
+    if suffix in ('png','jpg','jpeg'):
+        from PIL import Image
+        try:
+            with Image.open(BytesIO(content)) as image:
+                if image.format != ('PNG' if suffix=='png' else 'JPEG') or image.width*image.height>20000000:raise ValueError('Choose a PNG/JPEG image below 20 megapixels')
+                image.verify()
+        except (OSError, SyntaxError, Image.DecompressionBombError) as exc:raise ValueError('Invalid or oversized image') from exc
     return suffix,TYPES[suffix]
 
 
@@ -41,4 +49,4 @@ def require_download(policy, role):
 
 def require_preview(suffix, preview_file, policy):
     if policy not in ('View only','Downloadable'):raise ValueError('Choose View only or Downloadable')
-    if suffix!='pdf' and policy=='View only' and not preview_file:raise ValueError('Add a matching PDF preview for view-only PowerPoint or Word materials')
+    if suffix not in INLINE_TYPES and policy=='View only' and not preview_file:raise ValueError('Add a matching PDF preview for view-only Office or text materials')

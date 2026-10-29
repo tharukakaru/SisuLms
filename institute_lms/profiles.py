@@ -175,7 +175,8 @@ def relationships(profile):
     signed_in();p=frappe.get_doc('IL Public Profile',profile)
     filters={'profile':profile}
     if p.user!=frappe.session.user:filters['user']=frappe.session.user
-    return {'followers':frappe.db.count('IL Profile Relationship',{'profile':profile,'kind':'Follow','status':'Active'}),
+    follow=frappe.db.get_value('IL Profile Relationship',{'profile':profile,'user':frappe.session.user,'kind':'Follow','status':'Active'},'name')
+    return {'following':bool(follow),'follow_relationship':follow,'followers':frappe.db.count('IL Profile Relationship',{'profile':profile,'kind':'Follow','status':'Active'}),
             'owns_profile':p.user==frappe.session.user,'relationships':frappe.get_all('IL Profile Relationship',filters=filters,fields=['name','profile','user','kind','status'],limit_page_length=100)}
 
 @frappe.whitelist(methods=['POST'])
@@ -212,3 +213,27 @@ def purge_updates():
             frappe.delete_doc('IL Provider Update',name,ignore_permissions=True)
     finally:
         frappe.flags.il_provider_update_purge=False
+
+
+@frappe.whitelist(methods=['POST'])
+def upload_asset():
+    """Public branding raster; website staff need no generic File create role."""
+    import io,secrets
+    from PIL import Image,ImageOps,UnidentifiedImageError
+    from .api import identity,require_role
+    from .registration import limit
+    from frappe.utils.file_manager import save_file
+    _,member=identity();require_role(member,'Teacher','Admin')
+    limit('branding-image:'+frappe.session.user)
+    item=frappe.request.files.get('file')
+    if not item:frappe.throw('Choose an image')
+    raw=item.stream.read(5*1024*1024+1)
+    if len(raw)>5*1024*1024:frappe.throw('Choose an image up to 5 MB')
+    try:
+        with Image.open(io.BytesIO(raw)) as source:
+            if source.format not in ('JPEG','PNG','WEBP') or source.width*source.height>20000000:raise ValueError()
+            source.load();image=ImageOps.exif_transpose(source).convert('RGB');image.thumbnail((1600,1600))
+            output=io.BytesIO();image.save(output,format='WEBP',quality=85)
+    except (ValueError,OSError,UnidentifiedImageError,Image.DecompressionBombError):frappe.throw('Choose a valid JPEG, PNG or WebP image below 20 megapixels')
+    file=save_file('branding-'+secrets.token_hex(12)+'.webp',output.getvalue(),None,None,is_private=0)
+    return {'file_url':file.file_url}

@@ -3,7 +3,7 @@ export function classroomNavigation(role) {
     {id:'dashboard',icon:'LayoutDashboard'},
     {id:'classrooms',icon:'BookOpen'},
     {id:'schedule',icon:'CalendarDays'},
-    {id:'study',icon:'Coffee'},
+    ...(role==='Student'?[{id:'study',icon:'Coffee'}]:[]),
     ...(role==='Admin'?[{id:'team',icon:'Users'},{id:'people',icon:'Users'}]:[]),
     {id:'connections',icon:'Search'},
     {id:'payments',icon:'CreditCard'},

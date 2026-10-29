@@ -1,9 +1,3 @@
-# SISU LMS partner snapshot - 29 October 2026
-
-Read PARTNER-HANDOVER.txt first. This is a development handover, not final launch approval.
-
-## Historical README (superseded where conflicting)
-
 # SISU LMS — monthly subscription release
 
 Updated 18 October 2026. Start with [the current subscription contract and deployment handover](docs/ACCOUNT_SUBSCRIPTIONS.md).

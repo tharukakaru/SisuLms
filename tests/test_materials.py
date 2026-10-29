@@ -39,6 +39,20 @@ class MaterialContract(unittest.TestCase):
         with self.assertRaises(ValueError):require_preview('pptx',None,'View only')
         with self.assertRaises(ValueError):require_preview('pdf',None,'Unknown')
 
+    def test_spreadsheet_and_image_validation(self):
+        data=BytesIO()
+        with ZipFile(data,'w') as z:
+            z.writestr('[Content_Types].xml','<Types/>');z.writestr('xl/workbook.xml','<workbook/>')
+        self.assertEqual(validate_file('sheet.xlsx',data.getvalue())[0],'xlsx')
+        self.assertEqual(validate_file('sheet.csv',b'name,score\nSam,12')[0],'csv')
+        from PIL import Image
+        image=BytesIO();Image.new('RGB',(2,2)).save(image,format='PNG')
+        self.assertEqual(validate_file('diagram.png',image.getvalue())[0],'png')
+        with self.assertRaises(ValueError):validate_file('diagram.jpg',image.getvalue())
+        with self.assertRaises(ValueError):validate_file('diagram.png',b'<script>bad</script>')
+        require_preview('png',None,'View only')
+        with self.assertRaises(ValueError):require_preview('xlsx',None,'View only')
+
     def test_student_download_fails_closed(self):
         for policy in ('View only',None,''):
             with self.assertRaises(PermissionError):require_download(policy,'Student')
@@ -97,6 +111,18 @@ class MaterialAuthorization(unittest.TestCase):
             self.f.get_site_path=lambda *args:str(private)
             self.f.get_doc.return_value=MagicMock(is_private=1,attached_to_doctype='IL Classroom',attached_to_name='room-A',get_full_path=lambda:str(outside))
             with self.assertRaises(PermissionError):self.mod.checked_file('file',self.room)
+
+    def test_private_image_view_and_allowed_download(self):
+        from PIL import Image
+        self.f.get_doc.return_value=Record(name='material',classroom='room-A',download_policy='Downloadable',file_id='image',file_type='png',filename='diagram.png')
+        with TemporaryDirectory() as directory:
+            path=Path(directory)/'diagram.png';Image.new('RGB',(2,2)).save(path)
+            with patch.object(self.mod,'checked_file',return_value=(Record(file_name='diagram.png'),path)):
+                for action,disposition in [('view','inline'),('download','attachment')]:
+                    self.mod.content('material',action)
+                    self.assertEqual(self.f.local.response['content_type'],'image/png')
+                    self.assertEqual(self.f.local.response['display_content_as'],disposition)
+                    self.assertEqual(self.f.local.response['filecontent'],path.read_bytes())
 
     def test_office_view_serves_only_pdf_companion(self):
         self.f.get_doc.return_value=Record(name='material',classroom='room-A',download_policy='View only',file_id='office-original',preview_file_id='pdf-preview',file_type='pptx')

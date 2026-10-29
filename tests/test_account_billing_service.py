@@ -34,9 +34,22 @@ class BillingService(unittest.TestCase):
         self.fake.db=Row(get_value=self.get_value,exists=lambda doctype,filters:bool(self.get_value(doctype,filters,'name')),sql=lambda *a,**kw:[])
         self.fake.local=Row(request=Row(path='/api/method/institute_lms.api.classrooms'))
         self.fake.form_dict=Row()
-        self.patches=[patch.object(self.b,'frappe',self.fake),patch.object(self.b,'now_datetime',lambda:self.now),patch.object(self.b,'account',lambda **kw:self.a),patch.object(self.b,'save',self.save),patch.object(self.b,'queue_document',lambda bill,kind:self.sent.append((bill.name,kind))),patch.object(self.b,'require_owner',self.check_owner),patch.object(self.b,'country_code',lambda c:c if c in ('LK','US') else self.fake.throw('invalid country'))]
+        from institute_lms.plan_catalog_rules import defaults
+        self.catalog=types.ModuleType('institute_lms.plan_catalog')
+        self.catalog.plan=lambda name:defaults()[name]
+        self.patches=[patch.dict(sys.modules,{'institute_lms.plan_catalog':self.catalog}),patch.object(self.b,'frappe',self.fake),patch.object(self.b,'now_datetime',lambda:self.now),patch.object(self.b,'account',lambda **kw:self.a),patch.object(self.b,'save',self.save),patch.object(self.b,'queue_document',lambda bill,kind:self.sent.append((bill.name,kind))),patch.object(self.b,'require_owner',self.check_owner),patch.object(self.b,'country_code',lambda c:c if c in ('LK','US') else self.fake.throw('invalid country'))]
         for p in self.patches:p.start()
         self.addCleanup(lambda:[p.stop() for p in reversed(self.patches)])
+
+    def test_published_provider_price_reaches_customer_cards(self):
+        self.fake.conf.il_usage_billing_enabled=1;self.a.role='Teacher';self.a.plan='Gold'
+        from institute_lms.plan_catalog_rules import defaults
+        updated=defaults()['Gold'];updated['monthly_lkr']=17000;updated['description']='Updated package'
+        self.catalog.plan=lambda name:updated
+        with patch.object(self.b,'state',return_value=dict(state='Active',available=True)):
+            result=self.b.status()
+        self.assertEqual(result['account']['monthly_minor'],1700000)
+        self.assertEqual(result['plans'][0]['description'],'Updated package')
 
     def check_owner(self):
         if not self.owner:raise PermissionError('Owner required')

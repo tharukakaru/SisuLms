@@ -14,7 +14,16 @@ def digest(challenge, phone, code):
 def issue(phone, channel, sender):
     signed_in()
     if channel not in ('SMS','WHATSAPP') or not re.fullmatch(r'\+[1-9][0-9]{7,14}',str(phone)):frappe.throw('Invalid phone or channel')
-    if not get_url().startswith('https://') or not frappe.conf.get('encryption_key'):frappe.throw('Secure OTP configuration required')
+    from urllib.parse import urlsplit
+    origin=urlsplit(get_url())
+    request=getattr(frappe.local,'request',None)
+    request_host=str(getattr(request,'host','')).split(':')[0].lower()
+    local_dev=(frappe.conf.get('il_local_http_otp') == 1
+               and getattr(frappe.local,'site',None)=='localhost'
+               and origin.scheme=='http' and origin.hostname=='localhost'
+               and request_host=='localhost')
+    if (origin.scheme!='https' and not local_dev) or not frappe.conf.get('encryption_key'):
+        frappe.throw('Secure OTP configuration required')
     from .registration import limit
     user=frappe.session.user;lock='il_phone_issue:'+user
     with frappe.cache.lock(lock,timeout=45):

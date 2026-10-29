@@ -137,10 +137,11 @@ def bootstrap():
     inst, member = identity()
     from .workspace import campus_brand
     profile = frappe.db.get_value("IL Public Profile", {"user": frappe.session.user},
-                                  ["profile_image", "lms_id"], as_dict=True)
+                                  ["profile_image", "lms_id", "kind", "display_name", "socials"], as_dict=True)
     member = dict(member)
     member.update(profile_image=profile.profile_image if profile else "",
-                  lms_id=profile.lms_id if profile else "")
+                  lms_id=profile.lms_id if profile else "",
+                  provider_profile=dict(profile) if profile and member.get("role") in ("Teacher", "Admin") else None)
     return {"payment_provider": frappe.conf.get("il_payment_provider", "payments_lk"), "institute": campus_brand(inst),
             "member": member, "csrf_token": frappe.sessions.get_csrf_token(), "mode": "live",
             "lms_base": "/" + str(frappe.conf.get("lms_path", "lms")).strip("/"),
@@ -167,8 +168,8 @@ def classrooms(page: int = 0, search: str = "", deleted: int = 0):
                               fields=["name", "user"]) if teacher_ids else []
     users = [teacher.user for teacher in teachers if teacher.user]
     profiles = frappe.get_all("IL Public Profile", filters={"user": ["in", users], "kind": "Teacher", "status": "Verified"},
-                              fields=["user", "display_name", "qualifications", "profile_image", "socials"]) if users else []
-    profiles_by_user = {p.user: {"kind": "Teacher", "display_name": p.display_name,
+                              fields=["user", "display_name", "qualifications", "profile_image", "socials", "lms_id"]) if users else []
+    profiles_by_user = {p.user: {"kind": "Teacher", "display_name": p.display_name, "lms_id":p.lms_id,
                                "profile_image": p.profile_image, "qualifications": p.qualifications, "socials": p.socials} for p in profiles}
     teacher_profiles = {t.name: profiles_by_user.get(t.user) for t in teachers}
     for room in rooms:
@@ -204,6 +205,14 @@ def classroom_detail(name: str, page: int = 0):
     decision = access(room, member)
     from .teaching import rights
     room_data=room.as_dict();room_data['permissions']=rights(room,member)
+    teacher=frappe.db.get_value('IL Member',{'name':room.teacher,'institute':inst.name},['name','user','full_name'],as_dict=True)
+    if teacher:
+        profile=frappe.db.get_value('IL Public Profile',{'user':teacher.user,'kind':'Teacher','status':'Verified'},['display_name','qualifications','profile_image','socials','lms_id'],as_dict=True)
+        room_data['teacher_profile']=dict(profile) if profile else None
+        room_data['teacher_name']=profile.display_name if profile else teacher.full_name
+        room_data['teacher_lms_id']=(profile.lms_id if profile else None) or teacher.name
+    for field in ('grade','teaching_medium','description'):
+        if str(room_data.get(field) or '').strip().lower() in ('none','null','undefined'):room_data[field]=''
     result = {"room": room_data, "access": decision, "sessions": [], "materials": [], "feedback": [], "announcements": []}
     if decision["allowed"]:
         for key, dt in (("sessions", "IL Session"), ("materials", "IL Material"), ("feedback", "IL Feedback"), ("announcements", "IL Announcement")):

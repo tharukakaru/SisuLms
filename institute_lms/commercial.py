@@ -7,8 +7,9 @@ import hashlib
 import json
 from datetime import timedelta
 import frappe
+from .plan_catalog import plan_features
 from frappe.utils import now_datetime, get_datetime, getdate
-from .commercial_rules import PLANS, plan_features, next_month, access_window, billing_units, invoice_totals, overdue, money_minor, beneficiary
+from .commercial_rules import PLANS, next_month, access_window, billing_units, invoice_totals, overdue, money_minor, beneficiary
 
 def save(doc):
     doc.flags.commercial_service=True
@@ -20,7 +21,7 @@ def locked(doctype,name):
 
 def account_for(room,required=True):
     name=frappe.db.get_value('IL Provider Account',{'provider_key':beneficiary(room)},'name')
-    if not name and required: frappe.throw('The platform owner must configure this providerâ€™s package first')
+    if not name and required: frappe.throw('The platform owner must configure this providerÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s package first')
     return frappe.get_doc('IL Provider Account',name) if name else None
 
 def account_access(account):
@@ -125,7 +126,7 @@ def notify_people(room,event,key,body,student=None):
     recipients=set(frappe.get_all('IL Member',filters={'institute':room.institute,'role':'Admin','active':1},pluck='name')) if room.owner_type!='Teacher' else set()
     if room.teacher:recipients.add(room.teacher)
     if student:recipients.add(student)
-    for recipient in sorted(recipients):emit(room.institute,recipient,event,key,body)
+    for recipient in sorted(recipients):emit(room.institute,recipient,event,key,body,classroom=room.name)
 
 def owned_proof(name):
     file=frappe.get_doc('File',name)
@@ -177,6 +178,8 @@ def reviewer(slip):
     from .api import classroom_for
     inst,m,room=classroom_for(slip.classroom,True)
     if slip.institute!=inst.name or m.role not in ('Admin','Teacher'):frappe.throw('Class payment reviewer required',frappe.PermissionError)
+    from .teaching import require
+    require(room,m,'fees')
     account=account_for(room,False)
     if account and locked_reason(account):frappe.throw(locked_reason(account),frappe.PermissionError)
     return inst,m,room

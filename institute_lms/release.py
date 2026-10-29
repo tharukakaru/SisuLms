@@ -15,6 +15,8 @@ def https_origin(value):
 
 @frappe.whitelist()
 def workspace():
+    from .account_storage import configured,workspace as account_workspace
+    if configured():return account_workspace()
     from .api import identity
     from .saas import resolved
     from .usage import summary,used
@@ -86,8 +88,8 @@ def channels():
     signed_in()
     features={}
     if not frappe.conf.get('il_control_plane'):
-        from .saas import resolved
-        try:r=resolved();features=r['features'] if r['available'] else {}
+        from .account_billing import policy
+        try:r=policy();features=r['features'] if r['available'] else {}
         except frappe.PermissionError:pass
     configured={'IN_APP':True,'EMAIL':bool(frappe.db.exists('Email Account',{'enable_outgoing':1})),
         'SMS':bool(frappe.conf.get('il_sms_adapter')),
@@ -112,13 +114,16 @@ def otp_status():
 
 
 @frappe.whitelist()
-def unread():
+def unread(profile=''):
     from .api import identity
-    inst,m=identity()
+    from .learning_spaces import notification_rooms
+    inst,m=identity();names=notification_rooms(profile,inst)
+    scope=' AND e.classroom IN %s' if names is not None else ''
+    params=[frappe.session.user,inst.name]
+    if names is not None:params.append(tuple(names or ['__none__']))
     return {'count':frappe.db.sql("""SELECT COUNT(*) FROM `tabIL Notification Event` e
         WHERE e.user=%s AND e.institute=%s AND e.read_at IS NULL
-        AND EXISTS (SELECT 1 FROM `tabIL Notification` d WHERE d.event=e.name AND d.channel='IN_APP' AND d.status='Delivered')""",
-        (frappe.session.user,inst.name))[0][0]}
+        AND EXISTS (SELECT 1 FROM `tabIL Notification` d WHERE d.event=e.name AND d.channel='IN_APP' AND d.status='Delivered')"""+scope,tuple(params))[0][0]}
 
 
 @frappe.whitelist()

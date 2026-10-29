@@ -1,0 +1,30 @@
+{
+  "doctype": "DocType",
+  "name": "IL Plan Catalog",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "prompt",
+  "track_changes": 1,
+  "fields": [
+    {
+      "fieldname": "payload",
+      "label": "Plans JSON",
+      "fieldtype": "Long Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "revision",
+      "label": "Revision",
+      "fieldtype": "Int",
+      "read_only": 1
+    },
+    {
+      "fieldname": "change_reason",
+      "label": "Change reason",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    }
+  ],
+  "permissions": []
+}

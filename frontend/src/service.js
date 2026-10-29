@@ -14,6 +14,6 @@ export async function uploadImage(file) {
   const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', .82))
   const form = new FormData(); form.append('file', blob, 'image.webp'); form.append('is_private', '0')
   if(previewMode)return canvas.toDataURL('image/webp',.82);
-  const response = await fetch('/api/method/upload_file', { method: 'POST', credentials: 'same-origin', body: form, headers: { 'X-Frappe-CSRF-Token': csrf() } })
+  const response = await fetch('/api/method/institute_lms.profiles.upload_asset', { method: 'POST', credentials: 'same-origin', body: form, headers: { 'X-Frappe-CSRF-Token': csrf() } })
   return (await decode(response)).file_url
 }

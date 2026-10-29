@@ -32,7 +32,10 @@ class Templates(unittest.TestCase):
         notifications=types.ModuleType('institute_lms.notifications');notifications.whatsapp_allowed=lambda person:True;self.notifications=notifications
         service=types.ModuleType('institute_lms.notification_service');service.preference=lambda *a:{'WHATSAPP':True};service.emit=MagicMock(return_value='event');self.service=service
         util=types.ModuleType('frappe.utils');util.now_datetime=lambda:datetime(2026,10,16);util.get_datetime=lambda x:x
-        p=patch.dict(sys.modules,{'frappe':f,'frappe.utils':util,'institute_lms.api':api,'institute_lms.commercial':commercial,'institute_lms.notifications':notifications,'institute_lms.notification_service':service});p.start();self.addCleanup(p.stop)
+        catalogue=types.ModuleType('institute_lms.plan_catalog')
+        from institute_lms.commercial_rules import plan_features
+        catalogue.plan_features=plan_features
+        p=patch.dict(sys.modules,{'institute_lms.plan_catalog':catalogue,'frappe':f,'frappe.utils':util,'institute_lms.api':api,'institute_lms.commercial':commercial,'institute_lms.notifications':notifications,'institute_lms.notification_service':service});p.start();self.addCleanup(p.stop)
         spec=importlib.util.spec_from_file_location('institute_lms.whatsapp_templates',Path(__file__).resolve().parents[1]/'institute_lms/whatsapp_templates.py');self.module=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.module)
     def test_silver_cannot_preview_or_send(self):
         self.account['plan']='Silver'

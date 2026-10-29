@@ -65,15 +65,21 @@ def save_preferences(settings):
     return {'saved':True}
 
 @frappe.whitelist()
-def inbox(page=0,unread=False):
+def inbox(page=0,unread=False,profile=""):
     from .api import identity
     inst,m=identity();filters={'user':frappe.session.user,'institute':inst.name}
     if unread:filters['read_at']=['is','not set']
+    from .learning_spaces import notification_rooms
+    names=notification_rooms(profile,inst)
+    scope=' AND e.classroom IN %s' if names is not None else ''
+    params=[frappe.session.user,inst.name,int(bool(unread))]
+    if names is not None:params.append(tuple(names or ['__none__']))
+    params.append(max(0,min(int(page),10000))*50)
     # Only delivered in-app events are shown; preference-disabled events stay in outbox history.
     return frappe.db.sql('''SELECT e.name,e.body,e.event_type,e.creation,e.read_at FROM `tabIL Notification Event` e
         WHERE e.user=%s AND e.institute=%s AND (%s=0 OR e.read_at IS NULL)
         AND EXISTS (SELECT 1 FROM `tabIL Notification` d WHERE d.event=e.name AND d.channel='IN_APP' AND d.status='Delivered')
-        ORDER BY e.creation DESC LIMIT 50 OFFSET %s''',(frappe.session.user,inst.name,int(bool(unread)),max(0,min(int(page),10000))*50),as_dict=True)
+        '''+scope+' ORDER BY e.creation DESC LIMIT 50 OFFSET %s',tuple(params),as_dict=True)
 
 @frappe.whitelist(methods=['POST'])
 def mark_read(name):

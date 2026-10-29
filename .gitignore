@@ -3,3 +3,11 @@ __pycache__/
 *.pyc
 .env
 .venv/
+
+local-private/
+site_config.json
+common_site_config.json
+.env.*
+!.env.example
+*.pem
+*.key

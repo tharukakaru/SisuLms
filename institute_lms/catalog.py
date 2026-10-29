@@ -36,6 +36,8 @@ def detail(profile,page=0):
         users=frappe.get_all('IL Profile Relationship',filters={'profile':p.name,'kind':'Teacher membership','status':'Active'},pluck='user',limit_page_length=0)
         teachers=frappe.get_all('IL Public Profile',filters={'user':['in',users or ['__none__']],'kind':'Teacher','status':'Verified'},fields=FIELDS,order_by='display_name asc',limit_start=paginate(page),limit_page_length=24)
         teacher_count=frappe.db.count('IL Public Profile',{'user':['in',users or ['__none__']],'kind':'Teacher','status':'Verified'})
+    followed=set(frappe.get_all('IL Profile Relationship',filters={'user':frappe.session.user,'kind':'Follow','status':'Active'},pluck='profile'))
+    for t in teachers:t['following']=t.name in followed
     return {'profile':profile_row(p),'classes':classes,'teachers':teachers,'class_count':frappe.db.count('IL Classroom',class_filters(p,inst)),'teacher_count':teacher_count,
             'has_more':len(classes)==24 or len(teachers)==24}
 

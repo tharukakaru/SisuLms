@@ -1,0 +1,216 @@
+20 OCTOBER FOLLOW-UP — CURRENT ACCEPTANCE
+
+Fixed and deployed: POST/CSRF sign-out with session verification and cross-tab logout;
+Frappe 17 aggregate-query compatibility in dashboards and invoice history;
+Google sign-in explicitly offers account selection.
+Expanded live HTTP checks: Teacher, Institute Admin, primary/delegate Super Admin
+core reads, role boundaries and logout passed. Teacher created a real test material
+and published a synthetic one-question quiz. Invoice history passed for both operators.
+Four logout regression tests passed.
+
+Student REAL Google login is now verified in the Codex browser, not simulated.
+Student dashboard, enrolled classroom, material listing and timed quiz worked.
+Quiz submission was saved and graded 1/1. Private recording was blocked before
+teacher review. The 11-second synthetic recording was reviewed and published only
+to the staging test classroom. Subsequent Student private playback was tested.
+See evidence/student-browser.json for the exact completed browser checks.
+
+This is focused acceptance, not a guarantee that every feature or device works.
+Retain the limitations below, except old statements that Student login/quiz/playback
+are untested and that the synthetic recording remains unpublished are superseded.
+SMS, online payments and WhatsApp remain deferred. Public provider applications
+remain closed pending a published privacy policy. No public OTP bypass was added.
+Mobile physical-device acceptance and native LiveKit UI remain outstanding.
+Production edu-domain cutover has not been performed.
+
+Boss ZIP SISU-LearnVerse-Final-2026-10-20.zip contains a compiled React marketing
+website, not an LMS backend or editable source. Its README points login/signup to
+localhost:5206; it cannot replace the Vue/Frappe LMS or be launched unchanged.
+
+Private readable credentials:
+SISU-STAGING-TEST-ACCOUNTS.txt (workspace root)
+Passwords are excluded from all release ZIPs.
+
+EARLIER ACCEPTANCE RECORD (follow-up above takes precedence)
+
+SISU STAGING HANDOFF — 20 October 2026
+
+CURRENT STATE
+Staging: https://staging.sisuacademylk.com
+Web LMS: /campus ; password login: /login?redirect-to=/campus
+Super Admin entry: /super-admin
+Production edu.sisuacademylk.com has NOT been cut over. This subdomain does not require another domain purchase.
+
+ACCEPTANCE RESULTS
+Passed this run: Teacher and Institute Admin real HTTP login; server-resolved roles;
+Institute Admin member list and classroom creation; free enrollment (no paid status fabricated);
+Teacher lesson scheduling, announcement, classroom detail and live-room scheduling.
+LiveKit teacher connected over RTC and published synthetic video; actual composite recording
+was saved to private R2; the real egress completion webhook set recording status Ready
+without manual reconciliation. Signed MP4 range playback returned HTTP 206, 1024 bytes,
+valid MP4 header, 120-second URL expiry. Unsigned URL returned HTTP 400 and no media.
+The first harness expected only 401/403, so it reported failure; the targeted final check
+confirmed R2 denies unsigned requests with 400. The evidence retains that original result.
+Live room ended. Recording remains unpublished until a teacher reviews it.
+Mobile: actual teacher browser approval -> PKCE exchange -> Sisu token -> core reads;
+Super Admin endpoint rejected teacher; reused code rejected; logout revoked token.
+35 focused Flutter tests passed, including live-login screen compilation, Sisu requests,
+revocation, error handling, deferred OTP, and no fake payment-success behavior.
+15 commercial-rule tests passed including document-interface regression.
+Earlier accepted results retained, not rerun: 421 backend tests, 55 frontend tests,
+frontend/marketing builds, both Super Admin logins and delegation restrictions,
+R2 upload/CORS, Google authorization URL, SMTP authentication, backup restore.
+
+NOT YET ACCEPTED / DEFERRED
+Student account sisu.student.test@gmail.com is provisioned and enrolled in the free test
+class. Its REAL Google sign-in, Student browser flows and Student recording playback
+still need the Google account owner. No Google trust stamp or OTP bypass was added.
+No full four-role UI/browser acceptance is claimed. Super Admin prior acceptance and
+Teacher/Admin API acceptance are verified; Student full E2E remains pending.
+Android physical-device PKCE round-trip has not been tested. ZIP is Flutter source,
+not a signed APK/AAB or an iOS project. Native LiveKit video UI is not claimed; use web
+campus for live classes until the mobile developer completes device integration.
+Static analysis was blocked by local Dart analyzer-cache access even after permission
+requests; focused Flutter tests compiled the changed app successfully.
+SMS/Notify, WhatsApp and online payments remain disabled/deferred. NotifyDEMO must not
+send OTP. Public provider applications remain closed pending an approved privacy policy.
+HNB credentials/integration and production-domain cutover are not part of this release.
+
+FIXES AND SOURCE SYNC
+commercial_rules.beneficiary now uses Document.get for Teacher and Institute ownership,
+fixing HTTP 500 on free enrollment. Both server and local source match SHA256:
+bf65edc72407e043585da6ee8bbfc497e02d8d67c05e09a44419df251be72c00
+Mobile auth now uses the backend's real mobile_auth AppAuth/PKCE adapter and Sisu token,
+replacing unsupported native Frappe OAuth routes; default host is staging.
+Fresh mobile authorization opens normal login so Teacher/Admin password sign-in is
+available. Student Google-only login and consent checks remain unchanged; guest redirect
+and the PKCE round-trip were checked again after this fix.
+Current deployed compiled portal assets/campus entry were copied into the source tree.
+No original ZIP rebuild, server reinstallation, payment bypass or OTP bypass performed.
+
+ROLES AND ACCOUNT OWNERSHIP
+Student: Google only, active IL Member Student; own active enrollment and access window
+required for protected classroom/media. Provisioned staging fixture, not a public signup.
+Teacher: qa.teacher@sisuacademylk.com; assigned class teacher; Full control on test class.
+Institute Admin: qa.institute@sisuacademylk.com; institute classroom/member management.
+Super Admin: danusgalagoda@gmail.com (primary); tharukakarunarathne60@gmail.com (delegate).
+Only primary can add/remove delegated Super Admin emails. Primary cannot be removed.
+Passwords are only in the separate private file; none are in this handoff or ZIPs.
+Private file: work/private/SISU-STAGING-TEST-ACCOUNTS.txt in the current Codex workspace.
+
+MOBILE DEVELOPER: REAL AUTH CONTRACT
+Base URL: https://staging.sisuacademylk.com
+RPC path: /api/method/institute_lms.<module>.<function>
+Use TLS, Accept: application/json, Content-Type: application/json.
+AppAuth authorize-only call opens system browser with:
+GET /api/method/institute_lms.mobile_auth.app_authorize
+client_id=sisu-mobile; response_type=code; code_challenge_method=S256;
+code_challenge=base64url(SHA256(verifier)), without padding; state=random URL-safe
+22-128 characters; redirect_uri=lk.sisulearning.app:/oauthredirect.
+AppAuth validates callback state. Retain codeVerifier transiently. The callback is
+allowlisted in il_mobile_redirect_uris on staging. No Frappe OAuth Client setup or
+embedded client secret is required for this custom adapter.
+Students must use Google in the browser. Authenticated browser consent POSTs
+mobile_auth.approve with challenge,state,redirect_uri and valid browser CSRF.
+Redirect includes code and state. Code is one-use and expires after 120 seconds.
+Then, without browser cookies:
+POST mobile_auth.exchange
+{"code":"callback code","verifier":"AppAuth verifier","redirect_uri":"lk.sisulearning.app:/oauthredirect","device_id":"unique-device-session-id"}
+verifier: 43-128 PKCE characters; device_id: 8-120 [A-Za-z0-9_-].
+Response: {"message":{"access_token":"SECRET","token_type":"Sisu","expires_at":"server timestamp","site":"https://staging.sisuacademylk.com"}}
+Subsequent requests use Authorization: Sisu <access_token>. Do not mix cookies or
+Bearer tokens. Token expires in seven days; no refresh endpoint; restart requires
+sign-in because this app stores tokens in memory only.
+POST mobile_auth.logout {} returns {"message":{"revoked":true}}.
+Invalid/expired/replayed/revoked tokens are rejected (401/403); no preview fallback.
+
+CORE CONTRACT QUICK REFERENCE
+All names below expand under /api/method/institute_lms.
+GET portal_session.current, no args: guest {message:{authenticated:false}};
+member {message:{authenticated:true,role:"Student"|"Teacher"|"Admin",member:{name,role,full_name,user},user,csrf_token}};
+owner returns role "Super Admin" and control_plane instead of ordinary membership.
+Browser mutations need X-Frappe-CSRF-Token from current; native Sisu tokens do not.
+GET mobile_api.current: {message:{api_version:1,session:<current>,subscription:<resolved policy>}}.
+GET mobile_api.classes?page=0: {message:[classroom rows]}; role/enrollment scoped.
+GET mobile_api.enrollments?page=0: {message:[{name,classroom,active,access_override,expires_at,lifecycle}]}; own member only.
+GET api.classroom_detail?name=CLASS&page=0: {message:{room:{...,permissions},access:{allowed,reason},sessions:[],materials:[],feedback:[],announcements:[]}}.
+GET api.schedule?page=0: {message:[{name,classroom,title,starts_at,ends_at,mode,status,location}]}.
+GET api.members?page=0: Admin only, {message:[member records]}; not Student/Teacher.
+POST api.save_classroom {data:{title,subject,description,motivation,teacher,fee:0,fee_mode:"Free",published:0,teacher_access:"Full control",access_duration_days:30}}:
+Admin/Teacher only; teacher is IL Member ID for Admin. Response {message:"classroom ID"}.
+POST api.enroll {data:{classroom,student}}: class write authority, active Student ID;
+free fixture requires no installments/payment. Response {message:"enrollment ID"}.
+POST api.save_session {data:{classroom,title,description,starts_at,ends_at,mode:"Online",location:""}}:
+teacher/admin class write authority; local site time Asia/Colombo; ends after starts;
+response {message:"session ID"}.
+POST api.post_announcement {data:{classroom,headline,body}}: class write authority;
+response {message:"announcement ID"}.
+GET notification_service.inbox: {message:[{name,body,event_type,creation,read_at}]}.
+POST notification_service.mark_read {name}: {message:{read:true}}; own notification.
+GET owner_access.access_list: Super Admin only; response includes can_manage and grants.
+POST owner_access.add/remove {email,reason}: primary owner only; inspect source contract.
+
+LIVE CONTRACTS
+POST live_classes.schedule {session}: class teacher; {message:{name:"live room ID"}}.
+POST live_classes.control {name,action:"start"|"record"|"stop_recording"|"end"}:
+named class teacher only, not arbitrary Institute Admin. Response
+{message:{status:"Upcoming"|"Live"|"Ended",recording_status:"None"|"Recording"|"Processing"|"Ready"|"Failed"}}.
+POST live_classes.join {name}: class access required, room Live;
+{message:{url:"wss://...",token:"JWT",expires_in:120,can_publish:boolean,name,can_control:boolean,recording_status}}.
+Pass JWT and URL to LiveKit client. Never log tokens. Student publish is disabled by
+default. Joining does not grant server recording/admin powers.
+GET live_classes.room_status?name=ID: {message:{status,recording_status}}.
+POST live_classes.recording {name}: Ready recording and class access;
+Student additionally needs recording_published. Returns {message:{url,expires_in:120,title}}.
+Signed URL supports Range requests; renew through API when expired, never cache publicly.
+POST live_classes.publish_recording {name,reviewed:true}: class teacher only, Ready;
+{message:{published:true}}. Require an actual teacher review; do not auto-publish.
+POST live_classes.reconcile {name}: teacher, only when provider outcome is uncertain.
+Webhook URL: /api/method/institute_lms.live_classes.webhook (POST), LiveKit signature
+required. Never call it with invented success events from the mobile client.
+
+ERRORS / COMPLETE CONTRACTS
+Use HTTP status first. JSON errors may include exc_type and _server_messages, not a
+universal {code,error} format. 401 re-authenticate, 403 forbidden, 404 missing resource,
+417 validation failure, 429 cooldown, 5xx uncertain outcome. Never show tracebacks.
+Do not blindly retry recording creation or financial mutations after timeout.
+Exact 299 endpoint signatures, nested data-field source, response return shapes,
+validation messages, guard/helper source, DocType schemas and Postman requests are in
+API_CONTRACTS/. These are source-derived, NOT proof all 299 endpoints were executed.
+Live captured responses are in evidence/core-http.json and mobile-http.json.
+No secret tokens or passwords are included; CSRF fields are redacted.
+
+DEPLOYABLE WEB + BACKEND
+Archive contains SISU-Web-Backend (Frappe app + Vue source + current compiled portal),
+SISU-Website (marketing source + dist) and this handoff. It excludes databases, secrets,
+node_modules, virtualenvs and caches. It is deployable source, not a one-click VM image.
+Current server: /home/sisu/frappe-bench; site staging.sisuacademylk.com;
+app apps/institute_lms; website /home/sisu/incoming/SISU-Website.
+Runtime: Ubuntu 24.04, Python 3.14.6, Node 24.15.0, MariaDB 11.8, Redis 7.4,
+Frappe commit 980bdb0aa497ef787679353e0dbc16fd7cefbb36,
+LMS commit 389d8a2720bfbd4b2e0de3f0f3c15d4cf0485d1e; payments framework dependency installed.
+For an update: take bench backup --with-files, retain private site_config.json,
+copy app sources into apps/institute_lms, install editable app with [live,media] extras,
+run bench --site staging.sisuacademylk.com migrate and clear-cache as sisu, restart
+Supervisor web/workers, then verify role login and /campus. Do not overwrite sites/.
+If rebuilding Vue: frontend/npm ci && npm run build; marketing/npm ci && npm run build.
+Current compiled assets are included, so unchanged deployment does not need rebuild.
+Preserve sites/assets/institute_lms symlink to app/institute_lms/public.
+Current nginx and Supervisor configs are in deploy/staging-current; paths and domain
+are staging-specific. TLS certificates/site/database/provider secrets remain on server.
+Private configuration required: LiveKit URL/key/secret, R2 private_media_s3 and
+live_recording_s3, Google Social Login Key, SMTP Email Account, primary/delegate owner
+records, single institute and subscription. Existing staging already has these.
+Recording reservation is 64 MiB on staging; configure suitable quota/reservation for
+real full-length classes. Keep storage private and preserve legal/retention policy.
+Daily R2 backups and restore test already established; do not reinstall the server.
+
+MOBILE BUILD
+Use current Flutter SDK matching pubspec.lock (Dart ^3.13). flutter pub get;
+flutter test; flutter build apk --debug --dart-define=SISU_SERVER=https://staging.sisuacademylk.com --dart-define=SISU_PREVIEW=false
+For store AAB, supply signing variables documented by build-store.ps1, perform real
+device acceptance, then use that script. Never distribute preview fixtures as live data.
+Android appAuthRedirectScheme is lk.sisulearning.app. No iOS scaffold is included.
+First device acceptance: Google Student login, Teacher/Admin login, class listing,
+protected lesson/media, expiry/relogin, logout, and external web live-class handoff.
+Do not claim store readiness until this checklist passes.

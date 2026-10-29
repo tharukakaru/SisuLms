@@ -41,7 +41,16 @@ def listing(library=False,purchases=False,classroom=None):
         ids=frappe.get_all('IL Lecture Access',filters={'user':member.user,'revoked':0},pluck='product')
         filters['name']=['in',ids or ['__none__']]
     else:filters['status']='Published'
-    rows=frappe.get_all('IL Lecture Product',filters=filters,fields=list(PUBLIC),limit_page_length=100,order_by='modified desc')
+    # Service-owned DocType has no generic Desk permissions. Authorize above,
+    # then query only this institute and the selected ownership/publication scope.
+    conditions=['institute=%s'];params=[inst.name]
+    for field in ('classroom','teacher','status'):
+        if field in filters:conditions.append('`'+field+'`=%s');params.append(filters[field])
+    if 'name' in filters:
+        names=filters['name'][1]
+        conditions.append('name IN ('+','.join(['%s']*len(names))+')');params.extend(names)
+    rows=frappe.db.sql('SELECT '+','.join('`'+field+'`' for field in PUBLIC)+' FROM `tabIL Lecture Product` WHERE '+
+                       ' AND '.join(conditions)+' ORDER BY modified DESC LIMIT 100',tuple(params),as_dict=True)
     for row in rows:row['owned']=bool(owned(row.name,member.user));row['locked']=bool(row.price_minor and not row['owned'])
     return rows
 

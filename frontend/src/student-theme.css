@@ -40,3 +40,11 @@
 .app-shell[data-student-theme=dark] :is(.insight-stats strong,.learning-spaces b,.campaign-counts b,.room-metric,.lesson-quiz legend,.issued-invite code){color:var(--student-ink)}
 .app-shell[data-student-theme=dark] :is(.teacher-metric,.revenue-foot,.campaign-counts,.owner-money){border-color:var(--student-border)}
 .app-shell[data-student-theme=dark] :is(.hero-label,.podium-mini b,.exam-tag){color:var(--student-accent)}
+
+.app-shell[data-student-theme]{--student-soft:color-mix(in srgb,var(--student-accent) 12%,var(--student-card));--student-border:color-mix(in srgb,var(--student-accent) 22%,var(--student-card));--violet:var(--student-soft)}
+.app-shell[data-student-theme] :is(.student-home-hero,.hero,.profile-cover-preview){background:linear-gradient(120deg,var(--student-soft),var(--student-card))}
+
+.app-shell[data-student-theme]{--sisu-primary:var(--student-accent);--brand:var(--student-accent);--sisu-primary-hover:color-mix(in srgb,var(--student-accent),black 12%);--sisu-primary-active:color-mix(in srgb,var(--student-accent),black 20%);--sisu-focus:var(--student-accent);--sisu-selected:var(--student-soft)}
+.app-shell[data-student-theme] .button.primary{background:var(--student-accent)!important;color:white!important}
+.app-shell[data-student-theme] .button.primary:hover{background:color-mix(in srgb,var(--student-accent),black 14%)!important}
+.app-shell[data-student-theme] :is(.tabs button.selected,nav button.active,.badge.violet,.institute-switch){background:var(--student-soft)!important;color:var(--student-accent)!important}

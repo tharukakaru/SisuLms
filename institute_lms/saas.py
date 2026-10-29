@@ -41,6 +41,8 @@ def require(feature='lms'):
 def quota(resource, current, requested=1):
     if resource in ('students','teachers','classes','courses'):
         return current()+requested
+    from .account_storage import configured,capacity
+    if resource=='storage_bytes' and configured():return capacity(current,requested)
     # Preserve configured infrastructure limits; they do not set subscription prices.
     d=state(lock=True)
     r=resolved(d)

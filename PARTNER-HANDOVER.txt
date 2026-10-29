@@ -1,5 +1,5 @@
 SISU LMS - PARTNER HANDOVER
-Snapshot: 29 October 2026 (Asia/Colombo)
+Snapshot: 30 October 2026 (Asia/Colombo)
 
 This is the current development source plus a freshly compiled web frontend, NOT a production-ready release or an exact VPS filesystem backup. No mobile app ZIP is included. Mobile-related backend endpoints remain part of the backend.
 
@@ -44,3 +44,10 @@ Older docs (including USD/student subscriptions and Payments.lk integration) are
 
 COLLABORATION
 Agree file ownership/tasks with Tharuka; work in a separate branch. Return a commit/diff and tests rather than overwriting shared server files. Preserve pending local changes and secret isolation.
+
+30 OCTOBER UPDATE
+Includes student provider discovery and filtering, manual bank-slip review UI, class material uploads/downloads, profile/media fixes, local live setup support, notifications, appearance accents, editable plan catalogue, and compact subscription cards.
+Provider selection filters data within the installed site; cross-site institute switching is not implemented.
+Bank slips require authorized human review. No automatic bank validation or first-time enrollment-key step was added.
+Production rollout, recording completion, payment gateway acceptance and external notification delivery still need verification. Local credentials, test-account setup and site configuration are not included.
+After updating your isolated bench, install requirements, run bench --site YOUR_SITE migrate, then bench build --app institute_lms. Restart your development bench.

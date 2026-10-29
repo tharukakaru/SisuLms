@@ -20,16 +20,16 @@ def whatsapp_allowed(member):
     return bool(frappe.db.exists('IL Verified Phone',{'user':member.user,'phone':member.phone}))
 
 
-def queue(institute, recipient, event_key, body):
+def queue(institute, recipient, event_key, body, classroom=None):
     from .notification_service import emit
     prefix=event_key.split(':',1)[0]
     event={'payment':'payment.successful','material':'material.created','announcement':'announcement'}.get(prefix,'session.changed')
-    return emit(institute,recipient,event,event_key,body)
+    return emit(institute,recipient,event,event_key,body,classroom=classroom)
 
 
 def classroom_event(room, event_key, body):
     for member in frappe.get_all("IL Enrollment", filters={"classroom": room.name, "active": 1}, pluck="student", limit_page_length=0):
-        queue(room.institute, member, event_key, f"{room.title} — {body}")
+        queue(room.institute, member, event_key, f"{room.title} — {body}", classroom=room.name)
 
 
 def dispatch():
@@ -55,7 +55,7 @@ def dispatch():
             event=frappe.get_doc('IL Notification Event',doc.event) if doc.event else None
             if event and str(event.event_type).startswith('whatsapp.'):
                 from .commercial import account_for,locked_reason
-                from .commercial_rules import plan_features
+                from .plan_catalog import plan_features
                 room=frappe.get_doc('IL Classroom',event.classroom) if event.get('classroom') else None
                 account=account_for(room,False) if room else None
                 if not room or not room.active or not account or locked_reason(account) or not plan_features(account.plan)['whatsapp'] or not frappe.db.exists('IL Enrollment',{'classroom':room.name,'student':member.name,'active':1}):

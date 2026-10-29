@@ -4,7 +4,8 @@ import json
 import frappe
 from frappe.utils import now_datetime, getdate
 from .delivery_rules import address_snapshot, offer_values, next_status
-from .commercial_rules import money_minor, plan_features
+from .commercial_rules import money_minor
+from .plan_catalog import plan_features
 
 def save(doc):
     doc.flags.delivery_service=True

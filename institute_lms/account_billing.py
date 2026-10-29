@@ -17,8 +17,8 @@ def provider_lkr(a):
     return bool(frappe.conf.get('il_usage_billing_enabled')) and a.role in ('Teacher','Institute')
 def price(a, plan):
     if provider_lkr(a):
-        from .provider_usage_rules import PLANS as CATALOG
-        return CATALOG[plan]['monthly_lkr'] * 100
+        from .plan_catalog import plan as catalog_plan
+        return catalog_plan(plan)['monthly_lkr'] * 100
     return amount(a.role, plan, a.billing_country) if a.billing_country else None
 def currency_for(a): return 'LKR' if provider_lkr(a) else 'USD'
 
@@ -99,8 +99,9 @@ def state(a):
 
 def policy():
     a = account()
-    from .commercial_rules import plan_features
-    f = plan_features(a.plan if a.role != 'Student' else 'Gold')
+    from .plan_catalog import plan_features
+    from .commercial_rules import plan_features as student_features
+    f = plan_features(a.plan) if a.role != 'Student' else student_features('Gold')
     # Core learning and Study Room are included for every paying account.
     f.update(lms=True, study=True)
     f.update({'integrations.' + k: f['integrations'] for k in ('whatsapp','youtube', 'calendar')})
@@ -133,7 +134,8 @@ def country_code(code):
 def status():
     a = account(create=True)
     # Customer responses contain only the applicable account prices.
-    plans=[dict(plan=p,monthly_minor=price(a,p))
+    from .plan_catalog import plan as catalog_plan
+    plans=[dict(plan=p,monthly_minor=price(a,p),**(catalog_plan(p) if provider_lkr(a) else {}))
            for p in (('Student',) if a.role=='Student' else PLANS)]
     return dict(account=public_account(a), plans=plans,gateway_ready=False,
                 bank_instructions=str(frappe.conf.get('il_subscription_bank_instructions') or ''),

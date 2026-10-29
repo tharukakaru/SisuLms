@@ -2,14 +2,15 @@
 import ClassTeacherIdentity from './ClassTeacherIdentity.vue'
 defineProps({room:{type:Object,required:true},expanded:Boolean})
 defineEmits(['open'])
+const present=value=>value&&!['none','null','undefined'].includes(String(value).trim().toLowerCase())
 </script>
 <template><section class="class-profile-header" :class="{'is-expanded':expanded}">
   <div v-if="expanded" class="class-profile-banner"><img v-if="room.cover_image" :src="room.cover_image" alt="Classroom cover"></div>
   <div class="class-profile-content">
     <ClassTeacherIdentity :room="room"/>
     <div class="class-profile-titles">
-      <div class="class-profile-teacher"><h2>{{room.teacher_profile?.display_name||room.teacher_name||'Your teacher'}}</h2><p v-if="room.teacher_profile?.qualifications" class="class-profile-qualifications">{{room.teacher_profile.qualifications}}</p></div>
-      <div class="class-profile-subject"><h3 v-if="expanded" id="modal-title" :class="room.font">{{room.title}}</h3><button v-else type="button" :class="room.font" @click="$emit('open')">{{room.title}}</button><p v-if="room.grade&&!room.title?.includes(room.grade)">{{room.grade}}</p><p v-if="room.teaching_medium" class="class-profile-medium">{{room.teaching_medium}} medium</p></div>
+      <div class="class-profile-teacher"><h2>{{room.teacher_profile?.display_name||room.teacher_name||'Your teacher'}}</h2><p v-if="room.teacher_profile?.lms_id||room.teacher_lms_id" class="class-profile-qualifications">Teacher ID · {{room.teacher_profile?.lms_id||room.teacher_lms_id}}</p><p v-if="present(room.teacher_profile?.qualifications)" class="class-profile-qualifications">{{room.teacher_profile.qualifications}}</p></div>
+      <div class="class-profile-subject"><h3 v-if="expanded" id="modal-title" :class="room.font">{{room.title}}</h3><button v-else type="button" :class="room.font" @click="$emit('open')">{{room.title}}</button><p v-if="present(room.grade)&&!room.title?.includes(room.grade)">{{room.grade}}</p><p v-if="present(room.teaching_medium)" class="class-profile-medium">{{room.teaching_medium}} medium</p></div>
     </div>
     <p v-if="room.description" class="class-profile-description" :class="{'clamp-2':!expanded}">{{room.description}}</p>
   </div>

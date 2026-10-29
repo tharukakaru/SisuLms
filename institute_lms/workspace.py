@@ -7,7 +7,8 @@ import hashlib,json,secrets
 from datetime import datetime
 import frappe
 from .commercial import account_access,current_account,account_for,locked,locked_reason
-from .commercial_rules import PLANS,plan_features
+from .commercial_rules import PLANS
+from .plan_catalog import plan_features
 from .workspace_rules import expense,settings,review
 DT='IL Workspace Record'
 def unpack(row):

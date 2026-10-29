@@ -47,7 +47,12 @@ class Boundaries(unittest.TestCase):
         self.f.get_all=MagicMock(return_value=[])
         self.load('lectures').listing(classroom='C')
         self.api.accessible_room.assert_called_once_with('C')
-        self.assertEqual(self.f.get_all.call_args.kwargs['filters']['classroom'],'C')
+        sql,params=self.f.db.sql.call_args.args
+        self.assertIn('institute=%s',sql)
+        self.assertIn('`classroom`=%s',sql)
+        self.assertIn('`status`=%s',sql)
+        self.assertEqual(params,('I','C','Published'))
+        self.assertLess(sql.index('`classroom`=%s'),sql.index('LIMIT 100'))
     def test_lecture_listing_denies_locked_class(self):
         self.api.require_role=MagicMock()
         self.f.get_all=MagicMock()

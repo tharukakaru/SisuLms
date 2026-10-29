@@ -38,7 +38,10 @@ class Service(unittest.TestCase):
         api=types.ModuleType('institute_lms.api');api.classroom_for=MagicMock(return_value=(Row(name='I'),self.member,self.room));api.access=lambda *a:{'allowed':True};self.api=api
         commercial=types.ModuleType('institute_lms.commercial');commercial.account_for=lambda *a:self.account;commercial.locked_reason=lambda a:None;self.commercial=commercial
         util=types.ModuleType('frappe.utils');util.now_datetime=lambda:datetime(2026,10,16);util.getdate=lambda x:date.fromisoformat(str(x)[:10])
-        p=patch.dict(sys.modules,{'frappe':f,'frappe.utils':util,'institute_lms.api':api,'institute_lms.commercial':commercial});p.start();self.addCleanup(p.stop)
+        catalogue=types.ModuleType('institute_lms.plan_catalog')
+        from institute_lms.commercial_rules import plan_features
+        catalogue.plan_features=plan_features
+        p=patch.dict(sys.modules,{'institute_lms.plan_catalog':catalogue,'frappe':f,'frappe.utils':util,'institute_lms.api':api,'institute_lms.commercial':commercial});p.start();self.addCleanup(p.stop)
         spec=importlib.util.spec_from_file_location('institute_lms.delivery',Path(__file__).resolve().parents[1]/'institute_lms/delivery.py');self.d=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.d)
     def test_gold_denies_mutations_and_hides_addresses(self):
         self.account.plan='Gold';self.account['plan']='Gold'

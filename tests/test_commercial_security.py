@@ -72,10 +72,14 @@ class Boundaries(unittest.TestCase):
         with self.assertRaises(PermissionError):self.c.review_slip('slip','Approved','received')
         self.c.save.assert_not_called()
     def test_locked_provider_cannot_review(self):
+        permission=MagicMock()
+        self.fake('teaching',require=permission)
         self.api.classroom_for=lambda *a:(R(name='I'),R(role='Teacher'),R())
         self.c.account_for=lambda *a:R(name='A');self.c.locked_reason=lambda a:'Invoice overdue'
         self.c.locked=lambda *a:R(classroom='C',institute='I')
         with self.assertRaises(PermissionError):self.c.review_slip('slip','Approved','received')
+        self.assertEqual(permission.call_args.args[2],'fees')
+        self.c.save.assert_not_called()
     def test_repeated_slip_review_cannot_settle_again(self):
         self.c.reviewer=lambda s:(None,None,R())
         self.c.locked=lambda *a:R(status='Approved')

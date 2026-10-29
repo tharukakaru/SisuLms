@@ -10,7 +10,10 @@ class WorkspaceSecurity(unittest.TestCase):
         self.f.throw=throw;self.f.session=Row(user='operator@example.test');self.f.db=MagicMock();self.f.db.get_value.return_value=1
         self.c=types.ModuleType('institute_lms.commercial')
         for name in ('account_access','current_account','account_for','locked','locked_reason'):setattr(self.c,name,MagicMock())
-        self.patch=patch.dict(sys.modules,{'frappe':self.f,'institute_lms.commercial':self.c})
+        catalogue=types.ModuleType('institute_lms.plan_catalog')
+        from institute_lms.commercial_rules import plan_features
+        catalogue.plan_features=plan_features
+        self.patch=patch.dict(sys.modules,{'institute_lms.plan_catalog':catalogue,'frappe':self.f,'institute_lms.commercial':self.c})
         self.patch.start();self.old=sys.modules.pop('institute_lms.workspace',None)
         self.w=importlib.import_module('institute_lms.workspace')
         self.account=Row(name='provider-A',plan='Gold',institute='A');self.c.current_account.return_value=self.account;self.c.locked_reason.return_value=None

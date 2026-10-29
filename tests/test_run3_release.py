@@ -50,11 +50,11 @@ class ReleaseContracts(unittest.TestCase):
         self.assertFalse(self.load('health').readiness()['ready'])
     def test_missing_channels_not_operational(self):
         self.fake('wallet',signed_in=lambda:None);self.fake('notification_service',preference=MagicMock())
-        self.fake('saas',resolved=lambda:dict(available=True,features={'integrations.sms':True,'integrations.push':True}))
+        self.fake('account_billing',policy=lambda:dict(available=True,features={'integrations.sms':True,'integrations.push':True}))
         self.f.db.get_value.return_value=None;self.f.db.exists.return_value=False
         r=self.load('release').channels();self.assertFalse(r['available']['SMS']);self.assertFalse(r['browser_push_available']);self.assertTrue(r['available']['IN_APP'])
     def test_channels_preserve_event_preferences(self):
-        self.fake('wallet',signed_in=lambda:None);self.fake('notification_service',preference=MagicMock());self.fake('saas',resolved=lambda:dict(available=True,features={}))
+        self.fake('wallet',signed_in=lambda:None);self.fake('notification_service',preference=MagicMock());self.fake('account_billing',policy=lambda:dict(available=True,features={}))
         self.f.db.get_value.return_value='{"events":{"announcement":{"EMAIL":false}}}'
         r=self.load('release').channels();self.assertFalse(r['settings']['events']['announcement']['EMAIL'])
     def test_starter_source_discovery_denied(self):

@@ -1,0 +1,41 @@
+{
+  "doctype": "DocType",
+  "name": "IL SaaS Audit",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "action",
+    "reference",
+    "actor",
+    "details"
+  ],
+  "fields": [
+    {
+      "fieldname": "action",
+      "label": "Action",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "reference",
+      "label": "Reference",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "actor",
+      "label": "Actor",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "details",
+      "label": "Details",
+      "fieldtype": "Long Text"
+    }
+  ],
+  "permissions": [],
+  "track_changes": false,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

@@ -1,0 +1,90 @@
+{
+  "doctype": "DocType",
+  "name": "IL Lecture Product",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "institute",
+    "classroom",
+    "teacher",
+    "title",
+    "description",
+    "includes",
+    "media_key",
+    "price_minor",
+    "currency",
+    "status",
+    "version",
+    "access_days"
+  ],
+  "fields": [
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    },
+    {
+      "fieldname": "teacher",
+      "label": "Teacher",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "title",
+      "label": "Title",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "description",
+      "label": "Description",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "includes",
+      "label": "Includes",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "media_key",
+      "label": "Media Key",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "price_minor",
+      "label": "Price Minor",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Draft\nPublished\nUnlisted\nArchived"
+    },
+    {
+      "fieldname": "version",
+      "label": "Version",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "access_days",
+      "label": "Access Days",
+      "fieldtype": "Int"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

@@ -1,0 +1,12 @@
+Confirmed 2026-10-27
+14-day selected-plan trial. Renewal requires verified payment.
+Monthly LKR base: Individual2500 Silver5000 Gold15000 Platinum22000.
+Active student LKR: Individual100 Silver50 Gold50 Platinum50.
+No student charge: provider owes usage invoice.
+Usage starts only after trial ends AND verified paid service starts.
+Distinct present student per provider paid billing period, based on session attendance time.
+Estimate5days before period end; final invoice at end; due10days later.
+Overdue usage blocks learning; settlement and activation-request screens remain accessible.
+Recorded suspension requires Super Admin reactivation after verified settlement.
+New pure rules and tests implemented; scheduler, persistent invoices, payment verification and authorization integration remain unfinished. No live billing changes.
+Still unresolved: device scope; base storage quotas; initial free-course eligibility.

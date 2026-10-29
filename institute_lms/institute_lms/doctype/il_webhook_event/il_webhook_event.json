@@ -1,0 +1,49 @@
+{
+  "doctype": "DocType",
+  "name": "IL Webhook Event",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "event_key",
+    "attempt",
+    "event_type",
+    "provider_id",
+    "received_at"
+  ],
+  "fields": [
+    {
+      "fieldname": "event_key",
+      "label": "Event Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "attempt",
+      "label": "Attempt",
+      "fieldtype": "Link",
+      "options": "IL Payment Attempt"
+    },
+    {
+      "fieldname": "event_type",
+      "label": "Event Type",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "provider_id",
+      "label": "Provider Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "received_at",
+      "label": "Received At",
+      "fieldtype": "Datetime"
+    }
+  ],
+  "permissions": [],
+  "track_changes": false,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

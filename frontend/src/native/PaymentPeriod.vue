@@ -1,0 +1,9 @@
+<script setup>
+import {ref} from 'vue'
+import {localDate,monthWindow,validWindow} from './paymentDates.js'
+defineProps({busy:Boolean})
+const emit=defineEmits(['change']),mode=ref('month'),month=ref(localDate().slice(0,7)),start=ref(monthWindow().start_date),end=ref(monthWindow().end_date),error=ref('')
+function apply(){error.value='';try{const range=mode.value==='month'?monthWindow(month.value):{start_date:start.value,end_date:end.value};if(!validWindow(range.start_date,range.end_date))throw Error('Choose both dates, with the end on or after the start.');emit('change',range)}catch(e){error.value=e.message}}
+</script>
+<template><form class="payment-period" @submit.prevent="apply"><label>Payment period<select v-model="mode"><option value="month">Monthly</option><option value="custom">Custom dates</option></select></label><label v-if="mode==='month'">Month<input v-model="month" type="month" required></label><template v-else><label>From<input v-model="start" type="date" required></label><label>To (inclusive)<input v-model="end" type="date" :min="start" required></label></template><button class="button primary" :disabled="busy">{{busy?'Updating…':'Apply dates'}}</button><p v-if="error" role="alert">{{error}}</p></form></template>
+<style scoped>.payment-period{display:flex;align-items:end;flex-wrap:wrap;gap:14px;padding:18px 20px;margin-bottom:22px;border:1px solid #e7e1ed;border-radius:14px;background:var(--student-card,#fff)}label{display:grid;gap:7px;font-size:12px;color:var(--student-ink,#211629)}input,select{font:inherit;padding:10px 12px;border:1px solid #dcd4e5;border-radius:8px;background:var(--student-card,#fff);color:inherit;min-height:42px;max-width:100%}p{flex-basis:100%;color:#a02d40}@media(max-width:550px){label{flex:1 1 130px;min-width:0}.button{width:100%}}</style>

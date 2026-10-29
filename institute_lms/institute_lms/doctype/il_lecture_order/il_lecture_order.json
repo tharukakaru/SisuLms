@@ -1,0 +1,119 @@
+{
+  "doctype": "DocType",
+  "name": "IL Lecture Order",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "field:order_id",
+  "field_order": [
+    "institute",
+    "product",
+    "user",
+    "wallet",
+    "amount_minor",
+    "currency",
+    "mode",
+    "status",
+    "checkout_id",
+    "payment_id",
+    "receipt_number",
+    "request_key",
+    "snapshot",
+    "request",
+    "paid_at",
+    "order_id"
+  ],
+  "fields": [
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "product",
+      "label": "Product",
+      "fieldtype": "Link",
+      "options": "IL Lecture Product"
+    },
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "wallet",
+      "label": "Wallet",
+      "fieldtype": "Link",
+      "options": "IL Wallet"
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "mode",
+      "label": "Mode",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "checkout_id",
+      "label": "Checkout Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "payment_id",
+      "label": "Payment Id",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "receipt_number",
+      "label": "Receipt Number",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "request_key",
+      "label": "Request Key",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "snapshot",
+      "label": "Snapshot",
+      "fieldtype": "Code",
+      "options": "JSON"
+    },
+    {
+      "fieldname": "request",
+      "label": "Request",
+      "fieldtype": "Code",
+      "options": "JSON"
+    },
+    {
+      "fieldname": "paid_at",
+      "label": "Paid At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "order_id",
+      "fieldtype": "Data",
+      "label": "Order ID",
+      "unique": 1,
+      "reqd": 1
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

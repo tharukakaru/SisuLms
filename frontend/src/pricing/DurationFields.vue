@@ -1,0 +1,11 @@
+<script setup>
+import {ref,watch} from 'vue'
+import {DURATIONS} from './rules.js'
+import PricingHelp from './PricingHelp.vue'
+const props=defineProps({modelValue:Number}),emit=defineEmits(['update:modelValue'])
+const custom=ref(!DURATIONS.some(d=>d.days===props.modelValue))
+watch(()=>props.modelValue,value=>{if(!DURATIONS.some(d=>d.days===value))custom.value=true})
+function choose(days){custom.value=false;emit('update:modelValue',days)}
+</script>
+<template><fieldset class="duration-fields"><legend>How long can students access this class/course?<PricingHelp term="Student access duration" text="How many days a student can open the class/course and its available materials or recordings after enrolment is approved. For example, 14 days means two weeks of access, not a 14-day-long lesson." /></legend><div class="duration-options"><button v-for="d in DURATIONS" :key="d.days" type="button" class="button subtle" :aria-pressed="!custom&&modelValue===d.days" @click="choose(d.days)">{{d.label}}</button><button type="button" class="button subtle" :aria-pressed="custom" @click="custom=true">Custom duration</button></div><label v-if="custom">Access duration · days<input aria-label="Student access duration in days" type="number" min="1" max="1800" step="1" required :value="modelValue" @input="emit('update:modelValue',$event.target.value===''?undefined:Number($event.target.value))"></label><p v-else>Student access: <strong>{{modelValue}} days</strong> from approved enrolment.</p><p>Includes the materials and recordings available in this class/course. Lesson times are scheduled separately. Choose 1–1,800 days.</p><p>Course access duration does not change your fixed monthly SISU subscription. Student tuition is separate.</p></fieldset></template>
+<style scoped>.duration-fields{border:1px solid #dfd6eb;border-radius:14px;padding:18px;margin:20px 0;min-width:0}.duration-fields legend{font-weight:700;padding:0 6px}.duration-options{display:flex;flex-wrap:wrap;gap:8px}.duration-options button[aria-pressed=true]{background:#55268b;color:white}.duration-fields label{display:grid;gap:8px;margin:16px 0}.duration-fields input{padding:12px;border:1px solid #dfd6eb;border-radius:10px;color:inherit;background:transparent}.duration-fields p{font-size:12px;line-height:1.7;color:#665a75}</style>

@@ -1,0 +1,69 @@
+{
+  "doctype": "DocType",
+  "name": "IL AI Conversation",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "institute",
+    "user",
+    "classroom",
+    "member_role",
+    "title",
+    "status",
+    "archived_at",
+    "delete_after"
+  ],
+  "fields": [
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    },
+    {
+      "fieldname": "member_role",
+      "label": "Member Role",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "title",
+      "label": "Title",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Active\nArchived\nDeleted",
+      "default": "Active"
+    },
+    {
+      "fieldname": "archived_at",
+      "label": "Archived At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "delete_after",
+      "label": "Delete After",
+      "fieldtype": "Datetime"
+    }
+  ],
+  "permissions": [],
+  "track_changes": false,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

@@ -1,0 +1,47 @@
+name: Release candidate checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install application and check tools (no Frappe runtime implied)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install '.[live,media]' ruff pip-audit
+          npm ci --prefix frontend --ignore-scripts
+      - name: Python tests and schema/static checks
+        run: |
+          python -m unittest discover -s tests
+          python scripts/verify-static.py
+          ruff check institute_lms --select F821,F822
+          python -m pip check
+      - name: Frontend tests and build
+        working-directory: frontend
+        run: |
+          npm test
+          npm run build
+      - name: Dependency advisory checks
+        run: |
+          pip-audit
+          npm audit --prefix frontend --omit=dev --audit-level=high
+      - name: Save deployable assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: sisu-portal-assets
+          path: |
+            institute_lms/public/portal
+            institute_lms/www/campus.html
+      # No deployment credentials, database migrations or production access in CI.
+      # The separately approved staging gate must test the real Frappe/LMS stack.

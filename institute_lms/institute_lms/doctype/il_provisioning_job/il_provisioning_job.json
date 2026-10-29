@@ -1,0 +1,38 @@
+{
+  "doctype": "DocType",
+  "name": "IL Provisioning Job",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "organization",
+    "status",
+    "detail"
+  ],
+  "fields": [
+    {
+      "fieldname": "organization",
+      "label": "Organization",
+      "fieldtype": "Link",
+      "reqd": 1,
+      "options": "IL Organization"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "default": "pending",
+      "options": "pending\nrunning\nready\nfailed"
+    },
+    {
+      "fieldname": "detail",
+      "label": "Detail",
+      "fieldtype": "Small Text"
+    }
+  ],
+  "permissions": [],
+  "track_changes": true,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

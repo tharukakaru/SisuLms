@@ -1,0 +1,31 @@
+{
+  "doctype": "DocType",
+  "name": "IL Notification Preference",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "user",
+    "settings"
+  ],
+  "fields": [
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "unique": 1,
+      "reqd": 1,
+      "options": "User"
+    },
+    {
+      "fieldname": "settings",
+      "label": "Settings",
+      "fieldtype": "Long Text"
+    }
+  ],
+  "permissions": [],
+  "track_changes": true,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

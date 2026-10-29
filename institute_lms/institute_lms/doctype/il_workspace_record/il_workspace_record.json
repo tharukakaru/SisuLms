@@ -1,0 +1,79 @@
+{
+  "doctype": "DocType",
+  "name": "IL Workspace Record",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "track_changes": 1,
+  "field_order": [
+    "record_key",
+    "institute",
+    "provider_account",
+    "kind",
+    "classroom",
+    "subject_user",
+    "status",
+    "payload"
+  ],
+  "fields": [
+    {
+      "fieldname": "record_key",
+      "label": "Record Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "provider_account",
+      "label": "Provider Account",
+      "fieldtype": "Link",
+      "options": "IL Provider Account"
+    },
+    {
+      "fieldname": "kind",
+      "label": "Kind",
+      "fieldtype": "Select",
+      "options": "Expense\nOperator\nSettings\nReview\nView\nZoom"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    },
+    {
+      "fieldname": "subject_user",
+      "label": "Subject User",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Active\nVoid\nHidden\nRevoked"
+    },
+    {
+      "fieldname": "payload",
+      "label": "Payload",
+      "fieldtype": "Long Text"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 0,
+      "create": 0,
+      "delete": 0,
+      "report": 1
+    }
+  ]
+}

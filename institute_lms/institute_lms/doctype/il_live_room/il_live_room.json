@@ -1,0 +1,95 @@
+{
+  "doctype": "DocType",
+  "name": "IL Live Room",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "institute",
+    "classroom",
+    "session",
+    "title",
+    "starts_at",
+    "provider_room",
+    "status",
+    "recording_status",
+    "egress_id",
+    "student_publish",
+    "stored_object",
+    "recording_published"
+  ],
+  "fields": [
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    },
+    {
+      "fieldname": "session",
+      "label": "Session",
+      "fieldtype": "Link",
+      "options": "IL Session",
+      "unique": 1
+    },
+    {
+      "fieldname": "title",
+      "label": "Title",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "starts_at",
+      "label": "Starts At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "provider_room",
+      "label": "Provider Room",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Upcoming\nLive\nEnded"
+    },
+    {
+      "fieldname": "recording_status",
+      "label": "Recording Status",
+      "fieldtype": "Select",
+      "options": "None\nProcessing\nRecording\nReady\nFailed\nRemoved"
+    },
+    {
+      "fieldname": "egress_id",
+      "label": "Egress Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "student_publish",
+      "label": "Student Publish",
+      "fieldtype": "Check",
+      "default": 0
+    },
+    {
+      "fieldname": "stored_object",
+      "label": "Stored Object",
+      "fieldtype": "Link",
+      "options": "IL Stored Object"
+    },
+    {
+      "fieldname": "recording_published",
+      "label": "Recording Published",
+      "fieldtype": "Check"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

@@ -1,0 +1,54 @@
+{
+  "doctype": "DocType",
+  "name": "IL Usage Entry",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "event_key",
+    "tenant_id",
+    "resource",
+    "period",
+    "quantity",
+    "reference"
+  ],
+  "fields": [
+    {
+      "fieldname": "event_key",
+      "label": "Event Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "tenant_id",
+      "label": "Tenant Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "resource",
+      "label": "Resource",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "period",
+      "label": "Period",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "quantity",
+      "label": "Quantity",
+      "fieldtype": "Long Int"
+    },
+    {
+      "fieldname": "reference",
+      "label": "Reference",
+      "fieldtype": "Data"
+    }
+  ],
+  "permissions": [],
+  "track_changes": false,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

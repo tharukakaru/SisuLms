@@ -1,0 +1,134 @@
+{
+  "doctype": "DocType",
+  "name": "IL Subscription",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "tenant_id",
+    "plan",
+    "state",
+    "enabled",
+    "starts_at",
+    "ends_at",
+    "grace_until",
+    "lease_until",
+    "revision",
+    "features",
+    "limits",
+    "overrides",
+    "last_payment",
+    "trial_used",
+    "support_tier",
+    "base_features",
+    "base_limits",
+    "ai_mode"
+  ],
+  "fields": [
+    {
+      "fieldname": "tenant_id",
+      "label": "Tenant Id",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "plan",
+      "label": "Plan",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "state",
+      "label": "State",
+      "fieldtype": "Select",
+      "default": "past_due",
+      "options": "trial\nactive\ngrace\npast_due\nsuspended\ncancelled\nexpired"
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "default": 1
+    },
+    {
+      "fieldname": "starts_at",
+      "label": "Starts At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "ends_at",
+      "label": "Ends At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "grace_until",
+      "label": "Grace Until",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "lease_until",
+      "label": "Lease Until",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "revision",
+      "label": "Revision",
+      "fieldtype": "Int",
+      "default": 0
+    },
+    {
+      "fieldname": "features",
+      "label": "Features",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "limits",
+      "label": "Limits",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "overrides",
+      "label": "Overrides",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "last_payment",
+      "label": "Last Payment",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "trial_used",
+      "label": "Trial Used",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "support_tier",
+      "label": "Support Tier",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "base_features",
+      "label": "Base Features",
+      "fieldtype": "Code",
+      "options": "JSON"
+    },
+    {
+      "fieldname": "base_limits",
+      "label": "Base Limits",
+      "fieldtype": "Code",
+      "options": "JSON"
+    },
+    {
+      "fieldname": "ai_mode",
+      "label": "Ai Mode",
+      "fieldtype": "Select",
+      "options": "Individual\nShared",
+      "default": "Individual"
+    }
+  ],
+  "permissions": [],
+  "track_changes": true,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

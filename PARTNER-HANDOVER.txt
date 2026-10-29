@@ -1,0 +1,46 @@
+SISU LMS - PARTNER HANDOVER
+Snapshot: 29 October 2026 (Asia/Colombo)
+
+This is the current development source plus a freshly compiled web frontend, NOT a production-ready release or an exact VPS filesystem backup. No mobile app ZIP is included. Mobile-related backend endpoints remain part of the backend.
+
+CONTENTS
+Repository root: Frappe app backend, Vue frontend source, compiled campus assets, DocTypes, tests and documentation.
+No database dump, uploaded customer files, production configuration, login credentials, provider secrets, virtualenv or node_modules.
+Frappe, LMS and Payments are external dependencies, not vendored here.
+
+START HERE
+Use a NEW isolated Frappe bench/site. Do not install over Teen Academy or other production sites.
+Existing preview uses Frappe 17.0.0-dev, LMS 2.45.2, Payments 0.0.1, Python 3.14 and Node 24. Upstream dev branches are not pinned in this archive; matching framework compatibility must be checked.
+Install Frappe, payments and lms; place this app at apps/institute_lms and install its Python package in the bench environment.
+Install optional live/media Python dependencies using the app's [live,media] extras when testing LiveKit/R2.
+Register/install institute_lms using Bench, migrate the NEW site and build assets.
+Frontend rebuild: cd frontend; npm ci; npm run build.
+The compiled files are institute_lms/public/portal and institute_lms/www/campus.html. Route: /campus.
+Configure database, Redis, site hostname, OAuth, storage and providers separately. Ask the project owner for authorized access; no secrets are included.
+
+CURRENT PREVIEW
+https://preview.sisuacademylk.com/campus
+Preview is isolated. Partner account/access must be arranged separately.
+Confirmed by user: student Google login, test role logins, SMS verification, attendance submit/edit, teacher camera/audio/screenshare and student classroom access after override fix.
+Billing unit/database checks and signed receiver checks passed in isolated tests; full cross-site HTTPS delivery remains unverified.
+Included recent changes: attendance checklist, responsive live tiles, microphone status refresh, ended-room guidance, and explicit Open enrollment override handling while retaining provider suspension/plan/retention checks.
+
+PENDING / DO NOT CLAIM COMPLETE
+Recording to R2 and student playback still need a successful end-to-end test. Earlier empty-room recording failed with Start signal not received.
+Payment gateway stays DISABLED. Bank now specifies CyberSource Unified Checkout Session API, not server SDKs. Sandbox permissions and bank approval pending. Existing Payments.lk code/docs are legacy, not proof of CyberSource support. No automatic recurring debit authorization.
+Email and Meta WhatsApp remain disabled. Push notifications and remaining role/onboarding/plan feature flows need acceptance testing.
+Provider billing migration, atomic payment reference allocation, cross-tenant transport, scheduler/email delivery and full browser invoice lifecycle need further work. Source includes local billing fixes not all confirmed deployed.
+Preview infrastructure policy refresh is separate from customer trial periods. Never reset customer trials to grant preview access.
+Private bucket permissions/CORS, storage and recording authorization require final validation.
+
+CONFIRMED BUSINESS RULES
+Selected plan trial: 14 days. Base monthly LKR: Individual 2500, Silver 5000, Gold 15000, Platinum 22000.
+Usage LKR per active student: 100/50/50/50. Distinct student present at least once per provider billing period; begin accrual after trial ends and verified payment coverage begins.
+Estimate five days before period end; final invoice at period end; due ten days later. Provider pays usage; no direct student usage charge.
+These are requirements, not a guarantee every legacy code path already implements them. See CONFIRMED-BILLING-DECISIONS.txt.
+
+DOCUMENTATION WARNING
+Older docs (including USD/student subscriptions and Payments.lk integration) are historical. This handover and confirmed business decisions supersede conflicting descriptions. Review code and requirements before implementing assigned tasks.
+
+COLLABORATION
+Agree file ownership/tasks with Tharuka; work in a separate branch. Return a commit/diff and tests rather than overwriting shared server files. Preserve pending local changes and secret isolation.

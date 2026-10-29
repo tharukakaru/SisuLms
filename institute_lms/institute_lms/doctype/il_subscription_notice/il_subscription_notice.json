@@ -1,0 +1,46 @@
+{
+  "doctype": "DocType",
+  "name": "IL Subscription Notice",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "fields": [
+    {
+      "fieldname": "event_key",
+      "label": "Event Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "tenant_id",
+      "label": "Tenant Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "event_type",
+      "label": "Event Type",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "body",
+      "label": "Body",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "acknowledged",
+      "label": "Acknowledged",
+      "fieldtype": "Check"
+    }
+  ],
+  "field_order": [
+    "event_key",
+    "tenant_id",
+    "event_type",
+    "body",
+    "acknowledged"
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

@@ -1,0 +1,56 @@
+{
+  "doctype": "DocType",
+  "name": "IL SaaS Plan",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "field:plan_name",
+  "field_order": [
+    "plan_name",
+    "features",
+    "limits",
+    "price_minor",
+    "period_days",
+    "version"
+  ],
+  "fields": [
+    {
+      "fieldname": "plan_name",
+      "label": "Plan Name",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "features",
+      "label": "Features",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "limits",
+      "label": "Limits",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "price_minor",
+      "label": "Price Minor",
+      "fieldtype": "Long Int"
+    },
+    {
+      "fieldname": "period_days",
+      "label": "Period Days",
+      "fieldtype": "Int",
+      "default": 30
+    },
+    {
+      "fieldname": "version",
+      "label": "Version",
+      "fieldtype": "Int",
+      "default": 1
+    }
+  ],
+  "permissions": [],
+  "track_changes": true,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

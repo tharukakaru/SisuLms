@@ -1,0 +1,129 @@
+{
+  "doctype": "DocType",
+  "name": "IL SOUL Settings",
+  "module": "Institute LMS",
+  "custom": 0,
+  "issingle": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "enabled",
+    "api_key",
+    "model",
+    "moderation_model",
+    "retrieval_backend",
+    "retrieval_model",
+    "request_timeout",
+    "max_output_tokens",
+    "model_rates",
+    "feature_credits",
+    "hosted_retrieval_reviewed",
+    "conversation_days",
+    "usage_detail_days",
+    "user_daily_limit",
+    "site_daily_limit",
+    "max_documents_per_course"
+  ],
+  "fields": [
+    {
+      "fieldname": "enabled",
+      "label": "Enable OpenAI chat",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "api_key",
+      "label": "OpenAI API key",
+      "fieldtype": "Password"
+    },
+    {
+      "fieldname": "model",
+      "label": "Model",
+      "fieldtype": "Data",
+      "default": "gpt-4.1-mini"
+    },
+    {
+      "fieldname": "moderation_model",
+      "label": "Moderation Model",
+      "fieldtype": "Data",
+      "default": "omni-moderation-latest"
+    },
+    {
+      "fieldname": "retrieval_backend",
+      "label": "Retrieval Backend",
+      "fieldtype": "Data",
+      "default": "openai"
+    },
+    {
+      "fieldname": "retrieval_model",
+      "label": "Retrieval Model",
+      "fieldtype": "Data",
+      "default": "provider-managed"
+    },
+    {
+      "fieldname": "request_timeout",
+      "label": "Request Timeout",
+      "fieldtype": "Int",
+      "default": 30
+    },
+    {
+      "fieldname": "max_output_tokens",
+      "label": "Max Output Tokens",
+      "fieldtype": "Int",
+      "default": 3000
+    },
+    {
+      "fieldname": "model_rates",
+      "label": "Model Rates",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "feature_credits",
+      "label": "Feature Credits",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "hosted_retrieval_reviewed",
+      "label": "Hosted Retrieval Reviewed",
+      "fieldtype": "Check",
+      "default": 0
+    },
+    {
+      "fieldname": "conversation_days",
+      "label": "Conversation Days",
+      "fieldtype": "Int",
+      "default": 90
+    },
+    {
+      "fieldname": "usage_detail_days",
+      "label": "Usage Detail Days",
+      "fieldtype": "Int",
+      "default": 90
+    },
+    {
+      "fieldname": "user_daily_limit",
+      "label": "User Daily Limit",
+      "fieldtype": "Int",
+      "default": 50
+    },
+    {
+      "fieldname": "site_daily_limit",
+      "label": "Site Daily Limit",
+      "fieldtype": "Int",
+      "default": 500
+    },
+    {
+      "fieldname": "max_documents_per_course",
+      "label": "Max Documents Per Course",
+      "fieldtype": "Int",
+      "default": 100
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1
+    }
+  ],
+  "track_changes": false
+}

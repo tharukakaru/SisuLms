@@ -1,0 +1,181 @@
+{
+  "doctype": "DocType",
+  "name": "IL AI Usage",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "request_key",
+    "payload_hash",
+    "institute",
+    "user",
+    "classroom",
+    "subscription",
+    "feature",
+    "request_type",
+    "period",
+    "provider",
+    "model",
+    "state",
+    "reserved_units",
+    "charged_units",
+    "input_tokens",
+    "cached_tokens",
+    "output_tokens",
+    "total_tokens",
+    "usage_reported",
+    "estimated_cost",
+    "cost_currency",
+    "rate_snapshot",
+    "provider_requests",
+    "result",
+    "error_code",
+    "completed_at"
+  ],
+  "fields": [
+    {
+      "fieldname": "request_key",
+      "label": "Request Key",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "payload_hash",
+      "label": "Payload Hash",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    },
+    {
+      "fieldname": "subscription",
+      "label": "Subscription",
+      "fieldtype": "Link",
+      "options": "IL Subscription"
+    },
+    {
+      "fieldname": "feature",
+      "label": "Feature",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "request_type",
+      "label": "Request Type",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "period",
+      "label": "Period",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "provider",
+      "label": "Provider",
+      "fieldtype": "Data",
+      "default": "openai"
+    },
+    {
+      "fieldname": "model",
+      "label": "Model",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "state",
+      "label": "State",
+      "fieldtype": "Select",
+      "options": "Reserved\nRunning\nSucceeded\nFailed\nReview\nReleased",
+      "default": "Reserved"
+    },
+    {
+      "fieldname": "reserved_units",
+      "label": "Reserved Units",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "charged_units",
+      "label": "Charged Units",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "input_tokens",
+      "label": "Input Tokens",
+      "fieldtype": "Long Int"
+    },
+    {
+      "fieldname": "cached_tokens",
+      "label": "Cached Tokens",
+      "fieldtype": "Long Int"
+    },
+    {
+      "fieldname": "output_tokens",
+      "label": "Output Tokens",
+      "fieldtype": "Long Int"
+    },
+    {
+      "fieldname": "total_tokens",
+      "label": "Total Tokens",
+      "fieldtype": "Long Int"
+    },
+    {
+      "fieldname": "usage_reported",
+      "label": "Usage Reported",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "estimated_cost",
+      "label": "Estimated Cost",
+      "fieldtype": "Currency",
+      "precision": "8"
+    },
+    {
+      "fieldname": "cost_currency",
+      "label": "Cost Currency",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "rate_snapshot",
+      "label": "Rate Snapshot",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "provider_requests",
+      "label": "Provider Requests",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "result",
+      "label": "Result",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "error_code",
+      "label": "Error Code",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "completed_at",
+      "label": "Completed At",
+      "fieldtype": "Datetime"
+    }
+  ],
+  "permissions": [],
+  "track_changes": false,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

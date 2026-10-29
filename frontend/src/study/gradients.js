@@ -1,0 +1,23 @@
+// Static colour pairs inspired by the user's gradient references.
+export const studyGradients = [
+  ['aqua','Ocean glow','#007CBE','#FFF7AE'],
+  ['apricot','Amber dusk','#E57A44','#251351'],
+  ['lavender','Lemon lilac','#F1FEC6','#A882DD'],
+  ['rose','Rose mint','#DB5375','#B3FFB3'],
+  ['blue','Deep lagoon','#02C3BD','#4E148C'],
+  ['sage','Golden meadow','#629460','#F4D35E'],
+  ['meadow','Indigo lime','#414288','#B0DB43'],
+  ['sunrise','Mango bloom','#FFC145','#EC368D'],
+  ['peach','Peach coral','#F3C979','#F57783'],
+  ['pistachio','Lime skies','#E6E575','#7EBED3'],
+  ['lilac','Violet blush','#A882DD','#EC93B7'],
+  ['sand','Coastal dusk','#426C78','#DAA88D'],
+  ['mint','Mint lavender','#91E5C2','#B59BE6'],
+  ['butter','Honey rose','#F5D580','#E6A0C4'],
+  ['seafoam','Sea glass','#63C7BA','#C4E7B1'],
+  ['blossom','Berry peach','#B978C3','#FFC6A1'],
+  ['periwinkle','Blue hour','#788FE2','#E1AFE0'],
+  ['hydrangea','Orchid sky','#AF89DD','#7BCDD3'],
+  ['melon','Citrus grove','#E9D776','#8CC5A7'],
+  ['cotton','Pink horizon','#EF93B4','#A0C8EF'],
+].map(([id,name,from,to])=>({id,name,from,to,background:`linear-gradient(135deg, ${from}, ${to})`}))

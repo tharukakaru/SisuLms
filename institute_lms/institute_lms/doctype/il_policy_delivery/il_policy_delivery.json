@@ -1,0 +1,59 @@
+{
+  "doctype": "DocType",
+  "name": "IL Policy Delivery",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "organization",
+    "status",
+    "revision",
+    "attempts",
+    "next_attempt",
+    "acknowledged_at",
+    "error_code"
+  ],
+  "fields": [
+    {
+      "fieldname": "organization",
+      "label": "Organization",
+      "fieldtype": "Link",
+      "options": "IL Organization",
+      "unique": 1
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Pending\nDelivered\nFailed"
+    },
+    {
+      "fieldname": "revision",
+      "label": "Revision",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "attempts",
+      "label": "Attempts",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "next_attempt",
+      "label": "Next Attempt",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "acknowledged_at",
+      "label": "Acknowledged At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "error_code",
+      "label": "Error Code",
+      "fieldtype": "Data"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

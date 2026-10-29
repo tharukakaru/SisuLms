@@ -1,0 +1,150 @@
+{
+  "results": [
+    "subscription trial",
+    "subscription active",
+    "subscription grace",
+    "subscription past_due",
+    "subscription suspended",
+    "subscription cancelled",
+    "subscription expired",
+    "Starter AI locked",
+    "quota exhausted",
+    "provider unavailable",
+    "conversation create/continue and citations",
+    "conversation deletion scheduling",
+    "study summary",
+    "study notes",
+    "study flashcards",
+    "study questions",
+    "notification empty and provider disabled",
+    "OTP SMS fictional verify",
+    "OTP WHATSAPP fictional verify",
+    "OTP expired",
+    "OTP provider unavailable",
+    "teacher feedback draft without grade mutation",
+    "teacher knowledge ready/unsupported",
+    "admin fictional aggregate insights",
+    "platform Organizations",
+    "platform Plans",
+    "platform Provisioning",
+    "platform Billing",
+    "platform Readiness",
+    {
+      "navigation": "Student/profile",
+      "alerts": []
+    },
+    {
+      "navigation": "Student/connections",
+      "alerts": []
+    },
+    {
+      "navigation": "Student/operations",
+      "alerts": []
+    },
+    {
+      "navigation": "Student/news",
+      "alerts": []
+    },
+    {
+      "navigation": "Student/settings",
+      "alerts": [
+        "This action needs the connected backend. Preview navigation does not send messages, collect payments or change real accounts."
+      ]
+    },
+    {
+      "navigation": "Student/programmes",
+      "alerts": []
+    },
+    {
+      "navigation": "Student/papers",
+      "alerts": []
+    },
+    {
+      "navigation": "Student/study",
+      "alerts": []
+    },
+    {
+      "navigation": "Teacher/profile",
+      "alerts": []
+    },
+    {
+      "navigation": "Teacher/connections",
+      "alerts": []
+    },
+    {
+      "navigation": "Teacher/operations",
+      "alerts": []
+    },
+    {
+      "navigation": "Teacher/news",
+      "alerts": []
+    },
+    {
+      "navigation": "Teacher/settings",
+      "alerts": [
+        "This action needs the connected backend. Preview navigation does not send messages, collect payments or change real accounts."
+      ]
+    },
+    {
+      "navigation": "Teacher/programmes",
+      "alerts": []
+    },
+    {
+      "navigation": "Teacher/papers",
+      "alerts": []
+    },
+    {
+      "navigation": "Teacher/wallet",
+      "alerts": []
+    },
+    {
+      "navigation": "Teacher/live",
+      "alerts": []
+    },
+    {
+      "navigation": "Admin/profile",
+      "alerts": []
+    },
+    {
+      "navigation": "Admin/connections",
+      "alerts": []
+    },
+    {
+      "navigation": "Admin/operations",
+      "alerts": []
+    },
+    {
+      "navigation": "Admin/news",
+      "alerts": []
+    },
+    {
+      "navigation": "Admin/settings",
+      "alerts": [
+        "This action needs the connected backend. Preview navigation does not send messages, collect payments or change real accounts."
+      ]
+    },
+    {
+      "navigation": "Admin/programmes",
+      "alerts": []
+    },
+    {
+      "navigation": "Admin/team",
+      "alerts": []
+    },
+    {
+      "navigation": "Admin/wallet",
+      "alerts": []
+    },
+    {
+      "navigation": "Admin/live",
+      "alerts": []
+    },
+    "local API and external provider network guard"
+  ],
+  "errors": [],
+  "external": [],
+  "guards": [
+    true,
+    true
+  ]
+}

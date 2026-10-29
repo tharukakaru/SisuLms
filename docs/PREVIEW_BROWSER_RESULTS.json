@@ -1,0 +1,219 @@
+{
+  "records": [
+    {
+      "role": "Student",
+      "screen": "dashboard",
+      "heading": [
+        "Hello, Amaya ✺"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "classrooms",
+      "heading": [
+        "My classrooms ?"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "schedule",
+      "heading": [
+        "My schedule ?"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "payments",
+      "heading": [
+        "Your class fees."
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "ai",
+      "heading": [
+        "Premium AI learning studio"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "notifications",
+      "heading": [
+        "Notifications 1 unread"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "subscription",
+      "heading": [
+        "Organization plan & usage"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "verification",
+      "heading": [],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "dashboard",
+      "heading": [
+        "Hello, Nimal."
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "classrooms",
+      "heading": [
+        "My classrooms ?"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "schedule",
+      "heading": [
+        "My schedule ?"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "payments",
+      "heading": [
+        "Payments ?"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "ai",
+      "heading": [
+        "Premium AI learning studio"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "notifications",
+      "heading": [
+        "Notifications 1 unread"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "subscription",
+      "heading": [
+        "Organization plan & usage"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "verification",
+      "heading": [],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "dashboard",
+      "heading": [
+        "Teen Academy, together."
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "classrooms",
+      "heading": [
+        "My classrooms ?"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "schedule",
+      "heading": [
+        "My schedule ?"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "payments",
+      "heading": [
+        "Payments ?"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "ai",
+      "heading": [
+        "Premium AI learning studio"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "notifications",
+      "heading": [
+        "Notifications 1 unread"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "subscription",
+      "heading": [
+        "Organization plan & usage"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "verification",
+      "heading": [],
+      "alerts": []
+    },
+    {
+      "role": "Super Admin",
+      "screen": "control",
+      "heading": [
+        "SISU platform control plane"
+      ],
+      "alerts": []
+    },
+    {
+      "test": "AI result",
+      "example": 1,
+      "sources": [
+        "S1 · Fictional algebra notes · Section 1 · module-1 Open material"
+      ]
+    },
+    {
+      "test": "mark read",
+      "unread": [
+        "0 unread"
+      ]
+    },
+    {
+      "test": "mobile width",
+      "viewport": 390,
+      "document": 390
+    }
+  ],
+  "external": [],
+  "errors": [],
+  "blocked": []
+}

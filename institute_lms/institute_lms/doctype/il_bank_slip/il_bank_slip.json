@@ -1,0 +1,153 @@
+{
+  "doctype": "DocType",
+  "name": "IL Bank Slip",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "track_changes": 1,
+  "field_order": [
+    "invoice",
+    "institute",
+    "student",
+    "classroom",
+    "provider_account",
+    "proof_file",
+    "proof_hash",
+    "reference",
+    "claimed_minor",
+    "transfer_date",
+    "status",
+    "reviewed_by",
+    "reviewed_at",
+    "review_note",
+    "access_kind",
+    "starts_at",
+    "ends_at",
+    "rejection_reason"
+  ],
+  "fields": [
+    {
+      "fieldname": "invoice",
+      "label": "Invoice",
+      "fieldtype": "Link",
+      "options": "IL Invoice",
+      "reqd": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute",
+      "reqd": 1
+    },
+    {
+      "fieldname": "student",
+      "label": "Student",
+      "fieldtype": "Link",
+      "options": "IL Member",
+      "reqd": 1
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom",
+      "reqd": 1
+    },
+    {
+      "fieldname": "provider_account",
+      "label": "Provider Account",
+      "fieldtype": "Link",
+      "options": "IL Provider Account",
+      "reqd": 1
+    },
+    {
+      "fieldname": "proof_file",
+      "label": "Proof File",
+      "fieldtype": "Link",
+      "options": "File",
+      "reqd": 1
+    },
+    {
+      "fieldname": "proof_hash",
+      "label": "Proof Hash",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "reference",
+      "label": "Reference",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "claimed_minor",
+      "label": "Claimed Minor",
+      "fieldtype": "Int",
+      "reqd": 1
+    },
+    {
+      "fieldname": "transfer_date",
+      "label": "Transfer Date",
+      "fieldtype": "Date",
+      "reqd": 1
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Pending\nApproved\nRejected",
+      "default": "Pending",
+      "reqd": 1
+    },
+    {
+      "fieldname": "reviewed_by",
+      "label": "Reviewed By",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "reviewed_at",
+      "label": "Reviewed At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "review_note",
+      "label": "Review Note",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "access_kind",
+      "label": "Access Kind",
+      "fieldtype": "Select",
+      "options": "Day\nWeek\nMonth\nYear\nSession\nCourse\nCustom"
+    },
+    {
+      "fieldname": "starts_at",
+      "label": "Starts At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "ends_at",
+      "label": "Ends At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "rejection_reason",
+      "label": "Rejection reason",
+      "fieldtype": "Data"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "report": 1,
+      "export": 1
+    }
+  ],
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

@@ -1,0 +1,48 @@
+{
+  "doctype": "DocType",
+  "name": "IL AI Allocation",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "allocation_key",
+    "institute",
+    "user",
+    "period",
+    "credits"
+  ],
+  "fields": [
+    {
+      "fieldname": "allocation_key",
+      "label": "Allocation Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "period",
+      "label": "Period",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "credits",
+      "label": "Credits",
+      "fieldtype": "Int"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

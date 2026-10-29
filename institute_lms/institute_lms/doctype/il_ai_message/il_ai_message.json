@@ -1,0 +1,60 @@
+{
+  "doctype": "DocType",
+  "name": "IL AI Message",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "conversation",
+    "request_key",
+    "role",
+    "content",
+    "citations",
+    "model",
+    "provider_request_id"
+  ],
+  "fields": [
+    {
+      "fieldname": "conversation",
+      "label": "Conversation",
+      "fieldtype": "Link",
+      "options": "IL AI Conversation"
+    },
+    {
+      "fieldname": "request_key",
+      "label": "Request Key",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "role",
+      "label": "Role",
+      "fieldtype": "Select",
+      "options": "user\nassistant"
+    },
+    {
+      "fieldname": "content",
+      "label": "Content",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "citations",
+      "label": "Citations",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "model",
+      "label": "Model",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "provider_request_id",
+      "label": "Provider Request Id",
+      "fieldtype": "Data"
+    }
+  ],
+  "permissions": [],
+  "track_changes": false,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

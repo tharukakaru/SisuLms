@@ -1,0 +1,10 @@
+{
+  "il_control_plane": true,
+  "il_tenant_signing_keys": {
+    "REPLACE_WITH_REGISTRY_ID": "REPLACE_WITH_SECRET_MANAGER_VALUE"
+  },
+  "il_policy_delivery_hosts": ["tenant.example.invalid"],
+  "il_subscription_payments_lk_mode": "test",
+  "il_subscription_payments_lk_secret_key": "REPLACE_WITH_SECRET_MANAGER_VALUE",
+  "il_subscription_payments_lk_webhook_secret": "REPLACE_WITH_SECRET_MANAGER_VALUE"
+}

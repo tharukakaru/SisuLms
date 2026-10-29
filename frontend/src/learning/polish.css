@@ -1,0 +1,28 @@
+/* Locally bundled font and restrained feedback for actionable surfaces. */
+.app-shell :is(h1,h2,h3,.overview-kpi strong,.stat-card strong),.preview-login,.sisu-entry{font-family:'Manrope Variable','Noto Sans Sinhala','Noto Sans Tamil',sans-serif!important;letter-spacing:-.025em}
+.app-shell .student-hero-motion{position:absolute;right:24px;top:12px;width:42%;max-width:380px}.app-shell :is(.room-card,.overview-kpi,.stat-card){transition:box-shadow .2s,border-color .2s}.app-shell :is(.room-card,.overview-kpi,.stat-card):hover{border-color:#bda5d7;box-shadow:0 6px 22px #4b1f7b0b}.app-shell :is(button,.button):active{transform:scale(.98)}.app-shell :is(button,.button):focus-visible{outline:2px solid #6026a0;outline-offset:3px}
+@media(max-width:650px){.app-shell .student-hero-motion{position:relative;right:auto;top:auto;width:270px;max-width:100%;margin:auto}.app-shell .hero{height:auto;min-height:0;display:flex;flex-direction:column;align-items:stretch;padding-bottom:35px}.app-shell .hero-copy{width:100%;max-width:none}.app-shell .hero-caption{display:none}}
+@media(prefers-reduced-motion:reduce){.app-shell :is(.room-card,.overview-kpi,.stat-card,button,.button){transition:none!important;transform:none!important}}
+
+.class-filter-row{display:flex;gap:16px;flex-wrap:wrap;align-items:end;margin:0 0 24px}.class-filter-row label{display:grid;gap:7px;font-size:12px;min-width:145px}.class-filter-row select{padding:11px;border:1px solid #e3dbea;border-radius:9px;background:var(--student-card,#fff);color:inherit}.class-filter-row>span{padding:12px;font-size:12px;color:#786889}.class-metadata{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0;font-size:10px}.class-metadata>*{padding:5px 8px;background:var(--student-soft,#f6f1fa);border-radius:5px;color:var(--student-ink,#49325f)}.welcome-roles{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}.welcome-roles [aria-pressed=true]{background:#4b207c!important;color:white!important}
+
+/* The welcome card enters once; continuous movement stays in the illustration. */
+.app-shell[data-student-theme] .learning-goals .goal-countdown h2{color:#fff}
+.app-shell[data-student-theme] .learning-goals .goal-countdown .eyebrow{color:#dfcaef}
+.app-shell[data-student-theme] .learning-goals .goal-countdown small{color:#e0cdef}
+.animated-learning-hero{isolation:isolate}
+.animated-learning-hero .hero-copy>*{animation:learning-welcome-in .7s cubic-bezier(.2,.7,.3,1) both}
+.animated-learning-hero .hero-copy>h2{animation-delay:.08s}
+.animated-learning-hero .daily-learning-thought{animation-delay:.16s}
+.animated-learning-hero .hero-copy>.button{animation-delay:.24s}
+.animated-learning-hero .education-motion{animation:learning-scene-in .9s cubic-bezier(.2,.7,.3,1) both}
+.animated-learning-hero .hero-label>span{animation:learning-dot 3s ease-in-out infinite}
+.animated-learning-hero:hover .motion-canvas{transform:translateY(-5px) scale(1.035)}
+.animated-learning-hero .hero-copy>.button svg{transition:transform .2s ease}
+.animated-learning-hero .hero-copy>.button:hover svg{transform:translateX(4px)}
+@keyframes learning-welcome-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes learning-scene-in{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes learning-dot{0%,100%{box-shadow:0 0 0 0 #6d35a126}50%{box-shadow:0 0 0 5px #6d35a100}}
+@media(prefers-reduced-motion:reduce){.animated-learning-hero .hero-copy>*,.animated-learning-hero .education-motion,.animated-learning-hero .hero-label>span{animation:none!important}.animated-learning-hero:hover .motion-canvas,.animated-learning-hero .hero-copy>.button:hover svg{transform:none!important}}
+
+.app-shell .preview-cover-copy{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:24px;text-align:left;gap:8px;pointer-events:none}.app-shell .preview-cover-copy strong{font:650 clamp(17px,1.4vw,23px)/1.25 "Manrope Variable",sans-serif;color:#3f2858;letter-spacing:-.035em}.app-shell .preview-cover-copy small{font:500 11px/1.5 "Manrope Variable",sans-serif;color:#59466b}.app-shell .room-cover{position:relative}.app-shell .preview-cover-copy+ .cover-status{z-index:1}

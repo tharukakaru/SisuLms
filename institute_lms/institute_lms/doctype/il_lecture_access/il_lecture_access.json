@@ -1,0 +1,60 @@
+{
+  "doctype": "DocType",
+  "name": "IL Lecture Access",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "access_key",
+    "product",
+    "user",
+    "order",
+    "media_key",
+    "expires_at",
+    "revoked"
+  ],
+  "fields": [
+    {
+      "fieldname": "access_key",
+      "label": "Access Key",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "product",
+      "label": "Product",
+      "fieldtype": "Link",
+      "options": "IL Lecture Product"
+    },
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "order",
+      "label": "Order",
+      "fieldtype": "Link",
+      "options": "IL Lecture Order"
+    },
+    {
+      "fieldname": "media_key",
+      "label": "Media Key",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "expires_at",
+      "label": "Expires At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "revoked",
+      "label": "Revoked",
+      "fieldtype": "Check"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

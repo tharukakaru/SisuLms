@@ -1,0 +1,78 @@
+{
+  "doctype": "DocType",
+  "name": "IL Lecture Refund",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "fields": [
+    {
+      "fieldname": "order_id",
+      "label": "Order Id",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "request_key",
+      "label": "Request Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "payment_id",
+      "label": "Payment Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "reason",
+      "label": "Reason",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "provider_reference",
+      "label": "Provider Reference",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "verified_at",
+      "label": "Verified At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "requested_by",
+      "label": "Requested By",
+      "fieldtype": "Data"
+    }
+  ],
+  "field_order": [
+    "order_id",
+    "request_key",
+    "payment_id",
+    "amount_minor",
+    "currency",
+    "status",
+    "reason",
+    "provider_reference",
+    "verified_at",
+    "requested_by"
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

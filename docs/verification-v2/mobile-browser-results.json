@@ -1,0 +1,40 @@
+{
+  "records": [
+    {
+      "role": "Student",
+      "plan": "Starter",
+      "text": "Back\nExplore\nNotifications 1\nLive Classes\nLesson Store\nMy Purchases\nExplore"
+    },
+    {
+      "role": "Student",
+      "plan": "Premium",
+      "text": "Back\nExplore\nNotifications 1\nLive Classes\nLesson Store\nMy Purchases\nPremium AI\nAI Usage\nExplore"
+    },
+    {
+      "role": "Teacher",
+      "plan": "Starter",
+      "text": "Back\nExplore\nNotifications 1\nLive Classes\nLecture Library\nExplore"
+    },
+    {
+      "role": "Teacher",
+      "plan": "Premium",
+      "text": "Back\nExplore\nNotifications 1\nLive Classes\nLecture Library\nTeacher Premium AI\nPaper Generator\nAI Usage\nExplore"
+    },
+    {
+      "role": "Institute Admin",
+      "plan": "Starter",
+      "text": "Back\nExplore\nNotifications 1\nLive Classes\nSubscription\nAI Credit Management\nUsage & Storage\nExplore"
+    },
+    {
+      "role": "Institute Admin",
+      "plan": "Premium",
+      "text": "Back\nExplore\nNotifications 1\nLive Classes\nSubscription\nAI Credit Management\nUsage & Storage\nAI insights\nAI Usage\nExplore"
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "errors": [],
+  "external": []
+}

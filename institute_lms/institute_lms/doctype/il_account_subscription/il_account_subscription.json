@@ -1,0 +1,182 @@
+{
+  "doctype": "DocType",
+  "name": "IL Account Subscription",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "track_changes": 1,
+  "fields": [
+    {
+      "fieldname": "account_key",
+      "label": "Account Key",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "read_only": 1,
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "read_only": 1,
+      "options": "User"
+    },
+    {
+      "fieldname": "role",
+      "label": "Role",
+      "fieldtype": "Select",
+      "read_only": 1,
+      "options": "Student\nTeacher\nInstitute"
+    },
+    {
+      "fieldname": "display_name",
+      "label": "Display Name",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "plan",
+      "label": "Plan",
+      "fieldtype": "Select",
+      "read_only": 1,
+      "options": "Student\nIndividual\nSilver\nGold\nPlatinum"
+    },
+    {
+      "fieldname": "next_plan",
+      "label": "Next Plan",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "trial_started",
+      "label": "Trial Started",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "trial_until",
+      "label": "Trial Until",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "paid_until",
+      "label": "Paid Until",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "anchor_day",
+      "label": "Anchor Day",
+      "fieldtype": "Int",
+      "read_only": 1
+    },
+    {
+      "fieldname": "billing_country",
+      "label": "Billing Country",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "requested_country",
+      "label": "Requested Country",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "country_status",
+      "label": "Country Status",
+      "fieldtype": "Select",
+      "read_only": 1,
+      "options": "Not submitted\nPending review\nVerified\nChange requested"
+    },
+    {
+      "fieldname": "verified_by",
+      "label": "Verified By",
+      "fieldtype": "Link",
+      "read_only": 1,
+      "options": "User"
+    },
+    {
+      "fieldname": "verified_at",
+      "label": "Verified At",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "verification_note",
+      "label": "Verification Note",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "billing_email",
+      "label": "Billing Email",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "payment_method",
+      "label": "Payment Method",
+      "fieldtype": "Select",
+      "read_only": 1,
+      "options": "Card\nBank transfer"
+    },
+    {
+      "fieldname": "cancel_at_end",
+      "label": "Cancel At End",
+      "fieldtype": "Check",
+      "read_only": 1
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "read_only": 1
+    },
+    {
+      "fieldname": "version",
+      "label": "Version",
+      "fieldtype": "Data",
+      "read_only": 1
+    }
+  ],
+  "field_order": [
+    "account_key",
+    "institute",
+    "user",
+    "role",
+    "display_name",
+    "plan",
+    "next_plan",
+    "trial_started",
+    "trial_until",
+    "paid_until",
+    "anchor_day",
+    "billing_country",
+    "requested_country",
+    "country_status",
+    "verified_by",
+    "verified_at",
+    "verification_note",
+    "billing_email",
+    "payment_method",
+    "cancel_at_end",
+    "enabled",
+    "version"
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "report": 1
+    }
+  ]
+}

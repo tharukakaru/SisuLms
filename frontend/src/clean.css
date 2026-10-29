@@ -1,0 +1,95 @@
+/* SISU: quiet surfaces, readable type, dark purple navigation and actions. */
+:root{--sisu-primary:#51258a;--sisu-primary-hover:#40206c;--sisu-primary-active:#351b59;--sisu-primary-ink:#fff;--sisu-focus:#7c4eb1;--sisu-selected:#f0eaf8;--sisu-primary-soft:#f7f4fb;--sisu-primary-border:#ded4ea;--brand:#51258a;--surface:#fff;--text:#24212c;--student-muted:#686373}
+html body{font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:14px;color:#24212c;background:#f8f9fb;letter-spacing:0}
+button,input,textarea,select{font-family:inherit}h1,h2,h3,h4,.page-heading h1,.room-title,.profile-name{font-family:Inter,"Segoe UI",Arial,sans-serif;letter-spacing:-.025em;color:var(--text)}
+.page-heading h1{font-size:clamp(25px,2.3vw,34px);font-weight:700;line-height:1.25}.page-heading p,.panel p,.section-heading p{font-size:14px;line-height:1.7;color:#686373}
+.app-shell{background:#f8f9fb}.sidebar{background:#fff;border-right:1px solid #e5e5eb}.workspace{background:#f8f9fb}.topbar{background:#fff;border-bottom:1px solid #e5e5eb}
+.sidebar nav button{font-size:13px;color:#56515f;border-radius:7px;min-height:42px;gap:12px}.sidebar nav button svg{width:18px;height:18px}.sidebar nav button.active{color:#492276;background:#f0eaf8;box-shadow:inset 3px 0 #51258a}.sidebar .nav-label{font-size:10px;color:#797482;letter-spacing:.08em}
+.panel,.room-card,.today-card,.settings-grid>form,.provider-card{background:var(--surface);border:1px solid #e4e1e9;border-radius:12px;box-shadow:0 1px 2px #25203205}.panel{padding:24px}.button{border-radius:8px;font-size:13px;min-height:38px}.button.primary{background:#51258a;color:#fff}.button.primary:hover{background:#40206c;color:#fff}.button.subtle{background:#f3eef8;color:#482575}.button.small{min-height:32px;font-size:12px}.button:disabled{opacity:.5;cursor:not-allowed}
+.text-button,.full-link{color:#51258a;font-size:13px}.eyebrow{color:#786b88;letter-spacing:.1em;font-size:10px}.badge{font-size:11px;border-radius:5px}.table-wrap{overflow:auto}table{font-size:13px}th{color:#655d70;background:#f8f7fa;font-size:11px;text-transform:none}td{color:#302a3b}td small{color:#746b7e}.search input{font-size:13px}.search{border-color:#e2dfe7;background:#fff}.tabs button{font-size:13px}.tabs button.selected{background:#eee6f7;color:#492276}
+.provider-metrics strong{color:#492276}.provider-metrics small{font-size:12px}.provider-metrics span{font-size:13px}.teacher-line{font-size:13px}.room-card .room-body>p{font-size:13px}.room-title{font-size:19px}.teacher-avatar{width:32px;height:32px}
+.preview-toolbar{background:#351b59!important;box-shadow:none;font-family:Inter,"Segoe UI",Arial,sans-serif}.preview-toolbar span{color:#e9def7!important}.preview-toolbar select{background:#492a6e!important;border-color:#816499!important}.preview-explanation{color:#61566f;background:#f4f0fa;font-size:12px}.scenario-panel{font-size:12px}.preview-toolbar>div strong{font-size:12px}.preview-toolbar button{color:#fff}
+.error{padding:12px 16px;border:1px solid #efc7cc;border-radius:8px;color:#9b2536;background:#fff4f5;line-height:1.6}.billing-explainer strong{color:#351b59}.modal{border-radius:14px}.modal-backdrop{backdrop-filter:blur(4px)}
+@media(max-width:760px){.panel{padding:18px}.page-heading h1{font-size:26px}.workspace .page-heading p{font-size:13px}.sidebar nav button{min-height:44px}.topbar{padding:12px 16px}.top-actions{gap:8px}.provider-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.provider-metrics article{padding:16px}.provider-metrics strong{font-size:24px}.page-content{padding:20px 16px}.preview-explanation{padding:8px 14px;font-size:11px}.preview-platform .sidebar{top:0;height:100dvh;z-index:240}}
+@media(max-width:420px){.provider-metrics{grid-template-columns:1fr}.topbar .tour-trigger,.topbar .signup-preview-button{display:none}.panel p{font-size:13px}}
+[data-appearance="dark"],.appearance-dark{--surface:#211d2a;--text:#f4effb;--student-muted:#b5aabd}.appearance-dark .workspace,.appearance-dark.app-shell{background:#17141d}.appearance-dark .sidebar,.appearance-dark .topbar{background:#211d2a;border-color:#3b3346}.appearance-dark .panel,.appearance-dark .room-card{border-color:#3b3346}.appearance-dark p,.appearance-dark td{color:#c7bdd3}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* October refinement: white canvas, near-black type and purposeful dark-purple accents. */
+html body{background:#fff;color:#171717;font-family:Inter,"Segoe UI",Arial,sans-serif}
+.app-shell[data-student-theme]:not([data-student-theme=dark]){--student-bg:#fff;--student-card:#fff;--student-ink:#171717;--student-muted:#616166;--student-border:#e6e6e9;--student-soft:#f6f3fa;--student-accent:#4c1d80!important;--brand:#4c1d80!important;--surface:#fff;--text:#171717;--ink:#171717;--muted:#616166;--line:#e6e6e9;background:#fff;color:#171717;font-family:Inter,"Segoe UI",Arial,sans-serif}
+.app-shell:not([data-student-theme=dark]) :is(.workspace,main,.sidebar,.topbar,.panel,.room-card,.provider-card,.package-card,.release){background:#fff;color:#171717}
+.app-shell:not([data-student-theme=dark]) :is(h1,h2,h3,h4,.room-title,.wordmark){color:#171717;font-family:Inter,"Segoe UI",Arial,sans-serif}
+.app-shell:not([data-student-theme=dark]) :is(p,small,.field-help,.teacher-line,.breadcrumb,.main-footer){color:#616166}
+.app-shell:not([data-student-theme=dark]) :is(.hero,.student-home-hero,.academy-feature,.campus-strip,.fee-summary,.insight-hero){background:#fff;border:1px solid #e6e6e9;border-radius:12px;color:#171717}
+.app-shell:not([data-student-theme=dark]) .button.primary{background:#4c1d80;border-color:#4c1d80;color:#fff}
+.app-shell:not([data-student-theme=dark]) .button.primary:hover{background:#351259}
+.app-shell:not([data-student-theme=dark]) .button.subtle{background:#fff;border:1px solid #dedee3;color:#27252b;box-shadow:0 1px 2px #00000005}
+.app-shell:not([data-student-theme=dark]) .button.subtle:hover{border-color:#aa94c1;background:#faf8fc;color:#4c1d80}
+.app-shell .sidebar{border-right:1px solid #e5e5e8;padding-left:18px;padding-right:18px}
+.app-shell:not([data-student-theme=dark]) .sidebar nav button{font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:14px;font-weight:450;color:#262429;letter-spacing:0;padding:11px 12px;border:0;box-shadow:none}
+.app-shell:not([data-student-theme=dark]) .sidebar nav button svg{color:#85818a;width:18px;height:18px;stroke-width:1.7}
+.app-shell:not([data-student-theme=dark]) .sidebar nav button.active{background:#f3eff8;color:#4c1d80;font-weight:600;box-shadow:none}
+.app-shell:not([data-student-theme=dark]) .sidebar nav button.active svg{color:#4c1d80}
+.app-shell:not([data-student-theme=dark]) .sidebar nav button:hover{background:#f7f7f8}
+.sidebar-search{display:flex;align-items:center;gap:9px;border:1px solid #dedee3;border-radius:8px;padding:10px 11px;box-shadow:0 1px 2px #00000007;color:#929097;background:var(--student-card);margin-top:20px}
+.sidebar-search input{min-width:0;width:100%;padding:0;border:0;outline:0;box-shadow:none;background:transparent;color:var(--student-ink);font:13px Inter,"Segoe UI",Arial,sans-serif}
+.sidebar-search:focus-within{outline:2px solid #4c1d8040;border-color:#4c1d80}
+.app-shell .nav-label{font-size:11px;letter-spacing:.025em;margin:23px 12px 12px;font-weight:550}
+.app-shell:not([data-student-theme=dark]) .institute-switch{background:#fff;border:1px solid #e6e6e9;border-radius:8px;color:#171717}.institute-switch strong{font-size:12px}.institute-switch small{font-size:10px}
+.app-shell:not([data-student-theme=dark]) .help-card{background:#fff;border:1px solid #e6e6e9;border-radius:10px}.app-shell .help-card .help-icon{display:none}.app-shell .help-card{padding:16px;margin-top:18px}.app-shell .help-card strong{font-size:12px}.app-shell .help-card p{font-size:11px}.app-shell .help-card button{color:#4c1d80}
+.app-shell:not([data-student-theme=dark]) .provider-metrics strong{color:#171717}.app-shell .provider-metrics article{border-radius:10px;box-shadow:none;gap:10px}.app-shell .provider-metrics span{font-size:12px}.app-shell .provider-metrics strong{font-size:28px;letter-spacing:-.04em}.app-shell .provider-metrics small{font-size:11px}.provider-home:not(:has(.membership-confirm))>.page-heading{margin-top:20px}
+.feature-gallery+.hub-subnav{margin-top:12px}.app-shell:has(.feature-gallery) .provider-home>.page-heading{border-top:1px solid var(--student-border);padding-top:30px}.app-shell:has(.feature-gallery) .provider-home>.page-heading h1{font-size:23px}.app-shell:has(.feature-gallery) .provider-home>.page-heading .eyebrow{display:none}
+.app-shell:has(.feature-gallery) .student-home-hero{display:none}
+.preview-toolbar{background:#fff!important;color:#171717!important;border-bottom:1px solid #e7e7ea;box-shadow:none}.preview-toolbar span{color:#69646e!important}.preview-toolbar select{background:#fff!important;color:#25212b!important;border:1px solid #dedce3!important;border-radius:7px}.preview-toolbar button{color:#4c1d80!important}.preview-explanation{background:#fff;color:#68636d;border-bottom:1px solid #f0eef3;font-size:10px;padding-top:7px;padding-bottom:7px}.scenario-panel{background:#fff;color:#25212b}.preview-toolbar strong{color:#4c1d80}
+.app-shell .topbar{box-shadow:none}.app-shell .brand-symbol{background:#4c1d80}.app-shell .brand-dot{color:#4c1d80}.app-shell .settings-nav{color:var(--student-ink);font-size:14px}.app-shell .topbar .button{font-size:12px}
+.app-shell:not([data-student-theme=dark]) input,.app-shell:not([data-student-theme=dark]) select,.app-shell:not([data-student-theme=dark]) textarea{color:#25212b}.app-shell:not([data-student-theme=dark]) :is(th,td){color:#25212b}.app-shell:not([data-student-theme=dark]) th{background:#fafafa}
+.release,.owner-shell{background:#fff;color:#171717;font-family:Inter,"Segoe UI",Arial,sans-serif}.release h1,.release h2{color:#171717}
+@media(hover:hover){.app-shell .room-card,.app-shell .provider-card,.app-shell .team-card,.app-shell .package-card{transition:border-color .2s,box-shadow .2s}.app-shell .room-card:hover,.app-shell .provider-card:hover,.app-shell .team-card:hover,.app-shell .package-card:hover{border-color:#bda9d1;box-shadow:0 4px 18px #35125909}.app-shell .room-cover .subject-art{transition:transform .4s}.app-shell .room-card:hover .subject-art{transform:translateY(-4px) rotate(-4deg)}.app-shell .text-button svg{transition:transform .2s}.app-shell .text-button:hover svg{transform:translateX(3px)}}
+@media(max-width:760px){.app-shell main{padding:22px 18px}.app-shell .topbar{padding:12px 18px}.app-shell .provider-metrics{gap:12px}.app-shell .provider-metrics article{padding:18px}.app-shell .sidebar nav button{min-height:44px;font-size:14px}.feature-gallery~.page-heading{margin-top:22px}.preview-toolbar{padding:10px 14px;gap:10px}.preview-toolbar>div{gap:3px}.preview-toolbar label{font-size:10px}.preview-toolbar select{max-width:145px}.preview-explanation{font-size:9px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* A familiar learning home, with one quiet thought each day. */
+.daily-learning-thought{max-width:34ch;margin:16px 0 22px}.daily-learning-thought>span{font-size:10px;font-weight:650;letter-spacing:.12em;color:#4c1d80}.app-shell .hero .daily-learning-thought p{margin:8px 0 0;line-height:1.65;font-size:15px;color:var(--text)}.study-daily-thought{max-width:65ch;font-size:14px;line-height:1.6}.study-daily-thought strong{font-weight:600}
+.app-shell .hero{height:auto;min-height:340px}.app-shell .hero .hero-copy{position:relative;z-index:1}@media(max-width:600px){.app-shell .hero{min-height:0;padding-bottom:64px}.app-shell .hero .hero-copy{width:100%}.app-shell .hero>svg{opacity:.18}}
+
+.classroom-groups{margin:0 0 24px}.classroom-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:24px 0}.classroom-tools>button{text-align:left;padding:20px;min-width:0}.classroom-tools svg{color:#4c1d80}.classroom-tools h3{margin:12px 0 6px}.classroom-tools p{font-size:13px}.classroom-extras{padding:18px 0}.classroom-extras summary{cursor:pointer;font-weight:600}.modal.wide .detail-tabs{flex-wrap:wrap;gap:8px}.modal.wide .release{max-width:none;margin:18px 0;padding:0}.modal.wide .release .panel{padding:18px}.modal.wide .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.modal.wide .detail-content{min-width:0}.modal.wide .detail-content .page-heading{margin-top:20px}.classroom-overview>p{margin:12px 0}@media(max-width:650px){.classroom-tools,.modal.wide .product-grid{grid-template-columns:1fr}.modal.wide .detail-tabs button{min-height:44px}.modal.wide .detail-content{padding:18px}.classroom-groups{flex-wrap:wrap}}
+.preview-platform .modal-backdrop{z-index:500}
+
+/* Provider overview follows the existing appearance preference. */
+.app-shell[data-student-theme=dark] :is(.overview-kpi,.attention-card,.schedule-card,.class-pulse,.collection-panels>.panel,.payment-ring>div){background:var(--student-card);border-color:var(--student-border);color:var(--student-ink)}
+.app-shell[data-student-theme=dark] .teaching-hero{background:linear-gradient(120deg,#382841,#2f293c);border-color:var(--student-border)}
+.app-shell[data-student-theme=dark] :is(.provider-overview,.collection-overview) :is(strong,button:not(.button.primary),.bar-value,.overview-kpi>span,.class-pulse article span){color:var(--student-ink)}
+.app-shell[data-student-theme=dark] :is(.provider-overview,.collection-overview) :is(small,p,.eyebrow){color:var(--student-muted)}
+.app-shell[data-student-theme=dark] :is(.schedule-switch,.student-review-card,.whatsapp-message,.template-lock){background:var(--student-soft);color:var(--student-ink);border-color:var(--student-border)}
+.app-shell[data-student-theme=dark] .schedule-switch button.active{background:var(--student-card);color:var(--student-ink)}
+.app-shell[data-student-theme=dark] .sidebar nav button{color:var(--student-muted)}
+.app-shell[data-student-theme=dark] .sidebar nav button.active{background:var(--student-soft);color:var(--student-accent)}
+
+.app-shell[data-student-theme=dark] .provider-overview .kpi-symbol{background:var(--student-soft);color:var(--student-accent)}
+.app-shell[data-student-theme=dark] :is(.attention-card>button,.overview-session){border-color:var(--student-border)}
+
+/* Final interface consistency: bundled typography, legible helper text, clear focus. */
+html body .app-shell{font-family:'Manrope Variable','Noto Sans Sinhala','Noto Sans Tamil',sans-serif!important}
+.app-shell :is(button,input,select,textarea){font-family:inherit}
+.app-shell :is(.field-help,.empty-mini,.class-filter-row label,.class-filter-row>span){font-size:12px;line-height:1.65}
+.app-shell .class-metadata{font-size:11px}
+.app-shell .sidebar nav button{font-size:13px;line-height:1.5}
+.app-shell :is(input,select,textarea):focus-visible{outline:2px solid var(--student-accent,#542389);outline-offset:2px}
+.app-shell .provider-social-links svg{width:18px;height:18px}
+.app-shell .countdown-bottom{color:#684185}
+.app-shell .countdown-caption small{color:#705483}
+.app-shell .goal-actions button{font-size:12px}
+.app-shell .account-controls td>small{font-size:11px}
+.app-shell .detail-tabs{gap:5px;flex-wrap:wrap}
+.app-shell .detail-tabs button{min-height:40px}
+@media(max-width:650px){.app-shell .detail-tabs{flex-wrap:nowrap;overflow-x:auto}.app-shell .detail-tabs button{flex-shrink:0}.app-shell .form-row{min-width:0}}
+
+.app-shell .sidebar nav button{font-family:inherit!important}
+
+/* Balanced overview composition: illustration and copy share the card width. */
+.app-shell .hero.animated-learning-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);grid-template-areas:"copy art" "copy caption";column-gap:clamp(22px,3vw,48px);row-gap:12px;align-items:center;padding:34px;min-height:340px}.app-shell .hero.animated-learning-hero .hero-copy{grid-area:copy;width:100%;max-width:none}.app-shell .hero.animated-learning-hero h2{max-width:430px}.app-shell .hero.animated-learning-hero .student-hero-motion{grid-area:art;position:relative;top:auto;right:auto;width:100%;max-width:460px;justify-self:center;align-self:end}.app-shell .hero.animated-learning-hero .hero-caption{grid-area:caption;position:static;display:flex;justify-content:center;align-self:start;font-size:9px;margin:0}@media(max-width:650px){.app-shell .hero.animated-learning-hero{grid-template-columns:1fr;grid-template-areas:"copy" "art" "caption";padding:26px;gap:20px;min-height:0}.app-shell .hero.animated-learning-hero .student-hero-motion{max-width:320px}.app-shell .hero.animated-learning-hero .hero-caption{font-size:8px}}
+
+/* Keep identity names legible on purple cards, including older billing layouts. */
+.subscription-status h2,.lms-identity .identity-main h2{color:#fff!important}
+.subscription-status p,.subscription-status small{color:#e4d6f3!important}

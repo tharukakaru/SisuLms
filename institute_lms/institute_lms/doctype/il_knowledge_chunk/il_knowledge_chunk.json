@@ -1,0 +1,47 @@
+{
+  "doctype": "DocType",
+  "name": "IL Knowledge Chunk",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "document",
+    "ordinal",
+    "section",
+    "text",
+    "text_hash"
+  ],
+  "fields": [
+    {
+      "fieldname": "document",
+      "label": "Document",
+      "fieldtype": "Link",
+      "options": "IL Knowledge Document"
+    },
+    {
+      "fieldname": "ordinal",
+      "label": "Ordinal",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "section",
+      "label": "Section",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "text",
+      "label": "Text",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "text_hash",
+      "label": "Text Hash",
+      "fieldtype": "Data"
+    }
+  ],
+  "permissions": [],
+  "track_changes": false,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

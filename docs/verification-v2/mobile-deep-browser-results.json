@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "screen": "Lesson Store",
+      "text": "Back\nLesson Store\nRefresh server state\nLesson details\nWatch lesson\nLesson details\nPurchase lesson\nLesson details\nWatch lesson"
+    },
+    {
+      "lessonDetailButtonCount": 0
+    },
+    {
+      "screen": "Lecture Library",
+      "text": "Back\nLecture Library\nRefresh server state\nCreate lecture draft\nLesson details\nEdit / publish / archive\nLesson details\nEdit / publish / archive\nLesson details\nEdit / publish / archive\nLesson details\nEdit / publish / archive"
+    },
+    {
+      "screen": "Paper Generator",
+      "text": "Back\nPaper Generator\nRefresh server state\nClassroom\nIndexed source\nGenerate draft\nQuadratic equations revision Draft • 10/10"
+    },
+    {
+      "screen": "AI Credit Management",
+      "text": "Back\nAI Credit Management\nRefresh server state\nRole filter All members\nMonthly pool: 1000 130 used • 870 remaining 70 allocated • 930 unallocated Reset: 1 November 2026\nAI credit mode Individual Allocation\nPrevious\nNext\n500 characters remaining\nSave allocations and mode\nPreview allocation Fictional policy for walkthrough 6 October 2026"
+    },
+    {
+      "screen": "Subscription",
+      "text": "Back\nSubscription\nRefresh server state\nStarter • Free Core classes, materials, assessments and notifications\nRenew Premium AI\nLKR 4900.00 succeeded • 1 October 2026\nPREVIEW-PREMIUM LKR 4900.00 • 1 October 2026"
+    },
+    {
+      "preset": "student-expired",
+      "text": "Explore\nNotifications 1\nLive Classes\nLesson Store\nMy Purchases\nExplore"
+    },
+    {
+      "preset": "student-exhausted",
+      "text": "Explore\nNotifications 1\nLive Classes\nLesson Store\nMy Purchases\nPremium AI\nAI Usage\nExplore"
+    },
+    {
+      "preset": "admin-shared",
+      "text": "Explore\nNotifications 1\nLive Classes\nSubscription\nAI Credit Management\nUsage & Storage\nAI insights\nAI Usage\nExplore"
+    },
+    {
+      "preset": "admin-pending",
+      "text": "Explore\nNotifications 1\nLive Classes\nSubscription\nAI Credit Management\nUsage & Storage\nExplore"
+    },
+    {
+      "preset": "admin-renewal-failed",
+      "text": "Explore\nNotifications 1\nLive Classes\nSubscription\nAI Credit Management\nUsage & Storage\nAI insights\nAI Usage\nExplore"
+    },
+    {
+      "developerPreview": "SISU · PREVIEW ONLY\nFictional offline demonstration. No server or provider requests. This is not authentication or acceptance evidence.\nDemo role Student\nDemo subscription Starter\nCredit mode Individual Allocation\nDemo AI state Available\nHome\nWelcome, demo Student Fictional Willow Academy • STARTER\nToday Algebra classroom • Tuesday 16:00. Select a section above to explore its states."
+    }
+  ],
+  "errors": [],
+  "external": []
+}

@@ -1,0 +1,6 @@
+<script setup>
+import {ref} from 'vue'
+import {request} from './client'
+const props=defineProps({material:Object}),source=ref(''),error=ref(''),busy=ref(false)
+async function play(){busy.value=true;error.value='';try{const r=await request('workspace','vimeo_playback',{material:props.material.name});const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='player.vimeo.com')throw Error('Invalid video source');source.value=u.href}catch(e){error.value=e.message}finally{busy.value=false}}
+</script><template><article class="vimeo-material"><h3>{{material.title}}</h3><p>{{material.description}}</p><button v-if="!source" class="button subtle" :disabled="busy" @click="play">Watch Vimeo lesson here</button><p v-if="error" role="alert">{{error}}</p><iframe v-if="source" :src="source" :title="material.title" allow="fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"/><p v-if="source" class="field-help">Playback depends on the teacher’s Vimeo privacy and embed settings.</p></article></template><style scoped>.vimeo-material{padding:20px 0;border-bottom:1px solid #e7e0ed}.vimeo-material iframe{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:15px;margin-top:15px;background:#20172d}</style>

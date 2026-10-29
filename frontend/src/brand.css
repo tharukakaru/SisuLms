@@ -1,0 +1,11 @@
+:root{--sisu-primary:#6C6AEE;--sisu-primary-hover:#5755CE;--sisu-primary-active:#4644B5;--sisu-focus:#4542AA;--sisu-selected:rgb(108 106 238 / 8%);--sisu-primary-ink:#19182E;--brand:var(--sisu-primary)}
+.button.primary,.entry-primary{background:var(--brand,var(--sisu-primary));color:var(--sisu-primary-ink);font-weight:700}
+.button.primary:hover,.entry-primary:hover{background:color-mix(in srgb,var(--brand,var(--sisu-primary)),black 12%);color:#fff}
+.button.primary:active{background:var(--sisu-primary-active);color:#fff}
+:where(button,a,input,select,textarea):focus-visible{outline:3px solid var(--sisu-focus);outline-offset:3px}
+.sidebar nav button.active{background:var(--sisu-selected);color:var(--sisu-primary-active)}
+.release a{color:var(--sisu-primary-active)}
+.preview-toolbar{background:var(--sisu-primary-active)!important}
+
+/* White page surfaces; transparency is limited to existing purple accents. */
+:root{--sisu-selected:rgb(108 106 238 / 8%);--sisu-primary-soft:rgb(108 106 238 / 6%);--sisu-primary-border:rgb(108 106 238 / 16%)}

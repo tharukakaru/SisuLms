@@ -1,0 +1,53 @@
+{
+  "_documentation": "REFERENCE ONLY. Merge only the applicable keys through protected operator configuration. Blank values are deliberately nonfunctional. Never commit populated secrets.",
+  "control_plane": {
+    "host_name": "https://billing.sisu.example",
+    "il_control_plane": true,
+    "il_owner_email": "<verified-owner-email>",
+    "il_owner_provisioned": false,
+    "il_tenant_signing_keys": {},
+    "il_subscription_payments_lk_mode": "test",
+    "il_subscription_payments_lk_secret_key": "",
+    "il_subscription_payments_lk_webhook_secret": ""
+  },
+  "tenant": {
+    "host_name": "https://academy-a.sisu.example",
+    "il_control_plane": false,
+    "il_tenant_id": "<registry-issued-org-id>",
+    "il_control_plane_key": "",
+    "il_control_plane_url": "https://billing.sisu.example",
+    "il_payment_provider": "payments_lk",
+    "il_payments_lk_mode": "test",
+    "il_payments_lk_secret_key": "",
+    "il_payments_lk_webhook_secret": "",
+    "il_storage_backend": "frappe",
+    "il_storage_read_adapter": "",
+    "il_sms_adapter": "",
+    "il_push_adapter": "",
+    "il_web_push_enabled": false,
+    "il_mobile_redirect_uris": [],
+    "il_soul_student_ai_reviewed": false,
+    "il_soul_zdr_verified": false,
+    "il_ai_hosted_student_reviewed": false,
+    "il_whatsapp_token": "",
+    "il_whatsapp_phone_id": "",
+    "il_whatsapp_graph_version": "",
+    "il_whatsapp_templates": {},
+    "il_whatsapp_auth_template": {},
+    "il_whatsapp_app_secret": "",
+    "il_whatsapp_verify_token": "",
+    "il_calendar_client_id": "",
+    "il_calendar_client_secret": "",
+    "il_youtube_client_id": "",
+    "il_youtube_client_secret": ""
+  },
+  "frappe_managed_not_manual_defaults": {
+    "database": "Bench creates per-site db_name/db_password and encryption_key. Back these up securely.",
+    "redis": "Bench common_site_config manages redis_cache/redis_queue and any version-specific socket service. Use private networking.",
+    "openai": "Encrypted IL SOUL Settings.api_key; configure model, moderation, hosted review, feature credits and model rates via owner services.",
+    "google_login": "Frappe Social Login Key (google): client ID, encrypted secret, approved HTTPS redirects.",
+    "email": "Frappe Email Account: SMTP host/port/TLS/user/password, sender; configure SPF/DKIM/DMARC externally.",
+    "storage": "Default Frappe files; install tested write_file/private-read adapter and its server credentials before switching backend.",
+    "sms_push": "Vendor credentials are defined by the selected server adapter; do not invent generic key names or expose them to Vue."
+  }
+}

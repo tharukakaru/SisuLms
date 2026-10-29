@@ -1,0 +1,48 @@
+{
+  "doctype": "DocType",
+  "name": "IL Learning Preference",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "user",
+    "motto",
+    "event_title",
+    "event_date",
+    "hide_countdown"
+  ],
+  "fields": [
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "options": "User",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "motto",
+      "label": "Motto",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "event_title",
+      "label": "Milestone",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "event_date",
+      "label": "Target date",
+      "fieldtype": "Date"
+    },
+    {
+      "fieldname": "hide_countdown",
+      "label": "Hide exam countdown",
+      "fieldtype": "Check",
+      "default": "0"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

@@ -1,0 +1,672 @@
+[
+  {
+    "role": "Student",
+    "screen": "Classrooms",
+    "alerts": [],
+    "buttons": [
+      "?",
+      "Classes",
+      "Programmes · bundled courses",
+      "All",
+      "Unlocked",
+      "Locked",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Business foundations",
+      "Open classroom",
+      "",
+      "",
+      ""
+    ],
+    "headings": [
+      "My classrooms ?",
+      "Nimal Perera",
+      "Dilini Fernando",
+      "Kasun Jayasinghe",
+      "Nethmi Silva",
+      "Arun Sivalingam",
+      "Shalini Rodrigo",
+      "Malith Senanayake",
+      "Fathima Azeez",
+      "Dinesh Wijesinghe",
+      "Kavindi Samarasinghe",
+      "Ravi Kumar",
+      "Sachini De Alwis",
+      "Nimal Perera",
+      "Nimal Perera"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Student",
+    "screen": "Schedule",
+    "alerts": [],
+    "buttons": [
+      "?",
+      "Today",
+      "",
+      "",
+      "28",
+      "29",
+      "30",
+      "1",
+      "216:00 Business foundations · Welcome lesson18:00 Accounting principles · Welcome lesson",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11"
+    ],
+    "headings": [
+      "My schedule ?",
+      "October 2026",
+      "16 Oct"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Student",
+    "screen": "My profile",
+    "alerts": [],
+    "buttons": [
+      "English ×",
+      "Show more languages",
+      "Save profile",
+      "Send WhatsApp verification code",
+      "Save private details",
+      "Verify another email",
+      "Save email preference",
+      "Connect Google Calendar"
+    ],
+    "headings": [
+      "A profile that feels like you.",
+      "Contact & personal details",
+      "Email & calendar connection",
+      "Google Calendar"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Student",
+    "screen": "Teachers & institutes",
+    "alerts": [],
+    "buttons": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "View profile",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "View profile",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "headings": [
+      "Find your learning people.",
+      "Teen Academy",
+      "Nimal Perera",
+      "Dilini Fernando",
+      "Kasun Jayasinghe",
+      "Nethmi Silva",
+      "Arun Sivalingam",
+      "Shalini Rodrigo",
+      "Malith Senanayake",
+      "Fathima Azeez",
+      "Dinesh Wijesinghe",
+      "Kavindi Samarasinghe",
+      "Ravi Kumar",
+      "Sachini De Alwis",
+      "Hasini Bandara",
+      "Imran Nazeer"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Student",
+    "screen": "News feed",
+    "alerts": [],
+    "buttons": [],
+    "headings": [
+      "News feed",
+      "From the people you follow",
+      "A quiet noticeboard, for now."
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Student",
+    "screen": "Class fees",
+    "alerts": [],
+    "headings": [
+      "Pay by bank transfer",
+      "Your class fees.",
+      "Choose a class month",
+      "Payment history"
+    ],
+    "overflow": false,
+    "unlabelled": []
+  },
+  {
+    "role": "Student",
+    "screen": "Platform guide",
+    "alerts": [],
+    "headings": [
+      "Your SISU field guide.",
+      "Local roots. A global learning community.",
+      "Overview",
+      "Classrooms",
+      "Schedule",
+      "Study Room",
+      "Class fees",
+      "Tute delivery",
+      "Teachers & institutes",
+      "My profile",
+      "News feed",
+      "Settings & notifications",
+      "Need a little help?"
+    ],
+    "overflow": false,
+    "unlabelled": []
+  },
+  {
+    "role": "Student",
+    "screen": "Settings",
+    "alerts": [
+      "This action needs the connected backend. Preview navigation does not send messages, collect payments or change real accounts."
+    ],
+    "headings": [
+      "Settings",
+      "Your profile",
+      "Navodya Galagoda",
+      "Teen Academy",
+      "Verify your mobile",
+      "Account & workspace controls",
+      "Make your profile feel like you.",
+      "Your accent color Study Plus",
+      "Email & calendar connection",
+      "Google Calendar"
+    ],
+    "overflow": false,
+    "unlabelled": []
+  },
+  {
+    "role": "Student",
+    "screen": "Notifications",
+    "alerts": [],
+    "headings": [
+      "Notifications 1 unread",
+      "Delivery preferences"
+    ],
+    "overflow": false,
+    "unlabelled": []
+  },
+  {
+    "role": "Student",
+    "screen": "Attendance & support",
+    "alerts": [],
+    "headings": [
+      "Your campus desk."
+    ],
+    "overflow": false,
+    "unlabelled": []
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classrooms",
+    "alerts": [],
+    "headings": [
+      "My classrooms ?",
+      "Nimal Perera"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Teacher",
+    "screen": "Schedule",
+    "alerts": [],
+    "headings": [
+      "My schedule ?",
+      "October 2026",
+      "16 Oct"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Teacher",
+    "screen": "Class fees",
+    "alerts": [],
+    "headings": [
+      "Bank payment reviews",
+      "Class fees",
+      "Payment history"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Teacher",
+    "screen": "Plan & usage",
+    "alerts": [],
+    "headings": [
+      "A clear plan for every classroom.",
+      "Individual",
+      "Silver",
+      "Gold",
+      "Platinum",
+      "How enrolments are counted",
+      "Teacher:teacher@admin.com",
+      "Monthly invoices"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Teacher",
+    "screen": "Wallet & payouts",
+    "alerts": [],
+    "headings": [
+      "Your earnings, together.",
+      "Two payouts. One clear monthly rhythm.",
+      "Payout destination",
+      "Request a payout",
+      "Your payout requests",
+      "Wallet activity"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Teacher",
+    "screen": "My profile",
+    "alerts": [],
+    "headings": [
+      "A profile that feels like you.",
+      "Find you beyond the classroom.",
+      "Contact & personal details",
+      "Email & calendar connection"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Teacher",
+    "screen": "Notifications",
+    "alerts": [],
+    "headings": [
+      "Notifications 1 unread",
+      "Delivery preferences"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Teacher",
+    "screen": "Platform guide",
+    "alerts": [],
+    "headings": [
+      "Your SISU field guide.",
+      "Local roots. A global learning community.",
+      "Overview",
+      "Classrooms",
+      "Schedule",
+      "Class fees",
+      "Tute delivery",
+      "Teachers & institutes",
+      "My profile",
+      "News feed",
+      "WhatsApp updates",
+      "Plans & billing"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classroom / Sessions",
+    "text": "Nimal Perera\n\nBCom · MBA\n\nනිමල් සර්ගේ ගණන් පන්තිය\n\nGrade 10\n\nSinhala medium\n\nLive teaching, lesson resources and a supportive learning community.\n\nDelete classroom\nEdit classroom\nSchedule session\nAdd material\nAnnounce\n\nIndependent classroom · fees paid to its teacher · Full control\n\nOverview\nSessions\nRecordings\nMaterials\nPapers & assignments\nMessages\nAttendance\nTute delivery\nStudents\nPayments\n2\nOct\nOnline · Scheduled\nMathematics · Welcome lesson\n\n18:00 – 20:00 · Your online classroom\n\nExample video supplied for the local preview.\n\nOpen live class\nSync YouTube schedule\nStart broadcast\nOpen Studio\n17\nOct\nOnline · Scheduled\nMathematics · Practice together\n\n17:00 – 18:00 · Your online classroom\n\nFictional upcoming lesson. Add your meeting link before teaching.\n\nYour teacher will add the live link before class.\nManage YouTube broadcasts\nLive inside SISU\nRefresh\n\nNo items available in this view.\n\nEnable a scheduled classroom session for live teaching\nClass session\nChoose a scheduled session\nMathematics · Welcome lesson · 2026-10-02T18:00\nMathematics · Practice together · 2026-10-17T17:00\nSchedule Live"
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classroom / Recordings",
+    "text": "Nimal Perera\n\nBCom · MBA\n\nනිමල් සර්ගේ ගණන් පන්තිය\n\nGrade 10\n\nSinhala medium\n\nLive teaching, lesson resources and a supportive learning community.\n\nDelete classroom\nEdit classroom\nSchedule session\nAdd material\nAnnounce\n\nIndependent classroom · fees paid to its teacher · Full control\n\nOverview\nSessions\nRecordings\nMaterials\nPapers & assignments\nMessages\nAttendance\nTute delivery\nStudents\nPayments\nClass recordings\nRecorded SISU sessions\nRefresh\n\nNo items available in this view.\n\nManage additional recorded lessons"
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classroom / Materials",
+    "text": "Nimal Perera\n\nBCom · MBA\n\nනිමල් සර්ගේ ගණන් පන්තිය\n\nGrade 10\n\nSinhala medium\n\nLive teaching, lesson resources and a supportive learning community.\n\nDelete classroom\nEdit classroom\nSchedule session\nAdd material\nAnnounce\n\nIndependent classroom · fees paid to its teacher · Full control\n\nOverview\nSessions\nRecordings\nMaterials\nPapers & assignments\nMessages\nAttendance\nTute delivery\nStudents\nPayments\nFictional algebra notes\n\nPDF"
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classroom / Papers & assignments",
+    "text": "Nimal Perera\n\nBCom · MBA\n\nනිමල් සර්ගේ ගණන් පන්තිය\n\nGrade 10\n\nSinhala medium\n\nLive teaching, lesson resources and a supportive learning community.\n\nDelete classroom\nEdit classroom\nSchedule session\nAdd material\nAnnounce\n\nIndependent classroom · fees paid to its teacher · Full control\n\nOverview\nSessions\nRecordings\nMaterials\nPapers & assignments\nMessages\nAttendance\nTute delivery\nStudents\nPayments\nA LITTLE PRACTICE. A LITTLE PROGRESS.\nPapers, assignments & results\n\nSet papers and written assignments, accept answer PDFs and return marks and feedback.\n\nCreate paper\nAll\nManual Papers\nYour next paper starts here.\n\nCreate a paper or a written assignment for this classroom.\n\nPrevious\nNext"
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classroom / Messages",
+    "text": "Nimal Perera\n\nBCom · MBA\n\nනිමල් සර්ගේ ගණන් පන්තිය\n\nGrade 10\n\nSinhala medium\n\nLive teaching, lesson resources and a supportive learning community.\n\nDelete classroom\nEdit classroom\nSchedule session\nAdd material\nAnnounce\n\nIndependent classroom · fees paid to its teacher · Full control\n\nOverview\nSessions\nRecordings\nMaterials\nPapers & assignments\nMessages\nAttendance\nTute delivery\nStudents\nPayments\n\nNo announcements yet.\n\nShare feedback after your session. Teachers control comments for each classroom and session."
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classroom / Attendance",
+    "text": "Nimal Perera\n\nBCom · MBA\n\nනිමල් සර්ගේ ගණන් පන්තිය\n\nGrade 10\n\nSinhala medium\n\nLive teaching, lesson resources and a supportive learning community.\n\nDelete classroom\nEdit classroom\nSchedule session\nAdd material\nAnnounce\n\nIndependent classroom · fees paid to its teacher · Full control\n\nOverview\nSessions\nRecordings\nMaterials\nPapers & assignments\nMessages\nAttendance\nTute delivery\nStudents\nPayments"
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classroom / Tute delivery",
+    "text": "Nimal Perera\n\nBCom · MBA\n\nනිමල් සර්ගේ ගණන් පන්තිය\n\nGrade 10\n\nSinhala medium\n\nLive teaching, lesson resources and a supportive learning community.\n\nDelete classroom\nEdit classroom\nSchedule session\nAdd material\nAnnounce\n\nIndependent classroom · fees paid to its teacher · Full control\n\nOverview\nSessions\nRecordings\nMaterials\nPapers & assignments\nMessages\nAttendance\nTute delivery\nStudents\nPayments\nTute & material delivery\n\nPrinted learning, delivered to your door.\n\nRefresh\nA LITTLE MORE REACH · PLATINUM\nYour teaching.\nAt their doorstep.\n\nSend printed tutes and learning materials, collect confirmed addresses, review bank slips and keep every delivery together.\n\nLocked · Gold\n\nUnlock material delivery with a Platinum package for your teaching workspace.\n\nExplore Platinum\nNo automatic upgrade or charge."
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classroom / Students",
+    "text": "Nimal Perera\n\nBCom · MBA\n\nනිමල් සර්ගේ ගණන් පන්තිය\n\nGrade 10\n\nSinhala medium\n\nLive teaching, lesson resources and a supportive learning community.\n\nDelete classroom\nEdit classroom\nSchedule session\nAdd material\nAnnounce\n\nIndependent classroom · fees paid to its teacher · Full control\n\nOverview\nSessions\nRecordings\nMaterials\nPapers & assignments\nMessages\nAttendance\nTute delivery\nStudents\nPayments\nS\npreview-student\n\nAutomatic access"
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classroom / Payments",
+    "text": "Nimal Perera\n\nBCom · MBA\n\nනිමල් සර්ගේ ගණන් පන්තිය\n\nGrade 10\n\nSinhala medium\n\nLive teaching, lesson resources and a supportive learning community.\n\nDelete classroom\nEdit classroom\nSchedule session\nAdd material\nAnnounce\n\nIndependent classroom · fees paid to its teacher · Full control\n\nOverview\nSessions\nRecordings\nMaterials\nPapers & assignments\nMessages\nAttendance\nTute delivery\nStudents\nPayments\nPayments for this classroom\n\nProgramme invoices cover the full bundle of modules.\n\npreview-student · INV-amaya-independent-maths\n\nLKR 8,000 · Unpaid\n\nReview payments & bank slips"
+  },
+  {
+    "role": "Institute",
+    "screen": "Classrooms",
+    "alerts": [],
+    "headings": [
+      "My classrooms ?",
+      "Nimal Perera",
+      "Dilini Fernando",
+      "Kasun Jayasinghe",
+      "Nethmi Silva",
+      "Arun Sivalingam",
+      "Shalini Rodrigo",
+      "Malith Senanayake",
+      "Fathima Azeez",
+      "Dinesh Wijesinghe"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Institute",
+    "screen": "Schedule",
+    "alerts": [],
+    "headings": [
+      "My schedule ?",
+      "October 2026",
+      "16 Oct"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Institute",
+    "screen": "Teaching team",
+    "alerts": [],
+    "headings": [
+      "Your teaching team.",
+      "Invite a teacher by email",
+      "People who make it happen.",
+      "Hasini Bandara",
+      "Imran Nazeer",
+      "Dilini Fernando",
+      "Kasun Jayasinghe",
+      "Nethmi Silva",
+      "Arun Sivalingam",
+      "Shalini Rodrigo"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Institute",
+    "screen": "Class fees",
+    "alerts": [],
+    "headings": [
+      "Bank payment reviews",
+      "Class fees",
+      "Payment history"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Institute",
+    "screen": "Plan & usage",
+    "alerts": [],
+    "headings": [
+      "A clear plan for every classroom.",
+      "Individual",
+      "Silver",
+      "Gold",
+      "Platinum",
+      "How enrolments are counted",
+      "Institute:Teen Academy",
+      "Monthly invoices"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Institute",
+    "screen": "Wallet & payouts",
+    "alerts": [],
+    "headings": [
+      "Your earnings, together.",
+      "Two payouts. One clear monthly rhythm.",
+      "Payout destination",
+      "Request a payout",
+      "Your payout requests",
+      "Wallet activity"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Institute",
+    "screen": "Usage & Storage",
+    "alerts": [],
+    "headings": [
+      "Usage & Storage",
+      "Storage",
+      "Finance & media reconciliation",
+      "Unconfirmed media reservations"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Institute",
+    "screen": "My profile",
+    "alerts": [],
+    "headings": [
+      "A profile that feels like you.",
+      "Find you beyond the classroom.",
+      "Contact & personal details",
+      "Email & calendar connection"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Institute",
+    "screen": "Notifications",
+    "alerts": [],
+    "headings": [
+      "Notifications 1 unread",
+      "Delivery preferences"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Institute",
+    "screen": "Platform guide",
+    "alerts": [],
+    "headings": [
+      "Your SISU field guide.",
+      "Local roots. A global learning community.",
+      "Usage & storage",
+      "Overview",
+      "Classrooms",
+      "Schedule",
+      "Class fees",
+      "Tute delivery",
+      "Teachers & institutes",
+      "My profile"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "PlatformOwner",
+    "screen": "Organizations",
+    "alerts": [],
+    "headings": [
+      "SISU platform control plane",
+      "Register organization"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "PlatformOwner",
+    "screen": "Provisioning",
+    "alerts": [],
+    "headings": [
+      "SISU platform control plane",
+      "preview-academy",
+      "preview-school"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "PlatformOwner",
+    "screen": "Commerce",
+    "alerts": [],
+    "headings": [
+      "SISU platform control plane",
+      "Tenant commerce reports"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "PlatformOwner",
+    "screen": "Readiness",
+    "alerts": [],
+    "headings": [
+      "SISU platform control plane"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "PlatformOwner",
+    "screen": "Platform guide",
+    "alerts": [],
+    "headings": [
+      "SISU platform control plane",
+      "Your SISU field guide.",
+      "Local roots. A global learning community.",
+      "Provider verification",
+      "Provider billing",
+      "Payout desk",
+      "Platform operations",
+      "Need a little help?"
+    ],
+    "overflow": false
+  },
+  {
+    "role": "Student",
+    "screen": "Classrooms",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Student",
+    "screen": "Schedule",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Student",
+    "screen": "Class fees",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Student",
+    "screen": "Study Room",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Student",
+    "screen": "My profile",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Student",
+    "screen": "Platform guide",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Teacher",
+    "screen": "Dashboard",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Teacher",
+    "screen": "Classrooms",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Teacher",
+    "screen": "Class fees",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Teacher",
+    "screen": "Plan & usage",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Teacher",
+    "screen": "Wallet & payouts",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "role": "Teacher",
+    "screen": "Settings",
+    "mobile": true,
+    "alerts": [],
+    "scrollWidth": 375,
+    "width": 390
+  }
+]

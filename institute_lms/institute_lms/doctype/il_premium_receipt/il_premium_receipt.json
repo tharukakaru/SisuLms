@@ -1,0 +1,70 @@
+{
+  "doctype": "DocType",
+  "name": "IL Premium Receipt",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "attempt",
+    "tenant_id",
+    "plan",
+    "amount_minor",
+    "currency",
+    "period_start",
+    "period_end",
+    "paid_at",
+    "transaction_reference"
+  ],
+  "fields": [
+    {
+      "fieldname": "attempt",
+      "label": "Attempt",
+      "fieldtype": "Link",
+      "options": "IL Payment Attempt",
+      "unique": 1
+    },
+    {
+      "fieldname": "tenant_id",
+      "label": "Tenant Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "plan",
+      "label": "Plan",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "period_start",
+      "label": "Period Start",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "period_end",
+      "label": "Period End",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "paid_at",
+      "label": "Paid At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "transaction_reference",
+      "label": "Transaction Reference",
+      "fieldtype": "Data"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

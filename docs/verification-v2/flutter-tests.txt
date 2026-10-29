@@ -1,0 +1,82 @@
+00:00 +0: loading C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/data_test.dart
+00:00 +0: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/data_test.dart: Credentials only travel to a validated HTTPS origin
+00:00 +1: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/data_test.dart: Classes use the real Frappe method, bearer header and server access decision
+00:00 +2: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/data_test.dart: Expired sessions never become preview data
+00:00 +3: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/data_test.dart: HTML server errors are handled without exposing page content
+00:00 +4: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/data_test.dart: Profile updates POST the profile payload
+00:00 +5: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/final_preview_test.dart: offline preview is labelled and Starter hides paid AI
+00:01 +6: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/final_preview_test.dart: offline preview is labelled and Starter hides paid AI
+00:01 +7: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/final_preview_test.dart: offline preview is labelled and Starter hides paid AI
+00:01 +8: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/final_preview_test.dart: offline preview is labelled and Starter hides paid AI
+00:01 +9: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/final_preview_test.dart: offline preview is labelled and Starter hides paid AI
+00:01 +10: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/final_preview_test.dart: offline preview is labelled and Starter hides paid AI
+00:01 +11: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/final_preview_test.dart: offline preview is labelled and Starter hides paid AI
+00:01 +12: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:01 +13: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:01 +14: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:01 +15: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:01 +16: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:01 +17: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +18: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +19: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +20: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +21: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +22: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +23: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +24: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +25: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +26: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +27: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +28: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +29: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +30: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +31: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +32: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +33: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +34: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +35: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:02 +36: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:03 +37: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:03 +38: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:03 +39: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:03 +40: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:03 +41: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:03 +42: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(360.0, 800.0)
+00:03 +43: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/provider_profiles_test.dart: Native provider detail can follow and request membership
+00:03 +44: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/provider_profiles_test.dart: Native provider detail can follow and request membership
+00:03 +45: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/provider_profiles_test.dart: Native provider detail can follow and request membership
+00:03 +46: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/provider_profiles_test.dart: Native provider detail can follow and request membership
+00:03 +47: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/provider_profiles_test.dart: Native provider detail can follow and request membership
+00:03 +48: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(320.0, 640.0)
+00:03 +49: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(320.0, 640.0)
+00:04 +50: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(320.0, 640.0)
+00:04 +51: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(320.0, 640.0)
+00:04 +52: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: First login welcome persists and tour can be replayed
+00:04 +53: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: First login welcome persists and tour can be replayed
+00:04 +54: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: First login welcome persists and tour can be replayed
+00:04 +55: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: First login welcome persists and tour can be replayed
+00:04 +56: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: First login welcome persists and tour can be replayed
+00:04 +57: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: First login welcome persists and tour can be replayed
+00:04 +58: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: First login welcome persists and tour can be replayed
+00:04 +59: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: First login welcome persists and tour can be replayed
+00:04 +60: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(768.0, 1024.0)
+00:04 +61: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(768.0, 1024.0)
+00:04 +62: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(768.0, 1024.0)
+00:04 +63: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(768.0, 1024.0)
+00:04 +64: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(768.0, 1024.0)
+00:05 +65: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/mobile_screens_test.dart: Mobile navigation and layout at Size(768.0, 1024.0)
+00:05 +66: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Study sections fit Size(320.0, 640.0) with enlarged text
+00:05 +67: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Study sections fit Size(320.0, 640.0) with enlarged text
+00:05 +68: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Study sections fit Size(320.0, 640.0) with enlarged text
+00:05 +69: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Study sections fit Size(320.0, 640.0) with enlarged text
+00:05 +70: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Study sections fit Size(320.0, 640.0) with enlarged text
+00:05 +71: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Study sections fit Size(320.0, 640.0) with enlarged text
+00:05 +72: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/parity_test.dart: AI request retry retains idempotency key and citations render
+00:05 +73: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Study sections fit Size(844.0, 390.0) with enlarged text
+00:05 +74: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Study sections fit Size(844.0, 390.0) with enlarged text
+00:05 +75: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Study sections fit Size(844.0, 390.0) with enlarged text
+00:06 +76: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Study sections fit Size(844.0, 390.0) with enlarged text
+00:06 +77: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Live entitlement denial never unlocks a timer
+00:06 +78: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Restored completed timer records only one session
+00:06 +79: C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/sisu_mobile/test/study_onboarding_test.dart: Task completion and archive persist across reopen
+00:07 +80: All tests passed!

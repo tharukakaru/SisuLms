@@ -1,0 +1,55 @@
+{
+  "doctype": "DocType",
+  "name": "IL Payment Transaction",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "attempt",
+    "payment_id",
+    "tenant_id",
+    "amount_minor",
+    "currency",
+    "settled_at"
+  ],
+  "fields": [
+    {
+      "fieldname": "attempt",
+      "label": "Attempt",
+      "fieldtype": "Link",
+      "unique": 1,
+      "options": "IL Payment Attempt"
+    },
+    {
+      "fieldname": "payment_id",
+      "label": "Payment Id",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "tenant_id",
+      "label": "Tenant Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Long Int"
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "settled_at",
+      "label": "Settled At",
+      "fieldtype": "Datetime"
+    }
+  ],
+  "permissions": [],
+  "track_changes": false,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

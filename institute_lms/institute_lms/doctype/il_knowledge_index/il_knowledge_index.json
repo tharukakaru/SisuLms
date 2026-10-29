@@ -1,0 +1,63 @@
+{
+  "doctype": "DocType",
+  "name": "IL Knowledge Index",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "index_key",
+    "institute",
+    "classroom",
+    "tenant_id",
+    "provider_store",
+    "status",
+    "error_code"
+  ],
+  "fields": [
+    {
+      "fieldname": "index_key",
+      "label": "Index Key",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    },
+    {
+      "fieldname": "tenant_id",
+      "label": "Tenant Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "provider_store",
+      "label": "Provider Store",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "New\nCreating\nReady\nReview\nDeleting\nDeleted",
+      "default": "New"
+    },
+    {
+      "fieldname": "error_code",
+      "label": "Error Code",
+      "fieldtype": "Data"
+    }
+  ],
+  "permissions": [],
+  "track_changes": false,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

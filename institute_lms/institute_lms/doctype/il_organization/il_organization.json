@@ -1,0 +1,88 @@
+{
+  "doctype": "DocType",
+  "name": "IL Organization",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "field:tenant_id",
+  "field_order": [
+    "tenant_id",
+    "title",
+    "institute_code",
+    "site_hostname",
+    "custom_domain",
+    "admin_contact",
+    "plan",
+    "enabled",
+    "provisioning_state",
+    "revision"
+  ],
+  "fields": [
+    {
+      "fieldname": "tenant_id",
+      "label": "Tenant Id",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "title",
+      "label": "Title",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "institute_code",
+      "label": "Institute Code",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "site_hostname",
+      "label": "Site Hostname",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "custom_domain",
+      "label": "Custom Domain",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "admin_contact",
+      "label": "Admin Contact",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "plan",
+      "label": "Plan",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "default": 1
+    },
+    {
+      "fieldname": "provisioning_state",
+      "label": "Provisioning State",
+      "fieldtype": "Select",
+      "options": "registered\nrunning\nready\nfailed"
+    },
+    {
+      "fieldname": "revision",
+      "label": "Revision",
+      "fieldtype": "Int",
+      "default": 0
+    }
+  ],
+  "permissions": [],
+  "track_changes": true,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

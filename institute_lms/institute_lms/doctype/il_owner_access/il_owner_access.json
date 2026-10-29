@@ -1,0 +1,12 @@
+{
+  "doctype": "DocType", "name": "IL Owner Access", "module": "Institute LMS",
+  "custom": 0, "engine": "InnoDB", "autoname": "hash", "track_changes": 1,
+  "field_order": ["user", "enabled", "granted_by", "reason"],
+  "fields": [
+    {"fieldname": "user", "label": "User", "fieldtype": "Link", "options": "User", "unique": 1, "reqd": 1},
+    {"fieldname": "enabled", "label": "Enabled", "fieldtype": "Check", "default": "0"},
+    {"fieldname": "granted_by", "label": "Granted By", "fieldtype": "Link", "options": "User", "read_only": 1},
+    {"fieldname": "reason", "label": "Audit Reason", "fieldtype": "Small Text", "reqd": 1}
+  ],
+  "permissions": []
+}

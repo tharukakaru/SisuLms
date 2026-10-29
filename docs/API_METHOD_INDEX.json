@@ -1,0 +1,1113 @@
+[
+  {
+    "method": "mobile_auth.authorize",
+    "arguments": "challenge, state, redirect_uri",
+    "http_methods": [
+      "GET"
+    ],
+    "allow_guest": true
+  },
+  {
+    "method": "mobile_auth.approve",
+    "arguments": "challenge, state, redirect_uri",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "mobile_auth.exchange",
+    "arguments": "code, verifier, redirect_uri, device_id",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": true
+  },
+  {
+    "method": "mobile_auth.logout",
+    "arguments": "session=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "mobile_api.current",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "mobile_api.classes",
+    "arguments": "page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "mobile_api.enrollments",
+    "arguments": "page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "mobile_api.lesson",
+    "arguments": "course, chapter, lesson",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "portal_session.current",
+    "arguments": "",
+    "http_methods": [
+      "GET"
+    ],
+    "allow_guest": true
+  },
+  {
+    "method": "portal_session.overview",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.me",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.save_profile",
+    "arguments": "data",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.pending",
+    "arguments": "page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.review",
+    "arguments": "profile, decision, reason, workspace=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.search",
+    "arguments": "query='', page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.upload_image",
+    "arguments": "kind",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.relate",
+    "arguments": "profile, kind",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.change_relationship",
+    "arguments": "relationship, status, reason=''",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.relationships",
+    "arguments": "profile",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.publish_update",
+    "arguments": "headline, body, url=''",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "profiles.followed_updates",
+    "arguments": "page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "private_contact.get_details",
+    "arguments": "",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "private_contact.save_details",
+    "arguments": "data",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "private_contact.request_whatsapp_code",
+    "arguments": "phone",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.bootstrap",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.classrooms",
+    "arguments": "page: int=0, search: str='', deleted: int=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.set_classroom_deleted",
+    "arguments": "name: str, deleted: int",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.classroom_detail",
+    "arguments": "name: str, page: int=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.save_classroom",
+    "arguments": "data: dict | str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.save_session",
+    "arguments": "data: dict | str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.schedule",
+    "arguments": "page: int=0, starts_on: str | None=None, ends_on: str | None=None",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.add_material",
+    "arguments": "data: dict | str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.post_announcement",
+    "arguments": "data: dict | str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.post_feedback",
+    "arguments": "session: str, body: str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.news",
+    "arguments": "page: int=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.publish_news",
+    "arguments": "data: dict | str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.members",
+    "arguments": "page: int=0, role: str | None=None, search: str | None=None",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.add_member",
+    "arguments": "data: dict | str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.set_member_active",
+    "arguments": "member_id: str, active: int",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.teachers",
+    "arguments": "search: str=''",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.notification_preferences",
+    "arguments": "phone: str, opted_in: int, language: str='en'",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.enroll",
+    "arguments": "data: dict | str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.enrollments",
+    "arguments": "classroom: str, page: int=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.set_access",
+    "arguments": "enrollment: str, override: str, reason: str, grace_until: str | None=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.invoices",
+    "arguments": "page: int=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.notifications",
+    "arguments": "page: int=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.dashboard_summary",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "api.save_branding",
+    "arguments": "data: dict | str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "teaching.overview",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "teaching.membership",
+    "arguments": "name, status",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "teaching.leave_class",
+    "arguments": "classroom",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "teaching.programmes",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "teaching.save_programme",
+    "arguments": "data",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "teaching.enroll_programme",
+    "arguments": "programme",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "teaching.month_invoice",
+    "arguments": "classroom, month",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "operations.mark_attendance",
+    "arguments": "session, student, status, note=''",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "operations.join_session",
+    "arguments": "session",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "operations.attendance",
+    "arguments": "classroom, session=None, page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "operations.attendance_csv",
+    "arguments": "classroom, session=None, page=0",
+    "http_methods": [
+      "GET"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "operations.create_ticket",
+    "arguments": "subject, category, body",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "operations.tickets",
+    "arguments": "page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "operations.thread",
+    "arguments": "ticket, page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "operations.reply",
+    "arguments": "ticket, body, status=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.listing",
+    "arguments": "classroom=None, page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.draft",
+    "arguments": "data",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.detail",
+    "arguments": "name",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.publish",
+    "arguments": "name, reviewed=False",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.archive",
+    "arguments": "name",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.start",
+    "arguments": "name",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.submit",
+    "arguments": "attempt, answers",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.submissions",
+    "arguments": "paper, page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.mark",
+    "arguments": "attempt, score, feedback",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.upload_answer",
+    "arguments": "attempt",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.answer_file",
+    "arguments": "attempt",
+    "http_methods": [
+      "GET"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "papers.generate",
+    "arguments": "classroom, topic, count=5, document=None, request_id=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "materials.upload",
+    "arguments": "classroom, purpose='original'",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "materials.content",
+    "arguments": "material, action='view'",
+    "http_methods": [
+      "GET"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "payments_lk.notify",
+    "arguments": "**kwargs",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": true
+  },
+  {
+    "method": "subscription_payments.quote",
+    "arguments": "tenant, plan",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "subscription_payments.checkout",
+    "arguments": "quote",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "subscription_payments.notify",
+    "arguments": "**kwargs",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": true
+  },
+  {
+    "method": "subscription_payments.status",
+    "arguments": "attempt",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "saas.status",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "saas.apply_manifest",
+    "arguments": "payload, signature",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": true
+  },
+  {
+    "method": "usage.summary",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "notification_service.save_preferences",
+    "arguments": "settings",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "notification_service.inbox",
+    "arguments": "page=0, unread=False",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "notification_service.mark_read",
+    "arguments": "name",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "notification_service.whatsapp_webhook",
+    "arguments": "**kwargs",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": true
+  },
+  {
+    "method": "devices.register",
+    "arguments": "device_id, token, platform",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "devices.revoke",
+    "arguments": "device",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.status",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.usage",
+    "arguments": "tenant=False",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.create_conversation",
+    "arguments": "classroom, title='Learning conversation'",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.conversations",
+    "arguments": "page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.conversation",
+    "arguments": "name, page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.archive_conversation",
+    "arguments": "name, delete=False",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.summary",
+    "arguments": "classroom, document=None, instruction='', request_id=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.notes",
+    "arguments": "classroom, document=None, instruction='', request_id=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.flashcards",
+    "arguments": "classroom, document=None, instruction='', request_id=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.questions",
+    "arguments": "classroom, document=None, instruction='', request_id=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.teacher_assistant",
+    "arguments": "classroom, task='lesson_plan', document=None, instruction='', request_id=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.course_question",
+    "arguments": "classroom, question, request_id, conversation=None, consent=False, mode='question'",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.chat",
+    "arguments": "conversation, question, request_id, consent=False, mode='question'",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.search",
+    "arguments": "classroom, query, request_id",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.assignment_feedback",
+    "arguments": "attempt, request_id",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.recommendations",
+    "arguments": "classroom",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "ai.admin_insights",
+    "arguments": "classroom, explain=False, request_id=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "knowledge.ingest",
+    "arguments": "classroom, source_type, source_name",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "knowledge.deactivate",
+    "arguments": "document",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "knowledge.documents",
+    "arguments": "classroom",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "knowledge.reset_index",
+    "arguments": "classroom, reason",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "release.workspace",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "release.billing",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "release.control_room",
+    "arguments": "page=0",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "release.custom_price",
+    "arguments": "tenant, amount_minor, period, reason",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "release.channels",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "release.otp_status",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "release.unread",
+    "arguments": "",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "release.learning_sources",
+    "arguments": "classroom",
+    "http_methods": [
+      "GET",
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "contact.status",
+    "arguments": "",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "contact.request_verification",
+    "arguments": "email",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "contact.verify",
+    "arguments": "code",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "contact.preferences",
+    "arguments": "email_opt_in",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "calendar_sync.connect",
+    "arguments": "",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "calendar_sync.callback",
+    "arguments": "state=None, code=None, error=None",
+    "http_methods": [
+      "GET"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "calendar_sync.disconnect",
+    "arguments": "",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "youtube.connect",
+    "arguments": "",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "youtube.callback",
+    "arguments": "state: str, code: str | None=None, error: str | None=None",
+    "http_methods": [
+      "GET"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "youtube.schedule_broadcast",
+    "arguments": "session: str, privacy: str='unlisted', made_for_kids: bool | None=None",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "youtube.sync_broadcast",
+    "arguments": "session: str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "youtube.transition_broadcast",
+    "arguments": "session: str, status: str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  },
+  {
+    "method": "youtube.live_chat",
+    "arguments": "session: str",
+    "http_methods": [
+      "POST"
+    ],
+    "allow_guest": false
+  }
+]

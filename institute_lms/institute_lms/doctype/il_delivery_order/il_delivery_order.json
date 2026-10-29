@@ -1,0 +1,227 @@
+{
+  "doctype": "DocType",
+  "name": "IL Delivery Order",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "track_changes": 1,
+  "field_order": [
+    "order_key",
+    "classroom",
+    "institute",
+    "student",
+    "provider_account",
+    "offer_revision",
+    "title",
+    "amount_minor",
+    "recipient",
+    "phone",
+    "address_line1",
+    "address_line2",
+    "city",
+    "region",
+    "postal_code",
+    "country",
+    "address_confirmed_at",
+    "proof_file",
+    "proof_hash",
+    "reference",
+    "transfer_date",
+    "payment_key",
+    "status",
+    "review_note",
+    "reviewed_by",
+    "reviewed_at",
+    "courier",
+    "tracking_reference",
+    "dispatched_at"
+  ],
+  "fields": [
+    {
+      "fieldname": "order_key",
+      "label": "Order Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom",
+      "reqd": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute",
+      "reqd": 1
+    },
+    {
+      "fieldname": "student",
+      "label": "Student",
+      "fieldtype": "Link",
+      "options": "IL Member",
+      "reqd": 1
+    },
+    {
+      "fieldname": "provider_account",
+      "label": "Provider Account",
+      "fieldtype": "Link",
+      "options": "IL Provider Account",
+      "reqd": 1
+    },
+    {
+      "fieldname": "offer_revision",
+      "label": "Offer Revision",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "title",
+      "label": "Title",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Int",
+      "reqd": 1
+    },
+    {
+      "fieldname": "recipient",
+      "label": "Recipient",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "phone",
+      "label": "Phone",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "address_line1",
+      "label": "Address Line1",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "length": 200
+    },
+    {
+      "fieldname": "address_line2",
+      "label": "Address Line2",
+      "fieldtype": "Data",
+      "length": 200
+    },
+    {
+      "fieldname": "city",
+      "label": "City",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "region",
+      "label": "Region",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "postal_code",
+      "label": "Postal Code",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "country",
+      "label": "Country",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "address_confirmed_at",
+      "label": "Address Confirmed At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "proof_file",
+      "label": "Proof File",
+      "fieldtype": "Link",
+      "options": "File",
+      "reqd": 1
+    },
+    {
+      "fieldname": "proof_hash",
+      "label": "Proof Hash",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "reference",
+      "label": "Reference",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "transfer_date",
+      "label": "Transfer Date",
+      "fieldtype": "Date",
+      "reqd": 1
+    },
+    {
+      "fieldname": "payment_key",
+      "label": "Payment Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Pending\nApproved\nRejected\nDispatched",
+      "default": "Pending",
+      "reqd": 1
+    },
+    {
+      "fieldname": "review_note",
+      "label": "Review Note",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "reviewed_by",
+      "label": "Reviewed By",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "reviewed_at",
+      "label": "Reviewed At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "courier",
+      "label": "Courier",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "tracking_reference",
+      "label": "Tracking Reference",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "dispatched_at",
+      "label": "Dispatched At",
+      "fieldtype": "Datetime"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1
+    }
+  ],
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

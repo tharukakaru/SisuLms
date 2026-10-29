@@ -1,0 +1,83 @@
+{
+  "doctype": "DocType",
+  "name": "IL Delivery Offer",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "track_changes": 1,
+  "field_order": [
+    "classroom",
+    "institute",
+    "enabled",
+    "revision",
+    "title",
+    "description",
+    "amount_minor",
+    "bank_instructions",
+    "updated_by"
+  ],
+  "fields": [
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute",
+      "reqd": 1
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "revision",
+      "label": "Revision",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "title",
+      "label": "Title",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "description",
+      "label": "Description",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Int",
+      "reqd": 1
+    },
+    {
+      "fieldname": "bank_instructions",
+      "label": "Bank Instructions",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "updated_by",
+      "label": "Updated By",
+      "fieldtype": "Link",
+      "options": "User"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1
+    }
+  ],
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

@@ -1,0 +1,257 @@
+{
+  "doctype": "DocType",
+  "name": "IL Provider Invoice",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "track_changes": 1,
+  "field_order": [
+    "billing_key",
+    "provider_account",
+    "plan",
+    "period_start",
+    "period_end",
+    "issued_at",
+    "due_at",
+    "base_minor",
+    "unit_minor",
+    "units",
+    "unique_students",
+    "total_minor",
+    "currency",
+    "line_snapshot",
+    "status",
+    "payment_reference",
+    "payment_proof",
+    "paid_at",
+    "reviewed_by",
+    "review_note",
+    "settlement_key",
+    "receipt_number",
+    "payment_channel",
+    "receipt_queued_at",
+    "gateway_request",
+    "gateway_request_key",
+    "gateway_requested_at",
+    "gateway_mode",
+    "gateway_card_id",
+    "gateway_checkout_id",
+    "gateway_payment_id",
+    "collection_status",
+    "collection_error",
+    "billing_policy"
+  ],
+  "fields": [
+    {
+      "fieldname": "billing_key",
+      "label": "Billing Key",
+      "fieldtype": "Data",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "provider_account",
+      "label": "Provider Account",
+      "fieldtype": "Link",
+      "options": "IL Provider Account",
+      "reqd": 1
+    },
+    {
+      "fieldname": "plan",
+      "label": "Plan",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "period_start",
+      "label": "Period Start",
+      "fieldtype": "Datetime",
+      "reqd": 1
+    },
+    {
+      "fieldname": "period_end",
+      "label": "Period End",
+      "fieldtype": "Datetime",
+      "reqd": 1
+    },
+    {
+      "fieldname": "issued_at",
+      "label": "Issued At",
+      "fieldtype": "Datetime",
+      "reqd": 1
+    },
+    {
+      "fieldname": "due_at",
+      "label": "Due At",
+      "fieldtype": "Datetime",
+      "reqd": 1
+    },
+    {
+      "fieldname": "base_minor",
+      "label": "Base Minor",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "unit_minor",
+      "label": "Unit Minor",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "units",
+      "label": "Units",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "unique_students",
+      "label": "Unique Students",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "total_minor",
+      "label": "Total Minor",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data",
+      "default": "LKR"
+    },
+    {
+      "fieldname": "line_snapshot",
+      "label": "Line Snapshot",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Unpaid\nUnder review\nPaid\nVoid",
+      "default": "Unpaid",
+      "reqd": 1
+    },
+    {
+      "fieldname": "payment_reference",
+      "label": "Payment Reference",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "payment_proof",
+      "label": "Payment Proof",
+      "fieldtype": "Link",
+      "options": "File"
+    },
+    {
+      "fieldname": "paid_at",
+      "label": "Paid At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "reviewed_by",
+      "label": "Reviewed By",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "review_note",
+      "label": "Review Note",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "settlement_key",
+      "label": "Settlement key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "receipt_number",
+      "label": "Receipt Number",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "payment_channel",
+      "label": "Payment Channel",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "receipt_queued_at",
+      "label": "Receipt Queued At",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "gateway_request",
+      "label": "Gateway Request",
+      "fieldtype": "Long Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "gateway_request_key",
+      "label": "Gateway Request Key",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "gateway_requested_at",
+      "label": "Gateway Requested At",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "gateway_mode",
+      "label": "Gateway Mode",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "gateway_card_id",
+      "label": "Gateway Card Id",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "gateway_checkout_id",
+      "label": "Gateway Checkout Id",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "gateway_payment_id",
+      "label": "Gateway Payment Id",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "collection_status",
+      "label": "Collection Status",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "collection_error",
+      "label": "Collection Error",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "billing_policy",
+      "fieldtype": "Data",
+      "label": "Billing policy",
+      "read_only": 1
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "report": 1,
+      "export": 1
+    }
+  ],
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

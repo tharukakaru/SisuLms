@@ -1,0 +1,158 @@
+{
+  "doctype": "DocType",
+  "name": "IL Account Invoice",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "track_changes": 1,
+  "fields": [
+    {
+      "fieldname": "subscription",
+      "label": "Subscription",
+      "fieldtype": "Link",
+      "read_only": 1,
+      "options": "IL Account Subscription"
+    },
+    {
+      "fieldname": "open_key",
+      "label": "Open invoice key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "plan",
+      "label": "Plan",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "country",
+      "label": "Country",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Int",
+      "read_only": 1
+    },
+    {
+      "fieldname": "period_start",
+      "label": "Period Start",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "period_end",
+      "label": "Period End",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "anchor_day",
+      "label": "Anchor Day",
+      "fieldtype": "Int",
+      "read_only": 1
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "read_only": 1,
+      "options": "Unpaid\nPaid\nVoid"
+    },
+    {
+      "fieldname": "paid_at",
+      "label": "Paid At",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "payment_reference",
+      "label": "Payment Reference",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "payment_channel",
+      "label": "Payment Channel",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "receipt_number",
+      "label": "Receipt Number",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "billed_to",
+      "label": "Billed To",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "billing_email",
+      "label": "Billing Email",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "reviewed_by",
+      "label": "Reviewed By",
+      "fieldtype": "Link",
+      "read_only": 1,
+      "options": "User"
+    },
+    {
+      "fieldname": "review_note",
+      "label": "Review Note",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "version",
+      "label": "Version",
+      "fieldtype": "Data",
+      "read_only": 1
+    }
+  ],
+  "field_order": [
+    "subscription",
+    "open_key",
+    "plan",
+    "country",
+    "currency",
+    "amount_minor",
+    "period_start",
+    "period_end",
+    "anchor_day",
+    "status",
+    "paid_at",
+    "payment_reference",
+    "payment_channel",
+    "receipt_number",
+    "billed_to",
+    "billing_email",
+    "reviewed_by",
+    "review_note",
+    "version"
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "report": 1
+    }
+  ]
+}

@@ -1,0 +1,188 @@
+{
+  "doctype": "DocType",
+  "name": "IL Provider Account",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "track_changes": 1,
+  "field_order": [
+    "provider_key",
+    "institute",
+    "owner_type",
+    "owner_user",
+    "plan",
+    "next_plan",
+    "billing_email",
+    "cycle_start",
+    "cycle_end",
+    "enabled",
+    "bank_instructions",
+    "audit_reason",
+    "payment_method",
+    "auto_pay",
+    "autopay_consent_at",
+    "autopay_consent_user",
+    "gateway_card_id",
+    "gateway_card_mode",
+    "card_brand",
+    "card_last4",
+    "card_expiry",
+    "card_consent",
+    "card_revoked_at"
+  ],
+  "fields": [
+    {
+      "fieldname": "provider_key",
+      "label": "Provider Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute",
+      "reqd": 1
+    },
+    {
+      "fieldname": "owner_type",
+      "label": "Owner Type",
+      "fieldtype": "Select",
+      "options": "Institute\nTeacher",
+      "reqd": 1
+    },
+    {
+      "fieldname": "owner_user",
+      "label": "Owner User",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "plan",
+      "label": "Plan",
+      "fieldtype": "Select",
+      "options": "Individual\nSilver\nGold\nPlatinum",
+      "reqd": 1
+    },
+    {
+      "fieldname": "next_plan",
+      "label": "Next Plan",
+      "fieldtype": "Select",
+      "options": "\nIndividual\nSilver\nGold\nPlatinum"
+    },
+    {
+      "fieldname": "billing_email",
+      "label": "Billing Email",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "cycle_start",
+      "label": "Cycle Start",
+      "fieldtype": "Datetime",
+      "reqd": 1
+    },
+    {
+      "fieldname": "cycle_end",
+      "label": "Cycle End",
+      "fieldtype": "Datetime",
+      "reqd": 1
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "default": 1
+    },
+    {
+      "fieldname": "bank_instructions",
+      "label": "Bank Instructions",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "audit_reason",
+      "label": "Audit Reason",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "payment_method",
+      "label": "Payment Method",
+      "fieldtype": "Select",
+      "read_only": 1,
+      "options": "Bank transfer\nCard",
+      "default": "Bank transfer"
+    },
+    {
+      "fieldname": "auto_pay",
+      "label": "Auto Pay",
+      "fieldtype": "Check",
+      "read_only": 1
+    },
+    {
+      "fieldname": "autopay_consent_at",
+      "label": "Autopay Consent At",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "autopay_consent_user",
+      "label": "Autopay Consent User",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "gateway_card_id",
+      "label": "Gateway Card Id",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "gateway_card_mode",
+      "label": "Gateway Card Mode",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "card_brand",
+      "label": "Card Brand",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "card_last4",
+      "label": "Card Last4",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "card_expiry",
+      "label": "Card Expiry",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "card_consent",
+      "label": "Card Consent",
+      "fieldtype": "Long Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "card_revoked_at",
+      "label": "Card Revoked At",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "report": 1,
+      "export": 1
+    }
+  ],
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

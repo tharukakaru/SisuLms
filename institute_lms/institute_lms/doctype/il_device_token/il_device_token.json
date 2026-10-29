@@ -1,0 +1,58 @@
+{
+  "doctype": "DocType",
+  "name": "IL Device Token",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "user",
+    "device_id",
+    "platform",
+    "token",
+    "token_hash",
+    "revoked"
+  ],
+  "fields": [
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "reqd": 1,
+      "options": "User"
+    },
+    {
+      "fieldname": "device_id",
+      "label": "Device Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "platform",
+      "label": "Platform",
+      "fieldtype": "Select",
+      "options": "android\nios\nweb"
+    },
+    {
+      "fieldname": "token",
+      "label": "Token",
+      "fieldtype": "Password"
+    },
+    {
+      "fieldname": "token_hash",
+      "label": "Token Hash",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "revoked",
+      "label": "Revoked",
+      "fieldtype": "Check",
+      "default": 0
+    }
+  ],
+  "permissions": [],
+  "track_changes": true,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

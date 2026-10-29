@@ -1,0 +1,71 @@
+
+> sisu-institute-portal@0.1.0 build:preview
+> vite build --configLoader native --config vite.preview.config.js
+
+vite v6.4.3 building for production...
+transforming...
+✓ 1769 modules transformed.
+rendering chunks...
+[plugin vite:reporter] 
+(!) C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/institute_lms/frontend/src/preview/adapter.js is dynamically imported by C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/institute_lms/frontend/src/native/client.js but also statically imported by C:/Users/THARUKA KARUNARATHNE/Documents/Codex/2026-10-01/dan-wada-karnna-gg-good-luck-3/work/v2/institute_lms/frontend/src/preview/PreviewShell.vue, dynamic import will not move module into another chunk.
+
+computing gzip size...
+../preview-dist/preview.html                                    0.71 kB │ gzip:   0.43 kB
+../preview-dist/assets/pdf.worker.min-Dswkl-cV.mjs          1,265.41 kB
+../preview-dist/assets/FinalSubscription-75Z2dkl9.css           0.31 kB │ gzip:   0.21 kB
+../preview-dist/assets/ProductWorkspace-DUJY3hHU.css            0.55 kB │ gzip:   0.31 kB
+../preview-dist/assets/FollowUpdates-BH6jtqt2.css               0.60 kB │ gzip:   0.28 kB
+../preview-dist/assets/MaterialViewer-Bj3Ny4Ep.css              1.05 kB │ gzip:   0.48 kB
+../preview-dist/assets/ClassFees-BSpq9z_b.css                   1.08 kB │ gzip:   0.43 kB
+../preview-dist/assets/Operations-TbvfXfkk.css                  1.18 kB │ gzip:   0.49 kB
+../preview-dist/assets/SoulPet-RGkt0tF9.css                     1.46 kB │ gzip:   0.47 kB
+../preview-dist/assets/Programmes-Dfh6gg0j.css                  1.53 kB │ gzip:   0.57 kB
+../preview-dist/assets/Wallet-FzkH_4b6.css                      1.58 kB │ gzip:   0.62 kB
+../preview-dist/assets/Papers-q79cMq_K.css                      1.71 kB │ gzip:   0.69 kB
+../preview-dist/assets/RegistrationFlow-BLD6bJJV.css            1.84 kB │ gzip:   0.67 kB
+../preview-dist/assets/ProviderHome-aykzqpsj.css                3.29 kB │ gzip:   1.07 kB
+../preview-dist/assets/SuperAdmin-f3eHk_sV.css                  3.49 kB │ gzip:   1.14 kB
+../preview-dist/assets/Connections-DRRdW9no.css                 3.69 kB │ gzip:   1.13 kB
+../preview-dist/assets/PreviewShell-CrEYIaCn.css                5.12 kB │ gzip:   1.59 kB
+../preview-dist/assets/ProfileEditor-Nlz0wRjt.css               7.03 kB │ gzip:   1.59 kB
+../preview-dist/assets/StudySpace-CITc_2rk.css                 18.49 kB │ gzip:   4.60 kB
+../preview-dist/assets/style--Yeqcuhl.css                      44.28 kB │ gzip:  10.15 kB
+../preview-dist/assets/App-DL3_rrFN.css                        62.45 kB │ gzip:  13.46 kB
+../preview-dist/assets/pdf.worker.min-dSxz6soH.js               0.09 kB │ gzip:   0.11 kB
+../preview-dist/assets/community-BTPn6AWV.js                    0.18 kB │ gzip:   0.16 kB
+../preview-dist/assets/capabilities-DC06po2L.js                 0.33 kB │ gzip:   0.26 kB
+../preview-dist/assets/receipt-CkUm87bc.js                      1.21 kB │ gzip:   0.79 kB
+../preview-dist/assets/preload-helper-Ct5FWWRu.js               1.23 kB │ gzip:   0.72 kB
+../preview-dist/assets/preview-BT6PwsxX.js                      2.12 kB │ gzip:   1.12 kB
+../preview-dist/assets/FollowUpdates-C3Ta5UYd.js                2.98 kB │ gzip:   1.51 kB
+../preview-dist/assets/FinanceOperations-DexpSeZA.js            3.67 kB │ gzip:   1.67 kB
+../preview-dist/assets/NotificationCenter-Gk7xfwQn.js           4.11 kB │ gzip:   1.75 kB
+../preview-dist/assets/vue.runtime.esm-bundler-Ds4a9L51.js      4.81 kB │ gzip:   2.13 kB
+../preview-dist/assets/MaterialViewer-DObCd2eG.js               5.09 kB │ gzip:   2.28 kB
+../preview-dist/assets/Programmes-Be23plDa.js                   6.04 kB │ gzip:   2.48 kB
+../preview-dist/assets/ClassFees-BzlRMPv0.js                    6.37 kB │ gzip:   2.82 kB
+../preview-dist/assets/FinalSubscription-ClgtrfOQ.js            7.00 kB │ gzip:   2.75 kB
+../preview-dist/assets/Operations-DrY5sWUr.js                   8.13 kB │ gzip:   2.88 kB
+../preview-dist/assets/RegistrationFlow-BXpvmmsk.js             9.09 kB │ gzip:   3.30 kB
+../preview-dist/assets/ProviderHome-DA6GQP3A.js                 9.67 kB │ gzip:   3.68 kB
+../preview-dist/assets/Wallet-BEE_ZU02.js                      12.35 kB │ gzip:   4.56 kB
+../preview-dist/assets/ControlPlane-vMWnpUKc.js                13.15 kB │ gzip:   4.32 kB
+../preview-dist/assets/Connections-D-4nzgW1.js                 13.97 kB │ gzip:   4.76 kB
+../preview-dist/assets/Papers-DtjKjusD.js                      16.94 kB │ gzip:   5.71 kB
+../preview-dist/assets/SuperAdmin-BMmZqswA.js                  18.92 kB │ gzip:   6.51 kB
+../preview-dist/assets/AIWorkspace-B4JAB5Rt.js                 19.28 kB │ gzip:   6.13 kB
+../preview-dist/assets/StudySpace-hAO48rO0.js                  33.57 kB │ gzip:  12.45 kB
+../preview-dist/assets/SoulPet-bpesP9-X.js                     35.50 kB │ gzip:   8.51 kB
+../preview-dist/assets/index-BqqU-t3H.js                       64.56 kB │ gzip:  19.01 kB
+../preview-dist/assets/PreviewShell-BmujCsoh.js                67.08 kB │ gzip:  22.67 kB
+../preview-dist/assets/runtime-dom.esm-bundler-DuqEqjjW.js    107.50 kB │ gzip:  42.04 kB
+../preview-dist/assets/ProfileEditor-Dnvxrzoo.js              217.94 kB │ gzip:  75.45 kB
+../preview-dist/assets/App-C8nU6hCl.js                        275.51 kB │ gzip:  86.89 kB
+../preview-dist/assets/pdf-Bm0zbjvd.js                        436.71 kB │ gzip: 130.66 kB
+../preview-dist/assets/ProductWorkspace-Fl3OjVho.js           586.39 kB │ gzip: 155.07 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 5.21s

@@ -1,0 +1,116 @@
+{
+  "doctype": "DocType",
+  "name": "IL Stored Object",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "file",
+    "institute",
+    "classroom",
+    "owner_user",
+    "bytes",
+    "backend",
+    "storage_key",
+    "status",
+    "expiry_at",
+    "archive_at",
+    "delete_at",
+    "legal_hold",
+    "course",
+    "media_state",
+    "storage_version"
+  ],
+  "fields": [
+    {
+      "fieldname": "file",
+      "label": "File",
+      "fieldtype": "Link",
+      "unique": 1,
+      "options": "File"
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    },
+    {
+      "fieldname": "owner_user",
+      "label": "Owner User",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "bytes",
+      "label": "Bytes",
+      "fieldtype": "Long Int"
+    },
+    {
+      "fieldname": "backend",
+      "label": "Backend",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "storage_key",
+      "label": "Storage Key",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "default": "ACTIVE",
+      "options": "ACTIVE\nEXPIRED\nGRACE\nARCHIVED\nPENDING_DELETE\nPURGED"
+    },
+    {
+      "fieldname": "expiry_at",
+      "label": "Expiry At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "archive_at",
+      "label": "Archive At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "delete_at",
+      "label": "Delete At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "legal_hold",
+      "label": "Legal Hold",
+      "fieldtype": "Check",
+      "default": 0
+    },
+    {
+      "fieldname": "course",
+      "label": "Course",
+      "fieldtype": "Link",
+      "options": "LMS Course"
+    },
+    {
+      "fieldname": "media_state",
+      "fieldtype": "Select",
+      "label": "Media State",
+      "options": "\nUploading\nReady\nFailed\nRemoved"
+    },
+    {
+      "fieldname": "storage_version",
+      "fieldtype": "Data",
+      "label": "Immutable Storage Version"
+    }
+  ],
+  "permissions": [],
+  "track_changes": true,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

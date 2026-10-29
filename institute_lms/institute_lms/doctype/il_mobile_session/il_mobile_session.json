@@ -1,0 +1,57 @@
+{
+  "doctype": "DocType",
+  "name": "IL Mobile Session",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "user",
+    "device_id",
+    "token_hash",
+    "google_authenticated",
+    "expires_at",
+    "revoked"
+  ],
+  "fields": [
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "reqd": 1,
+      "options": "User"
+    },
+    {
+      "fieldname": "device_id",
+      "label": "Device Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "token_hash",
+      "label": "Token Hash",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "google_authenticated",
+      "label": "Google Authenticated",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "expires_at",
+      "label": "Expires At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "revoked",
+      "label": "Revoked",
+      "fieldtype": "Check",
+      "default": 0
+    }
+  ],
+  "permissions": [],
+  "track_changes": true,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

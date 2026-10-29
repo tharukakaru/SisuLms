@@ -1,0 +1,3418 @@
+{
+  "source_archives": {
+    "SISU_AFTER_RUN_1.zip": "63c18dbca621b2fc6cb9e80adf69fda090ac2b68ff21515a942c8454640b7b2d",
+    "SISU_AFTER_RUN_2.zip": "5d97c6870d4d0b585c1e3d5a1627a7795337395005b0b4bdddc7d92aed58c778"
+  },
+  "verification": {
+    "python_tests": {
+      "exit_code": 0,
+      "log": "work\\run3-python_tests.log"
+    },
+    "javascript_tests": {
+      "exit_code": 0,
+      "log": "work\\run3-javascript_tests.log"
+    },
+    "static": {
+      "exit_code": 0,
+      "log": "work\\run3-static.log"
+    },
+    "undefined_names": {
+      "exit_code": 0,
+      "log": "work\\run3-undefined_names.log"
+    },
+    "python_dependencies": {
+      "exit_code": 0,
+      "log": "work\\run3-python_dependencies.log"
+    },
+    "frontend_dependencies": {
+      "exit_code": 0,
+      "log": "work\\run3-frontend_dependencies.log",
+      "command": "npm.cmd ls --depth=0"
+    },
+    "frontend_build": {
+      "exit_code": 0,
+      "log": "work\\run3-frontend_build.log"
+    },
+    "entry_copy": {
+      "exit_code": 0,
+      "log": "work\\run3-entry_copy.log"
+    },
+    "not_run": [
+      "Live Frappe/MariaDB/Redis and migrations",
+      "Real browser/mobile E2E/responsive accessibility testing",
+      "Real providers",
+      "CI on GitHub",
+      "Production deployment"
+    ],
+    "dependencies": "No new runtime dependencies. pip check executed; provider/runtime deployment audit requires staging. RUN 2 advisory results are historical, not a fresh scan."
+  },
+  "files": [
+    {
+      "path": ".github/workflows/release-checks.yml",
+      "sha256": "677160623463aaa22148476fd3dcaa337455e982e53e920322719b0edb37792b",
+      "status": "added"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "fb9ceed0be0cbb0454e79a55ad3f22560360e4ac57661ca382c977c2de2ab072",
+      "status": "unchanged"
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "sha256": "801dfde3d4fc7d51244132ecb6b36652e72f0bc319fef6df4bf55d7d37cc46d0",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/ACADEMY_OPERATING_MODEL.md",
+      "sha256": "449e587d34f3649c34dc536cad4415f168d0bfeaad0d558fa77dc319416717ab",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/API_METHOD_INDEX.json",
+      "sha256": "f482e5868d33a74298fa2abbe9bf68c96565098cf1f7c0245cfb45501cedd149",
+      "status": "added"
+    },
+    {
+      "path": "docs/commercial/PRICING.md",
+      "sha256": "76e43d936bdee6b3482023bc11e0965f6c13dc51f1b401979fc9b435c6fd19eb",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/commercial/sources/Global_LMS_Product_Pricing_Customization_Requirements_v2.docx",
+      "sha256": "b75c5a42221b6dc1c8b658745b52cc1f67321eb3e152ef45794429ffc8ec21de",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/commercial/sources/LMS_Pricing_Strategy_Process_and_Examples.docx",
+      "sha256": "02eb39fc051cf6816904feb49fd5d583879ce7f9e34bb5e49f55e79658306332",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/commercial/sources/LMS_Revenue_Model_and_How_It_Works.docx",
+      "sha256": "7115644d704cd8350dba23bfed1629687ad90374a682952216c41aebf9ff4558",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/CONTACTS_EMAIL_WHATSAPP.md",
+      "sha256": "14cc43a17dfd1e764643da0fb0b28ac764db0ff77b835a4a020db9ea14505958",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/DEPLOYMENT_RUNBOOK.md",
+      "sha256": "caf551ea08156388975a022f44ac04fef230028b05ab629029662d90b4c03f3b",
+      "status": "added"
+    },
+    {
+      "path": "docs/EDUCATION_LEVELS.md",
+      "sha256": "2b1006375badde13af0ad6fb766ef78c259a79ed8b4f6374e2bfb2810a2ae63c",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/LOCAL_PREVIEW.md",
+      "sha256": "947c259710a0591e380efcad0ac62cc3725017ac697531ef82494bf1f36f8206",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/MOBILE_API_HANDOFF.md",
+      "sha256": "b00da2293124f463983b94bf971713370c664317be926d205bf7172714c3653d",
+      "status": "added"
+    },
+    {
+      "path": "docs/OWNER_PRICING_AND_PAPERS.md",
+      "sha256": "f1ac0340677d476f0d407be4f710ae4535291445313b98af8d7c849a4e6d0024",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/PDF_CHANGES_2026_09_28.md",
+      "sha256": "e8964e134b8a0eb87fc8edf67099cf87872097a79efed2be1b52c0f10710ad9a",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/PROFILE_LANGUAGES.md",
+      "sha256": "11ef33cfd2667f2597934a6c0869c8bd5d3f4621570305f829cf620d7c4026d6",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/PROVIDER_ACCEPTANCE.md",
+      "sha256": "6a6555d68b3b0e34913b3aca469770da9d713b1f97ac37b1162e9444dcfbb0e3",
+      "status": "added"
+    },
+    {
+      "path": "docs/REFERENCE_FEATURE_MAP.md",
+      "sha256": "4843f24ae6670113fbd7d4c94aae2c47cbf2d98702ac2206c4e32e91f5f9b2ee",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/ROADMAP.md",
+      "sha256": "a5d06f5528d751ce0ac6c6fc12e5ee391633093181733c23087bc34abd71cceb",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/RUN_1_CORE_PLATFORM.md",
+      "sha256": "4b6a2ba154d6ed1303e8f24471f2c1c3da3352811793bb2db59452a972ac17d6",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/RUN_2_AI_BACKEND.md",
+      "sha256": "aa9031b395ebd9fbdbf84f27b4fe562c103f1f751c814a9abaaf8dc9e0ea847c",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/RUN_2_REVIEW.md",
+      "sha256": "90c298ec1d12926be6c4a0c499159ee71aaced836d4add8dd6f92fc7baff31f0",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/RUN_3_IMPLEMENTATION.md",
+      "sha256": "a5cb2c5a1c91ee6914233bb42238dc416ff1059eb6e13fa17ac6c567d1065302",
+      "status": "added"
+    },
+    {
+      "path": "docs/SITE_CONFIG_TEMPLATE.json",
+      "sha256": "2284ee803f51c91cfe68618ef93580d627c54ad51e100d99f8eea559488cb070",
+      "status": "added"
+    },
+    {
+      "path": "docs/V2_SCOPE.md",
+      "sha256": "27c67340b4efadbae7962e0b28e64d424e69c8b3929bb78e2640ed05ff21e419",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/WALLETS_AND_PAYOUTS.md",
+      "sha256": "5152db58abc931d5fff6a73bb2730d2f26abd3872d22ab9c9d4d83c5d7944f2f",
+      "status": "unchanged"
+    },
+    {
+      "path": "FEATURE_STATUS.md",
+      "sha256": "d86fea90708e1f29c16b5c18b166ff299cff7be09d01210c7b26abca5ea22d88",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/index.html",
+      "sha256": "2aceabfa4abb8065a4b40aa361712635c2dac66d6df882c30d6c75502e03e7d6",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/package-lock.json",
+      "sha256": "294fa000b3239a6e64a3e986089566764028b323ee0b55f852333f72b9468477",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/package.json",
+      "sha256": "d385f6f7fcb48800d663e08212a14f91421659b27d07aa32eea996809d6be845",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/academy-banner.svg",
+      "sha256": "e2a489c332248d9c8cec565b1b7b625896ed13bbe7e1b9e3d09a03d621477f2e",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/academy.svg",
+      "sha256": "315343ba8ab1945ca74e6cbc33eca7709f310e6b1f6d2c64339c7ad744aae9e8",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/banner-0.svg",
+      "sha256": "5391b96c329f5c38a21a78734b71b065f1791f2b258f97b0c02789c01d167c53",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/banner-1.svg",
+      "sha256": "123fa936336efba3c62decee8ddd4f7a99688fcca4596724b26662f9d7a88aa7",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/banner-2.svg",
+      "sha256": "75f07d6b1b32aa240b2418d27b2278d96baba6f58554ddde9dc25eb211b2692d",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/banner-3.svg",
+      "sha256": "27f4fe72ccb74d87b35bc3a46735ba0c90c2d6e961caf42ee7061a3e943c51d1",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-1.svg",
+      "sha256": "739ba9195179ec9732b707ecaa95000022a17d8ce1fec011a8faab5dc58cefd1",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-10.svg",
+      "sha256": "47ae4d8219b3959cb63fffb24938aa2020b809deaa8691756b93dbc918c35ad4",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-11.svg",
+      "sha256": "0b354015ab1a77da67971104a388dbcf755da390c8c17f49f71973d6eca1a87f",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-12.svg",
+      "sha256": "08bfd7602219cf0671359f552f2a8b55bfa40934f63b2319e50f49b203093a31",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-13.svg",
+      "sha256": "739ba9195179ec9732b707ecaa95000022a17d8ce1fec011a8faab5dc58cefd1",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-14.svg",
+      "sha256": "0a96f6a34605fbf3390dc58460f04838d11b9cf3d3b84fe7d3b0e5367c89f932",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-2.svg",
+      "sha256": "0a96f6a34605fbf3390dc58460f04838d11b9cf3d3b84fe7d3b0e5367c89f932",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-3.svg",
+      "sha256": "0b354015ab1a77da67971104a388dbcf755da390c8c17f49f71973d6eca1a87f",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-4.svg",
+      "sha256": "c9b8b8449c3bb57b7bf65d71bd76038d6fe2eeec74c5ae50195d9c7f18a58187",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-5.svg",
+      "sha256": "8aaa63b45d996469c94cf23af03a85408e25bcdeae68d46f9a4c78479d86eb77",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-6.svg",
+      "sha256": "0a96f6a34605fbf3390dc58460f04838d11b9cf3d3b84fe7d3b0e5367c89f932",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-7.svg",
+      "sha256": "cc82da9968de0554823d14a2d6e9071c807b9c7fd493290c29d5b061be490623",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-8.svg",
+      "sha256": "08bfd7602219cf0671359f552f2a8b55bfa40934f63b2319e50f49b203093a31",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/demo/teacher-9.svg",
+      "sha256": "8aaa63b45d996469c94cf23af03a85408e25bcdeae68d46f9a4c78479d86eb77",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/ae.svg",
+      "sha256": "3bc52a4aac7c6c68cd7c0a04013fa14f715abfe6958e7a6e3194f0793c9eb816",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/bd.svg",
+      "sha256": "1aabb4a772651fb9a673660233d5bc6f3d78dfc71df09d567769bc97b9eb554f",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/br.svg",
+      "sha256": "b0a912826c3ffd7287435ebed66e18fe058e992309c00dc10b430dd41a29ba91",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/cn.svg",
+      "sha256": "981da9bdf82d48e31691f20578cefcb26cf7d0bd95e4ebd5c0df00bdfe988c1a",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/cz.svg",
+      "sha256": "d601fcc2e5b1fd48b79d53c55108af4c0e90793f146db51f3ee449d8d69512bc",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/de.svg",
+      "sha256": "efd480af5a154a7651f29da23ee0d09dbc892410fb4041898ddf8face336c575",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/dk.svg",
+      "sha256": "d2847c0bd7a1fb97977ee51f2f618c5ebc5898dd66ef9804f187613c27bdca1a",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/es.svg",
+      "sha256": "f9cfaff858e95f830733ade9591037b5322dfb5827a53b70956a3d190bb49b9a",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/fi.svg",
+      "sha256": "012edd984cf1879463c2855b7df02dea2f7de7f7a66b244fb1e22b4227f7aa65",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/fr.svg",
+      "sha256": "8cdacc8d79bcf210cdca2777a2c0de1f9e5862526877bd3026c9d59ecdcd4578",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/gb.svg",
+      "sha256": "c8be1e7208798a4ae692ee1e937065d498bb29e741943f6172b29118b8ed8066",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/gr.svg",
+      "sha256": "a184070f7678b06777be8ac38cb05ba41829591a6dac9b64b2b72db66aec82f5",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/hu.svg",
+      "sha256": "ffc4edd580d4b9789bee68f33cef24afe826ae571464350fe7b98c7a36b4ff8f",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/id.svg",
+      "sha256": "5cd3acc4939dd7eae6318c8d75df8c0d1733f650e2504a2635b0dbf3dfabb040",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/il.svg",
+      "sha256": "04a099ac4370b5e856f5f8d44ce0822ec47a6d3bc395a7d048d3a46d69274d68",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/in.svg",
+      "sha256": "91185efa1a9b52cdc0e470712518efeefc4e4d6a6555bae9de997ba71885bb98",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/ir.svg",
+      "sha256": "cb363e09bafbff6de7c2fba6a002ca33f0563dc83a2328d34adb492cf80ca629",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/it.svg",
+      "sha256": "9fa88118818d9b64838f578e2babcca3d0630aed21b5c33b34aff7ac5ce506bc",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/jp.svg",
+      "sha256": "bfea80baf9989383dc4bf7ca594ed95be0df0ff125bfc88d0bfa878eb0198022",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/ke.svg",
+      "sha256": "699163d87382eb969d8a26d4ce1a99a00264e8b7b95276abf585476506f46e82",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/kr.svg",
+      "sha256": "7a6cd5b51d0e2841ed8b79b1147ad8a66cf3c09f6344d4a63b5e4413ffa5d15b",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/LICENSE.txt",
+      "sha256": "8f1195d55a2fd315a07d812328470ca9ba2abb78c8d317ff19619d5125e00cea",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/lk.svg",
+      "sha256": "ed3eee24d19872d6adcecd589513c057c6ecfe4997af36e8d25ef9ed58660d23",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/my.svg",
+      "sha256": "bb30e84a099d2d9dc286ab091bdd40ae7a8e332eb49827f2df4f11803e613667",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/nl.svg",
+      "sha256": "8f691f17fe70894537af8e92f2ca47761d353639b0defc15cbe561eb503ab010",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/np.svg",
+      "sha256": "b84c02e2fa659d0be6fc6b5963d5e9fbd25c3a6ab4d469aa61f1e3cdbd3f4637",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/ph.svg",
+      "sha256": "c3bd5e08ddc5f6dbdfa899af9efb45577e3841402e6a7f5d00fef754816b2884",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/pk.svg",
+      "sha256": "89e851c0d541d8166b297e13bed97e0cb500bdb4ae48fd83a86b606a078352a8",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/pl.svg",
+      "sha256": "369bb3e14ee718df1ee15fd2fb3ad0dae713f78f622e277710fb2b30a313f2aa",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/pt.svg",
+      "sha256": "a7a2cf0b44aaaaf4f3bdc0ee0fa308ec7085bdfedd3f72da1473d43fd2a569fb",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/ro.svg",
+      "sha256": "17a3a747fc5e63302aaa670a667e5812f3676f46768e5a3e87b254bd41762840",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/ru.svg",
+      "sha256": "7100aaae51ff3b6a2bf0ca932b3bc518bdc760814725e7cca31d821a26c3dd7c",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/sa.svg",
+      "sha256": "5738c8cfca5fea63587cbcf69237996c8ce6283f8016853150686f37311b620e",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/se.svg",
+      "sha256": "b3b5071e6c1d4a0e3db828bab5c7dfd68d0e90fcf3b25b15e9a2c4f96c1f79c9",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/th.svg",
+      "sha256": "329cc0d520536d6eb4b9304105f23650c2d02bbdba8f8696e996dbf166de6f2e",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/tr.svg",
+      "sha256": "256a1d6afbedb9f731566982331a1cd1ad14aba211b8a61d338855879505e74f",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/tw.svg",
+      "sha256": "931757f06b9ee751fd1a0cc8dd7cf862e21fdcaf894d10ed7bcc68dabcca59ad",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/ua.svg",
+      "sha256": "2d869c23ebfefb2ae0a633297c11dee06fcb666ce7b3ca75eba09b7a1a3a03ac",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/us.svg",
+      "sha256": "e7be4240cf57987926673708f09233be1ab6bdf35acc7b86bd32a263f197a2a7",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/public/flags/vn.svg",
+      "sha256": "2355037201315d74581ab0ad60b5587a29a087d26b0525bdeb8676e64fae5b86",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/scripts/copy-entry.mjs",
+      "sha256": "4a71eec01eaa5c265abf77669f08572ef98fb04869dd143ebbe17cd615b8785b",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/AcademicResults.vue",
+      "sha256": "ba3112b7d3a82c803bd5cd29eab6a39bda2ddd60019af28ce4164a6218c4d4ec",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/AccountControls.vue",
+      "sha256": "1b47c50bf916772159a75e4c8ae74eb469477374e73cd67fb48a891dd6453be2",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/analytics.js",
+      "sha256": "ddef6aca1bd9e3e9e4da28c774bba759c197a18e17bd5f7a0f6656b131ae0e83",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/App.vue",
+      "sha256": "ca07978fd8d9479e2e8516ff5426621e7e60d02c4574cb54d3b9321e6ef95bc0",
+      "status": "modified"
+    },
+    {
+      "path": "frontend/src/Art.vue",
+      "sha256": "b42ceb0022cec688c0bdcdcf3c592d785d9105cbd7503e29d2dd09e59d1dd44b",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/BulkResults.vue",
+      "sha256": "947e4b31bc87b4dd158ab9c38662dd9c64e1589bf53d0785b114c2e189c5f2bc",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/Apps.vue",
+      "sha256": "577279269637c23b47c5dfdacadc12fd21615e7bc0b8568eb7ef22a1ace15997",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/ClassFees.vue",
+      "sha256": "eae67f512dd26cf27da7d9843f28108331eb6d40a8d90f7d68f343e3b35691b9",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/ClassProfileHeader.vue",
+      "sha256": "27bbed2d8afc09577813423fb77ae2c0b3c60a14bc01f387f1513e76e1aad97b",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/ClassTeacherIdentity.vue",
+      "sha256": "17631f29481c9e2ff719c5c6c65a5bcd4ebf50c4534c36ae9ab427a4406c2168",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/community.js",
+      "sha256": "e12a49ae3078ee1fad25caf794ceeb612816f83867fb27d6a2275fd67c49b225",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/Connections.vue",
+      "sha256": "bb16af9ec8f79ac2ee12b7dd325b5f692852501282736a7e8a3b30420bc8bdb8",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/educationLevels.js",
+      "sha256": "34db86ea1d2e4e4dc0b9b0531651a292438a8fb234243e8bb952a1e77a90ab95",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/EducationLevelSelect.vue",
+      "sha256": "8b963366b3437f09a3254e7e9de4604894c20ad7166d74f0b13c36ec281a09f8",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/FollowUpdates.vue",
+      "sha256": "34508235fd662fe6a2dd02ac5886dbc80f65cb63f3ec1123af2c9f02f09b6e3d",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/languageCatalog.json",
+      "sha256": "3d63220bfa1e17973aee7ac0d5e29ddbca34b729735d0195d124c3a32757cbc4",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/LanguageSelect.vue",
+      "sha256": "22f1e94bbe6f0b69266329150ecf5f7e5740abe53410dac77c61acacdcd176fa",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/PrivateContact.vue",
+      "sha256": "9996ebdcd487e4c08b751772c0b741f83ce68e4f57a41105f799bb89cd29ef7a",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/ProfileEditor.vue",
+      "sha256": "26b423789956d7d1f4ed65a6bad61e6e29c0f0f9d9d6832caafcdd71d602649c",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/profileLanguages.js",
+      "sha256": "c39e77f59c94ad0c05c27e9062eebce600b54e0b279d139d70231ecbc824db04",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/SocialIcon.vue",
+      "sha256": "39430fb2120084c3f7f3bbc46f5c1165f5a95c615c0cc6b19af6124f3ab0ee83",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/SocialLinks.vue",
+      "sha256": "cf103f197162fca3898b201f85e1b38d3dd68b8102f01a43f77d350064e2d9f1",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/socials.js",
+      "sha256": "1eca4815428bc3355403626fe1142dfb6fdfc70142a919ba6d8a2398e5ae8e17",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/Wallet.vue",
+      "sha256": "4e8d9422c495af3889818205b09ba201d9ebc860b06e0c121f6c01c7c63ba433",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/commerce/walletClient.js",
+      "sha256": "79bdb4c5aa60f40c8b096b6cd6d52ffc8eb2ae1a982e495896c7a65d22c92ca5",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/Community.vue",
+      "sha256": "49b4231c29845ec70e47431d061dbc7aa04df8d40b9e91f78450fc13d3f4e729",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/Competition.vue",
+      "sha256": "27fa50002617b25fe8f91f276f3cd9a5d7aa3422e1d97a740c49327f05bd7b1c",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/ContactSettings.vue",
+      "sha256": "3e25c5b277a90d42b8377e91196c71e8078d2f29d90f282112a4a4b6c2b33a55",
+      "status": "modified"
+    },
+    {
+      "path": "frontend/src/demo.js",
+      "sha256": "e720d2b7fa55b8b849604f34084310bb9cc3965d5fbb90bd2433270e4a140a15",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/demoExpanded.js",
+      "sha256": "90c251e95a74cd895862d8351fc6fefe381c382c9d72588430a1d5370103a6ad",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/Discover.vue",
+      "sha256": "bf9aae35e7504c7205f74dcf6629b1440070dd91c55470ade56aca3b8f1d4ffe",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/DiscoveryInterests.vue",
+      "sha256": "597fef254618684af857cf1e0b013a14aaf2162e708b4dd9e00655d1c64457b5",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/discoveryRanking.js",
+      "sha256": "3814b39dd8492c1fc7d3fe7667f3feee3753942cb453b23dbbe2ced02535b9dc",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/expansion.css",
+      "sha256": "a0303385cec8cf0bb13e2e7c9f1c54b6b88d5d1f2d7f5b8b3bc60fa972e75992",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/GettingStarted.vue",
+      "sha256": "089295a36ba23c55d9de78bceac4d5b07050fdd9a82e1a3742b5ece3e7bc1e31",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/grades.js",
+      "sha256": "b07651bdea6d848dbaf0ae775bfb56ac25a23cdb798eec419444859bfa6ad528",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/HelpTip.vue",
+      "sha256": "50f5911a973263092fe6adc73baa38193d774fe2117adef1def1f4847571bafc",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/i18n.js",
+      "sha256": "980daf01846faa280326b7e2422b8f7bd6eca12248fe9bf86f04541b926182d8",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/Icon.vue",
+      "sha256": "fa39e4fce2e1b0b9ca9d583b9b0e05fabe88e406341f70aa5012a2da091794d9",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/InsightsDashboard.vue",
+      "sha256": "a0c03fc4fd1b7791250bbc4de9b2e60853b4f973380214d7cbcd7aef13b19cbb",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/InstituteMembership.vue",
+      "sha256": "ef29c07ba1fb8ce3a74837b0e671761b4531fcf0384c7431238d189f0c98f1df",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/launch/config.js",
+      "sha256": "917d312bd73a902e1fc549eca3e3f5dc9842b4f9cc98938eabf13594113d8436",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/launch/ControlCenter.vue",
+      "sha256": "08e44094b2f9b11687a7d8c24cff8a0ba83e237f9f502ec0e7efa466ea8fd0f2",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/launch/ProviderBilling.vue",
+      "sha256": "9bf5d819efcbb3a431f75726945f15e32f2d47492dc3b09566f3f869e4e17222",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/launch/Signup.vue",
+      "sha256": "1996bd5b1336ed35e3596aaf23bd2b7c4f9f91186549fa832fcd6b330a48927c",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/LessonQuiz.vue",
+      "sha256": "f2a4ac6ce101584f54e4b6abf34c81ef857b20e371517f67c16d2b0fe2b407d8",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/LiveStudio.vue",
+      "sha256": "8cb61c1d7f2dd68f0c191a603a34ab53e620c45ac07b6600a8e41b51429c5ed2",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/LocalePicker.vue",
+      "sha256": "e92fa084fed5f40ccf53676ab7fc338f5d364fae50d70984a851f59c3e457dbd",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/locales.js",
+      "sha256": "56526cd7dbaab48ee2b086683e7211e10c56ed76b950637e7e844fc61b248dcb",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/main.js",
+      "sha256": "373fa02f061559192b7e52f0fe9d4f70893fa07d2c1bc19d3e0075a1a80a48f4",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/MarketingStudio.vue",
+      "sha256": "522e438c135b06b785d2ab5cd0769ca7f07e9a639f4c688e5615b03969f429d0",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/marketplace.js",
+      "sha256": "ba6355f9383d88f98a2818391997c439cdd3b5ebf590281a83c51733b3ecfb42",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/materials/blobStore.js",
+      "sha256": "e8e33412bbdfead25783699fa2593795fd046da37972f342f96ea677078f381a",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/materials/client.js",
+      "sha256": "496de0f9be5c99300ded7ef78eceefc9cfad64caa126289c21914d9452bfa59f",
+      "status": "modified"
+    },
+    {
+      "path": "frontend/src/materials/MaterialUpload.vue",
+      "sha256": "3181fceb3873cf9c1b6a87369191a27a6e4230638aca494ea7bcf4ec8323572d",
+      "status": "modified"
+    },
+    {
+      "path": "frontend/src/materials/MaterialViewer.vue",
+      "sha256": "0da40958b216c817234043bf1235a29d38d500fa0dea90916903fae1f664129f",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/native/AIWorkspace.vue",
+      "sha256": "b6371f7aba9cbdb29a8fc04df7cafd6991a36d7afbe6d1c681cb7be2133ccfa4",
+      "status": "added"
+    },
+    {
+      "path": "frontend/src/native/Apps.vue",
+      "sha256": "3b1a3833823ebee3c6177623e19989c26cba1b17565d7a68f8330d0dedd0778a",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/native/client.js",
+      "sha256": "6a6ef7524515220ae8c7e6ed79c985cd713469a700e1fbb0b14b2ef59daf4f09",
+      "status": "modified"
+    },
+    {
+      "path": "frontend/src/native/contracts.js",
+      "sha256": "9fbd8bd21b1e0aa773c64445e129745835528efdad0c07fadc2accfb10628e71",
+      "status": "added"
+    },
+    {
+      "path": "frontend/src/native/ControlPlane.vue",
+      "sha256": "afece133162b1e2f63be69c9e53482bff36d0fd0f61b2d2602b420dedb22d06e",
+      "status": "added"
+    },
+    {
+      "path": "frontend/src/native/MembershipMail.vue",
+      "sha256": "a2cc138172dc7f3696a3cec84a4af6d61fdb1a2cc1d464146bb292024733dd2a",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/native/MobileVerification.vue",
+      "sha256": "6ba1678722475e19ef0e278c2d5b7f4e8a31b64ee604e30dece5bac31b69c9b1",
+      "status": "modified"
+    },
+    {
+      "path": "frontend/src/native/NotificationCenter.vue",
+      "sha256": "688647d381d2536299daf552edc553f61c5d421d20338ddf3c2d73cc598f694f",
+      "status": "added"
+    },
+    {
+      "path": "frontend/src/native/OnboardingSettings.vue",
+      "sha256": "44793f834a0e5b69026ad54c94e9f8a81879e643807dd162d89eced13002dc2e",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/native/Operations.vue",
+      "sha256": "89e4ce8e990791834d610c35de5b1e85aaa2cc27ebbf9a51eaef0f0f6bbdb625",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/native/Papers.vue",
+      "sha256": "4d7cd4b2ba6b1999cebbdc405ac665fd060e07458c15fad9f921f22fce20132b",
+      "status": "modified"
+    },
+    {
+      "path": "frontend/src/native/PortalRoot.vue",
+      "sha256": "9d09f5881a4a485f2d46095b237d2d581f4f19a4ec1e98abe584aa51a2d71a91",
+      "status": "modified"
+    },
+    {
+      "path": "frontend/src/native/Programmes.vue",
+      "sha256": "77b3a74cf2bd8c8fc336648720885de70b55f40527d84b264761a9df7d60adde",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/native/ProviderHome.vue",
+      "sha256": "8ba55275b2705f27bb81aba750cabdc9b02dacc54a7a96baa690e10ad5414dbb",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/native/RegistrationFlow.vue",
+      "sha256": "0d819cf313accb405d8160edeb8629a090343119aa0a116fd58ee967a1e2db5f",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/native/release.css",
+      "sha256": "45668fc1a0b54bcfc97586c8d655e897fd4f3ea48111330e14635a7d94da83e1",
+      "status": "added"
+    },
+    {
+      "path": "frontend/src/native/Subscription.vue",
+      "sha256": "0915b180fee86d21da29611e6fa502e07dc1194ca52ab090c127ea1d617ca7f1",
+      "status": "added"
+    },
+    {
+      "path": "frontend/src/native/SuperAdmin.vue",
+      "sha256": "751808aa266deae3716b54ae44b68317cd89768f4610908e9dc9744e1ffe62ed",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/Plans.vue",
+      "sha256": "eb911e30e3d409d31809d7f0e166cd7242e45d02c4db8e5de8269c2d5146eccc",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/platform.js",
+      "sha256": "2e0798d277fb798c253ede88a1b031732c6e92958e4304860a45439bf823b36f",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/PlatformDashboard.vue",
+      "sha256": "b91fa0a940900b4b72c253c24bf2d7fb0100ceaa6b849551e8b9c885c77b33e7",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/preview/academy.js",
+      "sha256": "b72e700debb1d7b3bb946c3c606658b58763043e7a260a8e5f35ae2f35595d8b",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/preview/adapter.js",
+      "sha256": "c32e9bf5728bb9e10beb88e51e2c1668b0aa309d60832acd1adf42e6fd4a2131",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/preview/Login.vue",
+      "sha256": "984d5ba27e48385abe2e4c94443d73e4e7cfbdcad0087812b3a707c8b2e64a94",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/preview/mode.js",
+      "sha256": "a921598bed8f18ba5308c15f2bbe28ce36fb86a4f86be8a6dea6bc81164891bf",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/preview/PreviewShell.vue",
+      "sha256": "9527d0069c2d8c00c3159a442a2fef3023296592007e7c1e414462e0e2ad393e",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/pricing.js",
+      "sha256": "337c7ab5fa27298ac46332641b90d6170806e51c87fccc70c9274d433d885edc",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/ProductTour.vue",
+      "sha256": "010c4f7355ef26cf88f966c2b955e33372c599c7e684ac36ce21aed85b248fff",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/ProviderSetup.vue",
+      "sha256": "a23b589911ad39af07b5d0913e252f3e94204b622c774f5bb83e23db6968e4c1",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/QuizStudio.vue",
+      "sha256": "0297e1f898be24608660375bc2d5ea089cd8f4c52337adcc24c656b627b479cf",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/regions.js",
+      "sha256": "d80af305ee005689a1e32b4491bc04acfb5d127a290b33d08a2da3008ce2aad6",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/resultImport.js",
+      "sha256": "8ba55573ba5b0b4e1a8df8f37fe916a4416b55d2df4d663d48e82d1866db163c",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/rules.js",
+      "sha256": "1e84cf86f87c1449983d3e5fe8f453fc73614e301dd4c0f522b0b17c61045052",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/service.js",
+      "sha256": "72b0f24c881395d714336f53b340cd23879ac6e9bc977f54d465a65f1dd57775",
+      "status": "modified"
+    },
+    {
+      "path": "frontend/src/soul.js",
+      "sha256": "a941f8e74b753a97bf272b4986adbfb0597d39f89f14a945900cbdfef935200d",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/SoulCompanion.vue",
+      "sha256": "d62b12d1c4bf2197d04723c3785aae009aefcaabbc4c3d3613a5ee5de3793841",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/SoulPet.vue",
+      "sha256": "154475adff21e069dde0e52f453d334ad9357f911fa9dcc792603b8b2e466bdb",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/SoulSettings.vue",
+      "sha256": "33396bf34cd24e2d5b453a7c4049fd3e3b3c10c0c5c5324afa6c22ecc92c4bdc",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/student-theme.css",
+      "sha256": "80be38eebea40753406e9f6488f02d8441a9b852d389e3b6286fbd4230702edc",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/StudentAppearance.vue",
+      "sha256": "3f4d787deb961ef1b377d98f4ad23f236dc3b90c97303a4e4049e6286a873b66",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/StudentHome.vue",
+      "sha256": "bc52fb44bcac42cc7e906f949629bbf01d49a47edadeacdb13d10b455e46c9e7",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/study/appearance.js",
+      "sha256": "d230e1232f8d99302100ef40b0152ee4600147a0b22488f50780276dfd59f7ee",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/study/audio.js",
+      "sha256": "364f39f6593afdd85056e5d01244c961c87884bb1ed445c7e20c1021e8cb3246",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/study/backgrounds.js",
+      "sha256": "16e0c5e8f69b34be3218de1dca4b05494f5c2b3ca63012d2a1c7d9fbece4fe7f",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/study/PersonalTools.vue",
+      "sha256": "81eb4f9fd5b73f8c3b9860274162460bba8036d0ceb6c3a6e7f6c5c5bed5ca2b",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/study/StudyScene.vue",
+      "sha256": "1c03880eb7ccf05d54a08938898c649b69986d7e0a83d70a18c92d902cc599b7",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/study/StudySpace.vue",
+      "sha256": "cde7e11c963b92e2de566a90858c03e90ca27920e1d5c30d968df218338ee66f",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/study/timer.js",
+      "sha256": "283d7a6d8d6a2b6389e5a649691aeae7e5ddb9155991657d9e73d45457c35929",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/study/tools.js",
+      "sha256": "5aca50d3b43eaf1efd3288a89cc5b4145710a90d6c78769c6c281c6a4dd88ebe",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/style.css",
+      "sha256": "311a518ae23c1bee95af8b31a9922331eed83fd5821ca0fae0d5388161b1136b",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/TeachingSpaces.vue",
+      "sha256": "22a97d2158a6bdc4dc33fa5090b88cf266fead4e5d89c8c56ee1ef0321ec743e",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/src/VideoCourses.vue",
+      "sha256": "84934c5619f3e1fb51aa2d433e21b46eb40afd40d0ab33d47429ddcc171eef9b",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/commerce.test.mjs",
+      "sha256": "40d8b71528a00782c322baeab9801b43b4b79fd1727fd84ad23e3ed19de7c3ab",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/contact-invitations.test.mjs",
+      "sha256": "b58eef73409859e51cfa20f33b224b550d571924676bf807670a69e99f59fcaf",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/demo-workflows.test.mjs",
+      "sha256": "4a19ba39b6eef6f317c66fe8121149b0f8ab2ad772c456cf4f7044e3afed8d16",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/demo.test.mjs",
+      "sha256": "8e14bdf24143dfae3f0867b01d4255824dfc3509d011679aa641d22bf898305a",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/fixtures/community.js",
+      "sha256": "d61fba029502065ce1aa52a614016d96e9f540d2b5462721086cc7cab870f2fe",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/fixtures/demo-service.js",
+      "sha256": "bd85374e04e64b23e28cb47a0b5be049fd836134254e174347c8ce5a80d6dcd5",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/fixtures/walletClient.js",
+      "sha256": "ba6be3716620d17c2500d5af885aa89695c5e38369090ca823f163c59909eed0",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/import-ranking.test.mjs",
+      "sha256": "4a392b82b3de6c349f606f0943363cf46214f097010ee533141cb38bf05dd107",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/launch-v2.test.mjs",
+      "sha256": "f29ab83001c71226c4f36337d1fffa2b399922690e30719981b0ec1b017bbe27",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/platform.test.mjs",
+      "sha256": "5143a832bb2dfc4cfbdde52329b70962172204519160d4a33e4762085db23433",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/preview.test.mjs",
+      "sha256": "c224101eb2cdac504329eb0f4d91d865844e5e3846ba70fe0b78842112b7e192",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/regions-grades.test.mjs",
+      "sha256": "680fe42fe8fc8fae354c2083cf1df24b1a3a217b423438ffe3d599339fa9ad4b",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/release.test.mjs",
+      "sha256": "e354cf7bd8fda2c886bf220e6593db5363c82f581b788f9428280baabb7559c4",
+      "status": "added"
+    },
+    {
+      "path": "frontend/tests/rules.test.mjs",
+      "sha256": "314e955fbcd799b2d55e40f7f140cfd57dfbc88049c2aeae6a4af866a3266a21",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/socials.test.mjs",
+      "sha256": "b8fabb686f403438bb7578f3e0bf8249f90aa93713862665317180ca29d44437",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/tests/study-pricing.test.mjs",
+      "sha256": "570e69ad3f57ee80042f569e4dee0f960b86cbfe713a82a29ff9ef822bf13572",
+      "status": "unchanged"
+    },
+    {
+      "path": "frontend/vite.config.js",
+      "sha256": "aeb4992473fb65282c874dcc2f4904d5782b205414f76abc3d9fbe1abb78b2b6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/__init__.py",
+      "sha256": "3dc5c95e186a00afb6a428933b6e8555a7e9bf32b9c60ad8a0971322f15449f1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/accounts.py",
+      "sha256": "12c60e591d41196abf492ac119f3636aca9083cd916498d4456f94fb0f07f649",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/ai.py",
+      "sha256": "bb7f5a716e5b19bcc6538bc24745d7b258c7225aa6c1997ee10c811e4c9c4336",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/ai_access.py",
+      "sha256": "aed93dba7c616b3a80d6f824316d8cf627c5904bda8ee1268eb8097804a31206",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/ai_accounting.py",
+      "sha256": "e7763b923737fa051c30034e0f91146027ccfeb9fdcf7ffe25418ac738426749",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/ai_extract.py",
+      "sha256": "16e98a623537935eefa5d7eb70503abdc48b3a5b82a861c2e5813f3836d14b7a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/ai_insights.py",
+      "sha256": "f1c9fdf85eecf9c387f47e08ab6c3dec403d374291303ab582cdde26e0338461",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/ai_provider.py",
+      "sha256": "3e215d5f8c692de560143d75827fb2f33be93fbe2ea09522dc9b3103f65f81a2",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/ai_retention.py",
+      "sha256": "4ae299c088ec396f0450ea54e7e7b8e75e8e94e02b2879cab0b30dd5949b6a14",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/ai_rules.py",
+      "sha256": "fc5ca163d95c1128ac2894fb1fa24b832526ee411f5808296dda777f03498e1d",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/api.py",
+      "sha256": "e9d3bf685b0d391cc24a9def923d712e19f78fed9e450ac1bc6c6ccc1e3f785c",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/billing.py",
+      "sha256": "54929e719a97cddd519b8790e52fdd59ae1eea2254a6057c1961188e06cec0ab",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/calendar_contract.py",
+      "sha256": "21af0a901425650f941a213e128ef813f4b07c5e51dddd459835d3b4cc625804",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/calendar_sync.py",
+      "sha256": "3dc5c4a4314e9ac33f218f2c517b28d47f8df4822e479a6df62450ae6a15e639",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/catalog.py",
+      "sha256": "f731e9fcd2b01a776432c70c2ff015be3b9fe975d015b09d9bdeda02a20bf3b0",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/class_billing.py",
+      "sha256": "f0f7f19791b4614ebae7ace5e80cede40b5ece4488dfec3c898f8372102e72ee",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/contact.py",
+      "sha256": "a29a059cd996f98c421822c1a75f997075fbc997bbc5397939a4c89c98681c7e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/devices.py",
+      "sha256": "13945f6192aba4db53b6891e764919d226ed775ff6e8d9594e14250182c5d10f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/domain.py",
+      "sha256": "577bd8d2ba633aa0ebe248cbf23822fe4dd3f670d3bb8ac2eba1659b3c0c0cdb",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/health.py",
+      "sha256": "3645b51a23d52a94b20f94d6e91f45f5c2194f49592a28218adee46fedfbdc29",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/hooks.py",
+      "sha256": "793d6b73d1a8fe41d1dc5f9e32a3ba9124ca2714b27de167544d428b82685284",
+      "status": "modified"
+    },
+    {
+      "path": "institute_lms/institute_lms/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_access_audit/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_access_audit/il_access_audit.json",
+      "sha256": "cd3bcdd1244b74138d3218a62bd50a77a6a20516ae3bc9bdcece9e5203a8cd8e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_access_audit/il_access_audit.py",
+      "sha256": "2d447c909c9de01f9463ca7c34c791fec75c0d4421b5bd8da1e5bbe21c71c4e5",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_account_request/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_account_request/il_account_request.json",
+      "sha256": "c802eb93e7b9df69bee44744054f86ff3ed643ba52e7452c49190f30c04ed865",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_account_request/il_account_request.py",
+      "sha256": "1bb747517fa6a92121ab4fb7a87308546ddc81402876d4ca38e882357e77075a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_ai_conversation/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_ai_conversation/il_ai_conversation.json",
+      "sha256": "63db541cdc09636b28ce4a9288648cc0a24a1596915bb26653af986bc61e6e10",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_ai_conversation/il_ai_conversation.py",
+      "sha256": "923789a49475fa07a6a2f5a8acd584496a89c316405b1132e411257cc64ea723",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_ai_message/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_ai_message/il_ai_message.json",
+      "sha256": "c44de0ea2ca97cdc1b07b887563cec94c968d44ccce5027b4b0df5c8e16c7f9a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_ai_message/il_ai_message.py",
+      "sha256": "86b34e4ff88cad95db2afdde68851344e5c914070bc43158cbf79576addfeda0",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_ai_usage/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_ai_usage/il_ai_usage.json",
+      "sha256": "9ce65a7a3ce0588acbf8434b5840f86acd3ed1a7f5691f9ef6e83158fbe066e8",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_ai_usage/il_ai_usage.py",
+      "sha256": "98722aaa46427696dcefba9107d238ca0f9ddbd79ffaf9a7674943dcce31d1ca",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_announcement/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_announcement/il_announcement.json",
+      "sha256": "0dafa1ad6c7338658e02b13b35b13120b8bdb2290f0eb00396a9af79b99d9b3c",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_announcement/il_announcement.py",
+      "sha256": "32e67b277e7187ea0b5d7009e542300ac514d2cdec82d278de31a12bc6687097",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_attendance/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_attendance/il_attendance.json",
+      "sha256": "65f6a8395ebae73244a71b15620c724486f7033c8d220487c05f63312f34475f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_attendance/il_attendance.py",
+      "sha256": "345d774e8a548420cc7bcc8d25da59715f9e518bfa32ba248c94d546baec02d0",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_calendar_connection/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_calendar_connection/il_calendar_connection.json",
+      "sha256": "8ad0c0d2b71751588cca76faea8ddae4b923dbe71c812791e4ce38476cfbd0b1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_calendar_connection/il_calendar_connection.py",
+      "sha256": "db2a6d3af3610fc56eeeccd7cf18ffbaacc6476d99980838a82676f1e3108c01",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_calendar_job/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_calendar_job/il_calendar_job.json",
+      "sha256": "8170ca46b4368f6557d5cac472bab8a6005a371a1ceeef4765d19fbfe977e0af",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_calendar_job/il_calendar_job.py",
+      "sha256": "80dce8c4d87b854a01d52be87ef5c9faa27fc565963b662181d60fe85a703107",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_checkout_quote/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_checkout_quote/il_checkout_quote.json",
+      "sha256": "e6ca9ecc3f3cbd275ec0bdedd54984bc9db67826bdb7e671d0d9a298148fb4b4",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_checkout_quote/il_checkout_quote.py",
+      "sha256": "bb8735c32645ff7298bd53471e7f4ba99c3f3bfca4aef73d4281a060b63bc738",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_classroom/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_classroom/il_classroom.json",
+      "sha256": "e43f1f789ba9f9ed36fb4e21fc7af3adf400ad1f5217542522f6bc054544da22",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_classroom/il_classroom.py",
+      "sha256": "09b4e05ffb4ed77923bf9235766a4bd72677eac2fb72105714975440f63df75b",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_device_token/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_device_token/il_device_token.json",
+      "sha256": "c36cdf6351f9ceb77e8f6d2739e499aea8abfa63aec6aee232e20821f24c8509",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_device_token/il_device_token.py",
+      "sha256": "9f0d3a0587b3787c358969b35c3f7dae2b45c78800c982fbdc5ef0a87f4385c8",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_enrollment/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_enrollment/il_enrollment.json",
+      "sha256": "58b66a95ba8fc6a5928407e816aa4dbe8684ae190025b2491ae2ed686b8488ad",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_enrollment/il_enrollment.py",
+      "sha256": "7674da12568e8f287689eb5cfa3cad88eb6eb225ac90890b1b4e28af04e13ad7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_feedback/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_feedback/il_feedback.json",
+      "sha256": "ec0a0cd80d51358006bc48cfd8c689bd177fc28d2e046fd9d2832488c3702ade",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_feedback/il_feedback.py",
+      "sha256": "d972378c0c01bd1e50cd1bda2afb297524d050a313795b37460de54ba5fd7390",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_institute/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_institute/il_institute.json",
+      "sha256": "581b557512ef6cf9ada27ca2a31ce051eb6aabaf48daba514ca95f6487e13dec",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_institute/il_institute.py",
+      "sha256": "9cf4bcdc7bf8651ccb164e86137385c8e2caf9e702fd97f07e8522912f958647",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_institute_bill/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_institute_bill/il_institute_bill.json",
+      "sha256": "2465f8e0754a44ce66047d3bce2ba730546c1d5213c59a1060d6ca2ecfedc108",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_institute_bill/il_institute_bill.py",
+      "sha256": "8c1873ae8a26ad6eb3db5f3bb0f7d5d753f97ba91b928b3f7a79fff16e8e1c89",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_invoice/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_invoice/il_invoice.json",
+      "sha256": "24f8a405d8fc77225b34808acd215de10e95e80713bf8c679dbc27b6678f3ad2",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_invoice/il_invoice.py",
+      "sha256": "295afd33cc3c83ac5257812a1f904976b6a1264220689940ad468c2903dfcef7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_knowledge_chunk/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_knowledge_chunk/il_knowledge_chunk.json",
+      "sha256": "78284bbe7fe47de44ec2ede90ff81f89d3376303ca53511e1d949bb3f739c3ae",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_knowledge_chunk/il_knowledge_chunk.py",
+      "sha256": "57f7466d9b0a433f3f1f2abcedcea23ace0d5363c780e49818c7ff6a539b82e6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_knowledge_document/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_knowledge_document/il_knowledge_document.json",
+      "sha256": "e01a53be50ee7471a2e8eb523ce038b4110ec9d3ca9c2f816eee3ab6ba4dca47",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_knowledge_document/il_knowledge_document.py",
+      "sha256": "edde0fa7123cbc3d56ccf2443f4441e8e8f8f3b31d0795104127ec4cdda17d2c",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_knowledge_index/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_knowledge_index/il_knowledge_index.json",
+      "sha256": "7d9eb0c417697c80f77635d429bb1efcea10c771e55c3f45f6513aac2dc02225",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_knowledge_index/il_knowledge_index.py",
+      "sha256": "83b8106a35dd05c531597299dcbd33391986310e7fa1aa38662b8f292194ce45",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_material/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_material/il_material.json",
+      "sha256": "4ef2da2b477f27be62aaa854d92a60764a331c4bab209676d6033935bdb33602",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_material/il_material.py",
+      "sha256": "270376ebcdb0d37fcb3b8889772df1d586f71de32108841e6beb15ee0dd17a72",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_member/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_member/il_member.json",
+      "sha256": "bba7c4e1911be638335155e0c6fea0abfb5cef0f66814c2a896f991f8a1a46d0",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_member/il_member.py",
+      "sha256": "db110ebb8a8f214123546b3ff03ae2787179301fe048fc7384e4b57aeeb35f89",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_mobile_session/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_mobile_session/il_mobile_session.json",
+      "sha256": "97b3fa1800cfbde0bfde3b9fe0987e6d5a1218fa9a84f1287d811ae8a3ff0501",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_mobile_session/il_mobile_session.py",
+      "sha256": "a7d9adc576b78076ba68edeecb23bf6df244ff4429cc28d95453e51cc873cdd3",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_news/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_news/il_news.json",
+      "sha256": "5c9f81068b2de76f89cd4b5702e6a8d6fd0d73b26349360588815a735a32c2a2",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_news/il_news.py",
+      "sha256": "fa11ed3291a0c963685e76cdae23c2d1201b3d101f1fe7b7a300fa51094e812f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_news_image/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_news_image/il_news_image.json",
+      "sha256": "3824b1bbdd2ab895c32e85b1468eb2a4b1466f19643f4609bb8444b74eb9c0fe",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_news_image/il_news_image.py",
+      "sha256": "ae59c912e4122a0b1fe266d323fb78ec3f44ebaf38cc7e0ff01ab3f1874eab0f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_notification/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_notification/il_notification.json",
+      "sha256": "2bd717545487127cc24fc76836f256b841ddee1e252bc6dafbe532bccaae1be7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_notification/il_notification.py",
+      "sha256": "75d82d97b0644ffc5a7ed136a992173e4552c486280b2667d507d43e44c39d2e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_notification_event/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_notification_event/il_notification_event.json",
+      "sha256": "72354b74b2efe696132118940ccad06a1e3c967ea3734abd5863e78ff1f8e3aa",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_notification_event/il_notification_event.py",
+      "sha256": "c1df71b4b78db6ff05d39487521f2c451b5070a2af07c4b82657e887d7026f62",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_notification_preference/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_notification_preference/il_notification_preference.json",
+      "sha256": "230b8c93630a65030130787a965b25b206381271d85641e4baa965df553473c6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_notification_preference/il_notification_preference.py",
+      "sha256": "2d29d254434456e67211721fbd3efde4d0308609fd5f1ad15121e158afe32e55",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_organization/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_organization/il_organization.json",
+      "sha256": "cc09ebe18ae26ff615fe67d72e2cf786a49be9214054977b8c39d6cd4b559c30",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_organization/il_organization.py",
+      "sha256": "62449a2a10e80eeaa80ea6003283f74fe14dd196071e5b4dbb3d3ecf0b0c2a06",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_paper/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_paper/il_paper.json",
+      "sha256": "7a13044e66d27a957b71ea50087cc9aa494d0ff075b0f1d58c44b185022c9a58",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_paper/il_paper.py",
+      "sha256": "c3c53f4532a8192fd91111462c4c91e1353309a49ff51328432d470f3c8a3211",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_paper_attempt/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_paper_attempt/il_paper_attempt.json",
+      "sha256": "affc319247655293495b25dc2b116830bbb72a1a53c9505fe3824cc7a2b527a9",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_paper_attempt/il_paper_attempt.py",
+      "sha256": "cd5eef1f7a851af8a4e3b68ee67d2df80b23c71c4768003f724501d33226fddb",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payment_attempt/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payment_attempt/il_payment_attempt.json",
+      "sha256": "3bfdf5f3b655c1fa0f59ca0475ffdedc6611be38aa00d73dfde8e4cad796fff5",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payment_attempt/il_payment_attempt.py",
+      "sha256": "b7892204210fd67bb3cdc685436344972dec2c4a057aea098a77d1bc84ecc84d",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payment_transaction/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payment_transaction/il_payment_transaction.json",
+      "sha256": "50147b49cf263218038bd5de9c22d119316c6569a2254cd9215aa70afd0c70fe",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payment_transaction/il_payment_transaction.py",
+      "sha256": "f1c4566a2f835f05da806d92d2f3d03a7ab7b39a8a7fd1a9c1f0b56f3a860ab3",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payout_audit/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payout_audit/il_payout_audit.json",
+      "sha256": "5aef658462d624697b26f78a1b46a16e181d66936e568eedd283ea29971f0aa7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payout_audit/il_payout_audit.py",
+      "sha256": "a99f9d1d304b480408f2d6b42e75a935d9087c36defef46a4a93a1f92f4b0942",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payout_method/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payout_method/il_payout_method.json",
+      "sha256": "77cdb03f11bdf7fedbe39976b334f6261017a070e3ff890c1b727bdeb261b600",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payout_method/il_payout_method.py",
+      "sha256": "fc34122e55c75f9dfcb2be8e0f9febe9e3d9c0d26f6da4c856fc488194cbd73a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payout_request/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payout_request/il_payout_request.json",
+      "sha256": "887606b81340b0588c1013c4a706de84be3a1fe4343038122a61f7f50654dfe0",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_payout_request/il_payout_request.py",
+      "sha256": "12bc90326177b36e18e25d1906f0e2fd8e4ac2536d62e2aaf55aa825dbbefb65",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_portal_settings/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_portal_settings/il_portal_settings.json",
+      "sha256": "9d4c9e81c92d35664ece16d764455ac91ef884c5139712efb4e778201cb354e3",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_portal_settings/il_portal_settings.py",
+      "sha256": "1d4abd4be5648d1bf4d6486b3f10ad3ed81484638359a2184713b32122c741a1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_price_assignment/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_price_assignment/il_price_assignment.json",
+      "sha256": "28f52eaf50e4af90570807d0518c34b7b214271930c756bb6ee6f9b3fc8529e8",
+      "status": "modified"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_price_assignment/il_price_assignment.py",
+      "sha256": "70dbbe50cdface1d5f554981a387180a5b14fa6938db8d2375a302af9d4dcec6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_private_contact/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_private_contact/il_private_contact.json",
+      "sha256": "fa680c39b0b9db9ea7acaebbd463bd8253d09ec6358edb3e810b3a919c6f7569",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_private_contact/il_private_contact.py",
+      "sha256": "b9e866655230d8af6b61a4ecbe3e6a6fa526013c4c744ae247e568ac6a71e3d2",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_product_entitlement/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_product_entitlement/il_product_entitlement.json",
+      "sha256": "932fb30d720c16e084135e6b7ee7cc43ff2aec5cf1400ce526544495131905c2",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_product_entitlement/il_product_entitlement.py",
+      "sha256": "7b03b9fd56db879932cfaf1d937047879e8a87ae3465c8f3f9a1a1dd1fe2efa2",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_profile_relationship/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_profile_relationship/il_profile_relationship.json",
+      "sha256": "87a2fa7e3c2a326ce4b8f1afec3398a3e521784353baa9a910ed2c0b957f3b4d",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_profile_relationship/il_profile_relationship.py",
+      "sha256": "96e657cb4dfe13ac444df0eae58f67674319e844f35bceb38f42daa2078d96b3",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_programme/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_programme/il_programme.json",
+      "sha256": "789ca521f7b4f41822ea69bb8388aa7649fc96aaefc4572dcdbeff80729c545f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_programme/il_programme.py",
+      "sha256": "d7c840265209d816f460e791e9a5d720f564587dbf7e18419434e454739adb07",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_programme_enrollment/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_programme_enrollment/il_programme_enrollment.json",
+      "sha256": "0632cf32f047537c89f84d7d691a26b55a61c13b0ad519b3898542b35ade05b1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_programme_enrollment/il_programme_enrollment.py",
+      "sha256": "8186d81782472a7bfa1b0a2f74ba51403d3771822ff274ceeecde7f31aa61139",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_programme_module/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_programme_module/il_programme_module.json",
+      "sha256": "5c122d1f09db42fd8b107a3f9f182764113ba245f5aba617f58a9e61e7c3c8cb",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_programme_module/il_programme_module.py",
+      "sha256": "ec19ff2155af5c14e5b2fce3dffdfff29d62c89eb4e38e233dec07ce52033c54",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_provider_update/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_provider_update/il_provider_update.json",
+      "sha256": "9a59eb2626fd8a014fa4d95cf9dbafc4f4d3b135a2b51968afa345b0af4f8fce",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_provider_update/il_provider_update.py",
+      "sha256": "0d99c3a78482d3c47dc097971da8dcdef21801b4fb2507d722146deefef526f3",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_provisioning_job/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_provisioning_job/il_provisioning_job.json",
+      "sha256": "acc45e0c5dee6f68f8a2fee9837fe1854cfcd40779768b292d3dedaa82199b92",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_provisioning_job/il_provisioning_job.py",
+      "sha256": "3dbaf7e1dacf6e2820ca32db73b1a268629aefd9a75925e220b548e33ac42c63",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_public_profile/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_public_profile/il_public_profile.json",
+      "sha256": "d76097dab92b0e57359a80e347f0e59a126acd24e89ee49465d76208ddb66d9c",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_public_profile/il_public_profile.py",
+      "sha256": "ffa6ddc6673af4b0f4b1c6404b6d54705628a9678e4588b5f7fa1e1f1bc70e9a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_registration_request/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_registration_request/il_registration_request.json",
+      "sha256": "db95e36b399421b1fb9a5c0c3508a10201c6824388b85ab5021e03678cc43074",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_registration_request/il_registration_request.py",
+      "sha256": "09cebb738ae3bb3dfd0e9af32ff11691f3aca2199a023879b090adf830c93b66",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_saas_audit/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_saas_audit/il_saas_audit.json",
+      "sha256": "0f964d77961a8ae4f26600286aaee039bd2ddee7509a22262c98fa1fe864eb09",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_saas_audit/il_saas_audit.py",
+      "sha256": "ea186f84892a6d9c129552c97a1494dfafc7e7c5b80f8330c3ec335218790b9f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_saas_plan/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_saas_plan/il_saas_plan.json",
+      "sha256": "3888c54ab4140de5f53ecd2a503f1e94c366eb697bc7282f9cdb78b1204463ac",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_saas_plan/il_saas_plan.py",
+      "sha256": "7d975f48ddc515661e617c575973b16b6e9f660778a88bf97fb89ad4f4f521c5",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_session/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_session/il_session.json",
+      "sha256": "8b760151a2b247be20ce75a9912602173d1edc5f136b96d18b01dba9b2860579",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_session/il_session.py",
+      "sha256": "644d17fe50c955090a1800903e3c51f1a8ad7a3d8f4d2dd5ae1300b039af0831",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_soul_settings/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_soul_settings/il_soul_settings.json",
+      "sha256": "5f6f9e5a5c817742d448e8bfd6b492f36eb4262ee2a516f75ab73b94a60c30fc",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_soul_settings/il_soul_settings.py",
+      "sha256": "9d3f53a6bed4457f704f42d5b83f1a54a28e55959a18638d49a904e591ad9ce6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_stored_object/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_stored_object/il_stored_object.json",
+      "sha256": "4e3d42f35a0050239128a173459badb81576bdb784682dbe5d9fb3369b47111f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_stored_object/il_stored_object.py",
+      "sha256": "e96601b8e0fc8b47fab2a951e31214522b64fd273775aab02f5516adf5de582c",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_subscription/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_subscription/il_subscription.json",
+      "sha256": "7c806001e54d2455ec0e4eeb0137b7a45089b6c40dab0c185c5443b1abd6bb34",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_subscription/il_subscription.py",
+      "sha256": "0a7140cacf05fde85253df6a5c8c3cae8ef5f7b372207a30f97203d0a66907fb",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_support_reply/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_support_reply/il_support_reply.json",
+      "sha256": "c84cc491d15efaab52fb52958e414be255443fc589f48199ce6a806844edf415",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_support_reply/il_support_reply.py",
+      "sha256": "748ded7118323783c4f4f5bc9935ea41f4f73f76484c346fb6611a00e967c381",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_support_ticket/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_support_ticket/il_support_ticket.json",
+      "sha256": "80a4ef1a1e876f9429e346f11a85ef1771c1057d59fab8b09cffc8e596663da0",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_support_ticket/il_support_ticket.py",
+      "sha256": "a05ce5153e453a7903a9937636839be007d137dd5532b068a38d761df62faf45",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_teacher_invitation/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_teacher_invitation/il_teacher_invitation.json",
+      "sha256": "fbb9e3e243986eb41024a3ebf9e2fad68c43bc68e2dfb894ad5b64956f68aa94",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_teacher_invitation/il_teacher_invitation.py",
+      "sha256": "9c88686eeed47d66abefa1a0543c537481a0e92ceb6c1c5dc98c6c2f3406804e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_trial_claim/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_trial_claim/il_trial_claim.json",
+      "sha256": "3b6f31ec4a4d1809a35c6255ed7868264e16938bf840ca05a20c615148b536b6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_trial_claim/il_trial_claim.py",
+      "sha256": "0bcc47bd5d581e24a48c4f544c16510320495185f106a39274151212f4474659",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_usage_entry/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_usage_entry/il_usage_entry.json",
+      "sha256": "537025c7f1681b05ce227f0ec971cd2cb95141a2ed4e0e8436b2389a986b345a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_usage_entry/il_usage_entry.py",
+      "sha256": "5552d65480cabd6edda1e41046b83c22955f24d4fe3292b09efc8ac881751969",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_verified_phone/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_verified_phone/il_verified_phone.json",
+      "sha256": "fdbd95a95249d78a5343f46b824c8507b8de36e6cd8ab074b4761af2d30b88cc",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_verified_phone/il_verified_phone.py",
+      "sha256": "63d50df35bb36a24ff82569f018abdce3e02719b2ba2ea8468ae0b9d0f60bfde",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_wallet/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_wallet/il_wallet.json",
+      "sha256": "2fd993621d1207af0b4edbc6a3a7c5d2a984ad3fbf927a7e579af976dc0c5dcf",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_wallet/il_wallet.py",
+      "sha256": "4e868e59b68136e2ce1d24ab31bdc0bc7476f28b1fcab3111fc776a5289dcd94",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_wallet_transaction/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_wallet_transaction/il_wallet_transaction.json",
+      "sha256": "22e102f86a5df5a5bdcb93503257b19b49da00a1e073218e0de3154231416264",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_wallet_transaction/il_wallet_transaction.py",
+      "sha256": "fc74eb5c40392e6a575e618c467faea34e3dbdee0670b39ea5c406e9d873671c",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_webhook_event/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_webhook_event/il_webhook_event.json",
+      "sha256": "ce3f626fb6bfc7ec842b218c3469306f116c4392c919c5e930fa535519036b06",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_webhook_event/il_webhook_event.py",
+      "sha256": "7a9ffb5b1f98b5693136bef2bc33478c6460de935ae5d633bee78a0d84acedb2",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_youtube_connection/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_youtube_connection/il_youtube_connection.json",
+      "sha256": "5caee854ec68844d78d5cc13b1871ee3a880c67bc9cbc4b0e0c278abd4b9c8ef",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/institute_lms/doctype/il_youtube_connection/il_youtube_connection.py",
+      "sha256": "f924308dd69acf116a1a2b6fdeb55727b620b07dcbc9b4f4ae481433c6d749ba",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/invitations.py",
+      "sha256": "f297138973545bcb870264226711656b88253cb5fa31aa0012f39c2181deffa1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/knowledge.py",
+      "sha256": "a99436bb17e2d2c8fc78f22272acd896e93d8d173ed7b47676e61a75c7533450",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/material_contract.py",
+      "sha256": "c079e5ed676da0b3bbc0d9a823b3ab599381298dc1526ec689e00bc070838255",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/materials.py",
+      "sha256": "ce4905589226236c8ed0bda2c70818f7feb7225202511574d2c50315daee3cb8",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/mobile_api.py",
+      "sha256": "d1b61cdec9cc63e844d7da8beb6b7461e91f52d6997e440e87f43de71d4f30c9",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/mobile_auth.py",
+      "sha256": "56ea83fbd550a216ba7a12c7756d364038c0d35d1e4499de45b85faca4c8f62e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/mobile_verification.py",
+      "sha256": "c808c3f76a08cd129e2c95f3c58ba08738d2aaaa4c52be55137f0ca24ff117c9",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/modules.txt",
+      "sha256": "c6591817efbe3edb995c5954c593c00bae84ea6b525c511c257166cad7a90535",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/native_access.py",
+      "sha256": "f213b334abf239a6d7f28d03e947b16333e422efb6664a015b9f64c5846202f7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/notification_events.py",
+      "sha256": "503535e11e7c654a389cd9ea9c7dec836d7d23d8f4fc9836fb301c3d07d6d3e0",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/notification_service.py",
+      "sha256": "b9b2ba72b5b10cbda6be33c60d1b4eff3ec065e2536f5d15367135b0443a535e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/notifications.py",
+      "sha256": "ccb3aec633d19e5efd65c116522e9feb7a8aebd1cf866f03a30b670f77bd0f92",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/onboarding.py",
+      "sha256": "f574faf19c7efcf14ceae319d2ab47a5674946796c698cb23632c6ccf783a835",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/operations.py",
+      "sha256": "5fdf8b00ece4f76c7a0786c38e71982ecc0999358c3dc6b80428d3afde39c5f6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/otp.py",
+      "sha256": "317164ba6ee228929a0f17c58f1d635f5c449ebc8392ef99c135475c5349f7a7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/owner_pricing.py",
+      "sha256": "b61fadd3ebd3840c02b1288e15246a26bbf1a6e92276252160a408a3652eb5a7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/paper_rules.py",
+      "sha256": "f8427f4e75a8a71c59b88e870f217fac2d40e5fc969f16b09824ec0b41051ae7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/papers.py",
+      "sha256": "408a152e64c6549b637bff93701eb46d59c5790b2ec32260990faa6eb789d5d2",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/patches/__init__.py",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/patches/run1.py",
+      "sha256": "3a824d304cf538e92260315e66886d1e010ce34e58f52e251d8405a5553b6e16",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/patches/run2.py",
+      "sha256": "10867c5e01a9870806a01ac623eba430318e170b589d411d25435a8f13e39369",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/patches.txt",
+      "sha256": "96e753862958eed2837b6e4248dff587634542913ca701b1e1e0e69cc609aed1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/payments.py",
+      "sha256": "ede1ffd6b277e18bb6541df276a3b8167fe6129aab7404fdd5cf64acb7dbc8c0",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/payments_lk.py",
+      "sha256": "2c677f4dadb33c9335b3559729d7c8600328b5aee5351df5afb34e7d0574cff6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/payments_lk_contract.py",
+      "sha256": "58a29f264a280f04af1fc0ad176f73f791ee18be39d3a53479af214a829140b6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/platform.py",
+      "sha256": "4708f1270eca6d81faacfde8c18bce99dbf31babfb9cd7a27d71af5b230920b9",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/portal_policy.py",
+      "sha256": "1487ea8d2c0a353dc6d5feabf4e2f8762e0978bdc77167647874b845dced2ff0",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/portal_session.py",
+      "sha256": "66ef2a9416470fa905be2680a510f66a1ab25b5877027c0bb9a43a828d06606d",
+      "status": "modified"
+    },
+    {
+      "path": "institute_lms/pricing_rules.py",
+      "sha256": "155eb98343359ab4b7f713c7fde79308636a6643c1617f9e936b722104179cb5",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/private_contact.py",
+      "sha256": "5a50c7163b36c589261977dc281a705ce1835f2ae19e6544a8f1fb824eb85ebb",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/private_contact_rules.py",
+      "sha256": "bad541d2b07bb67835222454a94a9ccbdde85283d11b04b947335197b4ff1fa6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/profile_rules.py",
+      "sha256": "e0dcd8fa86918bcb3e4edbb0dbd746fd482b7a2b92b94b00a5fe03bf7b3ddebe",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/profiles.py",
+      "sha256": "cbd77b35966cab895817ee30f130902bca19a9b44e74e40788b908d2a2e169d6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/providers.py",
+      "sha256": "191a7d1978ddf50c352d7ed0359d2f044d701f313cc9d9b09a26a2397708c9e8",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/provisioning.py",
+      "sha256": "74341d9d02ae17f66a9bef3ac0dd0a184084890a889332f8ffc2301b94c30bce",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/brand.svg",
+      "sha256": "fcb4bfab8d94839e1e6c140ffaf247fd5224389f6b7d6e7cfbffe5079066cfd7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/ae.svg",
+      "sha256": "3bc52a4aac7c6c68cd7c0a04013fa14f715abfe6958e7a6e3194f0793c9eb816",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/bd.svg",
+      "sha256": "1aabb4a772651fb9a673660233d5bc6f3d78dfc71df09d567769bc97b9eb554f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/br.svg",
+      "sha256": "b0a912826c3ffd7287435ebed66e18fe058e992309c00dc10b430dd41a29ba91",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/cn.svg",
+      "sha256": "981da9bdf82d48e31691f20578cefcb26cf7d0bd95e4ebd5c0df00bdfe988c1a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/cz.svg",
+      "sha256": "d601fcc2e5b1fd48b79d53c55108af4c0e90793f146db51f3ee449d8d69512bc",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/de.svg",
+      "sha256": "efd480af5a154a7651f29da23ee0d09dbc892410fb4041898ddf8face336c575",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/dk.svg",
+      "sha256": "d2847c0bd7a1fb97977ee51f2f618c5ebc5898dd66ef9804f187613c27bdca1a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/es.svg",
+      "sha256": "f9cfaff858e95f830733ade9591037b5322dfb5827a53b70956a3d190bb49b9a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/fi.svg",
+      "sha256": "012edd984cf1879463c2855b7df02dea2f7de7f7a66b244fb1e22b4227f7aa65",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/fr.svg",
+      "sha256": "8cdacc8d79bcf210cdca2777a2c0de1f9e5862526877bd3026c9d59ecdcd4578",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/gb.svg",
+      "sha256": "c8be1e7208798a4ae692ee1e937065d498bb29e741943f6172b29118b8ed8066",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/gr.svg",
+      "sha256": "a184070f7678b06777be8ac38cb05ba41829591a6dac9b64b2b72db66aec82f5",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/hu.svg",
+      "sha256": "ffc4edd580d4b9789bee68f33cef24afe826ae571464350fe7b98c7a36b4ff8f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/id.svg",
+      "sha256": "5cd3acc4939dd7eae6318c8d75df8c0d1733f650e2504a2635b0dbf3dfabb040",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/il.svg",
+      "sha256": "04a099ac4370b5e856f5f8d44ce0822ec47a6d3bc395a7d048d3a46d69274d68",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/in.svg",
+      "sha256": "91185efa1a9b52cdc0e470712518efeefc4e4d6a6555bae9de997ba71885bb98",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/ir.svg",
+      "sha256": "cb363e09bafbff6de7c2fba6a002ca33f0563dc83a2328d34adb492cf80ca629",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/it.svg",
+      "sha256": "9fa88118818d9b64838f578e2babcca3d0630aed21b5c33b34aff7ac5ce506bc",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/jp.svg",
+      "sha256": "bfea80baf9989383dc4bf7ca594ed95be0df0ff125bfc88d0bfa878eb0198022",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/ke.svg",
+      "sha256": "699163d87382eb969d8a26d4ce1a99a00264e8b7b95276abf585476506f46e82",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/kr.svg",
+      "sha256": "7a6cd5b51d0e2841ed8b79b1147ad8a66cf3c09f6344d4a63b5e4413ffa5d15b",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/LICENSE.txt",
+      "sha256": "8f1195d55a2fd315a07d812328470ca9ba2abb78c8d317ff19619d5125e00cea",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/lk.svg",
+      "sha256": "ed3eee24d19872d6adcecd589513c057c6ecfe4997af36e8d25ef9ed58660d23",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/my.svg",
+      "sha256": "bb30e84a099d2d9dc286ab091bdd40ae7a8e332eb49827f2df4f11803e613667",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/nl.svg",
+      "sha256": "8f691f17fe70894537af8e92f2ca47761d353639b0defc15cbe561eb503ab010",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/np.svg",
+      "sha256": "b84c02e2fa659d0be6fc6b5963d5e9fbd25c3a6ab4d469aa61f1e3cdbd3f4637",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/ph.svg",
+      "sha256": "c3bd5e08ddc5f6dbdfa899af9efb45577e3841402e6a7f5d00fef754816b2884",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/pk.svg",
+      "sha256": "89e851c0d541d8166b297e13bed97e0cb500bdb4ae48fd83a86b606a078352a8",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/pl.svg",
+      "sha256": "369bb3e14ee718df1ee15fd2fb3ad0dae713f78f622e277710fb2b30a313f2aa",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/pt.svg",
+      "sha256": "a7a2cf0b44aaaaf4f3bdc0ee0fa308ec7085bdfedd3f72da1473d43fd2a569fb",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/ro.svg",
+      "sha256": "17a3a747fc5e63302aaa670a667e5812f3676f46768e5a3e87b254bd41762840",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/ru.svg",
+      "sha256": "7100aaae51ff3b6a2bf0ca932b3bc518bdc760814725e7cca31d821a26c3dd7c",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/sa.svg",
+      "sha256": "5738c8cfca5fea63587cbcf69237996c8ce6283f8016853150686f37311b620e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/se.svg",
+      "sha256": "b3b5071e6c1d4a0e3db828bab5c7dfd68d0e90fcf3b25b15e9a2c4f96c1f79c9",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/th.svg",
+      "sha256": "329cc0d520536d6eb4b9304105f23650c2d02bbdba8f8696e996dbf166de6f2e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/tr.svg",
+      "sha256": "256a1d6afbedb9f731566982331a1cd1ad14aba211b8a61d338855879505e74f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/tw.svg",
+      "sha256": "931757f06b9ee751fd1a0cc8dd7cf862e21fdcaf894d10ed7bcc68dabcca59ad",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/ua.svg",
+      "sha256": "2d869c23ebfefb2ae0a633297c11dee06fcb666ce7b3ca75eba09b7a1a3a03ac",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/us.svg",
+      "sha256": "e7be4240cf57987926673708f09233be1ab6bdf35acc7b86bd32a263f197a2a7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/flags/vn.svg",
+      "sha256": "2355037201315d74581ab0ad60b5587a29a087d26b0525bdeb8676e64fae5b86",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/AIWorkspace-DmNeDjar.js",
+      "sha256": "7f3ca0aba28c49faabea33d4c5ff79edd0738247a5435f78ba4baadfad273c6b",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/App-CHdrT6ey.css",
+      "sha256": "52049a49d528ce0f9658a0b656d8cf690a9e382386df60b71580680720eebea6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/App-CVVxJRGd.js",
+      "sha256": "13d516021a3deff875eb46bdb69fc7e7226b8a702c7053ba08a5b024acd0716d",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/ClassFees-BSpq9z_b.css",
+      "sha256": "4a7367f84f7eb41a6a1bdf016060278f74bf5a1ea896f32928e6aeefefb45b7c",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/ClassFees-D13kACB4.js",
+      "sha256": "ecd9e7f0006866343f424067f32763f415f37c958dd73e35648d504ec32a3629",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/community-BTPn6AWV.js",
+      "sha256": "e2bb683a6b95666ec9989157e5f4c7b513d3351be5ed667e5c8bd7a02d5ca1b6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Connections-BuxHp6ua.js",
+      "sha256": "b1e07c4da4d97efce06a02a8b548bb50f4ed2c047027f228d53e6c9875ae43f0",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Connections-DRRdW9no.css",
+      "sha256": "5e85fce585250667cf13a396ba81b6420df1c01266c97f2c4f25bddeaada4a9e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/ContactSettings-ByhacTin.css",
+      "sha256": "62a1523d48e86029a7f65d93685dc78f75118947071817a08659ffcd6800eb2c",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/ContactSettings-D-5kGI_y.js",
+      "sha256": "a001219160f3c7a95a2b62f63adfd9bc9d70d94b9a92dafceb259c403490d9dc",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/ControlPlane-BF6uV8Hf.js",
+      "sha256": "8093319fac3bf8f5593b5b29dcc3da9d074ebe31d3c7a77f951c2f4d6debdbe6",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/FollowUpdates-B-DizO4-.js",
+      "sha256": "4dc988355c4b11691d70e9a6eb8e71da9de35dc11afd22565730fb9fb6c97ac5",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/FollowUpdates-BH6jtqt2.css",
+      "sha256": "3f2a16f6122fba1b184f0737bffbfad17c7a51ddec552de6d07387dea60e730a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/index-BlyPGDkh.css",
+      "sha256": "0175cf82f0129192daf9e7473a6bb57fea67084cb27274b3ad0a1bde64f1a507",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/index-BqqU-t3H.js",
+      "sha256": "45f6c516a243eac52dbf3ac8877c9a9505f2f037f017dea9ecb92c871023a43f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/index-Buw9ekzW.js",
+      "sha256": "84a46ddcdf5e12e5bf04c4bbf138f8a432ce1e8c83e37fd1d57daaa73bd04278",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/MaterialViewer-Bj3Ny4Ep.css",
+      "sha256": "13002a16d7e1d54b227fa0d9f0991f72dac1499ad39a065918390ddc6d1e5644",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/MaterialViewer-CLPY3sUZ.js",
+      "sha256": "3f3d91c573fefd69ab608da1de4ea0fa7aceb4879e8415369b3a8bae23ad1c57",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/NotificationCenter-dCc7Thpe.js",
+      "sha256": "7f0a55ba15a2337d6fe920f737e1a2335cdd5df307c97637d238b71c35cf8db4",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Operations-sY_oKFNQ.js",
+      "sha256": "7d6b11da67ace28131fec03d25eb3ba79f8c822ddefe0636762a1d50bddb9257",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Operations-TbvfXfkk.css",
+      "sha256": "61afec42068f77e32a5b84df4d48200b4cd88203a1c507b1ea32971498f28891",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Papers-BnxzYd1b.js",
+      "sha256": "acb3e1de57be3d151c56d076b4fedc90e49e1dc6895941efcccc250a47ca3c9c",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Papers-q79cMq_K.css",
+      "sha256": "f937fa5e9ddd7c81203fe568fa97f42c730b36128592fe7ff60afa18895bd617",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/pdf-CfP-JzcY.js",
+      "sha256": "dff80a0c8426633f5d859547e1055fd07b13b5c1a3e2f643f9715a1df4dd4f04",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/pdf.worker.min-DhOL5Uig.js",
+      "sha256": "7ef195847f05eb9bc5038a18cc9c72ed0c7fb09f9e05e7df6b764b883d364563",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/pdf.worker.min-Dswkl-cV.mjs",
+      "sha256": "8ab0e5e30031b4a06ecfddd5ae9562f0227f830ee7ec9ed1a968b134243d2386",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/ProfileEditor-Cw9a9G9E.js",
+      "sha256": "b0bd0141a89bebfdcc674e159738ddf250b13d243cc4404235f17123c59d6714",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/ProfileEditor-Nlz0wRjt.css",
+      "sha256": "767ba87fa4c55759317e46bea13a8fa2e1c1b492fa292dfc54350819fe7bf62b",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Programmes-ClXar5tt.js",
+      "sha256": "cba25b8aaf5fe61615004c37a3c43877c1ab43177299f28359798ee783a9257b",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Programmes-Dfh6gg0j.css",
+      "sha256": "3c59dd7873bd020ab7091b46b834ff8ea1e38dfd6f9d84db4b899ca16301d46f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/ProviderHome-aykzqpsj.css",
+      "sha256": "74f8a9d9c2c2d259906aa9d86ea0ae9836eac8138d67c8c881db9cda3942df5b",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/ProviderHome-CPCt4w0G.js",
+      "sha256": "1c70a6a14845bd30ad33bceb29c64bbadb54f548be69ee3d7e66922e2809dff2",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/RegistrationFlow-BLD6bJJV.css",
+      "sha256": "3dd0e34eaf2cf809e94097c2fe186143411fae31dcfa363b9901f9cd5ba80057",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/RegistrationFlow-CFAVMUn_.js",
+      "sha256": "8bf7a3346a52f06749f51061cc1c01c0b2c0e312d737d9e120133ab5be60d4ff",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/service-CIph7e_W.js",
+      "sha256": "e01bb262d313089e456188f15dba8572bee042dc6e78c8d263e95eb174768026",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/SoulPet-DeutLvAB.js",
+      "sha256": "370eceef5c88b207e2fa7c5b5254697143790d4e9a404a25e9e417f88a36640c",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/SoulPet-RGkt0tF9.css",
+      "sha256": "692cd3d4eb957f6b629a0ec8691ae9d1b26dc856811b5d3b895ebd12fcb17a35",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/StudySpace-BkWNaJls.css",
+      "sha256": "82a605d555ef0889bcb3523ad35f0c995d228a4d4ed09b0c9d0ec8a43893dd84",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/StudySpace-ZT3Zk6HH.js",
+      "sha256": "2217d871b9c73e06b78d676fd76c935bfe2c39244475259cd61d7317d4f5c9e1",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Subscription-Byr8zsnT.js",
+      "sha256": "26c9e1700ef0aa42df77f9b5c6e638941e5726b6f3e2c97a8de91d3269a497cf",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/SuperAdmin-BkRV9CJ8.js",
+      "sha256": "415448ae33e87ca3a9981724f4cee3881e553e54e7facedc69ae12a97a9fb73a",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/SuperAdmin-f3eHk_sV.css",
+      "sha256": "e18521d879e50b3ecad9c69a9f85237b94dbfe8abbb78271486234dc53de981e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Wallet-DonWOJtZ.js",
+      "sha256": "cf73035700dcfe995c20402c6f4fb11eb697b44e0f2dcd30081c6bb6adb12730",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/public/portal/assets/Wallet-FzkH_4b6.css",
+      "sha256": "4a9a197ec4a0c9589df6abd3bd6d6748f4e3c3af76d9a8560801c48c2d6207d6",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/academy-banner.svg",
+      "sha256": "e2a489c332248d9c8cec565b1b7b625896ed13bbe7e1b9e3d09a03d621477f2e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/academy.svg",
+      "sha256": "315343ba8ab1945ca74e6cbc33eca7709f310e6b1f6d2c64339c7ad744aae9e8",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/banner-0.svg",
+      "sha256": "5391b96c329f5c38a21a78734b71b065f1791f2b258f97b0c02789c01d167c53",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/banner-1.svg",
+      "sha256": "123fa936336efba3c62decee8ddd4f7a99688fcca4596724b26662f9d7a88aa7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/banner-2.svg",
+      "sha256": "75f07d6b1b32aa240b2418d27b2278d96baba6f58554ddde9dc25eb211b2692d",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/banner-3.svg",
+      "sha256": "27f4fe72ccb74d87b35bc3a46735ba0c90c2d6e961caf42ee7061a3e943c51d1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-1.svg",
+      "sha256": "739ba9195179ec9732b707ecaa95000022a17d8ce1fec011a8faab5dc58cefd1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-10.svg",
+      "sha256": "47ae4d8219b3959cb63fffb24938aa2020b809deaa8691756b93dbc918c35ad4",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-11.svg",
+      "sha256": "0b354015ab1a77da67971104a388dbcf755da390c8c17f49f71973d6eca1a87f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-12.svg",
+      "sha256": "08bfd7602219cf0671359f552f2a8b55bfa40934f63b2319e50f49b203093a31",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-13.svg",
+      "sha256": "739ba9195179ec9732b707ecaa95000022a17d8ce1fec011a8faab5dc58cefd1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-14.svg",
+      "sha256": "0a96f6a34605fbf3390dc58460f04838d11b9cf3d3b84fe7d3b0e5367c89f932",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-2.svg",
+      "sha256": "0a96f6a34605fbf3390dc58460f04838d11b9cf3d3b84fe7d3b0e5367c89f932",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-3.svg",
+      "sha256": "0b354015ab1a77da67971104a388dbcf755da390c8c17f49f71973d6eca1a87f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-4.svg",
+      "sha256": "c9b8b8449c3bb57b7bf65d71bd76038d6fe2eeec74c5ae50195d9c7f18a58187",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-5.svg",
+      "sha256": "8aaa63b45d996469c94cf23af03a85408e25bcdeae68d46f9a4c78479d86eb77",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-6.svg",
+      "sha256": "0a96f6a34605fbf3390dc58460f04838d11b9cf3d3b84fe7d3b0e5367c89f932",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-7.svg",
+      "sha256": "cc82da9968de0554823d14a2d6e9071c807b9c7fd493290c29d5b061be490623",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-8.svg",
+      "sha256": "08bfd7602219cf0671359f552f2a8b55bfa40934f63b2319e50f49b203093a31",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/demo/teacher-9.svg",
+      "sha256": "8aaa63b45d996469c94cf23af03a85408e25bcdeae68d46f9a4c78479d86eb77",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/ae.svg",
+      "sha256": "3bc52a4aac7c6c68cd7c0a04013fa14f715abfe6958e7a6e3194f0793c9eb816",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/bd.svg",
+      "sha256": "1aabb4a772651fb9a673660233d5bc6f3d78dfc71df09d567769bc97b9eb554f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/br.svg",
+      "sha256": "b0a912826c3ffd7287435ebed66e18fe058e992309c00dc10b430dd41a29ba91",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/cn.svg",
+      "sha256": "981da9bdf82d48e31691f20578cefcb26cf7d0bd95e4ebd5c0df00bdfe988c1a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/cz.svg",
+      "sha256": "d601fcc2e5b1fd48b79d53c55108af4c0e90793f146db51f3ee449d8d69512bc",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/de.svg",
+      "sha256": "efd480af5a154a7651f29da23ee0d09dbc892410fb4041898ddf8face336c575",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/dk.svg",
+      "sha256": "d2847c0bd7a1fb97977ee51f2f618c5ebc5898dd66ef9804f187613c27bdca1a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/es.svg",
+      "sha256": "f9cfaff858e95f830733ade9591037b5322dfb5827a53b70956a3d190bb49b9a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/fi.svg",
+      "sha256": "012edd984cf1879463c2855b7df02dea2f7de7f7a66b244fb1e22b4227f7aa65",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/fr.svg",
+      "sha256": "8cdacc8d79bcf210cdca2777a2c0de1f9e5862526877bd3026c9d59ecdcd4578",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/gb.svg",
+      "sha256": "c8be1e7208798a4ae692ee1e937065d498bb29e741943f6172b29118b8ed8066",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/gr.svg",
+      "sha256": "a184070f7678b06777be8ac38cb05ba41829591a6dac9b64b2b72db66aec82f5",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/hu.svg",
+      "sha256": "ffc4edd580d4b9789bee68f33cef24afe826ae571464350fe7b98c7a36b4ff8f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/id.svg",
+      "sha256": "5cd3acc4939dd7eae6318c8d75df8c0d1733f650e2504a2635b0dbf3dfabb040",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/il.svg",
+      "sha256": "04a099ac4370b5e856f5f8d44ce0822ec47a6d3bc395a7d048d3a46d69274d68",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/in.svg",
+      "sha256": "91185efa1a9b52cdc0e470712518efeefc4e4d6a6555bae9de997ba71885bb98",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/ir.svg",
+      "sha256": "cb363e09bafbff6de7c2fba6a002ca33f0563dc83a2328d34adb492cf80ca629",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/it.svg",
+      "sha256": "9fa88118818d9b64838f578e2babcca3d0630aed21b5c33b34aff7ac5ce506bc",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/jp.svg",
+      "sha256": "bfea80baf9989383dc4bf7ca594ed95be0df0ff125bfc88d0bfa878eb0198022",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/ke.svg",
+      "sha256": "699163d87382eb969d8a26d4ce1a99a00264e8b7b95276abf585476506f46e82",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/kr.svg",
+      "sha256": "7a6cd5b51d0e2841ed8b79b1147ad8a66cf3c09f6344d4a63b5e4413ffa5d15b",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/LICENSE.txt",
+      "sha256": "8f1195d55a2fd315a07d812328470ca9ba2abb78c8d317ff19619d5125e00cea",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/lk.svg",
+      "sha256": "ed3eee24d19872d6adcecd589513c057c6ecfe4997af36e8d25ef9ed58660d23",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/my.svg",
+      "sha256": "bb30e84a099d2d9dc286ab091bdd40ae7a8e332eb49827f2df4f11803e613667",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/nl.svg",
+      "sha256": "8f691f17fe70894537af8e92f2ca47761d353639b0defc15cbe561eb503ab010",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/np.svg",
+      "sha256": "b84c02e2fa659d0be6fc6b5963d5e9fbd25c3a6ab4d469aa61f1e3cdbd3f4637",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/ph.svg",
+      "sha256": "c3bd5e08ddc5f6dbdfa899af9efb45577e3841402e6a7f5d00fef754816b2884",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/pk.svg",
+      "sha256": "89e851c0d541d8166b297e13bed97e0cb500bdb4ae48fd83a86b606a078352a8",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/pl.svg",
+      "sha256": "369bb3e14ee718df1ee15fd2fb3ad0dae713f78f622e277710fb2b30a313f2aa",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/pt.svg",
+      "sha256": "a7a2cf0b44aaaaf4f3bdc0ee0fa308ec7085bdfedd3f72da1473d43fd2a569fb",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/ro.svg",
+      "sha256": "17a3a747fc5e63302aaa670a667e5812f3676f46768e5a3e87b254bd41762840",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/ru.svg",
+      "sha256": "7100aaae51ff3b6a2bf0ca932b3bc518bdc760814725e7cca31d821a26c3dd7c",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/sa.svg",
+      "sha256": "5738c8cfca5fea63587cbcf69237996c8ce6283f8016853150686f37311b620e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/se.svg",
+      "sha256": "b3b5071e6c1d4a0e3db828bab5c7dfd68d0e90fcf3b25b15e9a2c4f96c1f79c9",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/th.svg",
+      "sha256": "329cc0d520536d6eb4b9304105f23650c2d02bbdba8f8696e996dbf166de6f2e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/tr.svg",
+      "sha256": "256a1d6afbedb9f731566982331a1cd1ad14aba211b8a61d338855879505e74f",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/tw.svg",
+      "sha256": "931757f06b9ee751fd1a0cc8dd7cf862e21fdcaf894d10ed7bcc68dabcca59ad",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/ua.svg",
+      "sha256": "2d869c23ebfefb2ae0a633297c11dee06fcb666ce7b3ca75eba09b7a1a3a03ac",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/us.svg",
+      "sha256": "e7be4240cf57987926673708f09233be1ab6bdf35acc7b86bd32a263f197a2a7",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/flags/vn.svg",
+      "sha256": "2355037201315d74581ab0ad60b5587a29a087d26b0525bdeb8676e64fae5b86",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/public/portal/index.html",
+      "sha256": "41711f5468a311ee0861de10cd9a221d220feee1e8c941102ef991df8c57b3a2",
+      "status": "modified"
+    },
+    {
+      "path": "institute_lms/registration.py",
+      "sha256": "80d7eb92699a21d782bdfe2bf8334ff23ff1ae7586e902c28734164e3b85c25e",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/registration_contract.py",
+      "sha256": "b60ad1f5af0da1936f5aa71e191b8d2c5f6fb3be02647f3f11a892fc88305f0a",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/release.py",
+      "sha256": "e0d0af2129404cb9dcf6dfbfef79a60c18951f71b902fbc4689d241889a62369",
+      "status": "added"
+    },
+    {
+      "path": "institute_lms/retention.py",
+      "sha256": "a3de13fe6e5358fd8dd3c4747de2a5e4e1fee4fcca065fd474c00e360619f9b1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/saas.py",
+      "sha256": "2916b7e0759275ce169e9789090f91ee63df0c96bdc58580f44ad065b4107936",
+      "status": "modified"
+    },
+    {
+      "path": "institute_lms/saas_rules.py",
+      "sha256": "da64a25c723e051861d6174c462a6b238d3cfd93ca9323a101f1f840f613b528",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/setup.py",
+      "sha256": "f6303c3d1a9445935563cbb3cfc557ba4ba0c44342211b94ce22672f6c4a4498",
+      "status": "modified"
+    },
+    {
+      "path": "institute_lms/soul.py",
+      "sha256": "e5121987b0951236ed849b0adff8f1ccfe335e069ec9bcec526d0cae32d64428",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/soul_contract.py",
+      "sha256": "6ef0b9bf60746c4ba2a803ac81730e76a533a502e56cb85c22cd79f0d7cc4eee",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/storage.py",
+      "sha256": "31f585feb68b3882e3c0d81de7deaaa042de166218d3b255d9b4e50fa439d846",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/subscription_payments.py",
+      "sha256": "5cdd2cec837af630b57e1c00a79237087df90bf717e49fc7fb3edb057cb24326",
+      "status": "modified"
+    },
+    {
+      "path": "institute_lms/teaching.py",
+      "sha256": "484a0f721e5eb853101afe7b088e6775b3e394bd3cd6736697414a9694fb22a1",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/teaching_rules.py",
+      "sha256": "d14976fde6ed2651e3dc6e92c26c83ff04afacf442b8170534a6a7e97bbef717",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/usage.py",
+      "sha256": "5f5732ab08e6bb9e128bcb911b12f5469f4c8a2378d5a4d0ad58eed0ff99a857",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/validation.py",
+      "sha256": "ec45942ea0dc0d42c0bba27ccab7ac33ce8eb8d3f06510a51a90b2d994ab5a5b",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/wallet.py",
+      "sha256": "c8ff222a8bc985a952baa1a4a996d2adcaf0ec485b64a633ae825b9428276744",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/wallet_rules.py",
+      "sha256": "10c6baa05ba3f774a7d3462b4754508fa786fb676de4cee6c039a70ac8990621",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/www/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/www/campus.html",
+      "sha256": "41711f5468a311ee0861de10cd9a221d220feee1e8c941102ef991df8c57b3a2",
+      "status": "modified"
+    },
+    {
+      "path": "institute_lms/www/campus.py",
+      "sha256": "3d77ba71d73e2a2d32727b145053a66a72dcf8c20180265f5012af146ade92d0",
+      "status": "unchanged"
+    },
+    {
+      "path": "institute_lms/youtube.py",
+      "sha256": "99b037060a9ecc6513d5e8d3193e8d566708589bb1f8685b05b074c8c220dd32",
+      "status": "unchanged"
+    },
+    {
+      "path": "INTEGRATIONS.md",
+      "sha256": "ce57dd84dfe5d899f7959ac4c6719ab4e097dd464724c8e13708054b917d596b",
+      "status": "unchanged"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "db1a87ba81e885b6bb82971964ab4e202463cde2ac4003571bc5a857d577e4a3",
+      "status": "unchanged"
+    },
+    {
+      "path": "package.json",
+      "sha256": "f5b2d755e50f7b04849d246bc23734de105b3dc22ba159cf8418cbe51ca7ebe7",
+      "status": "unchanged"
+    },
+    {
+      "path": "PROJECT_GUIDE.md",
+      "sha256": "aae4272bcc3e2f593ba94a1316b035a66381e4567122f49a0b552d46a3420f93",
+      "status": "unchanged"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "b294922739df66cd676c4c87608c5556ec2adeb69336173ed5659fd356c8e3cf",
+      "status": "unchanged"
+    },
+    {
+      "path": "README.md",
+      "sha256": "b9d8742a7756e469e0356d837af3454b5daa876b458ca049b74364e6bee7ad7c",
+      "status": "modified"
+    },
+    {
+      "path": "RELEASE_READINESS.md",
+      "sha256": "a3467c02f114bd7f7ffc66a43b702c1d1e720fac2bb90b0ff7619b720e1db991",
+      "status": "unchanged"
+    },
+    {
+      "path": "RESEARCH.md",
+      "sha256": "11eaa2ee2c83027a455929f5a9cab15ad7ce8283f3a317965b2393e52684bd83",
+      "status": "unchanged"
+    },
+    {
+      "path": "scripts/provision-institute.py",
+      "sha256": "b551871377ffe45fd646df4f2a28d3dddb19068020f2b8a14451499992b3b05a",
+      "status": "unchanged"
+    },
+    {
+      "path": "scripts/provision-organization.py",
+      "sha256": "ec37553e6752fd775457b78b6f94ae2e14aa75581a317a51d7a81a67efa099a3",
+      "status": "unchanged"
+    },
+    {
+      "path": "scripts/registration-config.example.json",
+      "sha256": "630455cda6239e669f242344cbaec8e876c145c8f1af9ea5883a877b733068f2",
+      "status": "unchanged"
+    },
+    {
+      "path": "scripts/verify-static.py",
+      "sha256": "2df3a8e3544d4ce69547004b90a5a651e4e330e6d4cdc31981f64859477de9de",
+      "status": "added"
+    },
+    {
+      "path": "Start-Preview.ps1",
+      "sha256": "7d0968785a7b9565fccceb593504774b0596aead97e4f804b30eb85ee2f87954",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_api_security.py",
+      "sha256": "396a2ddea94e65a9b7597d2368ce470e73054353e7f5930e536630a58422f262",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_calendar_contact.py",
+      "sha256": "3e8948a63bfc4600fc96e404c42ff5847047d008f4e649934807be8e215537e4",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_contact_boundaries.py",
+      "sha256": "5dc644a56429ebed482b4eff5826706d9bbb2f6d2351c40f8f2b84551e3e480c",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_domain.py",
+      "sha256": "c305647d69741599928725c3e5c8b38d55d2f7028cbee0eb4325ba264dbbde66",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_materials.py",
+      "sha256": "0a19c486b243ac941404815b6395d81e281ebad30172c26d91e31c26930091b8",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_onboarding_policy.py",
+      "sha256": "b57e877b9a7df4c8c8543dee0ce8372918fa1d8af3cc67aabebeeb00dd1127d7",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_payments_lk_contract.py",
+      "sha256": "df7a674240b482025d87d63fc45a2292ed7b974754ec29d45bf12761ebe941af",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_private_contact_rules.py",
+      "sha256": "1154c6cb2fa61aef7d101a0944b7ece63e07ea4b89518c9b459b3c98eb8fe5bf",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_profile_rules.py",
+      "sha256": "65ffdefe3e8cc15f8c82b76af6b8dfbbd04e08da62fbe234005c0c439dd34a8b",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_registration.py",
+      "sha256": "6489a7e23d2554a87e593146632601e87147ebcd4082984d001451d7af9f32b4",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_revision_api.py",
+      "sha256": "2f23c7f1d1d808e84d7a41dff11550c3546e5a67d2eafafe94fe3dac4a3f33b3",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_revision_rules.py",
+      "sha256": "ee0e180ea5f23032fd313b664966af07276c1337bff2f13d4e41fd8c400605ab",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_run1_foundation.py",
+      "sha256": "92d8e6fa1ba0801a102a95bad61f363de5b0380270a914cd2c69649ed0abd268",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_run2_ai.py",
+      "sha256": "463eb985b7744a5e5f97055f3c73d020f14df3b45e9fde491333d81f670254d5",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_run3_release.py",
+      "sha256": "f813b7f7a9bff8d462124c18fbe75e1e09ad44c96d57a8660fd6c14d6c212671",
+      "status": "added"
+    },
+    {
+      "path": "tests/test_settlement_ownership.py",
+      "sha256": "2858a914ca009c9cf51686426285875795b097eb9ee696811c9cd2e216f65087",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_soul_contract.py",
+      "sha256": "8bdf3dbed8c739cd5c75658d2bfac358948ae690ea64a74c9b9a93a8b4c84531",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_soul_security.py",
+      "sha256": "c29d6b8eeb4ab511fc3d0cfb0f758a04c4a8676a0a6c883200e7d3819246eed2",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_teaching_rules.py",
+      "sha256": "b0f138588d3c81c94fdc8c44187dd3a4f37d791bb22dc28260e1b1cf58857e1f",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_wallet.py",
+      "sha256": "ec3ee5291f9037b1d77c5ba8acdc8141b82cf6d434d2a62dd4030509b56daafb",
+      "status": "unchanged"
+    },
+    {
+      "path": "tests/test_wallet_api.py",
+      "sha256": "77891d3c1ad7bd7198f1c9744fc8f40aeec50f2d4ca108d2154d0f54a9b7eed6",
+      "status": "unchanged"
+    },
+    {
+      "path": "docs/RUN_3_REVIEW.md",
+      "sha256": "a1daeaec92d73b6af40905f4d4d64292ee65233e6f511f1fc70f13bace6d42e4",
+      "status": "added"
+    }
+  ],
+  "removed_from_run2": [
+    "docs/RUN_2_CHANGE_MANIFEST.json",
+    "institute_lms/public/portal/assets/App-DCXxwdR1.js",
+    "institute_lms/public/portal/assets/ClassFees-nBU7csd7.js",
+    "institute_lms/public/portal/assets/Connections-CdbqSvwG.js",
+    "institute_lms/public/portal/assets/ContactSettings-BTv2vW2d.js",
+    "institute_lms/public/portal/assets/FollowUpdates-BFr9tLKE.js",
+    "institute_lms/public/portal/assets/MaterialViewer-yYu5lx_G.js",
+    "institute_lms/public/portal/assets/Operations-DFNKlj8x.js",
+    "institute_lms/public/portal/assets/Papers-Cqx0WAfK.js",
+    "institute_lms/public/portal/assets/ProfileEditor-Cizsyzrs.js",
+    "institute_lms/public/portal/assets/Programmes-W11YLeCZ.js",
+    "institute_lms/public/portal/assets/ProviderHome-DiUYefyr.js",
+    "institute_lms/public/portal/assets/RegistrationFlow-7nlpzmgk.js",
+    "institute_lms/public/portal/assets/SoulPet-BPNGCeFI.js",
+    "institute_lms/public/portal/assets/StudySpace-CYXTbpw-.js",
+    "institute_lms/public/portal/assets/SuperAdmin-RmzyD1aa.js",
+    "institute_lms/public/portal/assets/Wallet-BettthQ1.js",
+    "institute_lms/public/portal/assets/index-Ct8Q0sqp.css",
+    "institute_lms/public/portal/assets/index-oELSL4aV.js",
+    "institute_lms/public/portal/assets/service-DeJ5NTPy.js"
+  ]
+}

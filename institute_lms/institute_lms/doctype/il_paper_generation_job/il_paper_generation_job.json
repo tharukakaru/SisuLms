@@ -1,0 +1,121 @@
+{
+  "doctype": "DocType",
+  "name": "IL Paper Generation Job",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "request_key",
+    "institute",
+    "classroom",
+    "user",
+    "document",
+    "topic",
+    "count",
+    "duration_minutes",
+    "status",
+    "progress",
+    "source_versions",
+    "paper",
+    "error_code",
+    "blueprint",
+    "template_metadata",
+    "batch_results"
+  ],
+  "fields": [
+    {
+      "fieldname": "request_key",
+      "label": "Request Key",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    },
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "document",
+      "label": "Document",
+      "fieldtype": "Link",
+      "options": "IL Knowledge Document"
+    },
+    {
+      "fieldname": "topic",
+      "label": "Topic",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "count",
+      "label": "Count",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "duration_minutes",
+      "label": "Duration Minutes",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Queued\nRunning\nDraft\nReview"
+    },
+    {
+      "fieldname": "progress",
+      "label": "Progress",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "source_versions",
+      "label": "Source Versions",
+      "fieldtype": "Code",
+      "options": "JSON"
+    },
+    {
+      "fieldname": "paper",
+      "label": "Paper",
+      "fieldtype": "Link",
+      "options": "IL Paper"
+    },
+    {
+      "fieldname": "error_code",
+      "label": "Error Code",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "blueprint",
+      "label": "Blueprint",
+      "fieldtype": "Code",
+      "options": "JSON"
+    },
+    {
+      "fieldname": "template_metadata",
+      "label": "Template Metadata",
+      "fieldtype": "Code",
+      "options": "JSON"
+    },
+    {
+      "fieldname": "batch_results",
+      "label": "Batch Results",
+      "fieldtype": "Code",
+      "options": "JSON"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

@@ -1,0 +1,147 @@
+{
+  "doctype": "DocType",
+  "name": "IL Knowledge Document",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "source_key",
+    "institute",
+    "classroom",
+    "source_type",
+    "source_name",
+    "source_file",
+    "source_hash",
+    "source_revision",
+    "title",
+    "mime_type",
+    "version",
+    "requested_by",
+    "index",
+    "provider_file",
+    "status",
+    "enabled",
+    "error_code",
+    "indexed_at",
+    "delete_after",
+    "cleanup_attempts"
+  ],
+  "fields": [
+    {
+      "fieldname": "source_key",
+      "label": "Source Key",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    },
+    {
+      "fieldname": "source_type",
+      "label": "Source Type",
+      "fieldtype": "Select",
+      "options": "IL Material\nIL Session\nCourse Lesson"
+    },
+    {
+      "fieldname": "source_name",
+      "label": "Source Name",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "source_file",
+      "label": "Source File",
+      "fieldtype": "Link",
+      "options": "File"
+    },
+    {
+      "fieldname": "source_hash",
+      "label": "Source Hash",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "source_revision",
+      "label": "Source Revision",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "title",
+      "label": "Title",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "mime_type",
+      "label": "Mime Type",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "version",
+      "label": "Version",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "requested_by",
+      "label": "Requested By",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "index",
+      "label": "Index",
+      "fieldtype": "Link",
+      "options": "IL Knowledge Index"
+    },
+    {
+      "fieldname": "provider_file",
+      "label": "Provider File",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Queued\nExtracting\nIndexing\nReady\nUnsupported\nFailed\nReview\nDisabled\nDeleting\nDeleted",
+      "default": "Queued"
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "default": 1
+    },
+    {
+      "fieldname": "error_code",
+      "label": "Error Code",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "indexed_at",
+      "label": "Indexed At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "delete_after",
+      "label": "Delete After",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "cleanup_attempts",
+      "label": "Cleanup Attempts",
+      "fieldtype": "Int",
+      "default": 0
+    }
+  ],
+  "permissions": [],
+  "track_changes": false,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

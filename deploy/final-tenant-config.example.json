@@ -1,0 +1,27 @@
+{
+  "il_tenant_id": "REPLACE_WITH_REGISTRY_ID",
+  "il_control_plane_url": "https://platform.example.invalid",
+  "il_control_plane_key": "REPLACE_WITH_SECRET_MANAGER_VALUE",
+  "il_mobile_redirect_uris": ["lk.sisulearning.app:/oauthredirect"],
+  "il_storage_backend": "frappe",
+  "il_private_video_adapter": "institute_lms.private_media.grant",
+  "il_private_video_hosts": ["private-bucket.s3.example.invalid"],
+  "il_private_video_max_bytes": 2147483648,
+  "il_private_media_s3": {
+    "bucket": "REPLACE_WITH_PRIVATE_BUCKET",
+    "region": "REPLACE_WITH_REGION",
+    "access_key": "REPLACE_WITH_SECRET_MANAGER_VALUE",
+    "secret": "REPLACE_WITH_SECRET_MANAGER_VALUE"
+  },
+  "il_livekit_url": "wss://REPLACE_WITH_PROVIDER_HOST.example.invalid",
+  "il_livekit_api_key": "REPLACE_WITH_SECRET_MANAGER_VALUE",
+  "il_livekit_api_secret": "REPLACE_WITH_SECRET_MANAGER_VALUE",
+  "il_live_max_participants": 100,
+  "il_recording_reservation_bytes": 1073741824,
+  "il_live_recording_s3": {
+    "bucket": "REPLACE_WITH_SAME_PRIVATE_BUCKET",
+    "region": "REPLACE_WITH_REGION",
+    "access_key": "REPLACE_WITH_SECRET_MANAGER_VALUE",
+    "secret": "REPLACE_WITH_SECRET_MANAGER_VALUE"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "doctype": "DocType",
+  "name": "IL Payment Attempt",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "field:attempt_id",
+  "field_order": [
+    "attempt_id",
+    "quote",
+    "tenant_id",
+    "amount_minor",
+    "currency",
+    "mode",
+    "status",
+    "request_key",
+    "request",
+    "snapshot",
+    "checkout_id",
+    "payment_id"
+  ],
+  "fields": [
+    {
+      "fieldname": "attempt_id",
+      "label": "Attempt Id",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "quote",
+      "label": "Quote",
+      "fieldtype": "Link",
+      "unique": 1,
+      "reqd": 1,
+      "options": "IL Checkout Quote"
+    },
+    {
+      "fieldname": "tenant_id",
+      "label": "Tenant Id",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Long Int"
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "mode",
+      "label": "Mode",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "created\npending\nsucceeded\nfailed\ncancelled"
+    },
+    {
+      "fieldname": "request_key",
+      "label": "Request Key",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "request",
+      "label": "Request",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "snapshot",
+      "label": "Snapshot",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "checkout_id",
+      "label": "Checkout Id",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "payment_id",
+      "label": "Payment Id",
+      "fieldtype": "Data",
+      "unique": 1
+    }
+  ],
+  "permissions": [],
+  "track_changes": true,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

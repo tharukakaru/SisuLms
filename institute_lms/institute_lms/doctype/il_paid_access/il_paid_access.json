@@ -1,0 +1,129 @@
+{
+  "doctype": "DocType",
+  "name": "IL Paid Access",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "track_changes": 1,
+  "field_order": [
+    "invoice",
+    "institute",
+    "provider_account",
+    "student",
+    "classroom",
+    "teacher",
+    "product_key",
+    "title",
+    "starts_at",
+    "ends_at",
+    "status",
+    "payment_channel",
+    "gross_minor",
+    "grant_key"
+  ],
+  "fields": [
+    {
+      "fieldname": "invoice",
+      "label": "Invoice",
+      "fieldtype": "Link",
+      "options": "IL Invoice",
+      "reqd": 0,
+      "unique": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute",
+      "reqd": 1
+    },
+    {
+      "fieldname": "provider_account",
+      "label": "Provider Account",
+      "fieldtype": "Link",
+      "options": "IL Provider Account",
+      "reqd": 1
+    },
+    {
+      "fieldname": "student",
+      "label": "Student",
+      "fieldtype": "Link",
+      "options": "IL Member",
+      "reqd": 1
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom",
+      "reqd": 1
+    },
+    {
+      "fieldname": "teacher",
+      "label": "Teacher",
+      "fieldtype": "Link",
+      "options": "IL Member"
+    },
+    {
+      "fieldname": "product_key",
+      "label": "Product Key",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "title",
+      "label": "Title",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "starts_at",
+      "label": "Starts At",
+      "fieldtype": "Datetime",
+      "reqd": 1
+    },
+    {
+      "fieldname": "ends_at",
+      "label": "Ends At",
+      "fieldtype": "Datetime",
+      "reqd": 1
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Active\nRevoked",
+      "default": "Active",
+      "reqd": 1
+    },
+    {
+      "fieldname": "payment_channel",
+      "label": "Payment Channel",
+      "fieldtype": "Select",
+      "options": "Bank transfer\nLMS gateway\nFree enrolment",
+      "reqd": 1
+    },
+    {
+      "fieldname": "gross_minor",
+      "label": "Gross Minor",
+      "fieldtype": "Int",
+      "reqd": 1
+    },
+    {
+      "fieldname": "grant_key",
+      "fieldtype": "Data",
+      "label": "Grant key",
+      "unique": 1
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "report": 1,
+      "export": 1
+    }
+  ],
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

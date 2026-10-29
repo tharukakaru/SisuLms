@@ -1,0 +1,70 @@
+{
+  "doctype": "DocType",
+  "name": "IL Notification Event",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "event_key",
+    "event_type",
+    "user",
+    "recipient",
+    "institute",
+    "body",
+    "read_at",
+    "classroom"
+  ],
+  "fields": [
+    {
+      "fieldname": "event_key",
+      "label": "Event Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "event_type",
+      "label": "Event Type",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "recipient",
+      "label": "Recipient",
+      "fieldtype": "Link",
+      "options": "IL Member"
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "body",
+      "label": "Body",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "read_at",
+      "label": "Read At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    }
+  ],
+  "permissions": [],
+  "track_changes": true,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

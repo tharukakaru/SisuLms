@@ -1,0 +1,28 @@
+SISU invoice integration revision - 2026-10-27
+Not deployed. Do not enable on existing tenants yet.
+
+Implemented source:
+- IL Usage Invoice persistent DocType with immutable final snapshots and service-only writes.
+- Opt-in daily scheduler for 5-day estimates and final invoices for verified LKR paid periods.
+- Distinct attendance by session date, teacher/institute ownership and tenant scoping.
+- 10-day deadlines; request-time overdue check (does not depend on scheduler punctuality).
+- Provider invoice HTML download and activation request; owner-only bank verification/reactivation.
+- Institute overdue restriction propagated to institute member account policy.
+- New opt-in provider monthly subscription prices/currency; historic USD invoice currency retained.
+- New student subscription invoice creation blocked under new billing policy.
+- Provider and Super Admin Vue invoice panels.
+
+Checks: 29 focused rule/service tests passed, four Vue components parsed and compiled.
+These tests simulate Frappe; no migrated database or live SMTP test yet.
+
+Deployment prerequisites / remaining work:
+- SSH authorization presently rejected. Need isolated test site, not existing Teen/staging database.
+- Migrate DocType and build frontend in isolated deployment, then set il_usage_billing_enabled=1 there only.
+- Validate scheduler enabled, estimate/final email queue, concurrency/rollback, receipt review and access across roles.
+- Control-plane cross-tenant invoice listing and signed settlement relay NOT wired: current owner endpoints are site-local. Do not give institute admins owner rights to work around this.
+- Existing student subscription UI/policy requires migration to provider-funded access. Historic records must be retained without new student charges.
+- Existing old unpaid USD offers need explicit void/migration review before enabling LKR policy; do not reinterpret history.
+- Plan catalog editing/versioning and attendance-after-final adjustment UI remain unfinished.
+- Actual payment gateway, SMS remain disabled. No fake settlement endpoints exist.
+
+Preview at localhost:5280 is the previous sample-data workflow review, NOT these live backend endpoints.

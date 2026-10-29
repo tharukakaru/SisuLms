@@ -1,0 +1,12 @@
+[pre_model_sync]
+
+[post_model_sync]
+institute_lms.patches.run1
+institute_lms.patches.run2
+
+institute_lms.patches.final_build
+institute_lms.patches.release_v2
+
+institute_lms.patches.commercial_plans
+institute_lms.patches.learning_ids
+institute_lms.patches.account_subscriptions

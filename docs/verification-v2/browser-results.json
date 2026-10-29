@@ -1,0 +1,163 @@
+{
+  "records": [
+    {
+      "role": "Student",
+      "screen": "dashboard",
+      "headings": [
+        "Hello, Amaya ✺"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "lessons",
+      "headings": [
+        "Lesson Store"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "purchases",
+      "headings": [
+        "My Purchases"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "liveclasses",
+      "headings": [
+        "Live Classes"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "aiusage",
+      "headings": [
+        "AI Usage"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "subscription",
+      "headings": [
+        "Institute Plan"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "ai",
+      "headings": [
+        "Premium AI learning studio"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Student",
+      "screen": "notifications",
+      "headings": [
+        "Notifications 1 unread"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "dashboard",
+      "headings": [
+        "Hello, Nimal."
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "library",
+      "headings": [
+        "Lecture Library"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "liveclasses",
+      "headings": [
+        "Live Classes"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "papergen",
+      "headings": [
+        "Paper Generator"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Teacher",
+      "screen": "ai",
+      "headings": [
+        "Premium AI learning studio"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "dashboard",
+      "headings": [
+        "Teen Academy, together."
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "credits",
+      "headings": [
+        "AI Credit Management"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "storage",
+      "headings": [
+        "Usage & Storage"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "subscription",
+      "headings": [
+        "Subscription"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Admin",
+      "screen": "ai",
+      "headings": [
+        "Premium AI learning studio"
+      ],
+      "alerts": []
+    },
+    {
+      "role": "Super Admin",
+      "screen": "control",
+      "headings": [
+        "SISU platform control plane"
+      ],
+      "alerts": []
+    },
+    {
+      "test": "narrow layout",
+      "width": 390,
+      "document": 390
+    }
+  ],
+  "external": [],
+  "errors": []
+}

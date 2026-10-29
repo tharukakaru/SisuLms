@@ -1,0 +1,88 @@
+{
+  "doctype": "DocType",
+  "name": "IL Commerce Event",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "fields": [
+    {
+      "fieldname": "event_key",
+      "label": "Event Key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "tenant_id",
+      "label": "Tenant Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "purpose",
+      "label": "Purpose",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "occurred_at",
+      "label": "Occurred At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "reference_hash",
+      "label": "Reference Hash",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "delivery_status",
+      "label": "Delivery Status",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "attempts",
+      "label": "Attempts",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "next_attempt",
+      "label": "Next Attempt",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "ack_at",
+      "label": "Ack At",
+      "fieldtype": "Datetime"
+    }
+  ],
+  "field_order": [
+    "event_key",
+    "tenant_id",
+    "purpose",
+    "amount_minor",
+    "currency",
+    "status",
+    "occurred_at",
+    "reference_hash",
+    "delivery_status",
+    "attempts",
+    "next_attempt",
+    "ack_at"
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

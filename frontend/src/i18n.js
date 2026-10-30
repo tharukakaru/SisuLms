@@ -103,3 +103,6 @@ labels.en.paperUpload = {
   "previous": "Previous uploads",
   "next": "Next uploads"
 }
+
+// Internal classroom creation follows the existing English fallback catalogue.
+Object.assign(labels.en,{createClassroom2:"Create classroom2",internalClassroomHelp:"Create an internal institute classroom. Public provider publishing is configured separately."})

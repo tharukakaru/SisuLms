@@ -19,6 +19,6 @@ export function classroomNavigation(role) {
 // Old bookmarks remain useful: choose a classroom, then open its matching tab.
 export function classroomDestination(page) {
   if(page==='programmes')return {group:'Programmes',tab:'Overview'}
-  const tabs={hub:'Overview',learning:'Papers & assignments',liveclasses:'Sessions',live:'Sessions',videos:'Recordings',library:'Recordings',lessons:'Recordings',purchases:'Recordings',papers:'Papers & assignments',quizzes:'Papers & assignments',results:'Papers & assignments'}
+  const tabs={hub:'Overview',learning:'Papers, assignments & quizzes',liveclasses:'Sessions',live:'Sessions',videos:'Recordings',library:'Recordings',lessons:'Recordings',purchases:'Recordings',papers:'Papers, assignments & quizzes',quizzes:'Papers, assignments & quizzes',results:'Papers, assignments & quizzes'}
   return tabs[page]?{group:'Classes',tab:tabs[page]}:null
 }

@@ -17,6 +17,6 @@ test('old lesson bookmarks retain their classroom intent',()=>{
  assert.deepEqual(classroomDestination('programmes'),{group:'Programmes',tab:'Overview'})
  assert.equal(classroomDestination('liveclasses').tab,'Sessions')
  assert.equal(classroomDestination('purchases').tab,'Recordings')
- assert.equal(classroomDestination('papers').tab,'Papers & assignments')
+ assert.equal(classroomDestination('papers').tab,'Papers, assignments & quizzes')
  assert.equal(classroomDestination('study'),null)
 })

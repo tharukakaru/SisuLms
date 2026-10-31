@@ -229,9 +229,21 @@ def classroom_detail(name: str, page: int = 0):
 
 @frappe.whitelist(methods=["POST"])
 def save_classroom(data: dict | str):
+    return _save_classroom(data)
+
+
+@frappe.whitelist(methods=['POST'])
+def create_internal_classroom(data: dict | str):
+    return _save_classroom(data, internal=True)
+
+
+def _save_classroom(data, internal=False):
     inst, member = identity()
     require_role(member, "Teacher", "Admin")
     data = payload(data)
+    if internal:
+        from .internal_classrooms import validate_request
+        validate_request(inst, data)
     if data.get("name"):
         _, _, room = classroom_for(data.name, write=True)
         from .teaching import require
@@ -242,9 +254,21 @@ def save_classroom(data: dict | str):
         room.owner_type='Institute' if member.role=='Admin' else 'Teacher'
         room.owner_user=member.user if member.role=='Teacher' else None
     if member.role=='Admin':
-        from .teaching import institute_profile,approved_teacher
-        data.public_provider=institute_profile(inst)
-        approved_teacher(inst,data.get('teacher') or room.teacher,data.public_provider)
+        # Ordinary management of an existing internal room stays internal. Asking
+        # to publish it still takes the original verified-provider authorization.
+        if data.get('name') and not room.public_provider and not room.published and not data.get('public_provider') and data.get('published') in (None,False,0,'0'):
+            from .internal_classrooms import validate_admin
+            validate_admin(inst)
+            internal=True
+        if internal:
+            from .internal_classrooms import teacher_for
+            teacher_for(inst, data.get('teacher') or room.teacher)
+            data.published=0
+            data.public_provider=None
+        else:
+            from .teaching import institute_profile,approved_teacher
+            data.public_provider=institute_profile(inst)
+            approved_teacher(inst,data.get('teacher') or room.teacher,data.public_provider)
         room.teacher_access=data.get('teacher_access','Teaching only')
         if room.teacher_access not in ('Teaching only','Full control'):frappe.throw('Invalid teaching permission')
         room.teacher_assignment_active=1

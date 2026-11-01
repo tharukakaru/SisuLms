@@ -13,6 +13,9 @@ def rights(room,member):
     affiliated=True
     if member.role=='Teacher' and room.get('owner_type')!='Teacher' and room.get('public_provider'):
         affiliated=bool(frappe.db.exists('IL Profile Relationship',{'profile':room.public_provider,'user':member.user,'kind':'Teacher membership','status':'Active'}))
+    elif member.role=='Teacher' and room.get('owner_type')=='Institute' and not room.get('public_provider'):
+        from .internal_classrooms import teacher_affiliated
+        affiliated=teacher_affiliated(room.institute,member.user)
     return capabilities(room,member,affiliated)
 
 def require(room,member,action):

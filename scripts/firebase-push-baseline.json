@@ -1,0 +1,7 @@
+{
+  "institute_lms/devices.py": "874bfd241a62a329b6cb1c263eedbe5e9bcf3b82416bad7d063a969526c90439",
+  "frontend/src/native/NotificationCenter.vue": "d94d1ef7339bf94b1dd8bcb3df9032d1dced59e56f7d2fe92fa6db3cdd348ab1",
+  "frontend/src/App.vue": "a8acbe851da8cf6bb067e9d60b79b892aa653ea0dcbfed53a02d4d3c53923bbe",
+  "frontend/src/native/PortalRoot.vue": "89bc52dbb822ca5cfdcc52169fc3fd124ca4ec4610b16e208f6822b25c9d4ef8",
+  "frontend/src/native/FirebasePush.vue": "49b2925297a36e1e6574c812913c6e7c9d4197f6fb24ad6754063e8bfe75223b"
+}

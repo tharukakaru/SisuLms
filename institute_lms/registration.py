@@ -8,6 +8,26 @@ import frappe
 from frappe.utils import get_url
 from .registration_contract import registration_details
 
+@frappe.whitelist(allow_guest=True,methods=['POST'])
+def self_start(data):
+    from .self_signup import start
+    return start(data)
+
+@frappe.whitelist(allow_guest=True,methods=['POST'])
+def self_phone(token):
+    from .self_signup import send_phone
+    return send_phone(token)
+
+@frappe.whitelist(allow_guest=True,methods=['POST'])
+def self_verify(token,channel,code):
+    from .self_signup import verify
+    return verify(token,channel,code)
+
+@frappe.whitelist(allow_guest=True,methods=['POST'])
+def self_complete(token,password,confirmation):
+    from .self_signup import complete
+    return complete(token,password,confirmation)
+
 def ready():
     if not frappe.conf.get('il_registration_enabled') or not get_url().startswith('https://'):
         frappe.throw('Registration is not enabled on this site')
@@ -31,8 +51,8 @@ def request_code(data):
         if isinstance(data,str):
             if len(data)>5000: raise ValueError('Registration is too large')
             data=json.loads(data)
-        if data.get('kind')=='Student':frappe.throw('Students register with Google')
         if not isinstance(data,dict):raise ValueError('Invalid registration')
+        if data.get('kind')=='Student':frappe.throw('Students register with Google')
         if data.get('kind')!='Super Admin':
             from .portal_policy import public
             policy=public()
@@ -103,3 +123,12 @@ def review_application(name,decision,reason):
             user.reset_password(send_email=True)
     d.status=decision;d.reviewed_by=frappe.session.user;d.review_reason=str(reason)[:1000];d.save(ignore_permissions=True)
     return {'status':decision}
+
+
+@frappe.whitelist(methods=['GET'])
+def self_google_details():
+    from .self_signup import enabled,google_identity
+    if not enabled() or not google_identity(frappe.session.user):
+        frappe.throw('Authenticate with Google before completing this form.')
+    user=frappe.get_doc('User',frappe.session.user)
+    return {'first_name':user.first_name or '', 'last_name':user.last_name or '', 'email':user.email}

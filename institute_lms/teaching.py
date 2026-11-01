@@ -8,6 +8,8 @@ from .teaching_rules import capabilities,module_plan,billing_month
 from .domain import money,limited
 
 def rights(room,member):
+    from .institute_coverage import room_allowed
+    if not room_allowed(room,member):return {key:False for key in ('teach','edit','delete','assign','fees','owner')}
     affiliated=True
     if member.role=='Teacher' and room.get('owner_type')!='Teacher' and room.get('public_provider'):
         affiliated=bool(frappe.db.exists('IL Profile Relationship',{'profile':room.public_provider,'user':member.user,'kind':'Teacher membership','status':'Active'}))

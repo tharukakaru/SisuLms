@@ -8,7 +8,8 @@ def public():
     d=frappe.get_single('IL Portal Settings')
     return {'privacy_policy_url':d.privacy_policy_url or '', 'privacy_policy_version':d.privacy_policy_version or '',
         'provider_applications_enabled':bool(d.provider_applications_enabled and d.privacy_policy_url and d.privacy_policy_version),
-        'google_available':bool(frappe.db.exists('Social Login Key',{'name':'google','enable_social_login':1}))}
+        'google_available':bool(frappe.db.exists('Social Login Key',{'name':'google','enable_social_login':1})),
+        'self_signup_enabled':getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost' and frappe.conf.get('il_self_signup_enabled')==1}
 
 @frappe.whitelist(methods=['POST'])
 def save(privacy_policy_url='',privacy_policy_version='',provider_applications_enabled=0):
@@ -24,11 +25,11 @@ def save(privacy_policy_url='',privacy_policy_version='',provider_applications_e
     return public()
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
-def google_start():
+def google_start(signup=0):
     from frappe.utils.oauth import get_oauth2_authorize_url
     from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
     if not public()['google_available']:frappe.throw('Google sign-in is not configured yet')
-    url = urlsplit(get_oauth2_authorize_url('google','/campus'))
+    url = urlsplit(get_oauth2_authorize_url('google','/campus?verified_signup=1' if str(signup)=='1' else '/campus'))
     query = dict(parse_qsl(url.query, keep_blank_values=True))
     query['prompt'] = 'select_account'
     return {'url':urlunsplit(url._replace(query=urlencode(query)))}
@@ -41,11 +42,17 @@ def stamp_session(login_manager=None):
     frappe.local.session_obj.update(force=True)
 
 def require_google_student():
+    if getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost':
+        from .self_signup import marker
+        if marker(frappe.session.user):return
     if not (getattr(frappe.session,'data',{}).get('il_google_session') or getattr(frappe.local,'il_mobile_google',False) is True):
         frappe.throw('Students must sign in with Google',frappe.AuthenticationError)
 
 def validate_login(login_manager):
     user=login_manager.user
+    if getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost':
+        from .self_signup import marker
+        if marker(user):return
     student=frappe.db.exists('IL Public Profile',{'user':user,'kind':'Student'}) or frappe.db.exists('IL Member',{'user':user,'role':'Student'})
     path=getattr(getattr(frappe.local,'request',None),'path','')
     if student and path!='/api/method/frappe.integrations.oauth2_logins.login_via_google':

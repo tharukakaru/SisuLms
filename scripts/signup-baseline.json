@@ -1,0 +1,10 @@
+{
+  "frontend/src/native/RegistrationFlow.vue": "006b0feb7814379cf5991ad0d030369eb779e590b92fcf0b7d85ade2a3c43338",
+  "frontend/src/native/PortalRoot.vue": "831975e9b8a393c40eb2ee0b2a625f8b9361e471b0f3a394d3551a0757bded30",
+  "institute_lms/portal_policy.py": "8c9511ed295f22c5a5aeaf912e387dfaec9f0670f3bdf49402de2d6f03945e9a",
+  "institute_lms/registration.py": [
+    "2a5240d8d179c47973a6552061eda7c084f174559ae130ba9136e1f8d8b0b24c",
+    "cdcfb019569d121125ba53173f1de09b78dc8a1b2832a285193a5430434fcd07"
+  ],
+  "institute_lms/account_billing.py": "68b121ebac4a82a4682303d903873589443171a9f14987a7bff4253f9819dcf6"
+}

@@ -11,3 +11,7 @@ common_site_config.json
 !.env.example
 *.pem
 *.key
+
+# Payment certificates and local sandbox credentials
+*.p12
+*.pfx

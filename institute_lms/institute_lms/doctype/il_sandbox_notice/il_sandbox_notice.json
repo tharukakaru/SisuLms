@@ -1,0 +1,67 @@
+{
+  "doctype": "DocType",
+  "name": "IL Sandbox Notice",
+  "module": "Institute LMS",
+  "autoname": "hash",
+  "field_order": [
+    "notice_key",
+    "user",
+    "subject",
+    "body",
+    "sms_body",
+    "email_status",
+    "sms_status"
+  ],
+  "fields": [
+    {
+      "fieldname": "notice_key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1,
+      "label": "Notice Key"
+    },
+    {
+      "fieldname": "user",
+      "fieldtype": "Link",
+      "options": "User",
+      "reqd": 1,
+      "label": "User"
+    },
+    {
+      "fieldname": "subject",
+      "fieldtype": "Data",
+      "label": "Subject"
+    },
+    {
+      "fieldname": "body",
+      "fieldtype": "Long Text",
+      "label": "Body"
+    },
+    {
+      "fieldname": "sms_body",
+      "fieldtype": "Small Text",
+      "label": "Sms Body"
+    },
+    {
+      "fieldname": "email_status",
+      "fieldtype": "Select",
+      "options": "Pending\nReview\nAccepted\nSkipped",
+      "default": "Pending",
+      "label": "Email Status"
+    },
+    {
+      "fieldname": "sms_status",
+      "fieldtype": "Select",
+      "options": "Pending\nReview\nAccepted\nSkipped",
+      "default": "Pending",
+      "label": "Sms Status"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1
+    }
+  ],
+  "track_changes": 0
+}

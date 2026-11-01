@@ -47,6 +47,16 @@ class VerificationBoundary(unittest.TestCase):
     def test_owner_rejected_before_sending_code(self):
         with self.assertRaises(PermissionError):self.api.request_code({'kind':'Super Admin','email':'other@example.com'})
         self.f.sendmail.assert_not_called()
+    def test_malformed_registration_never_sends_email(self):
+        for data in (None, [], 123, '[]', 'null'):
+            with self.subTest(data=data), self.assertRaises(ValueError):
+                self.api.request_code(data)
+        self.f.sendmail.assert_not_called()
+    def test_expired_email_code_never_creates_account(self):
+        self.f.cache.get_value.return_value={'details':{'kind':'Super Admin','email':'owner@example.com'},
+            'created':time.time()-601,'attempts':0,'digest':self.api.digest('challenge','123456')}
+        with self.assertRaises(ValueError):self.api.verify_code('challenge','123456')
+        self.f.get_doc.assert_not_called()
     def test_wrong_code_and_exhausted_challenge_never_create_request(self):
         pending={'details':{'kind':'Super Admin','email':'owner@example.com'},'created':time.time(),'attempts':0,'digest':self.api.digest('challenge','123456')}
         self.f.cache.get_value.return_value=pending

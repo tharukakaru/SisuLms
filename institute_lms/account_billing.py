@@ -99,6 +99,10 @@ def state(a):
 
 def policy():
     a = account()
+    if a.role=='Teacher' and frappe.conf.get('il_institute_teacher_coverage')==1 and not state(a)['available']:
+        from .institute_coverage import sponsor
+        coverage=sponsor(a.institute,a.user)
+        if coverage:a=coverage['account']
     from .plan_catalog import plan_features
     from .commercial_rules import plan_features as student_features
     f = plan_features(a.plan) if a.role != 'Student' else student_features('Gold')
@@ -115,6 +119,12 @@ def public_account(a):
               'trial_started','trial_until','paid_until','anchor_day','payment_method','billing_email','cancel_at_end')
     result = {k:a.get(k) for k in fields}
     result.update(state(a))
+    if a.role=='Teacher' and frappe.conf.get('il_institute_teacher_coverage')==1:
+        from .institute_coverage import sponsor
+        coverage=sponsor(a.institute,a.user)
+        result['workspace_available']=bool(result['available'] or coverage)
+        result['institute_covered']=bool(coverage)
+        result['institute_only']=bool(coverage and not result['available'])
     result['monthly_minor'] = price(a, a.plan)
     result['next_monthly_minor'] = price(a, a.next_plan) if a.next_plan else None
     result['billing_ready'] = bool(provider_lkr(a) or (a.billing_country and a.country_status in ('Verified','Change requested')))
@@ -137,9 +147,11 @@ def status():
     from .plan_catalog import plan as catalog_plan
     plans=[dict(plan=p,monthly_minor=price(a,p),**(catalog_plan(p) if provider_lkr(a) else {}))
            for p in (('Student',) if a.role=='Student' else PLANS)]
-    return dict(account=public_account(a), plans=plans,gateway_ready=False,
+    cybs=frappe.conf.get('il_cybersource') or {}
+    sandbox=bool(isinstance(cybs,dict) and cybs.get('enabled') is True and cybs.get('mode')=='sandbox' and (cybs.get('merchants') or {}).get('platform'))
+    return dict(account=public_account(a), plans=plans,gateway_ready=sandbox,
                 bank_instructions=str(frappe.conf.get('il_subscription_bank_instructions') or ''),
-                gateway_message='Online payments and automatic card collection are not connected yet. No card will be charged.',
+                gateway_message=('Sandbox online checkout is available on unpaid invoices. Every payment requires your approval; no automatic renewal charges.' if sandbox else 'Online checkout is not configured. No automatic card collection is performed.'),
                 invoices=frappe.get_all(INVOICE,filters={'subscription':a.name},fields=['name','plan','currency','amount_minor','period_start','period_end','status','paid_at','receipt_number','creation'],order_by='creation desc',limit_page_length=60))
 
 @frappe.whitelist(methods=['POST'])
@@ -246,6 +258,9 @@ def record_verified_payment(invoice, reference, received_minor, currency, channe
     a=frappe.get_doc(ACCOUNT,key,for_update=True)
     bill=frappe.get_doc(INVOICE,invoice,for_update=True)
     reference=str(reference).strip()
+    if reference.startswith('bank:') and isinstance(frappe.conf.get('il_cybersource'),dict) and frappe.conf.get('il_cybersource').get('enabled'):
+        from .cybersource import assert_no_active
+        assert_no_active('subscription',invoice)
     if not reference or len(reference)>140 or not (type(received_minor) is int and received_minor == int(bill.amount_minor) and currency == bill.currency):
         frappe.throw('Settlement amount, currency or reference does not match')
     if bill.status=='Paid':
@@ -275,21 +290,21 @@ def confirm_bank_payment(invoice, reference, amount_minor, reason):
     return {'receipt':bill.receipt_number}
 
 def document_html(bill):
-    e=lambda value:html.escape(str(value or '—'))
+    e=lambda value:html.escape(str(value or 'â€”'))
     total=f'{e(bill.currency)} {int(bill.amount_minor)/100:,.2f}'
     heading='Payment receipt' if bill.status=='Paid' else 'Subscription invoice'
-    return f'''<!doctype html><html><head><meta charset="utf-8"><title>{e(heading)} · {e(bill.name)}</title>
+    return f'''<!doctype html><html><head><meta charset="utf-8"><title>{e(heading)} Â· {e(bill.name)}</title>
     <style>body{{font:15px Arial;color:#28203b;margin:50px auto;max-width:850px;padding:30px}}header{{display:flex;justify-content:space-between;border-bottom:3px solid #56288d;padding-bottom:28px}}h1{{color:#56288d}}table{{width:100%;border-collapse:collapse;margin:35px 0}}td,th{{padding:18px 10px;text-align:left;border-bottom:1px solid #ddd}}.total{{text-align:right;font-size:25px}}small{{color:#655975}}@media print{{body{{margin:0;padding:25px}}}}</style></head><body>
-    <header><div><h1>sisu.</h1><p>SISU Academy · Monthly subscription</p></div><div><h2>{e(heading)}</h2><p>{e(bill.name)}</p><b>{e(bill.status)}</b></div></header>
+    <header><div><h1>sisu.</h1><p>SISU Academy Â· Monthly subscription</p></div><div><h2>{e(heading)}</h2><p>{e(bill.name)}</p><b>{e(bill.status)}</b></div></header>
     <p>Bill to: <b>{e(bill.billed_to)}</b><br>{e(bill.billing_email)}</p>
-    <p>Issued: {e(bill.creation)}<br>Subscription: {e(bill.subscription)}<br>Service period: {e(bill.period_start)} → {e(bill.period_end)} (end exclusive)</p>
-    <table><tr><th>Description</th><th>Quantity</th><th>Amount</th></tr><tr><td>{e(bill.plan)} · fixed monthly subscription</td><td>1 month</td><td>{total}</td></tr></table>
-    <p class="total">Total · {total}</p><p>Receipt: {e(bill.receipt_number)}<br>Payment date: {e(bill.paid_at)}<br>Payment method: {e(bill.payment_channel)}</p>
+    <p>Issued: {e(bill.creation)}<br>Subscription: {e(bill.subscription)}<br>Service period: {e(bill.period_start)} â†’ {e(bill.period_end)} (end exclusive)</p>
+    <table><tr><th>Description</th><th>Quantity</th><th>Amount</th></tr><tr><td>{e(bill.plan)} Â· fixed monthly subscription</td><td>1 month</td><td>{total}</td></tr></table>
+    <p class="total">Total Â· {total}</p><p>Receipt: {e(bill.receipt_number)}<br>Payment date: {e(bill.paid_at)}<br>Payment method: {e(bill.payment_channel)}</p>
     <small>Class tuition is billed separately by the teacher or institute. Provider active-student usage, where applicable, is invoiced separately. An unpaid invoice is not proof of payment. This is a subscription billing document, not a tax invoice.</small></body></html>'''
 
 def queue_document(bill,kind):
     if bill.billing_email:
-        frappe.sendmail(recipients=[bill.billing_email],subject=f'SISU {kind} · {bill.name}',message=document_html(bill),delayed=True)
+        frappe.sendmail(recipients=[bill.billing_email],subject=f'SISU {kind} Â· {bill.name}',message=document_html(bill),delayed=True)
 
 @frappe.whitelist(methods=['POST'])
 def document(invoice):
@@ -316,7 +331,7 @@ def guard_request():
     path=frappe.local.request.path
     method=frappe.form_dict.get('cmd') or (path.split('/method/',1)[1].rstrip('/') if '/method/' in path else '')
     module=method.split('.')[1] if method.startswith('institute_lms.') else ''
-    if module in ('usage_billing','account_billing','portal_session','portal_policy','registration','mobile_auth','mobile_verification','profiles','private_contact','contact','health','saas','devices'):
+    if module in ('usage_billing','cybersource','account_billing','portal_session','portal_policy','registration','mobile_auth','mobile_verification','profiles','private_contact','contact','health','saas','devices'):
         return
     if method in ('login','logout','frappe.auth.get_logged_user') or method.startswith('frappe.integrations.oauth2_logins.') or 'reset_password' in method or 'update_password' in method:return
     if method.endswith('.notify') and module in ('payments_lk','payments','lectures'):return
@@ -327,4 +342,7 @@ def guard_request():
     member=frappe.db.get_value('IL Member',{'institute':inst.name,'user':frappe.session.user,'active':1},'*',as_dict=True)
     if not member:return # Onboarding / scoped APIs retain their own permission checks.
     if not state(account(inst,member))['available']:
+        if frappe.conf.get('il_institute_teacher_coverage')==1 and member.role=='Teacher':
+            from .institute_coverage import request_allowed
+            if request_allowed(method,inst.name,member.user):return
         frappe.throw('Your 14-day trial or paid subscription has ended. Open Subscription to continue.',frappe.PermissionError)

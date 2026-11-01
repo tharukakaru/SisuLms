@@ -27,3 +27,15 @@ def revoke(device):
     if d.user!=frappe.session.user:frappe.throw('Device unavailable',frappe.PermissionError)
     d.revoked=1;managed(d)
     return {'revoked':True}
+
+@frappe.whitelist(methods=['GET'])
+def firebase_config():
+    signed_in()
+    from .firebase_push import browser_config
+    return browser_config()
+
+@frappe.whitelist(methods=['POST'])
+def firebase_test(device,request_id,dry_run=True):
+    signed_in()
+    from .firebase_push import self_test
+    return self_test(device,request_id,dry_run)

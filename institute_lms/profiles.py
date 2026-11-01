@@ -140,6 +140,10 @@ def relate(profile,kind):
     if kind=='Teacher membership' and (self.kind!='Teacher' or p.kind!='Institute'):frappe.throw('Teacher-to-institute request required')
     if kind=='Student join' and self.kind!='Student':frappe.throw('Student account required')
     if kind not in ('Follow','Student join','Teacher membership'):frappe.throw('Invalid relationship')
+    if kind=='Teacher membership':
+        frappe.db.sql('SELECT name FROM `tabUser` WHERE name=%s FOR UPDATE',(frappe.session.user,))
+        current=set(frappe.get_all('IL Profile Relationship',filters={'user':frappe.session.user,'kind':kind,'status':['in',['Pending','Active']]},pluck='profile'))
+        if len(current|{profile})>5:frappe.throw('You can have at most five active or pending institute memberships.')
     key=hashlib.sha256(f'{frappe.session.user}:{profile}:{kind}'.encode()).hexdigest()
     name=frappe.db.get_value('IL Profile Relationship',{'relationship_key':key},'name')
     if name:
@@ -177,7 +181,7 @@ def relationships(profile):
     if p.user!=frappe.session.user:filters['user']=frappe.session.user
     follow=frappe.db.get_value('IL Profile Relationship',{'profile':profile,'user':frappe.session.user,'kind':'Follow','status':'Active'},'name')
     return {'following':bool(follow),'follow_relationship':follow,'followers':frappe.db.count('IL Profile Relationship',{'profile':profile,'kind':'Follow','status':'Active'}),
-            'owns_profile':p.user==frappe.session.user,'relationships':frappe.get_all('IL Profile Relationship',filters=filters,fields=['name','profile','user','kind','status'],limit_page_length=100)}
+            'owns_profile':p.user==frappe.session.user,'relationships':frappe.get_all('IL Profile Relationship',filters=filters,fields=['name','profile','user','kind','status','request_purpose'],limit_page_length=100)}
 
 @frappe.whitelist(methods=['POST'])
 def publish_update(headline,body,url=''):
@@ -237,3 +241,33 @@ def upload_asset():
     except (ValueError,OSError,UnidentifiedImageError,Image.DecompressionBombError):frappe.throw('Choose a valid JPEG, PNG or WebP image below 20 megapixels')
     file=save_file('branding-'+secrets.token_hex(12)+'.webp',output.getvalue(),None,None,is_private=0)
     return {'file_url':file.file_url}
+
+
+@frappe.whitelist(methods=['GET'])
+def institute_join_options():
+    signed_in()
+    if not frappe.db.exists('IL Member',{'user':frappe.session.user,'role':'Teacher','active':1}):
+        frappe.throw('Teacher account required',frappe.PermissionError)
+    return {'institutes':frappe.get_all('IL Public Profile',filters={'kind':'Institute','status':'Verified'},fields=['name','display_name','username'],limit_page_length=100),
+        'requests':frappe.get_all('IL Profile Relationship',filters={'user':frappe.session.user,'kind':'Teacher membership'},fields=['name','profile','status','request_purpose'],limit_page_length=100)}
+
+@frappe.whitelist(methods=['POST'])
+def request_institutes(profiles,purpose):
+    institute_join_options()
+    if isinstance(profiles,str):profiles=json.loads(profiles)
+    if not isinstance(profiles,list) or not 1<=len(profiles)<=5 or any(not isinstance(x,str) for x in profiles) or len(set(profiles))!=len(profiles):
+        frappe.throw('Choose between one and five different institutes.')
+    if purpose not in ('New application','Existing teacher confirmation'):frappe.throw('Choose a request type.')
+    frappe.db.sql('SELECT name FROM `tabUser` WHERE name=%s FOR UPDATE',(frappe.session.user,))
+    current=set(frappe.get_all('IL Profile Relationship',filters={'user':frappe.session.user,'kind':'Teacher membership','status':['in',['Pending','Active']]},pluck='profile'))
+    if len(current|set(profiles))>5:frappe.throw('You can have at most five active or pending institute memberships.')
+    for name in profiles:
+        p=frappe.get_doc('IL Public Profile',name)
+        if p.kind!='Institute' or p.status!='Verified' or p.user==frappe.session.user:frappe.throw('Institute unavailable.')
+    for name in profiles:
+        key=hashlib.sha256(f'{frappe.session.user}:{name}:Teacher membership'.encode()).hexdigest()
+        existing=frappe.db.get_value('IL Profile Relationship',{'relationship_key':key},'name')
+        doc=frappe.get_doc('IL Profile Relationship',existing) if existing else frappe.get_doc({'doctype':'IL Profile Relationship','relationship_key':key,'profile':name,'user':frappe.session.user,'kind':'Teacher membership'})
+        if existing and doc.status in ('Pending','Active'):continue
+        doc.status='Pending';doc.request_purpose=purpose;write(doc)
+    return {'submitted':True,'message':'Request submitted. Wait for confirmation from your institute. No access has been granted yet.'}

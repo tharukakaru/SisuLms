@@ -103,11 +103,17 @@ def verify_and_reactivate(invoice,reference,amount_lkr,reason):
     return settle_verified(invoice,reference,amount_lkr,reason)
 
 def settle_verified(invoice,reference,amount_lkr,reason,remote_reviewer=None):
+    return record_verified_payment(invoice,'bank:'+str(reference).strip(),amount_lkr,reason,remote_reviewer)
+
+def record_verified_payment(invoice,reference,amount_lkr,reason,remote_reviewer=None):
     # Internal only. Caller must authorize owner or verify a scoped signed command.
     if not enabled():frappe.throw('Usage billing is not enabled')
     doc=frappe.get_doc(DT,invoice,for_update=True)
     if not doc.issued_at:frappe.throw('Cannot settle an estimate')
-    reference='bank:'+str(reference).strip()
+    reference=str(reference).strip()
+    if reference.startswith('bank:') and isinstance(frappe.conf.get('il_cybersource'),dict) and frappe.conf.get('il_cybersource').get('enabled'):
+        from .cybersource import assert_no_active
+        assert_no_active('usage',invoice)
     if len(reference)<=5 or len(reference)>140 or len(str(reason).strip())<10:frappe.throw('Bank reference and evidence review note required')
     if str(amount_lkr)!=str(doc.amount_lkr):frappe.throw('Exact invoice amount required')
     if frappe.db.exists('IL Account Invoice',{'payment_reference':reference}):frappe.throw('Reference already allocated to a subscription invoice')

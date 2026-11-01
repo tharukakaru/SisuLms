@@ -6,6 +6,8 @@ from .domain import checkout_hash, verify_payment, money
 
 @frappe.whitelist(methods=["POST"])
 def checkout(invoice: str, customer: dict | str):
+    if frappe.conf.get("il_payments_paused"):
+        frappe.throw("Payment gateway is not connected yet. Please try again later.")
     from .commercial import hnb_checkout
     if frappe.db.get_value('IL Invoice',invoice,'provider_account'):
         return hnb_checkout(invoice)
@@ -21,6 +23,10 @@ def checkout(invoice: str, customer: dict | str):
         frappe.throw("Only the invoiced student can initiate payment", frappe.PermissionError)
     if doc.status == "Paid":
         frappe.throw("This invoice is already paid")
+    if isinstance(frappe.conf.get('il_cybersource'),dict) and frappe.conf.get('il_cybersource').get('enabled'):
+        from .cybersource import assert_no_active
+        frappe.db.sql('SELECT name FROM `tabIL Invoice` WHERE name=%s FOR UPDATE',(doc.name,))
+        assert_no_active('tuition',doc.name)
     merchant = frappe.conf.get("il_payhere_merchant_id")
     secret = frappe.conf.get("il_payhere_secret")
     if not merchant or not secret:

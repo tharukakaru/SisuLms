@@ -1,4 +1,6 @@
 <script setup>
+import FirebasePush from './native/FirebasePush.vue'
+const firebaseTestPage = new URLSearchParams(location.search).get('firebase_test') === '1'
 import { computed, onMounted, ref, watch, nextTick, onBeforeUnmount, defineAsyncComponent } from 'vue'
 import Icon from './Icon.vue'
 import BrandLogo from './BrandLogo.vue'
@@ -248,7 +250,8 @@ onMounted(()=>{const hash=location.hash.slice(1);if(['pricing','lessons','librar
 </script>
 
 <template>
-  <Signup v-if="page==='signup'" @back="navigate('dashboard')" @dashboard="enterSignup"/>
+  <section v-if="firebaseTestPage" class="panel" style="max-width:760px;margin:40px auto;padding:24px"><h1>SISU browser notification test</h1><p>Sign in as the configured sandbox tester to see the test controls.</p><a href="/login?redirect-to=/campus%3Ffirebase_test%3D1">Sign in</a> · <a href="/campus">Back to campus</a><FirebasePush/></section>
+  <Signup v-else-if="page==='signup'" @back="navigate('dashboard')" @dashboard="enterSignup"/>
   <div v-else-if="loading" class="loading-screen"><BrandLogo/><p>Making room for learning…</p></div>
   <div v-else-if="!boot" class="login-screen"><div class="login-card"><div class="wordmark"><BrandLogo/></div><h1>Your next chapter<br>starts here.</h1><p>Sign in to your institute’s learning space.</p><p v-if="error" class="error" role="alert">{{error}}</p><a class="button primary" href="/login?redirect-to=/campus">Sign in with your institute account <Icon name="ArrowRight"/></a><button class="button subtle" @click="navigate('signup')">Create an account</button><small>Students · Teachers · Administrators</small></div><Art/></div>
   <div v-else class="app-shell" :data-student-theme="appearance.mode" :style="{'--brand':studentAccent,'--sisu-primary':studentAccent,'--student-accent':studentAccent}">

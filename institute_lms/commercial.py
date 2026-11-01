@@ -194,6 +194,9 @@ def review_slip(name,decision,note='',access_kind=None,starts_at=None,ends_at=No
     if not str(note).strip():frappe.throw('Record the bank confirmation or rejection reason')
     doc=locked('IL Invoice',slip.invoice)
     if doc.status=='Paid':frappe.throw('Already paid through another payment method; reconcile the duplicate transfer')
+    if isinstance(frappe.conf.get('il_cybersource'),dict) and frappe.conf.get('il_cybersource').get('enabled'):
+        from .cybersource import assert_no_active
+        assert_no_active('tuition', doc.name)
     if decision=='Approved':
         start,end=configured_access(room,starts_at or now_datetime(),ends_at) if room.get('access_duration_days') or room.get('programme') else access_window(access_kind or room.get('paid_access_kind') or 'Month',starts_at or now_datetime(),ends_at or room.get('paid_access_end'))
         if end<=now_datetime():frappe.throw('Access must end in the future')
@@ -283,6 +286,9 @@ def approve_invoice(name,reference,received_amount,note):
     from .saas import audit
     require_owner();bill=locked('IL Provider Invoice',name)
     if bill.status=='Paid':return {'status':'Paid'}
+    if isinstance(frappe.conf.get('il_cybersource'),dict) and frappe.conf.get('il_cybersource').get('enabled'):
+        from .cybersource import assert_no_active
+        assert_no_active('platform', bill.name)
     if bill.collection_status=='Pending':frappe.throw('Reconcile the pending card charge before approving a bank payment')
     if bill.status=='Void' or money_minor(received_amount)!=bill.total_minor:frappe.throw('Verify the exact invoice amount')
     if not reference.strip() or not note.strip():frappe.throw('Record the bank reference and verification note')
@@ -346,6 +352,11 @@ def metrics(start_date=None,end_date=None):
 
 @frappe.whitelist(methods=['POST'])
 def hnb_checkout(invoice):
+    if frappe.conf.get("il_payments_paused"):
+        frappe.throw("Payment gateway is not connected yet. Please try again later.")
+    if isinstance(frappe.conf.get('il_cybersource'),dict) and frappe.conf.get('il_cybersource').get('enabled'):
+        from .cybersource import start
+        return start('tuition',invoice)
     frappe.throw('HNB payments are not configured. Use bank transfer until the merchant integration has passed sandbox testing.')
 
 def request_policy(method,module):
@@ -367,4 +378,6 @@ def remove_card(account):
 
 @frappe.whitelist(methods=['POST'])
 def card_checkout(name):
+    if frappe.conf.get("il_payments_paused"):
+        frappe.throw("Payment gateway is not connected yet. Please try again later.")
     frappe.throw('Usage billing is retired. Open Subscription for fixed monthly USD pricing.')

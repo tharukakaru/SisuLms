@@ -1,0 +1,43 @@
+{
+  "doctype": "DocType",
+  "name": "IL WhatsApp Receipt",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "prompt",
+  "field_order": [
+    "institute",
+    "kind",
+    "state",
+    "payload"
+  ],
+  "fields": [
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute",
+      "reqd": 1
+    },
+    {
+      "fieldname": "kind",
+      "label": "Kind",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "state",
+      "label": "State",
+      "fieldtype": "Data",
+      "reqd": 1
+    },
+    {
+      "fieldname": "payload",
+      "label": "Payload",
+      "fieldtype": "Long Text",
+      "reqd": 1
+    }
+  ],
+  "permissions": [],
+  "track_changes": false
+}

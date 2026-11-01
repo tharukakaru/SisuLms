@@ -12,7 +12,8 @@
     "kind",
     "status",
     "reviewed_by",
-    "reason"
+    "reason",
+    "request_purpose"
   ],
   "fields": [
     {
@@ -60,6 +61,14 @@
       "fieldname": "reason",
       "label": "Reason",
       "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "request_purpose",
+      "fieldtype": "Select",
+      "label": "Request purpose",
+      "options": "New application\nExisting teacher confirmation",
+      "default": "New application",
+      "read_only": 1
     }
   ],
   "permissions": []

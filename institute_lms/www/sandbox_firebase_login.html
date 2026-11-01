@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SISU sandbox test sign in</title></head>
+<body style="font-family:system-ui;background:#f5f3fa;color:#241b35;padding:32px">
+<main style="max-width:440px;margin:40px auto;background:white;padding:28px;border-radius:18px">
+<h1>Firebase sandbox sign in</h1><p>Use the Administrator password for hnb-checkout.localhost.</p>
+<form id="login"><label>Username<input value="Administrator" autocomplete="username" readonly style="display:block;margin:8px 0 20px;padding:12px"></label>
+<label>Password<input id="password" type="password" autocomplete="current-password" required style="display:block;margin:8px 0 20px;padding:12px"></label>
+<button id="submit" type="submit" style="padding:12px;background:#6c4ed9;color:white;border:0;border-radius:8px">Sign in and test Firebase</button></form>
+<p id="status" role="status"></p><a href="/campus?firebase_test=1">Already signed in? Open the test page</a></main>
+<script>
+document.getElementById('login').addEventListener('submit',async event=>{
+ event.preventDefault();const button=document.getElementById('submit'),password=document.getElementById('password'),status=document.getElementById('status');button.disabled=true;status.textContent='Signing in…';
+ try{
+  const response=await fetch('/api/method/login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-Frappe-CSRF-Token':{{ csrf_token | tojson }}},body:JSON.stringify({usr:'Administrator',pwd:password.value})});
+  password.value='';
+  if(!response.ok)throw Error();
+  const check=await fetch('/api/method/frappe.auth.get_logged_user',{credentials:'same-origin',cache:'no-store'});
+  const identity=await check.json();
+  if(!check.ok||identity.message!=='Administrator'){status.textContent='Login needs an additional step or was not completed. Report this message; do not share your password.';return}
+  location.assign('/campus?firebase_test=1');
+ }catch{status.textContent='Sign-in failed. Check the sandbox Administrator password and that you are on port 8001.'}
+ finally{password.value='';button.disabled=false}
+});
+</script></body></html>

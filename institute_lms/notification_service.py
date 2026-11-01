@@ -1,6 +1,4 @@
 """One recipient event, many durable deliveries. Accepted is not delivered."""
-import hashlib
-import hmac
 import json
 import frappe
 from frappe.utils import now_datetime
@@ -128,29 +126,5 @@ def dispatch_adapters():
 
 @frappe.whitelist(allow_guest=True,methods=['GET','POST'])
 def whatsapp_webhook(**kwargs):
-    request=frappe.request
-    if request.method=='GET':
-        token=frappe.conf.get('il_whatsapp_verify_token')
-        if not token or not hmac.compare_digest(str(request.args.get('hub.verify_token','')),token):frappe.throw('Invalid verification token',frappe.PermissionError)
-        if request.args.get('hub.mode')!='subscribe':frappe.throw('Invalid subscription verification')
-        from werkzeug.wrappers import Response
-        return Response(str(request.args.get('hub.challenge','')),mimetype='text/plain')
-    raw=request.get_data(cache=True);secret=frappe.conf.get('il_whatsapp_app_secret')
-    expected='sha256='+hmac.new(str(secret).encode(),raw,hashlib.sha256).hexdigest()
-    if not secret or len(raw)>262144 or not hmac.compare_digest(expected,request.headers.get('X-Hub-Signature-256','')):
-        frappe.throw('Invalid WhatsApp signature',frappe.PermissionError)
-    data=json.loads(raw)
-    rank={'Accepted':0,'Failed':1,'Delivered':2,'Read':3}
-    for entry in data.get('entry',[]):
-        for change in entry.get('changes',[]):
-            value=change.get('value',{})
-            if value.get('metadata',{}).get('phone_number_id')!=str(frappe.conf.get('il_whatsapp_phone_id')):continue
-            for status in value.get('statuses',[]):
-                target={'sent':'Accepted','delivered':'Delivered','read':'Read','failed':'Failed'}.get(status.get('status'))
-                if not target:continue
-                names=frappe.get_all('IL Notification',filters={'channel':'WhatsApp','provider_id':status.get('id')},pluck='name',limit_page_length=10)
-                for name in names:
-                    frappe.db.sql('SELECT name FROM `tabIL Notification` WHERE name=%s FOR UPDATE',(name,))
-                    d=frappe.get_doc('IL Notification',name,for_update=True)
-                    if rank.get(target,0)>=rank.get(d.status,0):d.status=target;d.save(ignore_permissions=True)
-    return {'accepted':True}
+    from .whatsapp_webhook import handle
+    return handle()

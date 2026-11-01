@@ -1,0 +1,154 @@
+{
+  "doctype": "DocType",
+  "name": "IL CyberSource Attempt",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "track_changes": 0,
+  "fields": [
+    {
+      "fieldname": "reference",
+      "label": "Reference",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "active_key",
+      "label": "Active Key",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "kind",
+      "label": "Kind",
+      "fieldtype": "Select",
+      "read_only": 1,
+      "options": "tuition\nsubscription\nplatform\nusage"
+    },
+    {
+      "fieldname": "invoice",
+      "label": "Invoice",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "read_only": 1,
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "customer",
+      "label": "Customer",
+      "fieldtype": "Link",
+      "read_only": 1,
+      "options": "User"
+    },
+    {
+      "fieldname": "merchant_scope",
+      "label": "Merchant Scope",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "merchant_id",
+      "label": "Merchant Id",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Int",
+      "read_only": 1
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "read_only": 1,
+      "options": "creating\npending\nsucceeded\nfailed\nreview\ncancelled"
+    },
+    {
+      "fieldname": "session_token",
+      "label": "Session Token",
+      "fieldtype": "Password",
+      "read_only": 1
+    },
+    {
+      "fieldname": "session_expires",
+      "label": "Session Expires",
+      "fieldtype": "Float",
+      "read_only": 1
+    },
+    {
+      "fieldname": "request_snapshot",
+      "label": "Request Snapshot",
+      "fieldtype": "Long Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "transaction_id",
+      "label": "Transaction Id",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "settlement_key",
+      "label": "Settlement Key",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "browser_event",
+      "label": "Browser Event",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "last_checked",
+      "label": "Last Checked",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "evidence",
+      "label": "Evidence",
+      "fieldtype": "Long Text",
+      "read_only": 1
+    }
+  ],
+  "field_order": [
+    "reference",
+    "active_key",
+    "kind",
+    "invoice",
+    "institute",
+    "customer",
+    "merchant_scope",
+    "merchant_id",
+    "amount_minor",
+    "currency",
+    "status",
+    "session_token",
+    "session_expires",
+    "request_snapshot",
+    "transaction_id",
+    "settlement_key",
+    "browser_event",
+    "last_checked",
+    "evidence"
+  ],
+  "permissions": []
+}

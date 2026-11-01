@@ -1,5 +1,5 @@
 app_name = "institute_lms"
-app_title = "Sisu · Institute LMS"
+app_title = "Sisu Â· Institute LMS"
 app_publisher = "Institute LMS contributors"
 app_description = "Institute classrooms, schedules, payments and communication"
 app_email = "admin@example.com"
@@ -82,3 +82,10 @@ scheduler_events['daily'].append('institute_lms.wallet.prepare_monthly_settlemen
 _ai_hook('IL Member','after_insert','institute_lms.account_billing.member_created')
 
 scheduler_events['daily'].append('institute_lms.usage_billing.daily')
+
+scheduler_events["cron"]["*/5 * * * *"].append("institute_lms.whatsapp_webhook.reconcile")
+
+# Sandbox-only transactional test notices; no production dispatch.
+for _dt in ('IL Account Invoice','IL Usage Invoice','IL Profile Relationship'):
+    _ai_hook(_dt,'on_update','institute_lms.sandbox_notices.observe')
+scheduler_events['daily'].append('institute_lms.sandbox_notices.expiry')

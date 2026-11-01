@@ -1,0 +1,91 @@
+{
+  "institute_lms/signup_rules.py": [
+    "cebb788b141909ab61244417dc2bc319d9b1112513eb83115f6cd930a01201d1"
+  ],
+  "institute_lms/self_signup.py": [
+    "cd3e2781878a6d580dde4e29cf45602f42a76c94c1948bb74678daa775258c94",
+    "e52c250f2fa4d233720c3e99618a38ffed8ebe4410396aae36e98f0c370c8613"
+  ],
+  "frontend/src/native/VerifiedSignup.vue": [
+    "6e3dddc612f3bbdad9bc9304bf1f0db691829164ea068fd1a77aa9ae467cd023",
+    "98791dc19a4a3bce478ca234b5a87d59d1762fc1f831b2265e7ff24dba860a31",
+    "fab957df25eac07dbd8089dcd11b5281e9a4d439e26af86ebee794707159527f"
+  ],
+  "frontend/src/native/PortalRoot.vue": [
+    "40c4c061f083cf50382960c2ca504283bcb2f09c77f928187412aef80051ae1e",
+    "7f30f0e01f9fa5b24c57cab120a168be47eafb9dda0110f6000cfb4854202676",
+    "18c12253339d596ca2c2a62f15837845b430f0fb1daeebe5cf97ed2172f11094",
+    "831975e9b8a393c40eb2ee0b2a625f8b9361e471b0f3a394d3551a0757bded30"
+  ],
+  "frontend/src/native/SubscriptionBilling.vue": [
+    "8901166f61a18715bf6cd9d9fb6e5a7a815562e1401a875e257d767e1c5c7f63"
+  ],
+  "institute_lms/portal_policy.py": [
+    "e76c4b25283be4cd89b23da2eb10e65728f99fc77a4f787eff09d87e4470a4ef",
+    "953e11f2e9fa2a8564e3f45069cbbd68d8fdb70315107e5baa3d667f64597e24",
+    "8c9511ed295f22c5a5aeaf912e387dfaec9f0670f3bdf49402de2d6f03945e9a"
+  ],
+  "institute_lms/registration.py": [
+    "ca9f9628c65739b52a811c0d37b4eadc84d1becdb69f514660c64383fb78542a"
+  ],
+  "institute_lms/profiles.py": [
+    "c813ef6098149df0401dc6d2674b645f070ef4d4e0c65a0591d8b14a13fc1332"
+  ],
+  "frontend/src/commerce/Connections.vue": [
+    "539b85382a43ed88d337359577b673087bedbd22814f1947efc163b77ae7cdac"
+  ],
+  "institute_lms/institute_lms/doctype/il_profile_relationship/il_profile_relationship.json": [
+    "c9c9fcde2fc711880e46d5c0383df268f1c7168687713656a3f1962bdf1b1d40"
+  ],
+  "institute_lms/hooks.py": [
+    "7731212690a2f5cc5d2c61823ae8ef6107cb3350db63d0cdfed36f94c9561855"
+  ],
+  "institute_lms/account_billing.py": [
+    "68b121ebac4a82a4682303d903873589443171a9f14987a7bff4253f9819dcf6"
+  ],
+  "institute_lms/api.py": [
+    "4a2d82b0d5247c11eaf8d3bacb5071e3f445334576008cb19ca6b19246fa3609"
+  ],
+  "institute_lms/teaching.py": [
+    "1b0f9ca204280cb3d8db10f141c8bcec5d8293e4110c6b576341496d6fd7b9d4"
+  ],
+  "institute_lms/cybersource.py": [
+    "f0eaa8979ef57d3a81d1690cdb9afd09b3d6be9d4c8df4339cdd9dec368f08f2"
+  ],
+  "institute_lms/payments.py": [
+    "1df28b39bfc020b5c759897878e186482f3cd3b4c615033c9dda673d5f34b022"
+  ],
+  "frontend/src/native/CyberSourcePayment.vue": [
+    "e0cea75d13dbb6b230bfdb5a7e9e93cd462620e772bebf2c5c69e690adb532e8"
+  ],
+  "institute_lms/commercial.py": [
+    "bd8f3f24a3489e0b0363b57f703d762082db8e0a1e289c20f5cb7fcc2e4036e2"
+  ],
+  "institute_lms/payments_lk.py": [
+    "aae960df1dcf3a7b87991b3b9aa83c4694140c41870a57b122330a094a7fb645"
+  ],
+  "frontend/src/App.vue": [
+    "a8acbe851da8cf6bb067e9d60b79b892aa653ea0dcbfed53a02d4d3c53923bbe"
+  ],
+  "frontend/src/classroomNavigation.js": [
+    "3127d989be368e62f055a8ec0992378c62def75c1e20b75ece9a7087d91cf352"
+  ],
+  "frontend/src/i18n.js": [
+    "df2dcb21951eff480219793b659291e4975f80bd4d594be5494c61b0936af3ce"
+  ],
+  "frontend/src/materials/MaterialViewer.vue": [
+    "7daa52b85c7f2824b91e2d8537aca405f884bd4076f500a681902f33a1a4d582"
+  ],
+  "frontend/src/native/Papers.vue": [
+    "6548f9a9e349597c87c29af451d14c84a8ab051cd124aa3fce1ed8f0d1b181e2"
+  ],
+  "frontend/src/native/Programmes.vue": [
+    "a0c573dd4ac5c98b9e80bc46e25c79fa16949b1f93d328d8a3c6867d7b055245"
+  ],
+  "institute_lms/material_contract.py": [
+    "b13d6d3bec7a735a247d006334643d691f2ce78a7326310d90068b910604a8dc"
+  ],
+  "institute_lms/materials.py": [
+    "cce8e956af30d5a9ece6c96bfe910eeb2841d9f7ca9697563501344343640f4a"
+  ]
+}

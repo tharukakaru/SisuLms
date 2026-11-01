@@ -41,6 +41,8 @@ def provider_request(method, path, key, body=None, idempotency=None):
 
 
 def checkout(invoice):
+    if frappe.conf.get("il_payments_paused"):
+        frappe.throw("Payment gateway is not connected yet. Please try again later.")
     from .commercial import hnb_checkout
     if frappe.db.get_value('IL Invoice',invoice,'provider_account'):
         return hnb_checkout(invoice)
@@ -55,6 +57,9 @@ def checkout(invoice):
     cents = amount_cents(doc.amount)
     frappe.db.sql("SELECT name FROM `tabIL Invoice` WHERE name=%s FOR UPDATE", (doc.name,))
     doc.reload()
+    if isinstance(frappe.conf.get('il_cybersource'),dict) and frappe.conf.get('il_cybersource').get('enabled'):
+        from .cybersource import assert_no_active
+        assert_no_active('tuition', doc.name)
     if doc.status == "Paid":
         frappe.throw("This invoice is already paid")
     if doc.gateway_request:

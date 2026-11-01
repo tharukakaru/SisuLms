@@ -5,7 +5,7 @@ description = "Sri Lankan institute operations for Frappe LMS"
 authors = [{name = "Institute LMS contributors"}]
 requires-python = ">=3.11"
 dependencies = ["regex>=2024.11.6", "requests>=2.32.3", "Pillow>=11.1.0", "reportlab>=4.4,<5",
-    "pypdf>=6.19.0,<7", "defusedxml>=0.7.1,<1"]
+    "pypdf>=6.19.0,<7", "defusedxml>=0.7.1,<1", "cryptography>=46,<51", "Werkzeug>=3.1,<4"]
 
 [build-system]
 requires = ["flit_core>=3.4,<4"]

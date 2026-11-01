@@ -120,6 +120,11 @@ def room_filters(inst, member):
     if member.role == "Teacher":
         filters["teacher"] = member.name
         filters['teacher_assignment_active'] = 1
+        from .institute_coverage import enabled,personal,sponsor
+        if enabled() and not personal(member):
+            coverage=sponsor(inst.name,member.user)
+            filters['owner_type']='Institute'
+            filters['public_provider']=coverage['profile'] if coverage else '__none__'
     elif member.role == 'Admin':
         filters['owner_type'] = 'Institute'
     elif member.role == "Student":

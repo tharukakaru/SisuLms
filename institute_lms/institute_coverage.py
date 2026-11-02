@@ -7,6 +7,18 @@ SCOPED_METHODS=frozenset('bootstrap classrooms classroom_detail schedule notific
 def enabled():
     return getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost' and frappe.conf.get('il_institute_teacher_coverage')==1
 
+def for_account(account):
+    """Resolve session coverage without moving the personal billing account."""
+    if account.role!='Teacher' or not enabled():return None
+    from .campus_context import enabled as shared_enabled
+    institute=account.institute
+    if shared_enabled():
+        from .api import identity
+        selected,member=identity()
+        if member.role!='Teacher' or member.user!=account.user:return None
+        institute=selected.name
+    return sponsor(institute,account.user)
+
 def sponsor(institute,user):
     if not enabled():return None
     member=frappe.db.exists('IL Member',{'institute':institute,'user':user,'role':'Teacher','active':1})

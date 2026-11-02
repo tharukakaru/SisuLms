@@ -1,0 +1,80 @@
+# Mobile developer handoff — public shared campus (2026-11-02)
+
+Start here. This document supersedes the isolated-site assumptions in MOBILE_API_HANDOFF.md for the public deployment. Read that document for the existing PKCE implementation, then verify the shared-campus limitations below before implementing navigation.
+
+## Hosts and release status
+
+- Public website: https://www.sisuacademylk.com/
+- Public LMS: https://www.sisuacademylk.com/campus
+- Public API base: https://www.sisuacademylk.com/api/method/
+- Owner administration: https://platform.sisuacademylk.com/campus (separate database and session).
+- Source branch: mergetharuka. GitHub source publication does not deploy to the server.
+- Payments paused; WhatsApp unconfigured. Never present a working checkout or WhatsApp action based solely on a package feature.
+- Owner registration database mutations passed a real rollback test. Public signup persistence passed synthetic-proof sandbox tests. Email/SMS standalone test delivery was confirmed, but full public browser signup/Google callback and role acceptance remain incomplete.
+- Demo seed script is prepared, NOT confirmed run. It creates labelled fictional public content with a 30-day demo-only entitlement, disabled fixture identities, and no automatic student enrollment.
+
+## Authentication and transport
+
+Success envelope: `{"message": <result>}`. Always inspect HTTP status plus `exc`/`exc_type`; errors may contain `_server_messages` (JSON-encoded array of JSON strings). Strip HTML before display. Never show raw traceback, OTP, tokens, or provider credentials.
+
+Browser requests use the site session cookie and `X-Frappe-CSRF-Token` for authenticated POST. `portal_session.current` returns the session CSRF token. Do not copy cookies between the public and platform domains. Native clients must use the existing system-browser PKCE flow, not an embedded Google password collector. See mobile_auth.py and the generated endpoint index for exact methods/arguments. `mobile_auth.exchange` returns `{access_token,token_type:"Sisu",expires_at,site}`; send `Authorization: Sisu <access_token>` (not Bearer), never mix it with browser cookies, and keep tokens in OS secure storage and bind them to the issuing host. The native shared-campus selection/session behavior still needs a real-device acceptance test; do not assume legacy mobile_api.current subscription handling supports a student with no institute.
+
+Never ship a Frappe administrator API key. Never add client-selected roles, verification flags or institute headers to bypass server checks.
+
+## Signup contract (all methods below prefixed institute_lms.)
+
+1. GET `portal_policy.public` -> `{privacy_policy_url,privacy_policy_version,provider_applications_enabled,google_available,self_signup_enabled}`.
+2. POST `registration.self_start`, JSON `{data:{kind,first_name,last_name,email,phone,username,country,timezone,privacy_accepted:true,privacy_policy_version,...}}` -> `{challenge:"opaque-token"}`. Sends email code. Phone is E.164, e.g. +94 followed by nine digits. Username: 3–30 lowercase letters/digits/underscore, starting with a letter.
+   - Student: `kind:"Student"`, required `grade`.
+   - Teacher: `kind:"Individual Teacher"`, required `subject`.
+   - Institute: `kind:"Institute"`, required `organization`, `job`, `backup_name`, `backup_email` (different from account email).
+   - Optional strings: `website` (HTTPS), `qualifications`, `bio`.
+   - Use current policy version; never silently accept policy on behalf of users.
+3. POST `registration.self_verify` `{token:challenge,channel:"email",code:"six digits"}` -> `{verified:true}`.
+4. POST `registration.self_phone` `{token:challenge}` -> `{sent:true}`. Requests SMS; a successful request is not evidence of handset delivery.
+5. POST `registration.self_verify` `{token:challenge,channel:"phone",code:"six digits"}` -> `{verified:true}`.
+6. POST `registration.self_complete` `{token:challenge,password,confirmation}` -> `{created:true,message:"Your account is ready. Sign in to your SISU space."}`. Password 12–128 characters. Both proofs required. Return to login; Google-created signup must end the signup session before ordinary login.
+
+Codes expire after ten minutes and allow five verification attempts. Signup challenge expires after 30 minutes. Respect the server's top-level `retry_after_seconds` and display MM:SS; don't reset the countdown on rerender or retry automatically. Signup rate-limit window is five minutes, with a separate 60-second resend cooldown. A timeout/uncertain SMS response is NOT permission for an automatic resend.
+
+POST `portal_policy.google_start` `{signup:1}` -> `{url}` for signup, `{signup:0}` for login. Open returned authorization URL using the supported browser flow. The callback is server-managed. Google alone does not prove phone ownership or grant provider privileges.
+
+## Session and routing
+
+GET `portal_session.current`:
+- Guest: `{authenticated:false}`.
+- Public account without selected institute: `{authenticated:true,role:"Campus",shared_campus:true,member:null,onboarding_kind:"Student"|"Teacher"|"Institute",user,csrf_token}`.
+- Selected member: role is `Student`, `Teacher` or `Admin`, with `member` and shared_campus.
+- Owner: role `Super Admin`, `control_plane:true` on platform site.
+
+GET `registration.account_status` reports actual verification status. Students land on the established dashboard and complete required verification. Providers remain behind setup/payment or institute-approval gates. A pending Teacher profile is NOT permission to teach. A local test account does not imply a live account exists.
+
+## Discovery, following and enrollment
+
+- GET `campus_join.directory` `{query:"",page:0}` -> `{institutes:[{name,display_name}],has_more}`. No selected institute required.
+- GET `campus_join.details` -> `{first_name,last_name,email,phone,phone_verified}` for a verified student.
+- POST `campus_join.register_student` `{profile:"provider-profile-id",language:"en"}` -> `{registered:true,created,student_number,institute,institute_title,message}`. Requires verified student/phone. Idempotent repeat returns the same membership ID. Registration does not enroll in classes.
+- POST `campus_join.register_teacher` `{profile}` -> analogous registration result with `institute:null`; only independent teachers qualify.
+- GET `campus_context.choices` -> `{institutes:[...],selected:null|institute-id}`.
+- POST `campus_context.select` `{institute}` -> `{selected,role,reload_required:true}`. POST `campus_context.clear` `{}` -> `{selected:null,reload_required:true}`. Reload session and institute data; clear cached previous-institute content.
+- GET `profiles.follow_status` `{profiles:JSON.stringify([ids])}` -> `[{name,profile}]` for active follows. At most 24 profile IDs.
+- GET `profiles.followed_free_classes` `{page:0}` -> public cards `[{name,title,subject,cover_image,provider,provider_name,provider_kind}]`. Following is not an access grant.
+- Selected-institute catalogue `catalog.detail` `{profile,page}` -> `{profile,classes,teachers,class_count,teacher_count,has_more}`.
+- POST `catalog.join_class` `{classroom}` enrolls current student subject to server policy. Consult source response and then reload detail; never infer paid access from enrollment.
+- `api.classroom_detail` `{name,page}` provides authorized detail; protected materials must use `materials.content`, not direct file URLs.
+
+For exact parameter defaults, allowed HTTP methods and source locations across ALL whitelisted endpoints, see MOBILE_ENDPOINT_INDEX.md. Unspecified whitelist methods are marked as framework-default; use the existing client call and confirm with integration tests. It is an index, not a claim every endpoint has passed live acceptance.
+
+## Test identities and outstanding acceptance
+
+- platform: tharukakarunarathne60@gmail.com and gro4celk@gmail.com both enabled delegated owners, neither primary. Google configured, actual device login test still required.
+- public: sisu.student.test@gmail.com exists; last inspection showed no profile or verification. Finish its Google signup normally.
+- public teacher: sisu.student.test+teacher@gmail.com absent at last inspection. create-public-test-teacher.py uses real codes/password entry; earlier lowercase confirmation cancelled before delivery. Do not assume created until success output.
+- Public demo deployment: run scripts/seed-public-demo-content.py as sisu; then verify new-student discovery, follow, institute registration, selection, free enrollment and paid-class denial. No real paid grants or automatic enrollments.
+- Test on Android/iOS: Google callback, PKCE/state mismatch/replay/expiry, logout/revocation, missing/expired OTP, 05:00 countdown, duplicate registration, no-institute student, pending teacher, approved teacher, pending institute, revoked membership, cross-institute file denial, disabled payments.
+
+## Configuration to share with the mobile developer
+
+Share repository access, public/staging base URLs, approved test credentials through a private password manager, Android package/application ID, iOS bundle ID, signing certificate SHA fingerprints, and agreed callback/app-link URLs. If native Google/Firebase integration is selected, provide platform-specific OAuth CLIENT IDs and the relevant Firebase client configuration; restrict client API keys and configure app verification appropriately. Existing web OAuth alone is not proof native callbacks are configured.
+
+Do NOT share server SSH/root access, database passwords, Frappe encryption keys, SMTP passwords, Notify.lk tokens, Google client secrets/service-account keys, LiveKit signing secrets, payment secrets, or WhatsApp tokens for inclusion in the app. These belong on the backend. Any needed backend access should be separately scoped. Do not put passwords or production service credentials in GitHub.

@@ -16,6 +16,9 @@ def payload(value):
 
 
 def institute():
+    from .campus_context import enabled, current_institute
+    if enabled():
+        return current_institute()
     rows = frappe.get_all("IL Institute", pluck="name", limit_page_length=2)
     if len(rows) != 1:
         frappe.throw("An administrator must configure one institute on this site.")
@@ -26,7 +29,8 @@ def identity():
     if frappe.session.user == "Guest":
         frappe.throw("Please sign in", frappe.AuthenticationError)
     inst = institute()
-    if frappe.session.user == "Administrator" or "System Manager" in frappe.get_roles():
+    from .campus_context import enabled as shared_campus_enabled
+    if not shared_campus_enabled() and (frappe.session.user == "Administrator" or "System Manager" in frappe.get_roles()):
         return inst, frappe._dict(name=None, role="Admin", full_name=frappe.session.user, user=frappe.session.user)
     member = frappe.db.get_value("IL Member", {"institute": inst.name, "user": frappe.session.user, "active": 1}, "*", as_dict=True)
     if not member:
@@ -75,12 +79,13 @@ def access(room, member):
         if member.role=='Student':
             enrolled=frappe.db.get_value('IL Enrollment',{'classroom':room.name,'student':member.name},['active','access_override'],as_dict=True)
             if not enrolled or not enrolled.active or enrolled.access_override=='Closed':return {'allowed':False,'reason':'Enrolment unavailable'}
-            if enrolled.access_override=='Open':
+            free_class = room.get('fee_mode') == 'Free' and money(room.fee) == 0
+            if enrolled.access_override=='Open' or free_class:
                 from .retention import access_allowed
                 enrollment=frappe.get_doc('IL Enrollment',{'classroom':room.name,'student':member.name})
                 if not room.active or not access_allowed(room) or not access_allowed(enrollment):
                     return {'allowed':False,'reason':'Course access expired or archived'}
-                return {'allowed':True,'reason':'Authorized access override'}
+                return {'allowed':True,'reason':'Free classroom enrollment' if free_class else 'Authorized access override'}
             return {'allowed':access_granted(room,member),'reason':'Paid access period required'}
     from .teaching import rights
     if rights(room, member)['teach']:
@@ -530,7 +535,12 @@ def set_member_active(member_id: str, active: int):
         frappe.throw("You cannot deactivate your own membership")
     member.active = int(bool(cint(active)))
     member.save(ignore_permissions=True)
-    # One institute per site: disabling the login also blocks the upstream LMS.
+    # Shared accounts remain usable in their other institutes. Every context
+    # resolution rechecks active membership, including already-open sessions.
+    from .campus_context import enabled as shared_campus_enabled
+    if shared_campus_enabled():
+        return
+    # Single-institute sites also disable login to block the upstream LMS.
     if member.user != "Administrator" and "System Manager" not in frappe.get_roles(member.user):
         user = frappe.get_doc("User", member.user)
         user.enabled = member.active

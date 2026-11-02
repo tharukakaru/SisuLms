@@ -65,7 +65,7 @@ class UploadedPaperAccess(MaterialAuthorization):
         env={'frappe':self.f,'__name__':'institute_lms.native_access','__package__':'institute_lms'}
         exec(compile(ast.Module(body=[fn],type_ignores=[]),'native_access.py','exec'),env)
         self.f.db.exists.return_value=True
-        with self.assertRaises(PermissionError):
+        with patch.dict(sys.modules, {'institute_lms.campus_context':types.SimpleNamespace(enabled=lambda:False)}), self.assertRaises(PermissionError):
             env['file_permission'](Record(name='file',attached_to_doctype='IL Classroom',attached_to_name='room-A'))
 
     def test_authorized_upload_is_classroom_scoped_and_downloadable(self):

@@ -3,7 +3,7 @@ export function csrf(){return window.csrf_token || document.querySelector('meta[
 export async function decode(response){
   if (!response.headers.get('content-type')?.includes('application/json')) throw Error('The Frappe service returned an unexpected response. Check your connection or sign in again.')
   const data=await response.json()
-  if(!response.ok || data.exc || data.exc_type){const detail=errorDetails(data,response.status);throw Object.assign(Error(detail.message),detail)}
+  if(!response.ok || data.exc || data.exc_type){const detail=errorDetails(data,response.status);const retry=Number(data.retry_after_seconds);throw Object.assign(Error(detail.message),detail,{retryAfterSeconds:Number.isFinite(retry)&&retry>0&&retry<=7200?retry:0})}
   return data.message
 }
 export async function upload(module,method,body){return decode(await fetch(apiURL(module,method),{method:'POST',credentials:'same-origin',body,headers:{'X-Frappe-CSRF-Token':csrf()}}))}

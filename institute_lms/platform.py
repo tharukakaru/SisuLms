@@ -28,9 +28,12 @@ def organization(name, administrator=False):
 def register(title, code, site_hostname, admin_contact, plan='STARTER'):
     owner()
     from .domain import institute_code
-    code=institute_code(code); host=hostname(site_hostname)
     from .contact import email_address
-    email=email_address(admin_contact)
+    try:
+        code=institute_code(code); host=hostname(site_hostname)
+        email=email_address(admin_contact)
+    except (ValueError,TypeError) as exc:
+        frappe.throw(str(exc))
     if plan != 'STARTER' or not 1<=len(str(title).strip())<=120: frappe.throw('Invalid organization')
     # Exact retries return the original; conflicting identities cannot be adopted.
     existing=frappe.db.get_value('IL Organization', {'site_hostname':host}, 'name')
@@ -111,7 +114,7 @@ def trial(tenant, days, reason):
     if s.trial_used or s.last_payment:frappe.throw('Trial already used or paid subscription exists')
     s.trial_used=1;s.state='trial';s.starts_at=datetime.utcnow();s.ends_at=datetime.utcnow()+timedelta(days=days);managed(s)
     audit('Grant bounded trial',tenant,reason)
-    return {'ends_at':s.ends_at}
+    return {'ends_at':s.ends_at,'requires_manifest_delivery':True}
 
 @frappe.whitelist(methods=['POST'])
 def subscription_state(tenant, state, reason, grace_until=None):
@@ -183,3 +186,12 @@ def reactivate(tenant,reason):
     if not frappe.db.exists('IL Payment Transaction',{'attempt':s.last_payment,'tenant_id':tenant}):frappe.throw('Verified settlement required')
     s.state='active';managed(s);audit('Restore settled subscription',tenant,reason)
     return {'state':s.state,'requires_manifest_delivery':True}
+
+
+@frappe.whitelist(methods=['GET'])
+def audit_log(page=0):
+    owner()
+    return frappe.get_all('IL SaaS Audit',
+        fields=['name','creation','actor','action','reference','details'],
+        order_by='creation desc',limit_start=max(0,min(int(page),10000))*50,
+        limit_page_length=50)

@@ -1,0 +1,13 @@
+{
+  "frontend/src/App.vue": "62570fd081c203ee0e8a38019c3eb5daccf9f203ad972f7345ab68d5c940c1b0",
+  "frontend/src/native/PortalRoot.vue": "e0200e98669d33fc412aaea1df847d3bd3309d6a78060050bd0d973c3c7f8a10",
+  "frontend/src/native/GeneralCampus.vue": "fba749c1f692f60ce11d7f0f001fc89ed360cbad73fda16488b67107bb119d9d",
+  "frontend/src/native/CampusSwitcher.vue": "07602282f8f616b5b09af0c13ac6a1928c894240f367da76a2e64cfc6ead9524",
+  "frontend/src/native/VerifiedSignup.vue": "1ef93c1dd9e83c39b2a5fb047aab6e7e45fa4b3b3b747edbe839cfa9dd31da6f",
+  "frontend/src/native/MobileVerification.vue": "0a94bddbff88e17e6590459c59970675372039382ad02451c186c1a88cffce1f",
+  "institute_lms/registration.py": "bb2c3ae24db3b7add3a5fc14b130f54e48de2cb3d848e1021ae33c26ec7bcbab",
+  "institute_lms/public_signup.py": "468b159176f60dbb313b6f0d87de8d3d75ee8cfcd8ee9babf0f90c4c2b062722",
+  "institute_lms/account_billing.py": "f715b6be5b0b7dd06b15d14b4952625b2bab912dbf8fb5cea427d63f3e60bb40",
+  "institute_lms/campus_context.py": "49ba30fa82bf429eefdd0f1d3fb0fab61528d56a27d583feb347616d5b49b4e3",
+  "institute_lms/campus_join.py": "199ec3b2697a9147a9e7ba134d62f26dd70a039316a8eaf1916bdbe248d0fe32"
+}

@@ -14,8 +14,12 @@ SAFE={'frappe.auth.get_logged_user','frappe.auth.get_roles','frappe.desk.form.lo
       'frappe.core.doctype.user.user.update_password','frappe.integrations.oauth2_logins.login_via_google'}
 
 def require_course(course):
+    from .campus_context import enabled as shared_enabled
+    shared=shared_enabled()
     names=frappe.get_all('IL Classroom',filters={'lms_course':course},pluck='name')
-    if not names:return  # upstream retains authority for intentionally unlinked/free courses
+    if not names:
+        if shared:frappe.throw('Open courses through your institute classroom.',frappe.PermissionError)
+        return  # upstream retains authority for intentionally unlinked/free courses
     from .api import classroom_for,access
     from .saas import require
     require('lms')
@@ -25,7 +29,7 @@ def require_course(course):
         from .retention import access_allowed
         from .commercial import account_for
         commercial=account_for(room,False)
-        if not commercial and room.active and room.fee_mode=='Free' and access_allowed(room.as_dict()):continue
+        if not shared and not commercial and room.active and room.fee_mode=='Free' and access_allowed(room.as_dict()):continue
         _,member,room=classroom_for(name)
         if not access(room,member)['allowed']:frappe.throw('SISU course payment/access required',frappe.PermissionError)
 
@@ -54,6 +58,10 @@ def validate_file(doc,method=None):
 
 def file_permission(doc,user=None,permission_type=None):
     if permission_type not in (None,'read'):return None
+    from .campus_context import enabled as shared_enabled
+    shared=shared_enabled()
+    if shared and user not in (None,frappe.session.user):
+        frappe.throw('File access must be checked for the signed-in account.',frappe.PermissionError)
     if doc.attached_to_doctype=='IL Delivery Order':
         from .delivery import checked_order
         checked_order(doc.attached_to_name)
@@ -71,19 +79,23 @@ def file_permission(doc,user=None,permission_type=None):
             frappe.throw('Answer unavailable',frappe.PermissionError)
     if doc.attached_to_doctype in ('LMS Course','Course Lesson','Course Chapter'):
         course=doc.attached_to_name if doc.attached_to_doctype=='LMS Course' else frappe.db.get_value(doc.attached_to_doctype,doc.attached_to_name,'course')
+        if shared and not course:
+            frappe.throw('Course attachment unavailable.',frappe.PermissionError)
         if course:require_course(course)
     return None  # never grants permission the upstream framework would deny
 
 def guard():
+    from .campus_context import enabled as shared_enabled
+    shared=shared_enabled()
     path=unquote(frappe.local.request.path)
     roles=frappe.get_roles() if frappe.session.user!='Guest' else []
     operator=frappe.session.user=='Administrator' or 'System Manager' in roles
-    if operator:return
+    if operator and not shared:return
     method=frappe.form_dict.get('cmd') or (path.split('/method/',1)[1].rstrip('/') if '/method/' in path else '')
     if method.startswith('institute_lms.') or method in SAFE:return
     if method.startswith('frappe.integrations.oauth2_logins.'):return
     linked=frappe.db.exists('IL Classroom',{'lms_course':['is','set']})
-    if not linked:return
+    if not linked and not shared:return
     if method in READERS:
         course=frappe.form_dict.get('course')
         if not isinstance(course,str) or not course:frappe.throw('Course context required',frappe.PermissionError)

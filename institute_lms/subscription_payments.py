@@ -17,6 +17,7 @@ from .payments_lk_contract import valid_payment, hosted_url, verify_signature, a
 def config():
     from .platform import control
     control()
+    if frappe.conf.get('il_payments_paused'):frappe.throw('Payments are paused')
     mode=frappe.conf.get('il_subscription_payments_lk_mode','test')
     key=frappe.conf.get('il_subscription_payments_lk_secret_key','')
     secret=frappe.conf.get('il_subscription_payments_lk_webhook_secret','')

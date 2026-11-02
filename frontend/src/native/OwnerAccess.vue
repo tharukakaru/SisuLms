@@ -3,7 +3,7 @@ import {ref,onMounted} from 'vue'
 import {request} from './client'
 const data=ref(null),email=ref(''),reason=ref(''),busy=ref(false),error=ref(''),note=ref('')
 async function load(){data.value=await request('owner_access','access_list',{},'GET')}
-async function run(fn){busy.value=true;error.value='';note.value='';try{await fn()}catch(e){error.value=e.message}finally{busy.value=false}}
+async function run(fn){if(busy.value)return;busy.value=true;error.value='';note.value='';try{await fn()}catch(e){error.value=e.message}finally{busy.value=false}}
 async function add(){await run(async()=>{const r=await request('owner_access','add',{email:email.value,reason:reason.value});await load();note.value=r.status;email.value=''})}
 async function remove(user){if(!window.confirm(`Remove Super Admin access for ${user}? Their user account will remain.`))return;await run(async()=>{const r=await request('owner_access','remove',{email:user,reason:reason.value});await load();note.value=r.status})}
 onMounted(()=>run(load))

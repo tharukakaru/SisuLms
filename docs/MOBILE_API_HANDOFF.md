@@ -1,3 +1,5 @@
+> Public shared-campus update: start with [MOBILE_PUBLIC_CAMPUS_HANDOFF.md](MOBILE_PUBLIC_CAMPUS_HANDOFF.md) and [endpoint index](MOBILE_ENDPOINT_INDEX.md). Older isolated-site assumptions below do not describe the public no-institute student flow.
+
 # Flutter integration contract — RUN 3
 
 ## Host and identity

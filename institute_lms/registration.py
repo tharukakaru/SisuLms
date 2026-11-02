@@ -10,22 +10,26 @@ from .registration_contract import registration_details
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
 def self_start(data):
-    from .self_signup import start
+    from . import public_signup, self_signup
+    start = getattr(public_signup if public_signup.enabled() else self_signup, 'start')
     return start(data)
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
 def self_phone(token):
-    from .self_signup import send_phone
+    from . import public_signup, self_signup
+    send_phone = getattr(public_signup if public_signup.enabled() else self_signup, 'send_phone')
     return send_phone(token)
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
 def self_verify(token,channel,code):
-    from .self_signup import verify
+    from . import public_signup, self_signup
+    verify = getattr(public_signup if public_signup.enabled() else self_signup, 'verify')
     return verify(token,channel,code)
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
 def self_complete(token,password,confirmation):
-    from .self_signup import complete
+    from . import public_signup, self_signup
+    complete = getattr(public_signup if public_signup.enabled() else self_signup, 'complete')
     return complete(token,password,confirmation)
 
 def ready():
@@ -38,11 +42,17 @@ def digest(challenge, code):
     return hmac.new(str(frappe.conf.encryption_key).encode(),(challenge+':'+code).encode(),hashlib.sha256).hexdigest()
 
 def limit(identifier):
-    now=int(time.time()); key='il_signup_limit:'+hashlib.sha256(identifier.encode()).hexdigest()+':'+str(now//3600)
+    now=int(time.time())
+    verification=identifier.startswith(('self-signup:', 'self-signup-ip:', 'phone-user:', 'phone-number:', 'phone-ip:'))
+    window=300 if verification else 3600
+    prefix='il_verification_5m:' if verification else 'il_signup_limit:'
+    key=prefix+hashlib.sha256(identifier.encode()).hexdigest()+':'+str(now//window)
     with frappe.cache.lock(key, timeout=10):
         count=frappe.cache.get_value(key) or 0
-        if count>=5: frappe.throw('Too many verification requests. Please try later')
-        frappe.cache.set_value(key,count+1,expires_in_sec=7200)
+        if count>=5:
+            frappe.local.response['retry_after_seconds'] = window - now % window
+            frappe.throw('Please wait before requesting another verification code.')
+        frappe.cache.set_value(key,count+1,expires_in_sec=window*2)
 
 @frappe.whitelist(allow_guest=True, methods=['POST'])
 def request_code(data):
@@ -128,7 +138,32 @@ def review_application(name,decision,reason):
 @frappe.whitelist(methods=['GET'])
 def self_google_details():
     from .self_signup import enabled,google_identity
-    if not enabled() or not google_identity(frappe.session.user):
+    from . import public_signup
+    allowed=public_signup.google_identity(frappe.session.user) if public_signup.enabled() else enabled() and google_identity(frappe.session.user)
+    if not allowed:
         frappe.throw('Authenticate with Google before completing this form.')
     user=frappe.get_doc('User',frappe.session.user)
-    return {'first_name':user.first_name or '', 'last_name':user.last_name or '', 'email':user.email}
+    details={'first_name':user.first_name or '', 'last_name':user.last_name or '', 'email':user.email}
+    profile=frappe.db.get_value('IL Public Profile',{'user':frappe.session.user},['username','country','kind','bio','qualifications'],as_dict=True)
+    if profile:
+        details.update({k:profile.get(k) or '' for k in ('username','country','bio','qualifications')})
+        details['kind']='Individual Teacher' if profile.kind=='Teacher' else profile.kind
+    return details
+
+@frappe.whitelist(methods=['GET'])
+def account_status():
+    from .wallet import signed_in
+    signed_in()
+    user=frappe.get_doc('User',frappe.session.user)
+    profile=frappe.db.get_value('IL Public Profile',{'user':user.name},['name','status','kind'],as_dict=True)
+    phone=frappe.db.get_value('IL Verified Phone',{'user':user.name},['phone','verified_at'],as_dict=True)
+    email=bool(frappe.db.exists('IL Registration Request',{'email':user.name,'email_verified':1,'status':'Approved'}))
+    return {'full_name':user.full_name or user.first_name or user.name,'email_verified':email,
+            'verified':bool(profile and profile.status=='Verified' and phone and phone.phone and phone.verified_at and email)}
+
+
+@frappe.whitelist(methods=['GET'])
+def account_notifications():
+    from .wallet import signed_in
+    signed_in()
+    return frappe.get_all('Notification Log',filters={'for_user':frappe.session.user,'name':['like','sisu-confirm-%']},fields=['name','subject','creation'],order_by='creation desc',limit_page_length=30)

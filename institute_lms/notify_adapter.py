@@ -34,7 +34,14 @@ def send_config(config,phone,message):
                                  timeout=(5, 15), allow_redirects=False)
         value = response.json()
         confirmed = response.ok and isinstance(value,dict) and value.get('status') == 'success' and value.get('data') == 'Sent'
-    except (requests.RequestException, ValueError):
+    except (requests.RequestException, ValueError) as exc:
+        try:
+            if getattr(frappe.local,'site',None)=='sisuacademylk.com':
+                response_value=locals().get('response')
+                frappe.cache.set_value('il_public_sms_last_failure',{'error_type':type(exc).__name__,
+                    'http_status':getattr(response_value,'status_code',None)},expires_in_sec=3600)
+        except Exception:
+            pass
         frappe.throw('SMS acceptance is uncertain; reconcile before retrying')
     if not confirmed:
         frappe.throw('SMS provider did not confirm acceptance')

@@ -87,7 +87,9 @@ def send_email(address,code):
 def issue(token,state,channel):
     from .registration import limit
     now=time.time()
-    if now-state.get(channel+'_last',0)<60:frappe.throw('Wait one minute before requesting another code.')
+    if now-state.get(channel+'_last',0)<60:
+        frappe.local.response['retry_after_seconds'] = max(1, int(60-(now-state.get(channel+'_last',0))))
+        frappe.throw('Please wait before requesting another verification code.')
     limit('self-signup:'+channel+':'+state['details']['email'])
     limit('self-signup-ip:'+str(frappe.local.request_ip))
     code=f'{secrets.randbelow(1000000):06d}'

@@ -1,3 +1,5 @@
+> Public shared-campus update: start with [MOBILE_PUBLIC_CAMPUS_HANDOFF.md](MOBILE_PUBLIC_CAMPUS_HANDOFF.md) and [endpoint index](MOBILE_ENDPOINT_INDEX.md). Older isolated-site assumptions below do not describe the public no-institute student flow.
+
 # SISU V2 Flutter build guide
 
 Verified SDK: Flutter 3.47.0 / Dart 3.13.0; retain pubspec.lock. New direct packages: livekit_client 2.13.0, file_selector 1.1.0, flutter_background 1.3.1, flutter_webrtc 1.6.2+hotfix.3, app_links 7.2.1. Existing state/navigation, AppAuth, video/audio/music and HTTP services remain.

@@ -48,7 +48,8 @@ def classes(profile='',page=0):
     filters=filters_for(profile,inst) if profile else {'institute':inst.name,'active':1}
     if not profile:
         enrolled=frappe.get_all('IL Enrollment',filters={'institute':inst.name,'student':m.name,'active':1},pluck='classroom')
-        filters['name']=['in',enrolled or ['__none__']]
+        free=frappe.get_all('IL Classroom',filters={'institute':inst.name,'active':1,'published':1,'fee_mode':'Free','fee':0},pluck='name')
+        filters['name']=['in',list(set(enrolled)|set(free)) or ['__none__']]
     names=frappe.get_all('IL Classroom',filters=filters,pluck='name',order_by='title asc',limit_start=max(0,int(page))*24,limit_page_length=24)
     result=[]
     for name in names:

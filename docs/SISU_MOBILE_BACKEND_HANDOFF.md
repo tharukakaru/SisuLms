@@ -1,3 +1,5 @@
+> Public shared-campus update: start with [MOBILE_PUBLIC_CAMPUS_HANDOFF.md](MOBILE_PUBLIC_CAMPUS_HANDOFF.md) and [endpoint index](MOBILE_ENDPOINT_INDEX.md). Older isolated-site assumptions below do not describe the public no-institute student flow.
+
 # V2 mobile integration update
 
 This section supersedes the historical status table below. All calls still use the existing ParityService/FrappeClient and site-scoped Sisu authentication. Native screens are implemented and unit/web-build tested; real backend/device acceptance is pending.

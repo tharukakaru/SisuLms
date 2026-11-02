@@ -13,6 +13,9 @@ def rights(room,member):
     affiliated=True
     if member.role=='Teacher' and room.get('owner_type')!='Teacher' and room.get('public_provider'):
         affiliated=bool(frappe.db.exists('IL Profile Relationship',{'profile':room.public_provider,'user':member.user,'kind':'Teacher membership','status':'Active'}))
+    elif member.role=='Teacher' and room.get('owner_type')=='Institute' and not room.get('public_provider'):
+        from .internal_classrooms import teacher_affiliated
+        affiliated=teacher_affiliated(room.institute,member.user)
     return capabilities(room,member,affiliated)
 
 def require(room,member,action):
@@ -68,12 +71,20 @@ def membership(name,status):
     elif status in ('Active','Rejected','Removed'):
         if m.role!='Admin' or r.profile!=institute_profile(inst):frappe.throw('Institute administrator required',frappe.PermissionError)
         if (status in ('Active','Rejected') and r.status!='Pending') or (status=='Removed' and r.status!='Active'):frappe.throw('This request has already changed')
-        if status=='Active' and not frappe.db.exists('IL Public Profile',{'user':r.user,'kind':'Teacher','status':'Verified'}):frappe.throw('Teacher verification is required')
+        if status=='Active' and not frappe.db.exists('IL Public Profile',{'user':r.user,'kind':'Teacher','status':'Verified'}):
+            from .teacher_identity import eligible
+            if not eligible(r.user):frappe.throw('Teacher identity verification is required')
     else:frappe.throw('Invalid membership decision')
+    # A teacher may leave an affiliation while viewing another workspace.
+    # Resolve cleanup from that affiliation, never the currently selected one.
+    target_workspace=frappe.db.get_value('IL Public Profile',{'name':r.profile,'kind':'Institute'},'workspace')
+    if not target_workspace:frappe.throw('Institute setup needs administrator review')
+    from .campus_teachers import sync
+    sync(r,target_workspace,status)
     r.status=status;r.reviewed_by=m.user;write(r)
     if status in ('Left','Removed'):
-        teachers=frappe.get_all('IL Member',filters={'user':r.user,'institute':inst.name},pluck='name')
-        for room in frappe.get_all('IL Classroom',filters={'public_provider':r.profile,'teacher':['in',teachers or ['__none__']],'owner_type':'Institute'},pluck='name'):
+        teachers=frappe.get_all('IL Member',filters={'user':r.user,'institute':target_workspace,'role':'Teacher'},pluck='name')
+        for room in frappe.get_all('IL Classroom',filters={'institute':target_workspace,'public_provider':r.profile,'teacher':['in',teachers or ['__none__']],'owner_type':'Institute'},pluck='name'):
             frappe.db.set_value('IL Classroom',room,'teacher_assignment_active',0)
     return {'status':status}
 

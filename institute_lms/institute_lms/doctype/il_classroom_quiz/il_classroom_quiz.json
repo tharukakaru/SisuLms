@@ -1,0 +1,79 @@
+{
+  "doctype": "DocType",
+  "name": "IL Classroom Quiz",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "institute",
+    "classroom",
+    "title",
+    "instructions",
+    "status",
+    "questions",
+    "question_count",
+    "published_by",
+    "published_at"
+  ],
+  "fields": [
+    {
+      "fieldname": "institute",
+      "label": "institute",
+      "fieldtype": "Link",
+      "options": "IL Institute",
+      "reqd": 1
+    },
+    {
+      "fieldname": "classroom",
+      "label": "classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom",
+      "reqd": 1,
+      "search_index": 1
+    },
+    {
+      "fieldname": "title",
+      "label": "title",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "instructions",
+      "label": "instructions",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "status",
+      "label": "status",
+      "fieldtype": "Select",
+      "options": "Draft\nPublished",
+      "reqd": 1,
+      "default": "Draft"
+    },
+    {
+      "fieldname": "questions",
+      "label": "questions",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "question_count",
+      "label": "question count",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "published_by",
+      "label": "published by",
+      "fieldtype": "Link",
+      "options": "User"
+    },
+    {
+      "fieldname": "published_at",
+      "label": "published at",
+      "fieldtype": "Datetime"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

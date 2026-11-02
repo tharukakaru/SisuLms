@@ -1,0 +1,107 @@
+{
+  "doctype": "DocType",
+  "name": "IL Classroom Quiz Submission",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "quiz",
+    "institute",
+    "classroom",
+    "student",
+    "student_user",
+    "attempt_key",
+    "answers",
+    "snapshot",
+    "correctness",
+    "score",
+    "total",
+    "percentage",
+    "submitted_at"
+  ],
+  "fields": [
+    {
+      "fieldname": "quiz",
+      "label": "quiz",
+      "fieldtype": "Link",
+      "options": "IL Classroom Quiz",
+      "reqd": 1,
+      "search_index": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "institute",
+      "fieldtype": "Link",
+      "options": "IL Institute",
+      "reqd": 1
+    },
+    {
+      "fieldname": "classroom",
+      "label": "classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom",
+      "reqd": 1,
+      "search_index": 1
+    },
+    {
+      "fieldname": "student",
+      "label": "student",
+      "fieldtype": "Link",
+      "options": "IL Member"
+    },
+    {
+      "fieldname": "student_user",
+      "label": "student user",
+      "fieldtype": "Link",
+      "options": "User",
+      "reqd": 1,
+      "search_index": 1
+    },
+    {
+      "fieldname": "attempt_key",
+      "label": "attempt key",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "answers",
+      "label": "answers",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "snapshot",
+      "label": "snapshot",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "correctness",
+      "label": "correctness",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "score",
+      "label": "score",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "total",
+      "label": "total",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "percentage",
+      "label": "percentage",
+      "fieldtype": "Float"
+    },
+    {
+      "fieldname": "submitted_at",
+      "label": "submitted at",
+      "fieldtype": "Datetime"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1,
+  "sort_field": "creation",
+  "sort_order": "DESC"
+}

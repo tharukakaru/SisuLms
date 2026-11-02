@@ -8,13 +8,18 @@ INLINE_TYPES = ('pdf','png','jpg','jpeg')
 TYPES = {'png':'image/png','jpg':'image/jpeg','jpeg':'image/jpeg','csv':'text/csv','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','xls':'application/vnd.ms-excel','txt':'text/plain', 'pdf':'application/pdf', 'ppt':'application/vnd.ms-powerpoint',
          'pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation',
          'doc':'application/msword', 'docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}
+PAPER_TYPES = {**TYPES, 'xls':'application/vnd.ms-excel',
+    'xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'png':'image/png', 'jpg':'image/jpeg', 'jpeg':'image/jpeg', 'webp':'image/webp'}
+PAPER_INLINE = {'pdf', 'txt', 'png', 'jpg', 'jpeg', 'webp'}
 
 
-def validate_file(filename, content, preview=False):
+def validate_file(filename, content, preview=False, paper=False):
     if not isinstance(filename,str) or not filename or len(filename)>180 or any(c in filename for c in '/\\\r\n\x00'):
         raise ValueError('Use a simple filename of at most 180 characters')
     suffix=filename.rsplit('.',1)[-1].lower()
-    if suffix not in TYPES or (preview and suffix!='pdf'):raise ValueError('Use PDF, Office documents, UTF-8 TXT/CSV, PNG or JPEG; companion previews must be PDF')
+    types = PAPER_TYPES if paper else TYPES
+    if suffix not in types or (preview and suffix!='pdf'):raise ValueError('Use PDF, Office documents, UTF-8 TXT/CSV, PNG or JPEG; companion previews must be PDF')
     if not isinstance(content,bytes) or not content or len(content)>MAX_BYTES:raise ValueError('Choose a nonempty document of at most 10 MB')
     if suffix in ('txt','csv'):
         if b'\x00' in content:raise ValueError('Plain text must not contain binary data')
@@ -33,14 +38,14 @@ def validate_file(filename, content, preview=False):
                     path=PurePosixPath(e.filename)
                     if path.is_absolute() or '..' in path.parts or '\\' in e.filename or e.flag_bits&1 or 'vbaproject' in e.filename.lower():raise ValueError('Encrypted or macro-bearing Office files are not supported')
         except BadZipFile:raise ValueError('Invalid Office archive') from None
-    if suffix in ('png','jpg','jpeg'):
+    if suffix in ('png','jpg','jpeg','webp'):
         from PIL import Image
         try:
             with Image.open(BytesIO(content)) as image:
-                if image.format != ('PNG' if suffix=='png' else 'JPEG') or image.width*image.height>20000000:raise ValueError('Choose a PNG/JPEG image below 20 megapixels')
+                if image.format != {'png':'PNG','jpg':'JPEG','jpeg':'JPEG','webp':'WEBP'}[suffix] or image.width*image.height>20000000:raise ValueError('Choose a PNG/JPEG image below 20 megapixels')
                 image.verify()
         except (OSError, SyntaxError, Image.DecompressionBombError) as exc:raise ValueError('Invalid or oversized image') from exc
-    return suffix,TYPES[suffix]
+    return suffix,types[suffix]
 
 
 def require_download(policy, role):

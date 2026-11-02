@@ -16,6 +16,7 @@ INVOICE = 'IL Account Invoice'
 def provider_lkr(a):
     return bool(frappe.conf.get('il_usage_billing_enabled')) and a.role in ('Teacher','Institute')
 def price(a, plan):
+    if a.role == 'Student': return 0
     if provider_lkr(a):
         from .plan_catalog import plan as catalog_plan
         return catalog_plan(plan)['monthly_lkr'] * 100
@@ -90,6 +91,8 @@ def member_created(doc, method=None):
     account(inst, doc, create=True)
 
 def state(a):
+    if a.role == 'Student':
+        return dict(state="Included" if a.enabled else "Suspended", available=bool(a.enabled))
     if frappe.conf.get("il_usage_billing_enabled"):
         from .usage_billing import blocked, blocked_institute
         if (a.name and blocked(a.name)) or (a.institute and blocked_institute(a.institute)): return dict(state="Usage payment required", available=False)
@@ -100,8 +103,8 @@ def state(a):
 def policy():
     a = account()
     if a.role=='Teacher' and frappe.conf.get('il_institute_teacher_coverage')==1 and not state(a)['available']:
-        from .institute_coverage import sponsor
-        coverage=sponsor(a.institute,a.user)
+        from .institute_coverage import for_account
+        coverage=for_account(a)
         if coverage:a=coverage['account']
     from .plan_catalog import plan_features
     from .commercial_rules import plan_features as student_features
@@ -120,8 +123,8 @@ def public_account(a):
     result = {k:a.get(k) for k in fields}
     result.update(state(a))
     if a.role=='Teacher' and frappe.conf.get('il_institute_teacher_coverage')==1:
-        from .institute_coverage import sponsor
-        coverage=sponsor(a.institute,a.user)
+        from .institute_coverage import for_account
+        coverage=for_account(a)
         result['workspace_available']=bool(result['available'] or coverage)
         result['institute_covered']=bool(coverage)
         result['institute_only']=bool(coverage and not result['available'])
@@ -205,8 +208,8 @@ def void_open(a):
         bill.status='Void'; bill.open_key=None; save(bill)
 
 def make_invoice(a):
-    if frappe.conf.get('il_usage_billing_enabled') and a.role == 'Student':
-        frappe.throw('SISU usage charges are paid by the provider; no student subscription invoice is created')
+    if a.role == 'Student':
+        frappe.throw('Student dashboard access is included; no student platform subscription invoice is created')
     if not provider_lkr(a) and (a.country_status not in ('Verified','Change requested') or not a.billing_country):
         frappe.throw('Your billing setup is being confirmed. Please contact SISU support before requesting an invoice.')
     if not a.enabled: frappe.throw('Subscription is suspended')
@@ -316,7 +319,7 @@ def daily():
     if frappe.conf.get('il_control_plane'):return
     for name in frappe.get_all(ACCOUNT,filters={'enabled':1,'cancel_at_end':0,'country_status':['in',['Verified','Change requested']]},pluck='name'):
         a=frappe.get_doc(ACCOUNT,name,for_update=True)
-        if frappe.conf.get('il_usage_billing_enabled') and a.role == 'Student':continue
+        if a.role == 'Student':continue
         if state(a)['available']:continue
         old=frappe.db.get_value(INVOICE,{'subscription':a.name,'status':'Unpaid'},'name')
         # Initial invoices are requested by the user; renew only an established paid account.
@@ -331,6 +334,14 @@ def guard_request():
     path=frappe.local.request.path
     method=frappe.form_dict.get('cmd') or (path.split('/method/',1)[1].rstrip('/') if '/method/' in path else '')
     module=method.split('.')[1] if method.startswith('institute_lms.') else ''
+    if method in ('institute_lms.learning_preferences.get_preferences','institute_lms.learning_preferences.save_preferences'):return  # User-owned goals, never institute data.
+    # These endpoints must work before any institute is selected. Each checks
+    # the shared-campus flag, active user and its own membership/profile rules.
+    if method == 'institute_lms.release.otp_status':return  # Signed-in account verification has no institute dependency.
+    if method in ('institute_lms.campus_context.choices', 'institute_lms.campus_context.select',
+                  'institute_lms.campus_context.clear', 'institute_lms.campus_join.directory',
+                  'institute_lms.campus_join.people', 'institute_lms.campus_join.register_teacher', 'institute_lms.campus_join.details', 'institute_lms.campus_join.register_student'):
+        return
     if module in ('usage_billing','cybersource','account_billing','portal_session','portal_policy','registration','mobile_auth','mobile_verification','profiles','private_contact','contact','health','saas','devices'):
         return
     if method in ('login','logout','frappe.auth.get_logged_user') or method.startswith('frappe.integrations.oauth2_logins.') or 'reset_password' in method or 'update_password' in method:return

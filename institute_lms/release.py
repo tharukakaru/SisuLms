@@ -47,7 +47,8 @@ def billing():
         row['payments']=frappe.get_all('IL Payment Attempt',filters={'tenant_id':row.name},
             fields=['name','status','amount_minor','currency','creation'],order_by='creation desc',limit_page_length=20)
     plans=frappe.get_all('IL SaaS Plan',filters={'name':['in',['STARTER','PREMIUM AI']]},fields=['name','features','limits','price_minor','period_days','version'],limit_page_length=3)
-    return {'organizations':rows,'plans':plans,'usage_available':False}
+    return {'organizations':rows,'plans':plans,'usage_available':False,
+            'payments_paused':bool(frappe.conf.get('il_payments_paused'))}
 
 
 @frappe.whitelist()

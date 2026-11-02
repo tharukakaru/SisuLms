@@ -5,11 +5,12 @@ from .domain import safe_url
 
 @frappe.whitelist(allow_guest=True)
 def public():
+    from .public_signup import enabled as public_signup_enabled
     d=frappe.get_single('IL Portal Settings')
     return {'privacy_policy_url':d.privacy_policy_url or '', 'privacy_policy_version':d.privacy_policy_version or '',
         'provider_applications_enabled':bool(d.provider_applications_enabled and d.privacy_policy_url and d.privacy_policy_version),
         'google_available':bool(frappe.db.exists('Social Login Key',{'name':'google','enable_social_login':1})),
-        'self_signup_enabled':getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost' and frappe.conf.get('il_self_signup_enabled')==1}
+        'self_signup_enabled':public_signup_enabled(getattr(frappe,'conf',{})) or (getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost' and frappe.conf.get('il_self_signup_enabled')==1)}
 
 @frappe.whitelist(methods=['POST'])
 def save(privacy_policy_url='',privacy_policy_version='',provider_applications_enabled=0):
@@ -41,7 +42,17 @@ def stamp_session(login_manager=None):
     frappe.session.data['il_google_session']=int(path=='/api/method/'+callback and frappe.session.user!='Guest')
     frappe.local.session_obj.update(force=True)
 
+def verified_public_password_account(user):
+    from .public_signup import enabled
+    if not enabled(getattr(frappe,'conf',{})) or user in ('Guest','Administrator'):return False
+    phone=frappe.db.get_value('IL Verified Phone',{'user':user},['phone','verified_at'],as_dict=True)
+    return bool(phone and phone.phone and phone.verified_at
+        and frappe.db.exists('IL Public Profile',{'user':user,'kind':'Student','status':'Verified'})
+        and frappe.db.exists('IL Registration Request',{'email':user,'email_verified':1,'status':'Approved'}))
+
+
 def require_google_student():
+    if verified_public_password_account(frappe.session.user):return
     if getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost':
         from .self_signup import marker
         if marker(frappe.session.user):return
@@ -50,6 +61,7 @@ def require_google_student():
 
 def validate_login(login_manager):
     user=login_manager.user
+    if verified_public_password_account(user):return
     if getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost':
         from .self_signup import marker
         if marker(user):return

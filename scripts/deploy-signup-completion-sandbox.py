@@ -21,6 +21,7 @@ def main():
             print('Only configured sandbox test contacts processed. Review uncertain channels before retrying.');return
         baseline=json.loads((source/'scripts/signup-completion-baseline.json').read_text())
         new=['frontend/src/native/ProviderAccessGate.vue','frontend/src/native/InstituteJoinPicker.vue','institute_lms/sandbox_notices.py','institute_lms/institute_coverage.py']
+        new += ['frontend/src/native/ClassroomQuizzes.vue', 'frontend/src/native/PaperUploadForm.vue', 'frontend/src/native/classroomQuizRules.js', 'frontend/src/native/paperUpload.js', 'frontend/src/native/paperUploadRules.js', 'frontend/src/native/quizActionState.js', 'institute_lms/classroom_quiz_rules.py', 'institute_lms/classroom_quizzes.py', 'institute_lms/institute_lms/doctype/il_classroom_quiz/__init__.py', 'institute_lms/institute_lms/doctype/il_classroom_quiz/il_classroom_quiz.json', 'institute_lms/institute_lms/doctype/il_classroom_quiz/il_classroom_quiz.py', 'institute_lms/institute_lms/doctype/il_classroom_quiz_submission/__init__.py', 'institute_lms/institute_lms/doctype/il_classroom_quiz_submission/il_classroom_quiz_submission.json', 'institute_lms/institute_lms/doctype/il_classroom_quiz_submission/il_classroom_quiz_submission.py', 'institute_lms/internal_classrooms.py']
         schema='institute_lms/institute_lms/doctype/il_sandbox_notice/'
         new += [schema+n for n in ('__init__.py','il_sandbox_notice.py','il_sandbox_notice.json')]
         files=list(baseline)+new
@@ -58,7 +59,7 @@ def main():
             if target.exists():
                 saved=backup/name;saved.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(target,saved)
             target.parent.mkdir(parents=True,exist_ok=True);target.write_text(merged_hooks if name=='institute_lms/hooks.py' else (source/name).read_text())
-        for dt in ('il_sandbox_notice','il_profile_relationship'):
+        for dt in ('il_sandbox_notice','il_profile_relationship','il_classroom_quiz','il_classroom_quiz_submission'):
             frappe.reload_doc('institute_lms','doctype',dt,force=True)
         frappe.db.commit()
         subprocess.run(['bench','build','--app','institute_lms'],cwd=bench,check=True)

@@ -1,0 +1,8 @@
+{
+  "frontend/src/native/GeneralCampus.vue": "e1b351df9051d0247d140d633da59f56ee459a70fbae890905517aee185fc64d",
+  "frontend/src/native/CampusSwitcher.vue": "805a4c80813d3ebe45f55f4c7cf027eb825fdbe5d127799d4a2ec5500aa44e74",
+  "frontend/src/native/VerifiedSignup.vue": "7b7b05d9806cdefb30c51de9040e0a808d95637521e395f137271f7dd9df778b",
+  "frontend/src/native/client.js": "33463790f1f249c8dd874f085b696599881f66e25932e70e4f3a90bd5cc5faaf",
+  "institute_lms/registration.py": "630acda7260125eb917f8d73ba8cbec5d4e9fd5f7204357d9fc12c3e6763c845",
+  "institute_lms/self_signup.py": "8d0cdb593cd6e87ac4de5331f2f4963728789db78a12ce00229df9fa6ac3996b"
+}

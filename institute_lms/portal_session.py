@@ -12,6 +12,15 @@ def current():
         return {'authenticated':True,'role':'Super Admin','control_plane':bool(frappe.conf.get('il_control_plane')),'user':frappe.session.user,'csrf_token':csrf}
     if frappe.conf.get('il_control_plane'):
         return {'authenticated':True,'role':'Billing','control_plane':True,'user':frappe.session.user,'csrf_token':csrf}
+    from .campus_context import enabled, SESSION_KEY
+    shared = enabled()
+    if shared:
+        selected = frappe.session.data.get(SESSION_KEY)
+        if not selected or not frappe.db.exists('IL Member', {'institute': selected, 'user': frappe.session.user, 'active': 1}):
+            from .onboarding import account_kind
+            kind=account_kind()
+            return {'authenticated':True,'role':'Campus','shared_campus':True,'member':None,
+                    'onboarding_kind':kind,'user':frappe.session.user,'csrf_token':csrf}
     from .api import institute
     inst=institute()
     member=frappe.db.get_value('IL Member',{'institute':inst.name,'user':frappe.session.user,'active':1},['name','role','full_name','user'],as_dict=True)
@@ -28,7 +37,7 @@ def current():
         from .onboarding import account_kind
         onboarding_kind=account_kind()
     # Framework System Managers retain technical site administration, not automatic platform ownership.
-    return {'authenticated':True,'role':member.role if member else 'Onboarding','onboarding_kind':onboarding_kind,'member':member,'user':frappe.session.user,'csrf_token':csrf}
+    return {'authenticated':True,'role':member.role if member else 'Onboarding','shared_campus':shared,'onboarding_kind':onboarding_kind,'member':member,'user':frappe.session.user,'csrf_token':csrf}
 
 @frappe.whitelist()
 def overview():

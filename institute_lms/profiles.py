@@ -22,6 +22,11 @@ def required():
     if p.kind=='Student':
         from .portal_policy import require_google_student
         require_google_student()
+        if getattr(frappe,'conf',{}).get('il_public_signup_enabled')==1:
+            phone=frappe.db.get_value('IL Verified Phone',{'user':frappe.session.user},['phone','verified_at'],as_dict=True)
+            email=frappe.db.exists('IL Registration Request',{'email':frappe.session.user,'email_verified':1,'status':'Approved'})
+            if not phone or not phone.phone or not phone.verified_at or not email:
+                frappe.throw('Verify your email, mobile number and profile from your dashboard first.',frappe.PermissionError)
     return p
 
 def owner_notice(subject,reference):
@@ -100,10 +105,14 @@ def review(profile,decision,reason,workspace=None):
 
 @frappe.whitelist()
 def search(query='',page=0):
-    required();term=str(query).strip().lstrip('@')[:80]
-    return frappe.get_all('IL Public Profile',filters={'status':'Verified','kind':['in',['Institute','Teacher']]},
+    signed_in();term=str(query).strip().lstrip('@')[:80]
+    rows=frappe.get_all('IL Public Profile',filters={'status':'Verified','kind':['in',['Institute','Teacher']]},
        or_filters=[['username','like',f'%{term}%'],['display_name','like',f'%{term}%']],
        fields=['name','username','display_name','kind','country','code','lms_id','bio','curriculum','languages','grades','socials','is_school','profile_image','cover_image','tagline','qualifications'],order_by='display_name asc',start=max(0,min(int(page),10000))*24,limit_page_length=24)
+    for row in rows:
+        user=frappe.db.get_value('IL Public Profile',row.name,'user')
+        row['independent']=row.kind=='Teacher' and not frappe.db.exists('IL Member',{'user':user,'role':'Teacher','active':1})
+    return rows
 
 @frappe.whitelist(methods=['POST'])
 def upload_image(kind):
@@ -246,7 +255,8 @@ def upload_asset():
 @frappe.whitelist(methods=['GET'])
 def institute_join_options():
     signed_in()
-    if not frappe.db.exists('IL Member',{'user':frappe.session.user,'role':'Teacher','active':1}):
+    from .teacher_identity import eligible
+    if not (frappe.db.exists('IL Member',{'user':frappe.session.user,'role':'Teacher','active':1}) or eligible(frappe.session.user)):
         frappe.throw('Teacher account required',frappe.PermissionError)
     return {'institutes':frappe.get_all('IL Public Profile',filters={'kind':'Institute','status':'Verified'},fields=['name','display_name','username'],limit_page_length=100),
         'requests':frappe.get_all('IL Profile Relationship',filters={'user':frappe.session.user,'kind':'Teacher membership'},fields=['name','profile','status','request_purpose'],limit_page_length=100)}
@@ -271,3 +281,36 @@ def request_institutes(profiles,purpose):
         if existing and doc.status in ('Pending','Active'):continue
         doc.status='Pending';doc.request_purpose=purpose;write(doc)
     return {'submitted':True,'message':'Request submitted. Wait for confirmation from your institute. No access has been granted yet.'}
+
+@frappe.whitelist(methods=['GET'])
+def followed_free_classes(page=0):
+    """Public class cards only; following never grants private institute membership."""
+    signed_in()
+    try: page=int(page)
+    except (TypeError,ValueError):frappe.throw('Choose a valid page.')
+    if not 0<=page<=10000:frappe.throw('Choose a valid page.')
+    return frappe.db.sql('''SELECT c.name,c.title,c.subject,c.cover_image,
+        p.name AS provider,p.display_name AS provider_name,p.kind AS provider_kind
+        FROM `tabIL Classroom` c JOIN `tabIL Public Profile` p ON p.name=c.public_provider
+        WHERE c.active=1 AND c.published=1 AND c.fee_mode='Free' AND c.fee=0
+          AND p.status='Verified' AND p.kind IN ('Teacher','Institute')
+          AND ((c.owner_type='Teacher' AND p.kind='Teacher' AND c.owner_user=p.user)
+            OR (c.owner_type='Institute' AND p.kind='Institute' AND c.institute=p.workspace))
+          AND EXISTS (SELECT 1 FROM `tabIL Profile Relationship` r
+            WHERE r.profile=p.name AND r.user=%s AND r.kind='Follow' AND r.status='Active')
+        ORDER BY c.creation DESC,c.name LIMIT 25 OFFSET %s''',
+        (frappe.session.user,page*25),as_dict=True)
+
+@frappe.whitelist(methods=['GET'])
+def follow_status(profiles):
+    """Bounded follow state for the current directory page and signed-in user."""
+    signed_in()
+    if isinstance(profiles,str):
+        if len(profiles)>4000:frappe.throw('Choose one directory page.')
+        try:profiles=json.loads(profiles)
+        except ValueError:frappe.throw('Invalid profile list.')
+    if not isinstance(profiles,list) or len(profiles)>24 or any(not isinstance(p,str) or not p or len(p)>140 for p in profiles):
+        frappe.throw('Choose one directory page.')
+    if not profiles:return []
+    return frappe.get_all('IL Profile Relationship',filters={'profile':['in',profiles],
+        'user':frappe.session.user,'kind':'Follow','status':'Active'},fields=['name','profile'],limit_page_length=24)

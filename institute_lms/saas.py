@@ -105,9 +105,12 @@ def enforce_member(doc, method=None):
     # Trusted bench provisioning grants the first named admin, not metered seats.
     if doc.role not in ('Student','Teacher'): return
     from .api import institute
-    if doc.institute != institute().name: frappe.throw('Foreign institute', frappe.PermissionError)
+    from .membership_write import target_for
+    from .campus_context import enabled as shared_enabled
+    target = target_for(doc) if shared_enabled() else None
+    if doc.institute != (target or institute().name): frappe.throw('Foreign institute', frappe.PermissionError)
     quota('students' if doc.role=='Student' else 'teachers',
-          lambda: current_count('IL Member', 'role=%s AND active=1 AND name!=%s', (doc.role,doc.name or '')))
+          lambda: current_count('IL Member', 'institute=%s AND role=%s AND active=1 AND name!=%s', (doc.institute,doc.role,doc.name or '')))
 
 def enforce_class(doc, method=None):
     previous=doc.get_doc_before_save()
@@ -129,6 +132,7 @@ def guard_request():
     path=frappe.local.request.path
     method=frappe.form_dict.get('cmd') or (path.split('/method/',1)[1].rstrip('/') if '/method/' in path else '')
     module=method.split('.')[1] if method.startswith('institute_lms.') else ''
+    if method in ('institute_lms.learning_preferences.get_preferences','institute_lms.learning_preferences.save_preferences'):return  # User-owned goals, never institute data.
     from .wallet import admin_actor
     if method.startswith('institute_lms.') and admin_actor():return  # Owner APIs enforce their own authorization.
     if module=='workspace':return  # Actor/feature checks inside workspace also check the owner's subscription.
@@ -138,7 +142,7 @@ def guard_request():
     if module in ('health','release'):return  # Each facade method performs its own authorization.
     if method=='institute_lms.ai.archive_conversation':return  # ownership-only privacy operation
     if module in ('commerce_events','mobile_auth','saas','platform','subscription_payments','registration','portal_policy',
-                  'portal_session','cybersource','account_billing','billing_bridge','profiles','private_contact','mobile_verification','contact','devices','notification_service'):
+                  'portal_session','campus_context','campus_join','cybersource','account_billing','billing_bridge','profiles','private_contact','mobile_verification','contact','devices','notification_service'):
         return
     if module in ('payments_lk','payments','lectures') and method.endswith('.notify'):return
     if method=='institute_lms.live_classes.webhook':return

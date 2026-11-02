@@ -344,6 +344,7 @@ def guard_request():
         return
     if module in ('usage_billing','cybersource','account_billing','portal_session','portal_policy','registration','mobile_auth','mobile_verification','profiles','private_contact','contact','health','saas','devices'):
         return
+    if method in ('institute_lms.accounts.account_controls','institute_lms.accounts.account_action'):return  # Endpoint checks the caller and exact action.
     if method in ('login','logout','frappe.auth.get_logged_user') or method.startswith('frappe.integrations.oauth2_logins.') or 'reset_password' in method or 'update_password' in method:return
     if method.endswith('.notify') and module in ('payments_lk','payments','lectures'):return
     if method=='institute_lms.live_classes.webhook':return

@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 class AccountScope(unittest.TestCase):
     def test_controls_reuse_classroom_visibility_and_scope_enrolments(self):
-        f=types.ModuleType('frappe'); f.whitelist=lambda **kw:lambda fn:fn
+        f=types.ModuleType('frappe'); f.conf={}; f.whitelist=lambda **kw:lambda fn:fn
         f.get_all=MagicMock(side_effect=[['own-room'],[],[]]);f.session=types.SimpleNamespace(user='owner')
         api=types.ModuleType('institute_lms.api')
         inst=types.SimpleNamespace(name='I1');member=types.SimpleNamespace(name='A1',role='Admin')

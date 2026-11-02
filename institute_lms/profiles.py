@@ -209,14 +209,24 @@ def publish_update(headline,body,url=''):
 def followed_updates(page=0):
     from frappe.utils import now_datetime
     signed_in()
+    from .campus_context import enabled, current_institute, SESSION_KEY
+    scope = ''
+    values = [now_datetime(), frappe.session.user]
+    if enabled() and frappe.session.data.get(SESSION_KEY):
+        institute = current_institute().name
+        scope = """ AND ((p.kind='Institute' AND p.workspace=%s) OR
+            (p.kind='Teacher' AND EXISTS (SELECT 1 FROM `tabIL Member` m
+             WHERE m.user=p.user AND m.institute=%s AND m.role='Teacher' AND m.active=1)))"""
+        values.extend([institute, institute])
+    values.append(max(0,min(int(page),10000))*25)
     # Join on verified providers and the current user's follows, then paginate in
     # SQL so one popular provider cannot expose someone else's private records.
     return frappe.db.sql('''SELECT u.name,u.headline,u.body,u.url,u.expires_at,p.display_name,p.username
         FROM `tabIL Provider Update` u JOIN `tabIL Public Profile` p ON p.name=u.profile
         WHERE u.expires_at>%s AND p.status='Verified' AND EXISTS
         (SELECT 1 FROM `tabIL Profile Relationship` r WHERE r.profile=p.name AND r.user=%s
-         AND r.kind='Follow' AND r.status='Active') ORDER BY u.creation DESC LIMIT 25 OFFSET %s''',
-        (now_datetime(),frappe.session.user,max(0,min(int(page),10000))*25),as_dict=True)
+         AND r.kind='Follow' AND r.status='Active')''' + scope + ' ORDER BY u.creation DESC LIMIT 25 OFFSET %s',
+        tuple(values),as_dict=True)
 
 def purge_updates():
     from frappe.utils import now_datetime

@@ -11,7 +11,7 @@ from pathlib import Path
 
 BENCH = Path('/home/sisu/frappe-bench')
 APP = BENCH / 'apps/institute_lms'
-ALLOWED = {'frontend/src/commerce/ProfileEditor.vue', 'frontend/src/native/DemoLesson.vue', 'institute_lms/learning_spaces.py', 'frontend/src/native/PasswordReset.vue', 'institute_lms/account_billing.py', 'frontend/src/native/GeneralCampus.vue', 'institute_lms/storage.py', 'frontend/src/AccountControls.vue', 'institute_lms/profiles.py', 'frontend/src/native/PasswordConfirmation.vue', 'institute_lms/demo_learning.py', 'frontend/src/native/StudentClassrooms.vue', 'scripts/seed-public-demo-content.py', 'frontend/src/native/PortalRoot.vue', 'institute_lms/password_reset.py', 'institute_lms/profile_storage.py', 'institute_lms/saas.py'}
+ALLOWED = {'frontend/src/AccountControls.vue', 'institute_lms/account_billing.py', 'frontend/src/native/PasswordConfirmation.vue', 'institute_lms/storage.py', 'institute_lms/saas.py', 'frontend/src/commerce/ProfileEditor.vue', 'institute_lms/profiles.py', 'institute_lms/profile_storage.py', 'scripts/seed-public-demo-content.py', 'frontend/src/native/GeneralCampus.vue', 'frontend/src/native/DemoLesson.vue', 'institute_lms/learning_spaces.py', 'frontend/src/native/PortalRoot.vue', 'frontend/src/native/PasswordReset.vue', 'institute_lms/demo_learning.py', 'frontend/src/native/StudentClassrooms.vue', 'institute_lms/password_reset.py'}
 
 
 def digest(data):
@@ -22,6 +22,8 @@ def main():
     if os.name != 'posix' or Path.home() != Path('/home/sisu'):
         raise RuntimeError('Run as sisu')
     os.umask(0o022)
+    if not Path('/tmp/sisu-student-round2.tgz').is_file():
+        raise RuntimeError('Missing release archive /tmp/sisu-student-round2.tgz. Upload it before running this installer. No changes made.')
     with tarfile.open('/tmp/sisu-student-round2.tgz') as archive:
         manifest = json.load(archive.extractfile('manifest.json'))
         if set(manifest) != ALLOWED or len(archive.getmembers()) != len(ALLOWED) + 1:

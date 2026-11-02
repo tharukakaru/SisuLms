@@ -90,10 +90,15 @@ def main():
    relationship_key=hashlib.sha256((TEACHER+':'+profiles['Institute'].name+':Teacher membership').encode()).hexdigest()
    if not frappe.db.exists('IL Profile Relationship',{'relationship_key':relationship_key}):
     write(frappe.get_doc(dict(doctype='IL Profile Relationship',relationship_key=relationship_key,profile=profiles['Institute'].name,user=TEACHER,kind='Teacher membership',status='Active')))
-   from institute_lms.account_billing import account
+   from institute_lms.account_billing import account, sync_provider
    sub=account(inst,members['Admin'],create=True)
    # Demo-only, time-bounded entitlement; never renew it on reruns.
-   if sub.plan=='Individual':frappe.db.set_value('IL Account Subscription',sub.name,{'plan':'Gold','trial_until':now_datetime()+timedelta(days=30)})
+   if sub.plan=='Individual':
+    frappe.db.set_value('IL Account Subscription',sub.name,{'plan':'Gold','trial_until':now_datetime()+timedelta(days=30)})
+    sub.reload()
+    # This fixture-only entitlement must update both billing representations.
+    # The account creation hook has already created an Individual provider.
+    sync_provider(sub)
    from institute_lms.commercial import account_for,save
    from institute_lms.commercial_rules import beneficiary
    provider=account_for(frappe._dict(institute=inst.name,owner_type='Institute'),False)

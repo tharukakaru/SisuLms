@@ -69,7 +69,7 @@ def enforce_enrollment_limit(doc, method=None):
         if reason:
             frappe.throw(reason, frappe.PermissionError)
 
-def grant(invoice,room,start,end,channel):
+def grant(invoice,room,start,end,channel,enrollment_key_hash=None):
     """No wallet credit: money is already paid directly to the provider."""
     account=account_for(room)
     if frappe.db.exists('IL Paid Access',{'invoice':invoice.name}):return
@@ -78,7 +78,8 @@ def grant(invoice,room,start,end,channel):
     product='Programme:'+programme if programme else 'Class:'+room.name
     save(frappe.get_doc({'doctype':'IL Paid Access','grant_key':'invoice:'+invoice.name,'invoice':invoice.name,'institute':room.institute,
         'provider_account':account.name,'student':invoice.student,'classroom':room.name,'teacher':room.teacher,
-        'product_key':product,'title':room.title,'starts_at':start,'ends_at':end,'status':'Active',
+        'product_key':product,'title':room.title,'starts_at':start,'ends_at':end,'status':'Awaiting key' if enrollment_key_hash else 'Active',
+        **({'enrollment_key_hash':enrollment_key_hash} if enrollment_key_hash else {}),
         'payment_channel':channel,'gross_minor':money_minor(invoice.amount)}))
 
 def configured_access(room,start,ends_at=None):
@@ -128,6 +129,25 @@ def notify_people(room,event,key,body,student=None):
     if student:recipients.add(student)
     for recipient in sorted(recipients):emit(room.institute,recipient,event,key,body,classroom=room.name)
 
+def proof_extension(content,filename):
+    from pathlib import PurePath
+    import io,zipfile
+    ext=PurePath(str(filename)).suffix.lower()
+    if content.startswith(b'%PDF-') and ext=='.pdf':return 'pdf'
+    if content.startswith(b'\x89PNG\r\n\x1a\n') and ext=='.png':return 'png'
+    if content.startswith(b'\xff\xd8\xff') and ext in ('.jpg','.jpeg'):return 'jpg'
+    if ext=='.doc' and content.startswith(bytes.fromhex('D0CF11E0A1B11AE1')):return 'doc'
+    if ext=='.docx':
+        try:
+            with zipfile.ZipFile(io.BytesIO(content)) as z:
+                names=set(z.namelist())
+                if '[Content_Types].xml' in names and 'word/document.xml' in names and not any('vbaProject' in n for n in names):return 'docx'
+        except (zipfile.BadZipFile,ValueError):pass
+    if ext=='.txt' and b'\x00' not in content:
+        try:content.decode('utf-8');return 'txt'
+        except UnicodeDecodeError:pass
+    frappe.throw('Use a PDF, PNG, JPEG, Word document or UTF-8 text file (maximum 5 MB).')
+
 def owned_proof(name):
     file=frappe.get_doc('File',name)
     if not file.is_private or file.owner!=frappe.session.user or file.attached_to_name:
@@ -135,8 +155,7 @@ def owned_proof(name):
     content=file.get_content()
     if isinstance(content,str):content=content.encode()
     if not 0<len(content)<=5*1024*1024:frappe.throw('Proof must be at most 5 MB')
-    if not (content.startswith(b'%PDF-') or content.startswith(b'\x89PNG\r\n\x1a\n') or content.startswith(b'\xff\xd8\xff')):
-        frappe.throw('Use a PDF, PNG or JPEG bank slip')
+    proof_extension(content,file.file_name)
     return file,hashlib.sha256(content).hexdigest()
 
 @frappe.whitelist(methods=['POST'])
@@ -147,8 +166,7 @@ def upload_proof():
     if not file:frappe.throw('Choose a proof file')
     content=file.stream.read(5*1024*1024+1)
     if not content or len(content)>5*1024*1024:frappe.throw('Proof must be at most 5 MB')
-    ext='pdf' if content.startswith(b'%PDF-') else 'png' if content.startswith(b'\x89PNG\r\n\x1a\n') else 'jpg' if content.startswith(b'\xff\xd8\xff') else None
-    if not ext:frappe.throw('Use PDF, PNG or JPEG')
+    ext=proof_extension(content,file.filename)
     from frappe.utils.file_manager import save_file
     f=save_file('bank-proof.'+ext,content,None,None,is_private=1)
     return {'name':f.name}
@@ -205,7 +223,11 @@ def review_slip(name,decision,note='',access_kind=None,starts_at=None,ends_at=No
         if frappe.db.exists('IL Invoice',{'payment_id':payment_id}) or frappe.db.exists('IL Delivery Order',{'payment_key':payment_id.removeprefix('BANK-')}):frappe.throw('This bank reference was already used')
         doc.update(dict(status='Paid',paid_at=now_datetime(),payment_id=payment_id,receipt_number='RC-'+doc.name,payment_channel='Bank transfer'))
         doc.save(ignore_permissions=True)
-        grant(doc,room,start,end,'Bank transfer')
+        from .campus_context import enabled
+        if enabled():
+            from .class_keys import issue
+            issue(doc,room,start,end)
+        else:grant(doc,room,start,end,'Bank transfer')
         slip.update(dict(access_kind=access_kind or room.get('paid_access_kind') or 'Month',starts_at=start,ends_at=end))
     slip.rejection_reason=rejection_reason if decision=='Rejected' else ''
     slip.update(dict(status=decision,reviewed_by=frappe.session.user,reviewed_at=now_datetime(),review_note=str(note)[:1000]));save(slip)

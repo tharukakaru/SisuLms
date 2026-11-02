@@ -68,6 +68,8 @@ def register_student(profile,language="en"):
     if previous:
         if previous.role != 'Student' or not previous.active:
             frappe.throw('Your existing membership needs institute review.', frappe.PermissionError)
+        from .profiles import relate
+        relate(profile,'Follow')
         return result(previous.name, provider, False)
     institute = frappe.get_doc('IL Institute', provider.workspace)
     code = str(institute.code or '')
@@ -84,6 +86,8 @@ def register_student(profile,language="en"):
     queue(user,'institute-registration:'+number,'Registration successful','You are registered with '+provider.display_name+'. Student ID: '+number)
     # The usual request transaction commits the member. No explicit commit here.
     # Receipts are queued only after the registration commits.
+    from .profiles import relate
+    relate(profile,'Follow')
     return result(number, provider, True)
 
 
@@ -117,6 +121,8 @@ def register_teacher(profile):
         link.insert(ignore_permissions=True,set_name=make_autoname('ST-IND-.#####'))
         from .account_confirmations import queue
         queue(user,'teacher-registration:'+link.name,'Registration successful','You are registered with '+provider.display_name+'. Student ID: '+link.name)
+    from .profiles import relate
+    relate(profile,'Follow')
     return {'registered':True,'created':not bool(name),'student_number':link.name,'institute':None,'institute_title':provider.display_name}
 
 
@@ -125,7 +131,7 @@ def people(query=''):
     """Public profile fields of active members in the selected institute only."""
     from .campus_context import current_institute
     inst=current_institute()
-    users=frappe.get_all('IL Member',filters={'institute':inst.name,'active':1,'role':['in',['Student','Teacher','Admin']]},pluck='user',limit_page_length=0)
+    users=frappe.get_all('IL Member',filters={'institute':inst.name,'active':1,'role':['in',['Teacher','Admin']]},pluck='user',limit_page_length=0)
     return frappe.get_all('IL Public Profile',filters={'user':['in',users or ['__none__']],'status':'Verified'},
         or_filters=[['display_name','like','%'+str(query)[:80]+'%'],['username','like','%'+str(query)[:80]+'%']],
         fields=['name','display_name','kind','profile_image','tagline','bio'],order_by='display_name',limit_page_length=100)

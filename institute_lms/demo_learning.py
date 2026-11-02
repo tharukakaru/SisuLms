@@ -1,4 +1,4 @@
-"""Labelled practice previews only. Never modifies paid access or enrollments."""
+"""Labelled demo practice and classroom access; never settles real payments."""
 import hashlib,hmac
 import frappe
 USERS={'sisu-public-demo-admin@example.invalid','sisu-public-demo-teacher@example.invalid','sisu-public-demo-independent@example.invalid'}
@@ -10,6 +10,29 @@ def demo(room):
     return user in USERS and frappe.db.get_value('User',user,'enabled')==0
 
 def key(room):return 'il_demo_practice:'+hashlib.sha256((frappe.session.user+':'+room).encode()).hexdigest()
+
+def classroom_allowed(room,member):
+    if member.role!='Student' or not demo(room):return False
+    if not frappe.db.exists('IL Member',{'name':member.name,'user':frappe.session.user,'institute':room.institute,'active':1}):return False
+    return bool(frappe.cache.get_value(key(room.name)))
+
+@frappe.whitelist(methods=['POST'])
+def enter_classroom(classroom,enrollment_key=''):
+    from .campus_context import membership,select
+    # Verify profile, follow, exact demo ownership and key before enrollment.
+    open_practice(classroom,enrollment_key)
+    room=frappe.get_doc('IL Classroom',classroom)
+    member=membership(room.institute)
+    if member.role!='Student':frappe.throw('Use your registered student account.')
+    frappe.db.sql('SELECT name FROM `tabIL Member` WHERE name=%s FOR UPDATE',(member.name,))
+    prior=frappe.db.get_value('IL Enrollment',{'classroom':room.name,'student':member.name},['name','active'],as_dict=True)
+    if prior and not prior.active:frappe.throw('Ask your provider to review this inactive enrollment.')
+    if not prior:
+        frappe.get_doc({'doctype':'IL Enrollment','institute':room.institute,'classroom':room.name,
+            'student':member.name,'active':1,'fee':0,'access_override':'Automatic'}).insert(ignore_permissions=True)
+    frappe.cache.set_value(key(room.name),True,expires_in_sec=604800)
+    select(room.institute)
+    return {'classroom':room.name,'demo':True}
 
 def decorate(rows):
     for row in rows:

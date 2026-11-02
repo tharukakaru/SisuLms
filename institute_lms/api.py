@@ -70,6 +70,9 @@ def classroom_for(name, write=False):
 
 
 def access(room, member):
+    if getattr(getattr(frappe,"local",None),"site",None)=="sisuacademylk.com":
+        from .demo_learning import classroom_allowed
+        if classroom_allowed(room,member):return {"allowed":True,"reason":"Temporary demo classroom access"}
     from .commercial import account_for, locked_reason, plan_features, access_granted
     account=account_for(room,False)
     if account:

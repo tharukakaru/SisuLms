@@ -99,3 +99,16 @@ Password reset is a website-session flow on shared campus: start/status/finish a
 Personal profile images use the existing profiles.upload_image endpoint. Shared-campus profile save/upload does not require institute membership. Existing file type, size and owner checks remain enforced.
 
 Validation: 790 backend tests and 89 frontend tests passed, plus mocked-browser follow, registration, practice unlock, profile upload/save and password-reset checks. These are not evidence of live email/SMS delivery or persisted live uploads. After deployment, check those using the authorized test account, then check institute switching and registration on the live demo provider.
+
+
+## Student follow, notification and bank-key update (2026-11-03)
+
+- GET registration.account_unread -> {count}; GET account_notifications includes read. POST registration.read_account_notice {name} marks only the current user's own account receipt. Other workspace notifications keep their existing inbox/read endpoints.
+- Institute/provider registration now follows that provider. campus_context.choices returns institute-specific student numbers; select/clear remain membership-validated. Selected-institute provider discovery and news are scoped to that institute.
+- GET class_keys.bank_details {classroom} -> {instructions,recipient,fee,classroom}. POST class_keys.save_bank_details {classroom,instructions} is restricted to the recipient (institute administrator or teacher owning the class). These are tuition instructions, separate from platform subscription payments.
+- Public shared-campus bank approval now creates IL Paid Access with status Awaiting key, not Active. A random key is sent through the existing account receipt email/SMS jobs. POST class_keys.redeem {classroom,key} requires the same student, institute, paid invoice and unexpired access period. Redemption is row-locked, changes access to Active and clears the stored key hash. Existing active grants are preserved. Non-shared sites retain the previous approval behavior.
+- commercial.upload_proof accepts PDF, PNG, JPEG, DOC, DOCX and UTF-8 TXT up to 5 MB. Private proof ownership, duplicate checks and attachment downloads remain enforced. Executables and arbitrary file types are not accepted.
+- demo_learning.enter_classroom {classroom,enrollment_key} allows registered students into the actual seeded demo institute classroom using temporary demo access. SISU-DEMO remains a shared practice key, not a production enrollment key or proof of payment. Independent demo preview cards remain previews unless the student has the required workspace membership.
+- configure-public-livekit.py verifies and copies the existing staging LiveKit settings to the public site without creating rooms. prepare-demo-classroom-host.py requires the named test teacher to already be enabled and verified before assigning demo institute rooms. These scripts do not establish a successful live media test.
+
+Validation: 795 backend tests, frontend unit checks, mocked browser notification/selector and bank-details/key redemption checks. Production migration, real approval receipts, teacher hosting and live video still require server execution and two-account acceptance. The independent teacher's public registration alone does not yet provide a standalone billing workspace; do not claim that path is end-to-end verified.

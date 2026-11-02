@@ -28,7 +28,7 @@ class ProviderScope(unittest.TestCase):
         f=types.SimpleNamespace(db=types.SimpleNamespace(get_value=get_value,exists=exists),get_doc=lambda dt,n:room if dt=='IL Classroom' else enrollment,get_all=lambda dt,**kw:['C'] if dt=='IL Classroom' else ['invoice'])
         env={'__package__':'institute_lms','frappe':f,'identity':lambda:(Row(name='I'),Row(name='S',role='Student')),'require_role':lambda m,r:None,'filters_for':lambda p,i:{'institute':'I'}}
         fn=function('learning_spaces.py','classes',env)
-        with patch.dict(sys.modules,{'institute_lms.api':api,'institute_lms.demo_learning':types.SimpleNamespace(demo=lambda room:False,decorate=lambda rows:rows)}):
+        with patch.dict(sys.modules,{'institute_lms.api':api,'institute_lms.campus_context':types.SimpleNamespace(enabled=lambda:False),'institute_lms.demo_learning':types.SimpleNamespace(demo=lambda room:False,decorate=lambda rows:rows)}):
             row=fn('P')['classes'][0]
         self.assertEqual(row['state'],'pending');self.assertFalse(row['payment_approved'])
 

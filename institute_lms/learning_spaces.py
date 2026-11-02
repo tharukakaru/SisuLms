@@ -68,5 +68,7 @@ def classes(profile='',page=0):
         decision=access(room,m) if e else {'allowed':False}
         pending=bool(e and frappe.db.exists('IL Bank Slip',{'student':m.name,'invoice':['in',frappe.get_all('IL Invoice',filters={'enrollment':e.name},pluck='name') or ['__none__']],'status':'Pending'}))
         state='available' if not e else 'unlocked' if decision['allowed'] else 'pending' if pending else 'payment'
+        from .campus_context import enabled
+        if enabled() and not decision.get('allowed') and frappe.db.exists('IL Paid Access',{'classroom':room.name,'student':m.name,'status':'Awaiting key'}):state='key'
         result.append(dict(name=room.name,title=room.title,cover_image=room.cover_image,teacher_name=frappe.db.get_value('IL Member',room.teacher,'full_name'),teacher_id=frappe.db.get_value('IL Public Profile',{'user':frappe.db.get_value('IL Member',room.teacher,'user'),'status':'Verified'},'lms_id'),fee=room.fee,fee_mode=room.fee_mode,programme=room.get('programme'),state=state,payment_approved=bool(e and frappe.db.exists('IL Invoice',{'enrollment':e.name,'student':m.name,'status':'Paid'})),reason=decision.get('reason','')))
     return {'classes':decorate(result),'has_more':len(names)==24}

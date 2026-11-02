@@ -45,10 +45,16 @@ def notification_rooms(profile,inst):
 def classes(profile='',page=0):
     from .api import access
     inst,m=identity();require_role(m,'Student')
+    from .demo_learning import demo,decorate
     filters=filters_for(profile,inst) if profile else {'institute':inst.name,'active':1}
     if not profile:
         enrolled=frappe.get_all('IL Enrollment',filters={'institute':inst.name,'student':m.name,'active':1},pluck='classroom')
         free=frappe.get_all('IL Classroom',filters={'institute':inst.name,'active':1,'published':1,'fee_mode':'Free','fee':0},pluck='name')
+        if inst.code=='SISUDEMO':
+            teachers=frappe.get_all('IL Member',filters={'institute':inst.name,'role':'Teacher','active':1},pluck='name')
+            filters['teacher']=['in',teachers or ['__none__']]
+            practice=frappe.get_all('IL Classroom',filters={'institute':inst.name,'active':1,'published':1,'teacher':['in',teachers or ['__none__']]},pluck='name')
+            free+= [name for name in practice if demo(frappe.get_doc('IL Classroom',name))]
         filters['name']=['in',list(set(enrolled)|set(free)) or ['__none__']]
     names=frappe.get_all('IL Classroom',filters=filters,pluck='name',order_by='title asc',limit_start=max(0,int(page))*24,limit_page_length=24)
     result=[]
@@ -63,4 +69,4 @@ def classes(profile='',page=0):
         pending=bool(e and frappe.db.exists('IL Bank Slip',{'student':m.name,'invoice':['in',frappe.get_all('IL Invoice',filters={'enrollment':e.name},pluck='name') or ['__none__']],'status':'Pending'}))
         state='available' if not e else 'unlocked' if decision['allowed'] else 'pending' if pending else 'payment'
         result.append(dict(name=room.name,title=room.title,cover_image=room.cover_image,teacher_name=frappe.db.get_value('IL Member',room.teacher,'full_name'),teacher_id=frappe.db.get_value('IL Public Profile',{'user':frappe.db.get_value('IL Member',room.teacher,'user'),'status':'Verified'},'lms_id'),fee=room.fee,fee_mode=room.fee_mode,programme=room.get('programme'),state=state,payment_approved=bool(e and frappe.db.exists('IL Invoice',{'enrollment':e.name,'student':m.name,'status':'Paid'})),reason=decision.get('reason','')))
-    return {'classes':result,'has_more':len(names)==24}
+    return {'classes':decorate(result),'has_more':len(names)==24}

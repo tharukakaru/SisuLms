@@ -74,8 +74,10 @@ def save_profile(data):
     elif identity_changed:p.status='Pending';p.reviewed_by=None
     write(p)
     if kind=='Student':
-        from .onboarding import activate
-        activate(p)
+        from .campus_context import enabled
+        if not enabled():
+            from .onboarding import activate
+            activate(p)
     if kind!='Student' and p.status=='Pending':owner_notice('Provider profile awaits verification: @'+username,p.name)
     return {'name':p.name,'username':username,'status':p.status,'code':p.code,'lms_id':p.lms_id}
 
@@ -138,7 +140,9 @@ def upload_image(kind):
             result=ImageOps.fit(ImageOps.exif_transpose(source).convert('RGB'),size)
             out=io.BytesIO();result.save(out,format='WEBP',quality=85)
     except (ValueError,OSError,UnidentifiedImageError,Image.DecompressionBombError):frappe.throw('Choose a valid JPEG, PNG or WebP image under 20 megapixels')
-    file=save_file('profile-'+secrets.token_hex(12)+'.webp',out.getvalue(),'IL Public Profile',p.name,is_private=0)
+    from .profile_storage import personal_upload
+    with personal_upload(p):
+        file=save_file('profile-'+secrets.token_hex(12)+'.webp',out.getvalue(),'IL Public Profile',p.name,is_private=0)
     p.set(kind,file.file_url);write(p)
     return {'url':file.file_url,'kind':kind}
 
@@ -294,22 +298,33 @@ def request_institutes(profiles,purpose):
 
 @frappe.whitelist(methods=['GET'])
 def followed_free_classes(page=0):
+    return followed_classes(page,True)
+
+@frappe.whitelist(methods=['GET'])
+def followed_classes(page=0,free_only=False):
     """Public class cards only; following never grants private institute membership."""
     signed_in()
     try: page=int(page)
     except (TypeError,ValueError):frappe.throw('Choose a valid page.')
     if not 0<=page<=10000:frappe.throw('Choose a valid page.')
-    return frappe.db.sql('''SELECT c.name,c.title,c.subject,c.cover_image,
+    rows=frappe.db.sql('''SELECT c.name,c.title,c.subject,c.cover_image,c.fee,c.fee_mode,
         p.name AS provider,p.display_name AS provider_name,p.kind AS provider_kind
         FROM `tabIL Classroom` c JOIN `tabIL Public Profile` p ON p.name=c.public_provider
-        WHERE c.active=1 AND c.published=1 AND c.fee_mode='Free' AND c.fee=0
+        WHERE c.active=1 AND c.published=1
           AND p.status='Verified' AND p.kind IN ('Teacher','Institute')
           AND ((c.owner_type='Teacher' AND p.kind='Teacher' AND c.owner_user=p.user)
             OR (c.owner_type='Institute' AND p.kind='Institute' AND c.institute=p.workspace))
           AND EXISTS (SELECT 1 FROM `tabIL Profile Relationship` r
-            WHERE r.profile=p.name AND r.user=%s AND r.kind='Follow' AND r.status='Active')
+            WHERE r.user=%s AND r.kind='Follow' AND r.status='Active' AND
+              (r.profile=p.name OR EXISTS (SELECT 1 FROM `tabIL Public Profile` i
+               JOIN `tabIL Member` t ON t.institute=i.workspace AND t.name=c.teacher
+               WHERE i.name=r.profile AND i.kind='Institute' AND i.status='Verified'
+                 AND i.workspace=c.institute AND t.role='Teacher' AND t.active=1)))
+        ''' + (" AND c.fee_mode='Free' AND c.fee=0" if free_only else '') + '''
         ORDER BY c.creation DESC,c.name LIMIT 25 OFFSET %s''',
         (frappe.session.user,page*25),as_dict=True)
+    from .demo_learning import decorate
+    return decorate(rows)
 
 @frappe.whitelist(methods=['GET'])
 def follow_status(profiles):

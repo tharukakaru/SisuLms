@@ -78,3 +78,24 @@ For exact parameter defaults, allowed HTTP methods and source locations across A
 Share repository access, public/staging base URLs, approved test credentials through a private password manager, Android package/application ID, iOS bundle ID, signing certificate SHA fingerprints, and agreed callback/app-link URLs. If native Google/Firebase integration is selected, provide platform-specific OAuth CLIENT IDs and the relevant Firebase client configuration; restrict client API keys and configure app verification appropriately. Existing web OAuth alone is not proof native callbacks are configured.
 
 Do NOT share server SSH/root access, database passwords, Frappe encryption keys, SMTP passwords, Notify.lk tokens, Google client secrets/service-account keys, LiveKit signing secrets, payment secrets, or WhatsApp tokens for inclusion in the app. These belong on the backend. Any needed backend access should be separately scoped. Do not put passwords or production service credentials in GitHub.
+
+## Student demo and password reset update (2026-11-02)
+
+Deployment: `scripts/deploy-student-round2.py` installs the reviewed archive and seeds clearly labelled fictional providers/classes/news. Payments and WhatsApp stay disabled. Demo identities cannot sign in. Following a provider reveals its published cards; following an institute also includes its active teachers. Registration remains separate and creates the normal student membership/number. The practice key `SISU-DEMO` unlocks only seeded practice content for seven days, not real paid classes or private materials.
+
+All methods below use `/api/method/institute_lms.<module>.<method>` and Frappe's `{"message": ...}` response envelope. Authenticated browser requests use the session cookie and CSRF header for POST. Never embed service credentials in a mobile app.
+
+| Method | Request | Response message |
+|---|---|---|
+| GET profiles.followed_classes | page=0 | Array of published class cards with name, title, fee, fee_mode, provider, demo and demo_unlocked where applicable |
+| POST demo_learning.open_practice | classroom, enrollment_key (locked demo only) | Demo lesson content and notice; requires a verified student following the provider |
+| POST password_reset.start | none | token, email, expires_in (600 seconds) |
+| GET password_reset.status | token | verified, expires_in |
+| POST password_reset.confirm | token, proof from email fragment | verified: true |
+| POST password_reset.finish | token, password, confirmation | changed: true, sign_in_required: true |
+
+Password reset is a website-session flow on shared campus: start/status/finish are bound to the same signed-in user and session. The email confirmation page can be opened in another tab. The proof expires in ten minutes, is single-use for changing the password, and is never a replacement login token. Successful reset invalidates sessions and queues security email and SMS where verified delivery details exist. Mobile clients should open this website flow until a separately reviewed native reset flow exists.
+
+Personal profile images use the existing profiles.upload_image endpoint. Shared-campus profile save/upload does not require institute membership. Existing file type, size and owner checks remain enforced.
+
+Validation: 790 backend tests and 89 frontend tests passed, plus mocked-browser follow, registration, practice unlock, profile upload/save and password-reset checks. These are not evidence of live email/SMS delivery or persisted live uploads. After deployment, check those using the authorized test account, then check institute switching and registration on the live demo provider.

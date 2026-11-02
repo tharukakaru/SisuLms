@@ -142,7 +142,7 @@ def guard_request():
     if module in ('health','release'):return  # Each facade method performs its own authorization.
     if method=='institute_lms.ai.archive_conversation':return  # ownership-only privacy operation
     if module in ('commerce_events','mobile_auth','saas','platform','subscription_payments','registration','portal_policy',
-                  'accounts','portal_session','campus_context','campus_join','cybersource','account_billing','billing_bridge','profiles','private_contact','mobile_verification','contact','devices','notification_service'):
+                  'accounts','portal_session','campus_context','campus_join','cybersource','account_billing','billing_bridge','password_reset','demo_learning','profiles','private_contact','mobile_verification','contact','devices','notification_service'):
         return
     if module in ('payments_lk','payments','lectures') and method.endswith('.notify'):return
     if method=='institute_lms.live_classes.webhook':return

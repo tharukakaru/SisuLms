@@ -110,6 +110,7 @@ def complete(token,password,confirmation):
             profile.update({'username':data['username'],
                 'display_name':data.get('organization') or data['first_name']+' '+data['last_name'],
                 'country':data['country'],'bio':data['bio'],'qualifications':data['qualifications']})
+            if kind=='Student':profile.grades=data.get('grade','')
             if not profile_name or kind=='Student':profile.status='Verified' if kind=='Student' else 'Pending'
             write(profile)
             # No membership, global role, subscription, paid grant or institute

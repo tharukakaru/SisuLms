@@ -5,6 +5,9 @@ from .api import identity, require_role, scoped, classroom_for, payload, set_mem
 
 @frappe.whitelist(methods=['POST'])
 def account_controls():
+    if public_student():
+        return {'enrollments':[], 'memberships':[], 'providers':[], 'owned_profiles':[],
+            'requests':frappe.get_all('IL Account Request',filters={'requested_by':frappe.session.user,'kind':'delete_profile'},fields=['name','kind','status','creation'],limit_page_length=50)}
     inst, member = identity()
     rooms = frappe.get_all('IL Classroom', filters=room_filters(inst,member), pluck='name') if member.role in ('Admin','Teacher') else []
     enrollments = frappe.get_all('IL Enrollment', filters={'institute':inst.name,'active':1,'classroom':['in',rooms or ['__none__']]}, fields=['name','student','classroom','active'], limit_page_length=1000)
@@ -15,6 +18,7 @@ def account_controls():
 
 @frappe.whitelist(methods=['POST'])
 def account_action(data):
+    if public_student():return public_deletion_request(data)
     inst, member = identity()
     v=payload(data)
     if v.confirmation!='CONFIRM' or not isinstance(v.reason,str) or not v.reason.strip() or len(v.reason)>500:
@@ -44,4 +48,28 @@ def account_action(data):
     if existing:
         return {'request':existing,'status':'Pending'}
     doc=frappe.get_doc({'doctype':'IL Account Request','institute':inst.name,'requested_by':frappe.session.user,'kind':v.kind,'reason':v.reason,'status':'Pending'}).insert(ignore_permissions=True)
+    return {'request':doc.name,'status':'Pending'}
+
+
+def public_student():
+    from .campus_context import enabled,require_user
+    if not enabled():return False
+    require_user()
+    from .owner_access import is_owner
+    if is_owner():return False
+    profile=frappe.db.get_value('IL Public Profile',{'user':frappe.session.user},'kind')
+    if profile:return profile=='Student'
+    # An authenticated unverified Google student can still request erasure.
+    return bool(frappe.session.data.get('il_google_session'))
+
+
+def public_deletion_request(data):
+    v=payload(data)
+    if v.kind!='delete_profile' or v.confirmation!='CONFIRM' or not isinstance(v.reason,str) or not 1<=len(v.reason.strip())<=500:
+        frappe.throw('Type CONFIRM and enter a reason to request account deletion.')
+    frappe.db.sql('SELECT name FROM `tabUser` WHERE name=%s FOR UPDATE',(frappe.session.user,))
+    existing=frappe.db.get_value('IL Account Request',{'requested_by':frappe.session.user,'kind':'delete_profile','status':['in',['Pending','In Review']]},'name')
+    if existing:return {'request':existing,'status':'Pending'}
+    doc=frappe.get_doc({'doctype':'IL Account Request','requested_by':frappe.session.user,'kind':'delete_profile','reason':v.reason.strip(),'status':'Pending'})
+    doc.insert(ignore_permissions=True)
     return {'request':doc.name,'status':'Pending'}

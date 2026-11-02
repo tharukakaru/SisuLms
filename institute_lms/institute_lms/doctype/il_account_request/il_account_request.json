@@ -19,7 +19,7 @@
       "label": "Institute",
       "fieldtype": "Link",
       "options": "IL Institute",
-      "reqd": 1
+      "reqd": 0
     },
     {
       "fieldname": "requested_by",

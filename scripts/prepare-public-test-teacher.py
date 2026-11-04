@@ -95,6 +95,13 @@ def main():
             if not name:
                 with authorized_insert(member):
                     member.insert(ignore_permissions=True)
+            from institute_lms.independent_teacher import workspace
+            if profile.workspace and profile.workspace != inst.name:
+                raise RuntimeError('Existing personal workspace conflict')
+            profile.workspace = inst.name
+            if workspace(profile) != inst.name:
+                raise RuntimeError('Personal workspace ownership needs review')
+            write(profile)
             sub = account(inst, member, create=True)
             if sub.plan == 'Individual':
                 frappe.db.set_value('IL Account Subscription', sub.name,

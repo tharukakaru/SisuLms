@@ -113,7 +113,8 @@ def search(query='',page=0):
        fields=['name','username','display_name','kind','country','code','lms_id','bio','curriculum','languages','grades','socials','is_school','profile_image','cover_image','tagline','qualifications'],order_by='display_name asc',start=max(0,min(int(page),10000))*24,limit_page_length=24)
     for row in rows:
         user=frappe.db.get_value('IL Public Profile',row.name,'user')
-        row['independent']=row.kind=='Teacher' and not frappe.db.exists('IL Member',{'user':user,'role':'Teacher','active':1})
+        from .independent_teacher import workspace
+        row['independent']=row.kind=='Teacher' and (bool(workspace(frappe.get_doc('IL Public Profile',row.name))) or not frappe.db.exists('IL Member',{'user':user,'role':'Teacher','active':1}))
     return rows
 
 @frappe.whitelist(methods=['POST'])

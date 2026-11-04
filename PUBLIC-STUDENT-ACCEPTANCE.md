@@ -69,3 +69,7 @@ Prepared prepare-public-test-teacher.py for the explicitly authorized public ali
 Rollback proof cleanup now runs after DB rollback, checks the exact per-run payload and private path, and refuses removal while File/Stored Object references remain. cleanup-public-test-proofs.py quarantines only unreferenced bank-proof TXT files matching the exact rollback-test body pattern; no permanent deletion. Existing server orphan cleanup not yet confirmed.
 
 Validation: all three scripts parse; 5 public student routing tests and 3 shared storage tests pass; git diff --check passes. Direct SSH BatchMode access unavailable, so setup requires the operator's interactive terminal.
+
+## Independent test teacher registration blocker — 2026-11-05
+Public student session confirmed. Follow displays both test classrooms, but Register with provider leads to a directory card without Register. Existing logic mistakes the personal Teacher membership for institute affiliation.
+Prepared explicit personal-workspace binding and registration membership bridge. Seven scope/idempotency tests and five public student bridge tests pass. Deployment package: sisu-independent-registration.tgz; deploy-independent-teacher-registration.py. Public deployment, browser registration, slip upload and teacher approval remain pending. No payment approval is claimed.

@@ -1,9 +1,11 @@
 <script setup>
 import {ref,onMounted,computed,watch} from 'vue'
-import {request,upload} from './client'
+import {request as directRequest,upload as directUpload} from './client'
+function request(module,method,args={},verb='POST'){return props.general?directRequest('public_student','action',{module,method,args}):directRequest(module,method,args,verb)}
+function upload(module,method,body){if(props.general){body.append('invoice',form.value.invoice);return directUpload('public_student','upload_proof',body)}return directUpload(module,method,body)}
 import WhatsAppComposer from './WhatsAppComposer.vue'
 import {previewMode} from '../preview/mode'
-const props=defineProps({selectedClass:Object,member:Object,invoices:{type:Array,default:()=>[]},rooms:{type:Array,default:()=>[]}}),emit=defineEmits(['changed'])
+const props=defineProps({general:Boolean,selectedClass:Object,member:Object,invoices:{type:Array,default:()=>[]},rooms:{type:Array,default:()=>[]}}),emit=defineEmits(['changed'])
 const reasons=['Slip is unclear or unreadable','Incorrect payment amount','Payment not received','Incorrect bank account','Duplicate or previously used slip','Wrong class or invoice','Other']
 const bankClass=ref(''),instructions=ref(''),bankSaved=ref(false)
 async function editBank(){await run(async()=>{instructions.value=(await request('class_keys','bank_details',{classroom:bankClass.value},'GET')).instructions;bankSaved.value=false})}
@@ -19,13 +21,13 @@ const configuredDuration=computed(()=>{const r=props.rooms.find(r=>r.name===sele
 const student=computed(()=>props.member.role==='Student'),filtered=computed(()=>rows.value.filter(r=>tab.value==='All'||r.status===tab.value))
 const roomName=id=>props.rooms.find(r=>r.name===id)?.title||id,money=n=>'LKR '+new Intl.NumberFormat('en-LK').format((n||0)/100)
 async function run(fn){busy.value=true;error.value='';try{await fn()}catch(e){error.value=e.message}finally{busy.value=false}}
-async function load(){rows.value=await request('commercial','slips',{page:page.value})}
+async function load(){rows.value=props.general?(await directRequest('public_student','billing',{},'GET')).slips:await request('commercial','slips',{page:page.value})}
 function startReview(row,mode='View'){analysis.value=null;proofName.value='';reviewMode.value=mode;form.value.rejection_reason='';selected.value=row;const room=props.rooms.find(r=>r.name===row.classroom);form.value.note='';form.value.starts_at='';form.value.access_kind=room?.programme?'Course':room?.paid_access_kind||'Month';form.value.ends_at=room?.paid_access_end?.replace(' ','T')||''}
 function pickInvoice(){form.value.amount=props.invoices.find(i=>i.name===form.value.invoice)?.amount||'';loadBank()}
 async function submit(){await run(async()=>{if(!file.value)throw Error('Choose a slip');if(file.value.size>5*1024*1024)throw Error('Slip must be at most 5 MB');const body=new FormData();body.append('file',file.value);const f=previewMode?{name:file.value.name}:await upload('commercial','upload_proof',body);await request('commercial','submit_slip',{...form.value,proof:f.name});await load();file.value=null;tab.value='Pending';success.value='Slip submitted. Your payment is pending review by your teacher or institute.';emit('changed')})}
 async function review(decision){await run(async()=>{await request('commercial','review_slip',{...form.value,name:selected.value.name,decision});selected.value=null;await load();emit('changed')})}
 const submitted=value=>value?new Date(value.includes('T')||value.endsWith('Z')?value:value.replace(' ','T')+'+05:30').toLocaleString('en-LK',{timeZone:'Asia/Colombo',dateStyle:'medium',timeStyle:'short'}):'Not recorded'
-function showProof(row){if(previewMode){proofName.value='Preview proof: fictional transfer, not a bank confirmation.';return}window.open('/api/method/institute_lms.commercial.proof?'+new URLSearchParams({name:row.name}),'_blank','noopener')}
+function showProof(row){if(previewMode){proofName.value='Preview proof: fictional transfer, not a bank confirmation.';return}window.open('/api/method/institute_lms.'+(props.general?'public_student':'commercial')+'.proof?'+new URLSearchParams({name:row.name}),'_blank','noopener')}
 function chooseInvoice(row){form.value.invoice=row.name;pickInvoice();document.getElementById('bank-transfer')?.scrollIntoView({behavior:'smooth',block:'start'})}
 defineExpose({chooseInvoice})
 watch(()=>[props.selectedClass,props.invoices],()=>{

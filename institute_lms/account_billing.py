@@ -342,6 +342,7 @@ def guard_request():
                   'institute_lms.campus_context.clear', 'institute_lms.campus_join.directory',
                   'institute_lms.campus_join.people', 'institute_lms.campus_join.register_teacher', 'institute_lms.campus_join.details', 'institute_lms.campus_join.register_student'):
         return
+    if method in ('institute_lms.public_student.choices','institute_lms.public_student.schedule','institute_lms.public_student.billing','institute_lms.public_student.classes','institute_lms.public_student.action','institute_lms.public_student.upload_proof','institute_lms.public_student.proof'):return  # Each operation revalidates student membership.
     if module in ('usage_billing','cybersource','account_billing','portal_session','portal_policy','registration','mobile_auth','mobile_verification','password_reset','demo_learning','profiles','private_contact','contact','health','saas','devices'):
         return
     if method in ('institute_lms.accounts.account_controls','institute_lms.accounts.account_action'):return  # Endpoint checks the caller and exact action.

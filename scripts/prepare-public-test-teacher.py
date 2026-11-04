@@ -19,6 +19,19 @@ def deferred(*args, **kwargs):
         return
     deny()
 
+def ask_password(validate_password):
+    for _ in range(5):
+        secret = getpass('New public test teacher password (12-128 characters, hidden): ')
+        confirmation = getpass('Confirm password (hidden): ')
+        try:
+            validate_password(secret, confirmation)
+        except ValueError:
+            print('Use 12-128 characters. Please try again.' if not 12 <= len(secret) <= 128
+                  else 'Passwords did not match. Enter the same password twice; please try again.')
+            continue
+        return secret
+    raise RuntimeError('Password entries did not validate; no account changes made.')
+
 def main():
     if os.name != 'posix' or Path.home() != Path('/home/sisu'):
         raise RuntimeError('Run as sisu')
@@ -39,8 +52,7 @@ def main():
         if not frappe.conf.get('il_shared_campus_enabled') or not frappe.conf.get('il_payments_paused'):
             raise RuntimeError('Expected public shared campus with gateway paused')
         institute_code(CODE)  # Validate fixture identifiers before any account writes.
-        secret = getpass('New public test teacher password (12+ characters, hidden): ')
-        validate_password(secret, getpass('Confirm password (hidden): '))
+        secret = ask_password(validate_password)
         frappe.set_user('Administrator')
         with ExitStack() as stack:
             for obj, attr, fn in ((frappe, 'sendmail', deny), (frappe, 'enqueue', deferred),

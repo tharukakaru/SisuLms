@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 EMAIL = 'sisu.student.test+teacher@gmail.com'
 SITE = 'sisuacademylk.com'
-CODE = 'SISUTESTTEACHER'
+CODE = 'SISUTESTTC'
 LABEL = '[TEST] Independent teacher workspace'
 
 def deny(*args, **kwargs):
@@ -26,6 +26,7 @@ def main():
     from frappe.utils import now_datetime
     from frappe.utils.password import update_password
     from institute_lms.signup_rules import password as validate_password
+    from institute_lms.domain import institute_code
     from institute_lms.campus_provisioning import institute_insert
     from institute_lms.membership_write import authorized_insert
     from institute_lms.profiles import write
@@ -37,6 +38,7 @@ def main():
     try:
         if not frappe.conf.get('il_shared_campus_enabled') or not frappe.conf.get('il_payments_paused'):
             raise RuntimeError('Expected public shared campus with gateway paused')
+        institute_code(CODE)  # Validate fixture identifiers before any account writes.
         secret = getpass('New public test teacher password (12+ characters, hidden): ')
         validate_password(secret, getpass('Confirm password (hidden): '))
         frappe.set_user('Administrator')

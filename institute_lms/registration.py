@@ -166,7 +166,7 @@ def account_status():
 def account_notifications():
     from .wallet import signed_in
     signed_in()
-    return frappe.get_all('Notification Log',filters={'for_user':frappe.session.user,'name':['like','sisu-confirm-%']},fields=['name','subject','creation','read'],order_by='creation desc',limit_page_length=30)
+    return frappe.get_all('Notification Log',filters={'for_user':frappe.session.user,'name':['like','sisu-confirm-%']},fields=['name','subject','creation','read','email_content'],order_by='creation desc',limit_page_length=30)
 
 
 @frappe.whitelist(methods=['GET'])

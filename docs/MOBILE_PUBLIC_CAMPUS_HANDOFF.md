@@ -112,3 +112,31 @@ Validation: 790 backend tests and 89 frontend tests passed, plus mocked-browser 
 - configure-public-livekit.py verifies and copies the existing staging LiveKit settings to the public site without creating rooms. prepare-demo-classroom-host.py requires the named test teacher to already be enabled and verified before assigning demo institute rooms. These scripts do not establish a successful live media test.
 
 Validation: 795 backend tests, frontend unit checks, mocked browser notification/selector and bank-details/key redemption checks. Production migration, real approval receipts, teacher hosting and live video still require server execution and two-account acceptance. The independent teacher's public registration alone does not yet provide a standalone billing workspace; do not claim that path is end-to-end verified.
+
+
+## Live classroom update — 2026-11-04 (deployment pending)
+
+Teacher and student joining, camera, microphone, screen sharing, recording and teacher playback were confirmed manually on staging. The following patch adds student media permissions, session chat and fixes reviewed recording publication; its two-device browser acceptance remains pending.
+
+All calls require the authenticated site's session and normal CSRF header for POST. API results are wrapped in `message`. These endpoints do not accept client-provided roles or author identities.
+
+- POST `institute_lms.live_classes.join`, body `{"name":"LIVE_ROOM_ID"}`: returns `url`, short-lived `token`, `expires_in`, `name`, `can_control`, `can_publish`, `host_identity`, `recording_status`. Connect using the LiveKit SDK. Start camera/microphone off; require an explicit user action to activate them. Enrolled students may publish camera/microphone, but cannot screen-share or administer/record the room through their token. Hosts can screen-share. Never log tokens.
+- GET `institute_lms.live_classes.chat?name=LIVE_ROOM_ID`: returns `{"messages":[{"id":"...","author":"Display name","host":false,"text":"Hello","sent_at":1790000000.0}]}`. Poll every three seconds only while connected. Render text as plain text.
+- POST `institute_lms.live_classes.chat`, body `{"name":"LIVE_ROOM_ID","text":"Hello"}`: same response. Maximum 1000 characters, one message per participant per two seconds. Server assigns name/host label after classroom authorization. Last 100 messages retained temporarily in cache for two hours after the latest message; no permanent transcript. Ended sessions reject chat access.
+- POST `institute_lms.live_classes.publish_recording`, body `{"name":"LIVE_ROOM_ID","reviewed":true}`: returns `{"published":true}`. Only the controlling teacher may publish a Ready recording. Ask for review confirmation first.
+- POST `institute_lms.live_classes.recording`, body `{"name":"LIVE_ROOM_ID"}`: returns protected `url`, `expires_in`, `title`. Student playback requires classroom access and publication. Never expose storage credentials. Unpublished recordings are teacher drafts; no lecture-product creation is required.
+
+
+## Student acceptance and enrollment update — 2026-11-05
+
+Branch: `mergetharuka`. The user confirmed staging student classroom, material/assignment/quiz/notice flows, live participation and recording playback. The user also confirmed the bank-slip flow: upload, teacher review, approval visible to student, personal key redemption, and classroom access. These are user-reported browser results, not production delivery certification. Public and staging paid-access schema repair both reported PASS. Public SMS delivery remains blocked by exhausted credits; Cybersource production checkout and WhatsApp remain disabled. Teacher classroom image serving remains deferred/unverified on public.
+
+Manual tuition is independent of Cybersource. Student UI hides invoice generation; invoice IDs remain server-owned accounting references. Class-fee navigation preselects the classroom and its existing unpaid invoice, displays the fixed amount and provider bank instructions, and accepts the reference/date/proof. Approval alone grants Awaiting key, not Active access.
+
+- GET `institute_lms.class_keys.key_status?classroom=ID` -> `{"payment_approved":true,"key_valid_for_seconds":900}`.
+- POST `institute_lms.class_keys.resend` with `{"classroom":"ID"}` -> `{"queued":true,"expires_in_seconds":900,"retry_after_seconds":60}`. Requires the signed-in student's paid invoice and Awaiting key access. Rotates the stored hash, invalidating the previous key. No new charge. Throttled to one resend per minute.
+- POST `institute_lms.class_keys.redeem` with `{"classroom":"ID","key":"PERSONAL_KEY"}` -> `{"enrolled":true}`. Key is student/class-bound, single-use, and expires after 15 minutes. Expiry does not undo the approved payment. Errors use the normal Frappe error envelope.
+- GET `institute_lms.class_keys.classroom_bank_settings` with optional classroom -> `instructions`, `editable`, `owner_type`. Teacher-owned classes use their owner account; institute-owned classes use the institute account. Only that independent owner or institute admin may modify instructions. Create/edit accepts optional `bank_instructions` in the classroom data; saves transactionally with the classroom.
+- GET `institute_lms.registration.account_notifications` now also returns `email_content` for the current user's SISU receipts. Render as plain text, never executable HTML. Staging enrollment keys are delivered in-app only by the account receipt queue; public queues email/SMS too. Do not log key contents.
+
+Full local validation: 807 Python tests (`python -X utf8 -m unittest discover -s tests`), 93 frontend tests (`npm test`), production Vite build. Public deployment requires the consolidated release output and read-only public check; no claim that all role testing is complete.

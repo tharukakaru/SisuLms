@@ -21,7 +21,7 @@ def locked(doctype,name):
 
 def account_for(room,required=True):
     name=frappe.db.get_value('IL Provider Account',{'provider_key':beneficiary(room)},'name')
-    if not name and required: frappe.throw('The platform owner must configure this providerÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s package first')
+    if not name and required: frappe.throw('The platform owner must configure this providerÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢s package first')
     return frappe.get_doc('IL Provider Account',name) if name else None
 
 def account_access(account):
@@ -224,7 +224,7 @@ def review_slip(name,decision,note='',access_kind=None,starts_at=None,ends_at=No
         doc.update(dict(status='Paid',paid_at=now_datetime(),payment_id=payment_id,receipt_number='RC-'+doc.name,payment_channel='Bank transfer'))
         doc.save(ignore_permissions=True)
         from .campus_context import enabled
-        if enabled():
+        if enabled() or getattr(frappe.local,'site',None)=='staging.sisuacademylk.com':
             from .class_keys import issue
             issue(doc,room,start,end)
         else:grant(doc,room,start,end,'Bank transfer')

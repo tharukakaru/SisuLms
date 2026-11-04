@@ -335,6 +335,9 @@ def _save_classroom(data, internal=False):
     from .catalog import validate_publication
     validate_publication(room, member, data)
     room.save(ignore_permissions=True)
+    if 'bank_instructions' in data:
+        from .class_keys import save_bank_details
+        save_bank_details(room.name,data.bank_instructions)
     return room.name
 
 

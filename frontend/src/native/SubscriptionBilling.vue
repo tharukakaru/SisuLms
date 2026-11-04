@@ -10,7 +10,7 @@ const emit=defineEmits(['changed'])
 const data=ref(null),busy=ref(false),error=ref(''),notice=ref(''),showPlans=ref(false),showManage=ref(false)
 const form=ref({plan:'Individual',billing_email:'',payment_method:'Card'})
 const account=computed(()=>data.value?.account)
-const usd=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:account.value?.currency||'USD',minimumFractionDigits:2}).format(n/100)
+const usd=(n,currency=account.value?.currency||'USD')=>new Intl.NumberFormat('en-US',{style:'currency',currency,minimumFractionDigits:2}).format(n/100)
 const date=value=>value?new Intl.DateTimeFormat('en',{day:'numeric',month:'short',year:'numeric'}).format(new Date(String(value).replace(' ','T'))):'—'
 const canInvoice=computed(()=>account.value?.billing_ready&&!['Trial','Active'].includes(account.value.state)&&!account.value.cancel_at_end)
 async function load(){data.value=await request('account_billing','status');const a=data.value.account;form.value={plan:a.next_plan||a.plan,billing_email:a.billing_email||'',payment_method:a.payment_method||'Card'}}
@@ -47,7 +47,7 @@ onMounted(()=>run(load))
    <section class="billing-section" aria-labelledby="invoice-history">
     <div class="billing-section-heading"><h2 id="invoice-history">Invoices & receipts</h2><button v-if="canInvoice" class="billing-button" :disabled="busy" @click="invoice">Create invoice</button></div>
     <div v-if="!data.invoices.length" class="billing-empty"><Icon name="FileText" :size="22"/><div><p class="billing-primary">No invoices yet</p><p>Your invoices will appear here after your free trial.</p></div></div>
-    <div v-else class="billing-table"><table><thead><tr><th>Date</th><th>Invoice</th><th>Amount</th><th>Status</th><th><span class="sr-only">Download</span></th></tr></thead><tbody><tr v-for="bill in data.invoices" :key="bill.name"><td>{{date(bill.creation||bill.period_start)}}</td><td>{{bill.name}}</td><td>{{usd(bill.amount_minor)}}</td><td>{{bill.status}}</td><td><button class="billing-link" :disabled="busy" @click="download(bill.name)"><Icon name="Download" :size="16"/>{{bill.status==='Paid'?'Download receipt':'Download invoice'}}</button><CyberSourcePayment v-if="bill.status==='Unpaid'" kind="subscription" :invoice="bill.name" @changed="load"/></td></tr></tbody></table><p class="billing-caption">For a PDF, open the downloaded document and choose Print → Save as PDF.</p></div>
+    <div v-else class="billing-table"><table><thead><tr><th>Date</th><th>Invoice</th><th>Amount</th><th>Status</th><th><span class="sr-only">Download</span></th></tr></thead><tbody><tr v-for="bill in data.invoices" :key="bill.name"><td>{{date(bill.creation||bill.period_start)}}</td><td>{{bill.name}}</td><td>{{usd(bill.amount_minor,bill.currency)}}</td><td>{{bill.status}}</td><td><button class="billing-link" :disabled="busy" @click="download(bill.name)"><Icon name="Download" :size="16"/>{{bill.status==='Paid'?'Download receipt':'Download invoice'}}</button><CyberSourcePayment v-if="bill.status==='Unpaid'" kind="subscription" :invoice="bill.name" @changed="load"/></td></tr></tbody></table><p class="billing-caption">For a PDF, open the downloaded document and choose Print → Save as PDF.</p></div>
    </section>
    <footer class="billing-footer"><span>Prices in {{account.currency}}. Class tuition is separate.</span><button class="billing-link" :disabled="busy" @click="run(async()=>{await load();emit('changed')})">Refresh billing</button></footer>
   </template>

@@ -104,11 +104,18 @@ admin approval/rejection and browser acceptance are NOT yet verified.
 2026-11-06 release synchronization:
 - User confirms institute-admin test account READY. Portal Admin routing, scoped SISUDEMO
   membership, institute profile and existing subscription access passed on server.
-- Teacher-role source and compiled assets synchronized to GitHub after deployed teacher
-  packages and user browser acceptance. No additional payment activation is authorized.
+- Teacher-role source and compiled assets committed locally after deployed teacher
+  packages and user browser acceptance. GitHub push pending; no payment activation.
 - Release verification: 830 Python tests (UTF-8 mode), 104 frontend tests, static check
   of 609 Python sources and 125 JSON documents passed; production build previously passed.
 - Institute-teacher functionality accepted; independent teacher functionality accepted
   except subscription and wallet/payout gateway integration/testing. Institute-sponsored
   access after personal trial expiry remains a separate unverified entitlement boundary.
 - Current task continues with institute admin browser audit. No passwords recorded.
+
+GitHub sync blocked: local commits 5499c7d (existing checkout display fix) and e0c1fdf
+(accepted teacher workflows/assets/tests) are ready on mergetharuka. Git push could not
+start the Windows credential helper; direct credential retrieval was unavailable.
+Connected GitHub create-tree returned 403 Resource not accessible by integration.
+Remote remains d093e39. User can run git push origin mergetharuka in their PowerShell.
+No GitHub update or new deployment was performed in this synchronization turn.

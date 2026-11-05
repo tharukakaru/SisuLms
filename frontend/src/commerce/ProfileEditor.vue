@@ -8,7 +8,7 @@ import LanguageSelect from './LanguageSelect.vue'
 const subjects=['Mathematics','Science','English','Sinhala','Tamil','ICT','Business Studies','Accounting','Economics','Biology','Physics','Chemistry','History','Geography','Commerce','Computer Science','Engineering','Art','Music','Law']
 function suggestSubject(subject){const parts=form.value.curriculum.split(',').map(s=>s.trim()).filter(Boolean);if(!parts.includes(subject)&&[...parts,subject].join(', ').length<=150)form.value.curriculum=[...parts,subject].join(', ')}
 import SocialIcon from './SocialIcon.vue'
-import {socialNetworks} from './socials.js'
+import {socialNetworks,editableSocials} from './socials.js'
 import {ref} from 'vue'
 import {call,uploadImage} from '../service'
 import {safeLink} from '../rules'
@@ -16,7 +16,7 @@ import {upload as uploadRequest} from '../native/client'
 const props=defineProps({member:Object}),emit=defineEmits(['saved','navigate'])
 const error=ref(''),busy=ref(false),existing=ref(null),phoneVerified=ref(null),saved=ref(false),imageNote=ref('')
 const form=ref({username:'',display_name:props.member.full_name,kind:props.member.role==='Admin'?'Institute':props.member.role==='Student'?'Student':'Teacher',country:'Sri Lanka',bio:'',tagline:'',qualifications:'',curriculum:'',grades:'',languages:'English',socials:{facebook:'',instagram:'',twitter:'',youtube:'',linkedin:'',tiktok:''},is_school:false})
-async function load(){try{const response=await call('me',{},'profiles');phoneVerified.value=!!response.phone_verified;const d=response.profile;if(d){existing.value=d;Object.assign(form.value,d);if(typeof d.socials==='string')form.value.socials=JSON.parse(d.socials)}}catch(e){error.value=e.message}}
+async function load(){try{const response=await call('me',{},'profiles');phoneVerified.value=!!response.phone_verified;const d=response.profile;if(d){existing.value=d;Object.assign(form.value,d);form.value.socials=editableSocials(d.socials)}}catch(e){error.value=e.message}}
 async function save(){busy.value=true;error.value='';saved.value=false;try{if(form.value.kind==='Student')form.value.socials={};for(const url of Object.values(form.value.socials||{}))if(url&&!safeLink(url))throw Error('Use a valid HTTPS social link.');await call('save_profile',{data:form.value},'profiles');await load();saved.value=true;emit('saved')}catch(e){error.value=e.message}finally{busy.value=false}}
 async function imageUpload(event,kind){const file=event.target.files[0];if(!file||busy.value)return;busy.value=true;error.value='';imageNote.value='';saved.value=false;try{if(file.size>5*1024*1024)throw Error('Choose an image no larger than 5 MB.');if(previewMode)throw Error('Connect to the local server to save your photo.');const body=new FormData();body.append('kind',kind);body.append('file',file);const result=await uploadRequest('profiles','upload_image',body);const check=await call('me',{},'profiles');if(!result?.url||check.profile?.[kind]!==result.url)throw Error('The image could not be verified as saved. Please retry.');form.value[kind]=result.url;existing.value=check.profile;imageNote.value='Photo uploaded and saved.';emit('saved')}catch(e){error.value=e.message}finally{busy.value=false}}
 

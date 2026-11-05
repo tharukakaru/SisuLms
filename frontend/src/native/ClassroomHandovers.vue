@@ -1,0 +1,12 @@
+<script setup>
+import {ref,onMounted} from 'vue'
+import {request} from './client'
+const props=defineProps({admin:Boolean})
+const emit=defineEmits(['changed'])
+const rows=ref([]),teachers=ref([]),replacements=ref({}),busy=ref(false),error=ref(''),notice=ref('')
+async function load(){error.value='';try{rows.value=await request('classroom_handover','listing',{},'GET');if(props.admin)teachers.value=await request('api','teachers',{},'GET')}catch(e){error.value=e.message}}
+async function review(row,decision){busy.value=true;error.value='';notice.value='';try{await request('classroom_handover','review',{name:row.name,decision,replacement:replacements.value[row.name]||null});notice.value=decision==='Approved'?'Handover approved. The replacement teacher is now assigned.':'Request rejected. The current teacher remains assigned.';await load();emit('changed')}catch(e){error.value=e.message}finally{busy.value=false}}
+onMounted(load)
+</script>
+<template><section v-if="rows.length||error||notice" class="panel handovers"><h2>Classroom handover requests</h2><p>{{admin?'Approve with a replacement teacher, or reject to keep the current assignment.':'You remain assigned until your institute approves a replacement.'}}</p><p v-if="error" class="error" role="alert">{{error}} <button class="text-button" @click="load">Retry</button></p><p v-if="notice" role="status">{{notice}}</p><article v-for="row in rows" :key="row.name"><h3>{{row.classroom_title}}</h3><p>{{row.teacher_name}} · Pending</p><p class="handover-reason">{{row.reason}}</p><template v-if="admin"><label>Replacement teacher<select v-model="replacements[row.name]" :disabled="busy"><option :value="undefined" disabled>Choose a replacement</option><option v-for="teacher in teachers.filter(t=>t.name!==row.teacher)" :key="teacher.name" :value="teacher.name">{{teacher.full_name}}</option></select></label><div class="inline wrap"><button class="button primary" :disabled="busy||!replacements[row.name]" @click="review(row,'Approved')">Approve &amp; assign replacement</button><button class="button subtle" :disabled="busy" @click="review(row,'Rejected')">Reject request</button></div></template></article></section></template>
+<style scoped>.handovers{padding:24px;margin-bottom:24px}.handovers article{border-top:1px solid var(--student-border,#e5def0);padding:20px 0}.handovers p{margin:12px 0;line-height:1.6}.handovers label{display:grid;gap:8px;max-width:440px;margin:16px 0}.handover-reason{white-space:pre-wrap;overflow-wrap:anywhere}.handovers select{width:100%;padding:12px}</style>

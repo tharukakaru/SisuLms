@@ -3,7 +3,7 @@ import {ref,onMounted,computed} from 'vue'
 import {request} from './client'
 defineProps({standalone:Boolean})
 const info=ref(null),tab=ref('Expenses'),error=ref(''),notice=ref(''),busy=ref(false),rows=ref([]),total=ref(0),operator=ref('')
-const today=new Date().toLocaleDateString('en-CA'),start=ref(today.slice(0,8)+'01'),end=ref(today)
+const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Colombo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),start=ref(today.slice(0,8)+'01'),end=ref(today)
 const draft=ref({date:today,amount:'',category:'Teaching',note:'',token:crypto.randomUUID()}),config=ref({})
 const tabs=computed(()=>info.value?.operator?['Expenses']:['Expenses','Operators','Content controls','Connections'])
 const tabAllowed=computed(()=>!info.value?false:tab.value==='Expenses'?!!info.value.features.expenses:tab.value==='Operators'?info.value.operator_limit>0:tab.value==='Content controls'?!!info.value.features.view_limits:true)
@@ -11,7 +11,7 @@ const money=n=>new Intl.NumberFormat('en-LK',{style:'currency',currency:'LKR'}).
 async function run(fn){busy.value=true;error.value='';notice.value='';try{await fn()}catch(e){error.value=e.message}finally{busy.value=false}}
 async function loadExpenses(){const d=await request('workspace','expenses',{start:start.value,end:end.value},'GET');rows.value=d.rows;total.value=d.total_minor}
 async function load(){info.value=await request('workspace','overview',{},'GET');config.value={...info.value.settings};if(info.value.features.expenses)await loadExpenses()}
-async function add(){await request('workspace','add_expense',{data:draft.value});draft.value={date:today,amount:'',category:'Teaching',note:'',token:crypto.randomUUID()};await loadExpenses();notice.value='Expense saved.'}
+async function add(){const saved=await request('workspace','add_expense',{data:draft.value});if(saved.date<start.value)start.value=saved.date;if(saved.date>end.value)end.value=saved.date;draft.value={date:today,amount:'',category:'Teaching',note:'',token:crypto.randomUUID()};notice.value='Expense saved.';try{await loadExpenses()}catch(e){throw Error('Expense saved, but the register could not refresh. Apply dates to reload. '+e.message)}}
 async function voidRow(row){const reason=window.prompt('Why should this expense be voided?');if(reason)await run(async()=>{await request('workspace','void_expense',{name:row.name,reason});await loadExpenses()})}
 function csv(){const cell=v=>'"'+String(v??'').replace(/^[=+@-]/,"'").replaceAll('"','""')+'"';const text=[['Date','Category','Description','Amount LKR','Status','Void reason'],...rows.value.map(x=>[x.date,x.category,x.note,(x.amount_minor/100).toFixed(2),x.status,x.void_reason||''])].map(r=>r.map(cell).join(',')).join('\r\n');const url=URL.createObjectURL(new Blob(['﻿'+text],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='SISU-expenses-'+start.value+'-to-'+end.value+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
 onMounted(()=>run(load))

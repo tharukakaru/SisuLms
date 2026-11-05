@@ -13,9 +13,9 @@ ATTEMPT = 'IL Classroom Quiz Submission'
 
 def room_access(classroom, manage=False):
     inst, member, room = accessible_room(classroom)
-    can_manage = member.role in ('Teacher', 'Admin') and rights(room, member)['edit']
+    can_manage = member.role in ('Teacher', 'Admin') and rights(room, member)['teach']
     if (manage or member.role != 'Student') and not can_manage:
-        frappe.throw('Classroom management access required', frappe.PermissionError)
+        frappe.throw('Assigned classroom teaching access required', frappe.PermissionError)
     return inst, member, room, can_manage
 
 

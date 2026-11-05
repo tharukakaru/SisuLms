@@ -155,6 +155,14 @@ def bootstrap():
     member.update(profile_image=profile.profile_image if profile else "",
                   lms_id=profile.lms_id if profile else "",
                   provider_profile=dict(profile) if profile and member.get("role") in ("Teacher", "Admin") else None)
+    # Presentation context only; classroom permissions and subscription checks remain server-owned.
+    institute_profile = frappe.db.get_value("IL Public Profile",
+        {"workspace": inst.name, "kind": "Institute"}, "name")
+    from .campus_context import enabled as shared_campus
+    member["institute_teacher"] = bool(member.get("role") == "Teacher" and institute_profile and
+        (shared_campus() or frappe.db.exists("IL Profile Relationship", {
+            "profile": institute_profile, "user": frappe.session.user,
+            "kind": "Teacher membership", "status": "Active"})))
     return {"payment_provider": frappe.conf.get("il_payment_provider", "payments_lk"), "institute": campus_brand(inst),
             "member": member, "csrf_token": frappe.sessions.get_csrf_token(), "mode": "live",
             "lms_base": "/" + str(frappe.conf.get("lms_path", "lms")).strip("/"),

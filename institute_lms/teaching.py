@@ -89,13 +89,10 @@ def membership(name,status):
     return {'status':status}
 
 @frappe.whitelist(methods=['POST'])
-def leave_class(classroom):
-    from .api import classroom_for
-    _,m,room=classroom_for(classroom,write=True)
-    if m.role!='Teacher' or room.get('owner_type')=='Teacher' or room.teacher!=m.name:frappe.throw('Only an assigned institute teacher can leave this class')
-    room.teacher_assignment_active=0;room.save(ignore_permissions=True)
-    room.add_comment('Info','Teacher left the assignment; institute must reassign this classroom.')
-    return {'left':True}
+def leave_class(classroom, reason=None):
+    from .classroom_handover import request_leave
+    return request_leave(classroom, reason)
+
 
 @frappe.whitelist()
 def programmes():

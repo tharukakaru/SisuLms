@@ -1,0 +1,86 @@
+SISU LAUNCH PLAN — agreed 2026-11-05, Asia/Colombo
+Target: client launch tomorrow; user reports approximately eight hours remaining.
+Preserve this sequence across chats/compaction. Do not repeat completed checks without a regression reason.
+
+1. Public teacher: finish independent and institute-teacher functional tests and fixes.
+   Cover classroom create/edit/images, schedule, materials, recordings, assignments,
+   quizzes, attendance, notices/chat, profile/settings, permissions and navigation.
+   Reuse TEACHER-OVERVIEW-ACCEPTANCE.md; distinguish navigation-only checks from saved workflows.
+   Explicit unresolved issue: institute-sponsored access after personal trial expiry.
+2. Institute admin: membership/teacher assignments, classes, bank details/reviews,
+   learning content, reports, settings and cross-institute isolation.
+3. Platform/super admin: authorized management workflows, role boundaries and operational controls.
+4. UI polish requested by user, preserving verified behavior; regression-check touched flows.
+5. Resume gateway tests when support replies, connect required payment flows and verify outcomes.
+6. User's final minor edits, public deployment verification, GitHub sync, client handover
+   with labelled test account identifiers and privately delivered credentials.
+
+Payment hold:
+Support case 002760691 updated by user. Reason150 reports lkr_outlet_id/lkr_terminal_id
+missing or invalid; authorization failed, settlement not run.
+Attempt04n75099lh, reference sisu-62335b49a29947fb82f19b01ce6cb989,
+request7939012908846168903007. Do not use no-transaction recovery or retry blindly.
+Public gateway stays disabled until configured and verified. Gateway success is not proven.
+
+Verification discipline:
+Report passed, failed, blocked and not tested separately. Prior deployment logs are not
+browser acceptance. Do not promise all roles ready before verification.
+Current tools cannot control/inspect the in-app browser; screenshots and server/local checks
+are available. Re-discover tools if availability changes. Never claim direct browser testing
+without performing it. User performs SSH authentication privately.
+Never store passwords, tokens or OTPs in this plan or source control.
+
+Immediate next step: resume teacher audit, establish public teacher session for interactive
+checks when browser access is available, and audit/test remaining lifecycle/permission paths.
+
+2026-11-06 teacher acceptance:
+- Independent teacher: user confirms expense save/filter fixed and removal confirmation
+  opens; accepts non-payment role checks. Subscription/wallet/payout remain held for bank reply.
+- Institute teacher: other sections accepted by user. Prepared quiz teaching permission,
+  classroom modal continuity, reviewed handover with replacement, and read-only institute plan.
+- Own social links already wired in sidebar to bootstrap provider_profile and refresh on save.
+- Local 35 backend tests, 16 frontend tests (including real modal handlers), Vue compile and production build passed.
+- Deployment/server rollback checks/browser acceptance still pending. Restore only named test
+  classroom fp20kd7lgd to existing teacher via restore-public-institute-teacher-class.py.
+- Next: user verifies these classroom fixes, then institute administrator audit.
+
+2026-11-06 deployment follow-up: user reports institute-teacher controls deployed,
+workers restarted and fp20kd7lgd restored. Server passed teaching-only quiz creation,
+own-profile projection and read-only institute plan. Handover admin checks stopped at
+campus require_user because checker selected an ineligible admin. Demo seed creates a
+disabled display admin. Checker revised to prefer enabled admins, otherwise temporarily
+activate only the exact demo admin inside rollback-only transaction. Rerun pending;
+admin approval/rejection and browser acceptance are NOT yet verified.
+
+2026-11-06 confirmed acceptance and next role:
+- Institute teacher: server rollback checks PASS for quiz creation, own-profile projection,
+  institute plan, leave request retention/duplicates, teacher self-approval denial, admin
+  rejection, replacement requirement, approval/access transfer and preserved membership.
+- User explicitly confirms all institute-teacher browser checks work. Role accepted.
+- Independent teacher accepted except subscription and wallet/payout payment integration
+  and end-to-end testing, held until bank support replies. Do not retest accepted pages.
+- Active phase: INSTITUTE ADMIN. User will test admin flows; fix reported defects, then
+  platform/super admin, requested UI polish and remaining launch work.
+- Demo admin activation was transaction-only and rolled back; do not present it as a
+  usable enabled login or silently enable/change an account.
+- Separate unresolved boundary: institute-sponsored coverage after personal trial expiry
+  is not proven by the current active-trial teacher acceptance.
+
+Institute admin fixture requested by user: prepared scripts/prepare-public-institute-admin.py.
+Login sisu.student.test+institute.admin@gmail.com, scoped Admin in SISUDEMO. Operator
+sets password privately through SSH TTY. Transfers only existing labelled demo institute
+profile from disabled display owner to this test login, preserving profile ID and relations.
+Does not grant platform roles, verify contacts, extend trial or mark payments paid.
+Provisioning is pending user execution; do not claim account exists until READY output.
+
+2026-11-06 release synchronization:
+- User confirms institute-admin test account READY. Portal Admin routing, scoped SISUDEMO
+  membership, institute profile and existing subscription access passed on server.
+- Teacher-role source and compiled assets synchronized to GitHub after deployed teacher
+  packages and user browser acceptance. No additional payment activation is authorized.
+- Release verification: 830 Python tests (UTF-8 mode), 104 frontend tests, static check
+  of 609 Python sources and 125 JSON documents passed; production build previously passed.
+- Institute-teacher functionality accepted; independent teacher functionality accepted
+  except subscription and wallet/payout gateway integration/testing. Institute-sponsored
+  access after personal trial expiry remains a separate unverified entitlement boundary.
+- Current task continues with institute admin browser audit. No passwords recorded.

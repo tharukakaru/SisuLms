@@ -65,7 +65,7 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 </script>
 
 <template>
-<CampusSwitcher v-if="session?.shared_campus&&session.authenticated&&session.role!=='Student'&&session.onboarding_kind!=='Student'"/>
+<CampusSwitcher provider v-if="session?.shared_campus&&session.authenticated&&!session.member&&session.role!=='Student'&&session.onboarding_kind!=='Student'"/>
 
 <PasswordConfirmation v-if="passwordConfirmation"/><section v-else-if="firebaseTestPage" class="panel" style="max-width:760px;margin:40px auto;padding:24px"><h1>SISU browser notification test</h1><p>This test uses your configured sandbox account.</p><a href="/sandbox_firebase_login">Sign in as sandbox Administrator</a><FirebasePush/></section>
 

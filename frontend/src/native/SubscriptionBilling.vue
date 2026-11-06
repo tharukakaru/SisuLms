@@ -5,7 +5,7 @@ import Icon from '../Icon.vue'
 import BrandLogo from '../BrandLogo.vue'
 import UsageInvoices from './UsageInvoices.vue'
 import CyberSourcePayment from './CyberSourcePayment.vue'
-defineProps({standalone:Boolean})
+const props=defineProps({standalone:Boolean})
 const emit=defineEmits(['changed'])
 const data=ref(null),busy=ref(false),error=ref(''),notice=ref(''),showPlans=ref(false),showManage=ref(false)
 const form=ref({plan:'Individual',billing_email:'',payment_method:'Card'})
@@ -13,10 +13,10 @@ const account=computed(()=>data.value?.account)
 const usd=(n,currency=account.value?.currency||'USD')=>new Intl.NumberFormat('en-US',{style:'currency',currency,minimumFractionDigits:2}).format(n/100)
 const date=value=>value?new Intl.DateTimeFormat('en',{day:'numeric',month:'short',year:'numeric'}).format(new Date(String(value).replace(' ','T'))):'—'
 const canInvoice=computed(()=>account.value?.billing_ready&&!['Trial','Active'].includes(account.value.state)&&!account.value.cancel_at_end)
-async function load(){data.value=await request('account_billing','status');const a=data.value.account;form.value={plan:a.next_plan||a.plan,billing_email:a.billing_email||'',payment_method:a.payment_method||'Card'}}
+async function load(){data.value=await request('account_billing','status');const a=data.value.account;form.value={plan:a.next_plan||a.plan,billing_email:a.billing_email||'',payment_method:a.payment_method||'Card'};if(a.onboarding_payment_required&&!data.value.invoices.some(i=>i.status==='Unpaid'))showPlans.value=true}
 async function run(action){busy.value=true;error.value='';notice.value='';try{await action()}catch(e){error.value=e.message}finally{busy.value=false}}
 async function save(){await run(async()=>{await request('account_billing','preferences',form.value);await load();notice.value='Billing preferences saved.';showManage.value=false})}
-async function choose(plan){await run(async()=>{await request('account_billing','preferences',{...form.value,plan});await load();showPlans.value=false;notice.value=account.value.next_plan?'Your new plan starts at the next renewal.':'Your plan has been updated.'})}
+async function choose(plan){await run(async()=>{await request('account_billing','preferences',{...form.value,plan});await load();if(account.value.onboarding_payment_required){await request('account_billing','invoice');await load()}showPlans.value=false;notice.value=account.value.next_plan?'Your new plan starts at the next renewal.':'Your plan has been updated.'})}
 async function invoice(){await run(async()=>{const r=await request('account_billing','invoice');await load();notice.value=r.message})}
 async function cancel(){await run(async()=>{await request('account_billing','cancel',{cancel:!account.value.cancel_at_end});await load();notice.value=account.value.cancel_at_end?'Renewal cancelled. Your current access keeps its end date.':'Renewal resumed.'})}
 async function download(name){await run(async()=>{const result=await request('account_billing','document',{invoice:name});const url=URL.createObjectURL(new Blob([result.html],{type:'text/html'}));const a=document.createElement('a');a.href=url;a.download=result.filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)})}
@@ -30,7 +30,7 @@ onMounted(()=>run(load))
   <p v-if="!account&&!error" role="status">Loading your billing…</p>
   <template v-if="account">
    <UsageInvoices v-if="account.role!=='Student'"/>
-   <section class="billing-section" aria-labelledby="your-plan">
+   <section v-if="standalone&&account?.state==='Active'" class="billing-message" role="status"><h2>Payment successful</h2><p>Your plan payment has been verified.</p><button class="button primary" @click="emit('changed')">Continue to dashboard</button></section><section class="billing-section" aria-labelledby="your-plan">
     <div class="billing-section-heading"><h2 id="your-plan">Your plan</h2><span class="billing-status">{{account.state}}</span></div>
     <div class="billing-plan-row"><div><h3>SISU {{account.plan}}</h3><p>{{account.monthly_minor!=null?usd(account.monthly_minor)+' / month':'Your subscription price is being confirmed.'}}</p></div><button v-if="account.role!=='Student'" class="billing-button" :aria-expanded="showPlans" @click="showPlans=!showPlans">{{showPlans?'Close plans':'View plans'}}</button><span v-else class="billing-label">Student subscription</span></div>
     <p class="billing-caption" v-if="account.state==='Trial'">Your free trial ends {{date(account.trial_until)}}.</p>

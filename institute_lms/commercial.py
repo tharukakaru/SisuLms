@@ -167,8 +167,14 @@ def upload_proof():
     content=file.stream.read(5*1024*1024+1)
     if not content or len(content)>5*1024*1024:frappe.throw('Proof must be at most 5 MB')
     ext=proof_extension(content,file.filename)
-    from frappe.utils.file_manager import save_file
-    f=save_file('bank-proof.'+ext,content,None,None,is_private=1)
+    # Start with the submitted bytes, not a pre-resolved private file URL.
+    # save_file() can resolve identical classroom content to a URL the student
+    # cannot read. A new owned File preserves normal validation/storage hooks.
+    f=frappe.get_doc({'doctype':'File','file_name':'bank-proof.'+ext,
+        'content':content,'is_private':1,'owner':frappe.session.user})
+    f.insert(ignore_permissions=True)
+    if f.owner!=frappe.session.user or not f.is_private or f.attached_to_name:
+        frappe.throw('Could not create your private proof upload.',frappe.PermissionError)
     return {'name':f.name}
 
 @frappe.whitelist(methods=['POST'])
@@ -196,6 +202,7 @@ def reviewer(slip):
     from .api import classroom_for
     inst,m,room=classroom_for(slip.classroom,True)
     if slip.institute!=inst.name or m.role not in ('Admin','Teacher'):frappe.throw('Class payment reviewer required',frappe.PermissionError)
+    if room.get('owner_type')=='Institute' and m.role!='Admin':frappe.throw('Institute administrators review institute tuition payments',frappe.PermissionError)
     from .teaching import require
     require(room,m,'fees')
     account=account_for(room,False)
@@ -362,6 +369,7 @@ def metrics(start_date=None,end_date=None):
     inst,m=identity()
     if m.role not in ('Admin','Teacher'):frappe.throw('Provider access required',frappe.PermissionError)
     rooms=frappe.get_all('IL Classroom',filters=room_filters(inst,m),fields=['name','title','teacher','owner_type'])
+    for room in rooms:room['teacher_name']=frappe.db.get_value('IL Member',room.teacher,'full_name')
     names=[r.name for r in rooms] or ['__none__']
     from .report_dates import report_window
     try:start,stop=report_window(start_date,end_date,now_datetime())

@@ -340,3 +340,26 @@ def follow_status(profiles):
     if not profiles:return []
     return frappe.get_all('IL Profile Relationship',filters={'profile':['in',profiles],
         'user':frappe.session.user,'kind':'Follow','status':'Active'},fields=['name','profile'],limit_page_length=24)
+
+
+@frappe.whitelist(methods=['GET'])
+def programmes(profile=''):
+    """Public programme metadata; membership and payment are checked separately."""
+    signed_in()
+    from .catalog import provider
+    if profile:
+        p=provider(profile)
+        providers=[p.name] if p.kind=='Institute' else []
+    else:
+        providers=frappe.get_all('IL Profile Relationship',filters={'user':frappe.session.user,'kind':'Follow','status':'Active'},pluck='profile',limit_page_length=0)
+        institutes=frappe.get_all('IL Member',filters={'user':frappe.session.user,'active':1,'role':'Student'},pluck='institute',limit_page_length=0)
+        providers+=frappe.get_all('IL Public Profile',filters={'workspace':['in',institutes or ['__none__']],'kind':'Institute','status':'Verified'},pluck='name',limit_page_length=0)
+    verified=frappe.get_all('IL Public Profile',filters={'name':['in',providers or ['__none__']],'kind':'Institute','status':'Verified'},pluck='name',limit_page_length=0)
+    rows=frappe.get_all('IL Programme',filters={'provider':['in',verified or ['__none__']],'active':1},fields=['name','institute','title','description','fee','currency','cover_image','profile_image','access_duration_days'],limit_page_length=100)
+    joined=set(frappe.get_all('IL Member',filters={'user':frappe.session.user,'active':1,'role':'Student'},pluck='institute',limit_page_length=0))
+    for row in rows:
+        row['requires_registration']=row.institute not in joined
+        row['modules']=frappe.get_all('IL Programme Module',filters={'parent':row.name,'parenttype':'IL Programme'},fields=['classroom','title','teacher','duration_weeks','module_code'],order_by='idx',limit_page_length=0)
+        row['has_certificate']=bool(frappe.db.get_value('IL Programme',row.name,'certificate_preview'))
+        for module in row['modules']:module['teacher_name']=frappe.db.get_value('IL Member',module.teacher,'full_name')
+    return rows

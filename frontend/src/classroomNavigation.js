@@ -7,7 +7,7 @@ export function classroomNavigation(role, {instituteTeacher=false}={}) {
     ...(role==='Admin'?[{id:'team',icon:'Users'},{id:'people',icon:'Users'}]:[]),
     {id:'connections',icon:'Search'},
     ...(!instituteTeacher?[{id:'payments',icon:'CreditCard'}]:[]),
-    {id:'subscription',icon:'Receipt'},
+    ...(role!=='Student'?[{id:'subscription',icon:'Receipt'}]:[]),
     ...(role!=='Student'&&!instituteTeacher?[{id:'workspace',icon:'Settings2'},{id:'wallet',icon:'Wallet'}]:[]),
     {id:'news',icon:'Newspaper'},
     ...(role==='Admin'?[{id:'storage',icon:'HardDrive'}]:[]),

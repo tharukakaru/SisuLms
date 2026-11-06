@@ -104,6 +104,9 @@ def programmes():
         p=frappe.get_doc('IL Programme',name)
         if m.role=='Teacher' and not any(x.teacher==m.name for x in p.modules):continue
         d=p.as_dict()
+        d["has_certificate"]=bool(p.get("certificate_preview"))
+        if m.role != "Admin":
+            d.pop("certificate_template",None);d.pop("certificate_preview",None)
         for row in d['modules']:row['teacher_name']=frappe.db.get_value('IL Member',row['teacher'],'full_name')
         d['students']=frappe.db.count('IL Programme Enrollment',{'programme':name,'active':1})
         result.append(d)
@@ -169,6 +172,7 @@ def enroll_programme(programme):
     if any(not r.active or r.programme!=p.name or r.get('owner_type')=='Teacher' for r in rooms):frappe.throw('Programme modules need administrator review')
     if any(frappe.db.exists('IL Enrollment',{'classroom':r.name,'student':m.name}) for r in rooms):frappe.throw('Existing module enrollment needs administrator review')
     quote=invoice_split(inst,money(p.fee),m.user,room=rooms[0])
+    if money(p.fee)>0 and not quote:frappe.throw('Programme payment setup needs institute review')
     purchase=frappe.get_doc({'doctype':'IL Programme Enrollment','programme':p.name,'student':m.name,'active':1}).insert(ignore_permissions=True)
     for i,room in enumerate(rooms):
         e=frappe.get_doc({'doctype':'IL Enrollment','institute':inst.name,'student':m.name,'classroom':room.name,'programme_enrollment':purchase.name,'fee':quote['amount'] if quote else 0,'active':1,'access_override':'Automatic'}).insert(ignore_permissions=True)

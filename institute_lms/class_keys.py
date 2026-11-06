@@ -130,6 +130,59 @@ def classroom_bank_settings(classroom=None):
         inst,member,room=classroom_for(classroom,True)
     else:
         room=frappe._dict(institute=inst.name,owner_type='Institute' if member.role=='Admin' else 'Teacher',owner_user=member.user)
-    editable=(room.owner_type=='Institute' and member.role=='Admin' or room.owner_type=='Teacher' and room.owner_user==frappe.session.user)
+    editable=False  # Receiving accounts are managed centrally in the provider profile.
     account=account_for(room,False)
     return {'instructions':account.bank_instructions or '' if account else '', 'editable':bool(editable),'owner_type':room.owner_type}
+
+
+@frappe.whitelist(methods=['GET'])
+def institute_bank_details():
+    from .api import identity, require_role
+    from .commercial import account_for
+    inst, member = identity()
+    require_role(member, 'Admin')
+    account = account_for({'owner_type':'Institute','institute':inst.name})
+    return {'instructions':account.bank_instructions or '', 'institute':inst.title}
+
+
+@frappe.whitelist(methods=['POST'])
+def save_institute_bank_details(instructions):
+    from .api import identity, require_role
+    from .commercial import account_for, locked, save
+    inst, member = identity()
+    require_role(member, 'Admin')
+    if not isinstance(instructions,str) or not 10<=len(instructions.strip())<=2000:
+        frappe.throw('Enter bank name, account holder, account number and branch (10–2000 characters).')
+    account = account_for({'owner_type':'Institute','institute':inst.name})
+    account = locked('IL Provider Account',account.name)
+    account.bank_instructions = instructions.strip()
+    save(account)
+    return {'saved':True}
+
+
+def independent_bank_account():
+    from .api import identity, require_role
+    from .commercial import account_for, account_access
+    inst, member = identity()
+    require_role(member, 'Teacher')
+    account = account_for({'owner_type':'Teacher','owner_user':frappe.session.user,'institute':inst.name})
+    account_access(account)
+    return account
+
+
+@frappe.whitelist(methods=['GET'])
+def teacher_bank_details():
+    account = independent_bank_account()
+    return {'instructions':account.bank_instructions or ''}
+
+
+@frappe.whitelist(methods=['POST'])
+def save_teacher_bank_details(instructions):
+    from .commercial import locked, save
+    account = independent_bank_account()
+    if not isinstance(instructions,str) or not 10<=len(instructions.strip())<=2000:
+        frappe.throw('Enter bank name, account holder, account number and branch (10–2000 characters).')
+    account = locked('IL Provider Account',account.name)
+    account.bank_instructions = instructions.strip()
+    save(account)
+    return {'saved':True}

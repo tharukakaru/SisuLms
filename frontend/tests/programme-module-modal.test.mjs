@@ -11,12 +11,12 @@ function harness(){
     addEventListener:(key,fn)=>listeners.set(key,fn),removeEventListener:key=>listeners.delete(key)}
   const control=()=>({isConnected:true,disabled:false,tabIndex:0,getClientRects:()=>[{}],focus(){document.activeElement=this}})
   const trigger=control(),close=control(),last=control();document.activeElement=trigger
-  const context=vm.createContext({document,ref:value=>({value}),nextTick:async()=>{},onMounted(){},
+  const context=vm.createContext({document,watch(){},localStorage:{getItem(){return null},setItem(){},removeItem(){}},ref:value=>({value}),nextTick:async()=>{},onMounted(){},
     onBeforeUnmount(fn){cleanup=fn},defineProps:()=>({member:{role:'Student'},rooms:[{name:'room-a'}]}),
-    defineEmits:()=>((...args)=>events.push(args)),request:async()=>[]})
+    defineEmits:()=>((...args)=>events.push(args)),directRequest:async()=>({modules:[{classroom:'room-a',allowed:true}]})})
   const script=source.match(/<script setup>([\s\S]*?)<\/script>/)[1].replace(/^import .*$/gm,'')
   // Run the component's actual event handlers against a minimal DOM double.
-  vm.runInContext(script+'\nglobalThis.modal={openModules,closeModules,openModule,dialogKeys,selected,moduleDialog,closeButton};',context)
+  vm.runInContext(script+'\nglobalThis.modal={openModules,closeModules,openModule,dialogKeys,selected,moduleDialog,closeButton,progress};',context)
   const modal=context.modal
   modal.closeButton.value=close
   modal.moduleDialog.value={contains:el=>[close,last].includes(el),querySelectorAll:()=>[close,last],focus(){}}
@@ -64,4 +64,12 @@ test('unmount releases scroll lock and event listeners',async()=>{
   h.unmount()
   assert.equal(h.document.body.style.overflow,'auto')
   assert.equal(h.listeners.size,0)
+})
+
+test('locked student module does not navigate even when the room is in the classroom list',async()=>{
+  const h=harness();await h.modal.openModules({name:'a'})
+  h.modal.progress.value={modules:[{classroom:'room-a',allowed:false}]}
+  h.modal.openModule({classroom:'room-a'})
+  assert.equal(h.events.length,0)
+  assert.equal(h.modal.selected.value.name,'a')
 })

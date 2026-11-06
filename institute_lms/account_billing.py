@@ -69,7 +69,7 @@ def seed(inst, member):
         previous_plan=frappe.db.get_value('IL Provider Account',{'provider_key':provider_key},'plan')
         if previous_plan in PLANS:plan=previous_plan
     return dict(doctype=ACCOUNT, account_key=key, institute=inst.name, user=member.user if role != 'Institute' else None,
-                role=role, display_name=inst.title if role == 'Institute' else member.full_name,
+                role=role, onboarding_payment_required=1 if role=='Institute' else 0, display_name=inst.title if role == 'Institute' else member.full_name,
                 billing_email=member.user, plan=plan, trial_started=created,
                 trial_until=trial_end(created), country_status='Not submitted', enabled=1, version=VERSION)
 
@@ -91,6 +91,8 @@ def member_created(doc, method=None):
     account(inst, doc, create=True)
 
 def state(a):
+    if getattr(a,'onboarding_payment_required',False) and not a.paid_until:
+        return dict(state='Choose a plan', available=False)
     if a.role == 'Student':
         return dict(state="Included" if a.enabled else "Suspended", available=bool(a.enabled))
     if frappe.conf.get("il_usage_billing_enabled"):
@@ -119,7 +121,7 @@ def policy():
 
 def public_account(a):
     fields = ('name','role','display_name','plan','next_plan',
-              'trial_started','trial_until','paid_until','anchor_day','payment_method','billing_email','cancel_at_end')
+              'onboarding_payment_required','trial_started','trial_until','paid_until','anchor_day','payment_method','billing_email','cancel_at_end')
     result = {k:a.get(k) for k in fields}
     result.update(state(a))
     if a.role=='Teacher' and frappe.conf.get('il_institute_teacher_coverage')==1:
@@ -215,7 +217,7 @@ def make_invoice(a):
     if not a.enabled: frappe.throw('Subscription is suspended')
     if a.cancel_at_end: frappe.throw('Resume your subscription before creating an invoice')
     now=now_datetime()
-    if now<get_datetime(a.trial_until) and not a.paid_until:
+    if now<get_datetime(a.trial_until) and not a.paid_until and not a.get('onboarding_payment_required'):
         frappe.throw('Your free trial is still active. Billing begins after it ends.')
     if a.paid_until and now<get_datetime(a.paid_until):
         frappe.throw('Your subscription is already paid. Your next invoice is created on the renewal date.')
@@ -276,6 +278,7 @@ def record_verified_payment(invoice, reference, received_minor, currency, channe
         frappe.throw('Payment reference already allocated to a usage invoice')
     bill.status='Paid';bill.open_key=None;bill.payment_reference=reference;bill.payment_channel=channel
     bill.paid_at=now_datetime();bill.receipt_number='SISU-R-'+bill.name;save(bill)
+    a.onboarding_payment_required=0
     a.paid_until=bill.period_end;a.anchor_day=bill.anchor_day;a.plan=bill.plan;a.next_plan=None
     save(a)
     queue_document(bill,'Receipt')
@@ -342,7 +345,7 @@ def guard_request():
                   'institute_lms.campus_context.clear', 'institute_lms.campus_join.directory',
                   'institute_lms.campus_join.people', 'institute_lms.campus_join.register_teacher', 'institute_lms.campus_join.details', 'institute_lms.campus_join.register_student'):
         return
-    if method in ('institute_lms.public_student.choices','institute_lms.public_student.schedule','institute_lms.public_student.billing','institute_lms.public_student.classes','institute_lms.public_student.action','institute_lms.public_student.upload_proof','institute_lms.public_student.proof'):return  # Each operation revalidates student membership.
+    if method in ('institute_lms.public_student.choices','institute_lms.public_student.schedule','institute_lms.public_student.billing','institute_lms.public_student.classes','institute_lms.public_student.action','institute_lms.public_student.upload_proof','institute_lms.public_student.proof','institute_lms.public_student.programme_certificate'):return  # Each operation revalidates student membership.
     if module in ('usage_billing','cybersource','account_billing','portal_session','portal_policy','registration','mobile_auth','mobile_verification','password_reset','demo_learning','profiles','private_contact','contact','health','saas','devices'):
         return
     if method in ('institute_lms.accounts.account_controls','institute_lms.accounts.account_action'):return  # Endpoint checks the caller and exact action.

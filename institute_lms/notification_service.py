@@ -8,7 +8,7 @@ from .saas_rules import notification_key
 EVENTS=('whatsapp.payment_approved','whatsapp.enrolment_reminder','whatsapp.class_scheduled','delivery.submitted','delivery.reviewed','delivery.dispatched','payment.slip','payment.review','announcement','session.changed','material.created','assignment.created','assignment.due',
         'quiz.available','quiz.result','payment.successful','payment.failed','subscription.renewed',
         'subscription.expiry','course.expiry','certificate.issued','lesson.refunded','lesson.payment',
-        'live.changed','recording.ready','recording.published','paper.ready','ai.low','premium.offer','premium.receipt')
+        'live.changed','recording.ready','recording.published','paper.ready','ai.low','premium.offer','premium.receipt','programme.assigned')
 CHANNELS=('IN_APP','EMAIL','SMS','WHATSAPP','PUSH')
 LABELS={'IN_APP':'IN_APP','EMAIL':'Email','SMS':'SMS','WHATSAPP':'WhatsApp','PUSH':'PUSH'}
 

@@ -146,6 +146,12 @@
       "label": "Version",
       "fieldtype": "Data",
       "read_only": 1
+    },
+    {
+      "fieldname": "onboarding_payment_required",
+      "label": "Initial plan payment required",
+      "fieldtype": "Check",
+      "default": 0
     }
   ],
   "field_order": [
@@ -170,7 +176,8 @@
     "payment_method",
     "cancel_at_end",
     "enabled",
-    "version"
+    "version",
+    "onboarding_payment_required"
   ],
   "permissions": [
     {

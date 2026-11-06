@@ -20,13 +20,13 @@ def memberships():
     return frappe.get_all('IL Member',filters={'user':user,'active':1,'role':'Student'},pluck='institute',limit_page_length=100)
 
 @frappe.whitelist(methods=['GET'])
-def billing():
+def billing(invoice=None, classroom=None):
     from .api import invoices
     from .commercial import slips
     result={'invoices':[],'rooms':[],'slips':[]}
     for inst in memberships():
         with workspace(inst):
-            rows=invoices();result['invoices']+=rows;result['slips']+=slips()
+            rows=invoices(preferred_invoice=invoice, preferred_classroom=classroom);result['invoices']+=rows;result['slips']+=slips()
             names=list({r.classroom for r in rows})
             result['rooms']+=frappe.get_all('IL Classroom',filters={'institute':inst,'name':['in',names or ['__none__']]},fields=['name','title','fee','programme'])
     return result
@@ -65,11 +65,14 @@ def schedule(page=0,starts_on=None,ends_on=None):
 
 @frappe.whitelist(methods=['POST'])
 def action(module,method,args=None):
-    from . import class_keys,catalog,commercial,teaching
+    from . import class_keys,catalog,commercial,teaching,programme_learning,programme_courses
     allowed={('class_keys','key_status'):class_keys.key_status,('class_keys','bank_details'):class_keys.bank_details,
       ('class_keys','redeem'):class_keys.redeem,('class_keys','resend'):class_keys.resend,
       ('catalog','join_class'):catalog.join_class,('teaching','enroll_programme'):teaching.enroll_programme,
-      ('commercial','submit_slip'):commercial.submit_slip}
+      ('commercial','submit_slip'):commercial.submit_slip,
+      ('programme_learning','status'):programme_learning.status,
+      ('programme_learning','complete'):programme_learning.complete,
+      ('programme_courses','payment_details'):programme_courses.payment_details}
     fn=allowed.get((module,method))
     if not fn:frappe.throw('Unsupported student action.',frappe.PermissionError)
     args=json.loads(args) if isinstance(args,str) else args or {}
@@ -99,3 +102,11 @@ def proof(name):
     with workspace(inst) as member:
         if not frappe.db.exists('IL Bank Slip',{'name':name,'student':member.name,'institute':inst}):frappe.throw('Proof unavailable.',frappe.PermissionError)
         return view(name)
+
+
+@frappe.whitelist(methods=['GET'])
+def programme_certificate(programme):
+    from .programme_certificates import download
+    inst=frappe.db.get_value('IL Programme',programme,'institute')
+    with workspace(inst):
+        return download(programme)

@@ -1,0 +1,69 @@
+{
+  "doctype": "DocType",
+  "name": "IL Programme Progress",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "fields": [
+    {
+      "fieldname": "progress_key",
+      "label": "Progress key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute",
+      "reqd": 1
+    },
+    {
+      "fieldname": "programme",
+      "label": "Programme",
+      "fieldtype": "Link",
+      "options": "IL Programme",
+      "reqd": 1
+    },
+    {
+      "fieldname": "enrollment",
+      "label": "Enrollment",
+      "fieldtype": "Link",
+      "options": "IL Programme Enrollment",
+      "reqd": 1
+    },
+    {
+      "fieldname": "student",
+      "label": "Student",
+      "fieldtype": "Link",
+      "options": "IL Member",
+      "reqd": 1
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom",
+      "reqd": 1
+    },
+    {
+      "fieldname": "completed_at",
+      "label": "Completed at",
+      "fieldtype": "Datetime",
+      "reqd": 1
+    }
+  ],
+  "field_order": [
+    "progress_key",
+    "institute",
+    "programme",
+    "enrollment",
+    "student",
+    "classroom",
+    "completed_at"
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

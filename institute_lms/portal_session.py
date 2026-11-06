@@ -16,11 +16,19 @@ def current():
     shared = enabled()
     if shared:
         selected = frappe.session.data.get(SESSION_KEY)
+        admins=[]
+        if not selected or not frappe.db.exists('IL Member', {'institute':selected,'user':frappe.session.user,'active':1}):
+            admins=frappe.get_all('IL Member',filters={'user':frappe.session.user,'role':'Admin','active':1},pluck='institute')
+            if len(admins)==1:
+                selected=admins[0]
+                frappe.session.data[SESSION_KEY]=selected
+                frappe.local.session_obj.update(force=True)
+
         if not selected or not frappe.db.exists('IL Member', {'institute': selected, 'user': frappe.session.user, 'active': 1}):
             from .onboarding import account_kind
             kind=account_kind()
             return {'authenticated':True,'role':'Campus','shared_campus':True,'member':None,
-                    'onboarding_kind':kind,'user':frappe.session.user,'csrf_token':csrf}
+                    'onboarding_kind':kind,'workspace_choices_required':len(admins)>1,'user':frappe.session.user,'csrf_token':csrf}
     from .api import institute
     inst=institute()
     member=frappe.db.get_value('IL Member',{'institute':inst.name,'user':frappe.session.user,'active':1},['name','role','full_name','user'],as_dict=True)

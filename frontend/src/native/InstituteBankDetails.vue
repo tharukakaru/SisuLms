@@ -1,0 +1,10 @@
+<script setup>
+import {ref,onMounted} from 'vue'
+import {request} from './client'
+const props=defineProps({teacher:Boolean})
+const instructions=ref(''),busy=ref(false),error=ref(''),saved=ref(false)
+onMounted(async()=>{try{instructions.value=(await request('class_keys',props.teacher?'teacher_bank_details':'institute_bank_details',{},'GET')).instructions}catch(e){error.value=e.message}})
+async function save(){busy.value=true;error.value='';saved.value=false;try{await request('class_keys',props.teacher?'save_teacher_bank_details':'save_institute_bank_details',{instructions:instructions.value});saved.value=true}catch(e){error.value=e.message}finally{busy.value=false}}
+</script>
+<template><section class="panel institute-bank"><h2>Bank details for student payments</h2><p v-if="teacher">Save your receiving bank details once. Students paying for any of your independent classes will see this account. Changes apply to all your classes.</p><p v-else>Save your institute’s receiving bank details once. Students paying for any of this institute’s classes or programmes will see these details. Assigned teachers do not need to enter them again.</p><form @submit.prevent="save"><label>Bank name, account holder, account number and branch<textarea v-model="instructions" required minlength="10" maxlength="2000" rows="6"/></label><p v-if="error" class="error" role="alert">{{error}}</p><p v-if="saved" role="status">{{teacher?'Saved for all your independent classes.':'Saved for all institute classes and programmes.'}}</p><button class="button primary" :disabled="busy">{{teacher?'Save my bank details':'Save institute bank details'}}</button></form></section></template>
+<style scoped>.institute-bank{padding:24px;margin:24px 0}.institute-bank p{line-height:1.7;margin:14px 0}.institute-bank label{display:grid;gap:10px}.institute-bank textarea{font:inherit;border:1px solid var(--student-border,#ddd);border-radius:10px;padding:14px;width:100%;box-sizing:border-box}.institute-bank button{margin-top:16px}</style>

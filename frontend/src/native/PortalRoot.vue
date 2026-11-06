@@ -1,5 +1,7 @@
 <script setup>
 import CampusSwitcher from './CampusSwitcher.vue'
+import PasswordConfirmation from './PasswordConfirmation.vue'
+const passwordConfirmation=location.hash.startsWith('#password-confirm=')
 import GeneralCampus from './GeneralCampus.vue'
 
 import {asyncPage as defineAsyncComponent} from '../asyncPage'
@@ -58,14 +60,14 @@ async function google(){try{const r=await request('portal_policy','google_start'
 
 async function connect(){busy.value=true;error.value='';try{session.value=await request('portal_session','current',{},'GET');if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message}finally{busy.value=false}}
 
-onMounted(()=>{if(!firebaseTestPage){connect();request('portal_policy','public',{},'GET').then(p=>policy.value=p).catch(()=>{})}})
+onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('portal_policy','public',{},'GET').then(p=>policy.value=p).catch(()=>{})}})
 
 </script>
 
 <template>
-<CampusSwitcher v-if="session?.shared_campus&&session.authenticated&&session.role!=='Student'&&session.onboarding_kind!=='Student'"/>
+<CampusSwitcher provider v-if="session?.shared_campus&&session.authenticated&&!session.member&&session.role!=='Student'&&session.onboarding_kind!=='Student'&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)"/>
 
-<section v-if="firebaseTestPage" class="panel" style="max-width:760px;margin:40px auto;padding:24px"><h1>SISU browser notification test</h1><p>This test uses your configured sandbox account.</p><a href="/sandbox_firebase_login">Sign in as sandbox Administrator</a><FirebasePush/></section>
+<PasswordConfirmation v-if="passwordConfirmation"/><section v-else-if="firebaseTestPage" class="panel" style="max-width:760px;margin:40px auto;padding:24px"><h1>SISU browser notification test</h1><p>This test uses your configured sandbox account.</p><a href="/sandbox_firebase_login">Sign in as sandbox Administrator</a><FirebasePush/></section>
 
   <ControlPlane v-else-if="session?.control_plane&&session.role==='Super Admin'"/>
 
@@ -75,7 +77,7 @@ onMounted(()=>{if(!firebaseTestPage){connect();request('portal_policy','public',
 
   <Owner v-else-if="session?.role==='Super Admin'" :session="session"/>
 
-  <Campus v-else-if="session?.shared_campus&&!session.member&&session.onboarding_kind==='Student'&&!newGoogleSignup" shared-campus :general-session="session"/><GeneralCampus v-else-if="session?.shared_campus&&!session.member&&!(policy.self_signup_enabled&&newGoogleSignup)" :session="session"/>
+  <Campus v-else-if="session?.shared_campus&&!session.member&&session.onboarding_kind==='Student'&&!newGoogleSignup" shared-campus :general-session="session"/><GeneralCampus v-else-if="session?.shared_campus&&!session.member&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)&&!(policy.self_signup_enabled&&newGoogleSignup)" :session="session"/>
   <OperatorWorkspace v-else-if="session?.role==='Operator'" standalone/>
 
   <Campus v-else-if="session?.member" :shared-campus="session.shared_campus"/>

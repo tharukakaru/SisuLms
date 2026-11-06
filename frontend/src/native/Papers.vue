@@ -19,7 +19,7 @@ const feedbackDraft=ref({});let aiPending=null
 async function assist(a){await run(async()=>{const args={attempt:a.name};aiPending=requestIdentity(aiPending,args);feedbackDraft.value[a.name]=(await request('ai','assignment_feedback',{...args,request_id:aiPending.id})).draft_feedback;aiPending=null})}
 const props=defineProps({member:Object,rooms:Array,classroom:String,language:String})
 const manager=computed(()=>props.member.role!=='Student'),rows=ref([]),error=ref(''),message=ref(''),busy=ref(false),filter=ref('All'),page=ref(0),editor=ref(null),selected=ref(null),attempt=ref(null),answers=ref([]),reviews=ref([]),reviewed=ref(false),premium=ref(false),topic=ref(''),aiRoom=ref(''),aiOpen=ref(false),count=ref(5),now=ref(Date.now()),serverOffset=ref(0)
-const quizAction=computed(()=>quizActionState({classroom:props.classroom,role:props.member?.role,permission:props.rooms?.find(r=>r.name===props.classroom)?.permissions?.edit,readiness:quizReadiness.value,busy:quizBusy.value||busy.value||uploading.value}))
+const quizAction=computed(()=>quizActionState({classroom:props.classroom,role:props.member?.role,permission:props.rooms?.find(r=>r.name===props.classroom)?.permissions?.teach,readiness:quizReadiness.value,busy:quizBusy.value||busy.value||uploading.value}))
 const uploadCopy=computed(()=>({...labels.en.paperUpload,...labels[props.language||props.member.language]?.paperUpload}))
 const canUpload=computed(()=>manager.value&&props.classroom&&props.rooms?.find(r=>r.name===props.classroom)?.permissions?.edit===true)
 const tick=setInterval(()=>now.value=Date.now(),1000);onBeforeUnmount(()=>clearInterval(tick))

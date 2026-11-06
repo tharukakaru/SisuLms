@@ -27,6 +27,57 @@ class Boundaries(unittest.TestCase):
     def load(self,name):
         spec=importlib.util.spec_from_file_location('institute_lms.'+name,Path(__file__).resolve().parents[1]/'institute_lms'/f'{name}.py')
         m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
+    def test_student_live_join_allows_camera_microphone(self):
+        self.f.get_doc.return_value=Row(name='L',institute='I',classroom='C',status='Live',provider_room='R')
+        provider=types.ModuleType('institute_lms.live_provider')
+        provider.participant=MagicMock(return_value={'token':'test'})
+        with patch.dict(sys.modules,{'institute_lms.live_provider':provider}):
+            result=self.load('live_classes').join('L')
+        self.assertTrue(provider.participant.call_args.args[-1])
+        self.assertFalse(result['can_control'])
+        self.assertEqual(result['host_identity'],'T')
+
+    def test_chat_uses_authorized_identity_and_bounds_history(self):
+        self.f.get_doc.return_value=Row(name='L',institute='I',classroom='C',status='Live')
+        self.member.update(full_name='Student name')
+        self.f.cache=MagicMock()
+        state={}
+        self.f.cache.get_value.side_effect=lambda k:state.get(k)
+        self.f.cache.set_value.side_effect=lambda k,v,**kw:state.update({k:v})
+        self.f.local=Row()
+        module=self.load('live_classes')
+        result=module.chat('L','Hello teacher')
+        self.assertEqual(result['messages'][0]['author'],'Student name')
+        self.assertFalse(result['messages'][0]['host'])
+        with self.assertRaisesRegex(ValueError,'Wait'):module.chat('L','Repeated')
+        with self.assertRaisesRegex(ValueError,'1000'):module.chat('L','x'*1001)
+        self.f.get_doc.return_value.status='Ended'
+        # Row is a dict double: update the stored field used by __getattr__.
+        self.f.get_doc.return_value['status']='Ended'
+        with self.assertRaisesRegex(ValueError,'ended'):module.chat('L')
+
+    def test_chat_denies_unenrolled_students(self):
+        self.f.get_doc.return_value=Row(name='L',institute='I',classroom='C',status='Live')
+        self.api.accessible_room.side_effect=PermissionError('Enrollment required')
+        with self.assertRaises(PermissionError):self.load('live_classes').chat('L','hello')
+
+    def test_recording_edit_denies_student(self):
+        self.f.get_doc.return_value=Row(institute='I',classroom='C',recording_status='Ready')
+        with self.assertRaises(PermissionError):self.load('live_classes').edit_recording('L',title='Changed')
+
+    def test_teacher_removal_revokes_publication_and_requires_confirmation(self):
+        self.member.update(user='teacher',name='T',role='Teacher')
+        d=Row(name='L',institute='I',classroom='C',recording_status='Ready',recording_published=1)
+        self.f.get_doc.return_value=d
+        m=self.load('live_classes')
+        with self.assertRaisesRegex(ValueError,'Confirm'):m.edit_recording('L',remove=True)
+        result=m.edit_recording('L',remove=True,confirmed=True)
+        self.assertFalse(result['published'])
+        self.assertEqual(d.recording_published,0)
+        self.assertEqual(d.recording_status,'Ready')
+        self.assertEqual(m.edit_recording('L',title=' New title ')['title'],'New title')
+        with self.assertRaises(ValueError):m.edit_recording('L',title=' ')
+
     def test_foreign_lecture_denied(self):
         self.f.get_doc.return_value=Row(institute='OTHER')
         with self.assertRaises(PermissionError):self.load('lectures').checked('foreign')

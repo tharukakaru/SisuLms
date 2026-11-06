@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {classroomNavigation,classroomDestination} from '../src/classroomNavigation.js'
 test('student navigation has classroom destinations and a user guide',()=>{
- assert.deepEqual(classroomNavigation('Student').map(x=>x.id),['dashboard','classrooms','schedule','study','connections','payments','subscription','news','profile','guide'])
+ assert.deepEqual(classroomNavigation('Student').map(x=>x.id),['dashboard','classrooms','schedule','study','connections','payments','news','profile','guide'])
 })
 test('teacher and institute tools remain without duplicate learning destinations',()=>{
  for(const role of ['Student','Teacher','Admin']) {

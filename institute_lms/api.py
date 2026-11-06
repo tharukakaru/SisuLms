@@ -70,6 +70,14 @@ def classroom_for(name, write=False):
 
 
 def access(room, member):
+    if member.role == 'Student' and room.get('programme'):
+        from .programme_learning import access_reason
+        reason = access_reason(room, member)
+        if reason:
+            return {'allowed': False, 'reason': reason}
+    if getattr(getattr(frappe,"local",None),"site",None)=="sisuacademylk.com":
+        from .demo_learning import classroom_allowed
+        if classroom_allowed(room,member):return {"allowed":True,"reason":"Temporary demo classroom access"}
     from .commercial import account_for, locked_reason, plan_features, access_granted
     account=account_for(room,False)
     if account:
@@ -152,6 +160,14 @@ def bootstrap():
     member.update(profile_image=profile.profile_image if profile else "",
                   lms_id=profile.lms_id if profile else "",
                   provider_profile=dict(profile) if profile and member.get("role") in ("Teacher", "Admin") else None)
+    # Presentation context only; classroom permissions and subscription checks remain server-owned.
+    institute_profile = frappe.db.get_value("IL Public Profile",
+        {"workspace": inst.name, "kind": "Institute"}, "name")
+    from .campus_context import enabled as shared_campus
+    member["institute_teacher"] = bool(member.get("role") == "Teacher" and institute_profile and
+        (shared_campus() or frappe.db.exists("IL Profile Relationship", {
+            "profile": institute_profile, "user": frappe.session.user,
+            "kind": "Teacher membership", "status": "Active"})))
     return {"payment_provider": frappe.conf.get("il_payment_provider", "payments_lk"), "institute": campus_brand(inst),
             "member": member, "csrf_token": frappe.sessions.get_csrf_token(), "mode": "live",
             "lms_base": "/" + str(frappe.conf.get("lms_path", "lms")).strip("/"),
@@ -331,7 +347,25 @@ def _save_classroom(data, internal=False):
         room.lms_course = data.get("lms_course") or None
     from .catalog import validate_publication
     validate_publication(room, member, data)
+    if room.get('programme'):
+        programme = scoped('IL Programme', room.programme, inst)
+        if not any(module.classroom == room.name for module in programme.modules):
+            frappe.throw('Programme module needs institute review')
+        # Module editing must never turn a paid course into a free standalone class.
+        room.fee = programme.fee
+        room.fee_mode = 'Paid' if money(programme.fee) > 0 else 'Free'
+        room.billing_type = 'Programme module'
+        room.access_duration_days = programme.access_duration_days
+        room.public_provider = programme.provider
+        room.published = 0
     room.save(ignore_permissions=True)
+    if room.get('programme'):
+        for module in programme.modules:
+            if module.classroom == room.name:
+                frappe.db.set_value('IL Programme Module', module.name, {'title': room.title, 'teacher': room.teacher})
+    if 'bank_instructions' in data:
+        from .class_keys import save_bank_details
+        save_bank_details(room.name,data.bank_instructions)
     return room.name
 
 
@@ -663,7 +697,7 @@ def set_access(enrollment: str, override: str, reason: str, grace_until: str | N
 
 
 @frappe.whitelist()
-def invoices(page: int = 0):
+def invoices(page: int = 0, preferred_invoice=None, preferred_classroom=None):
     inst, member = identity()
     filters = {"institute": inst.name}
     if member.role == "Student":
@@ -671,11 +705,19 @@ def invoices(page: int = 0):
     elif member.role in ("Teacher","Admin"):
         filters["classroom"] = ["in", frappe.get_all("IL Classroom", filters=room_filters(inst, member), pluck="name") or ["__none__"]]
     rows=frappe.get_all("IL Invoice", filters=filters, fields=["*"], order_by="due_date asc", limit_start=paginate(page, 50), limit_page_length=50)
+    if preferred_invoice and not any(row.name==preferred_invoice for row in rows):
+        rows+=frappe.get_all('IL Invoice',filters={**filters,'name':preferred_invoice},fields=['*'])
+    if preferred_classroom and member.role == 'Student':
+        selected=frappe.get_all('IL Invoice',filters={**filters,'classroom':preferred_classroom,'status':'Unpaid'},
+            fields=['*'],order_by='due_date asc',limit_page_length=1)
+        rows += [row for row in selected if not any(existing.name==row.name for existing in rows)]
     for row in rows:
+        row['classroom_title']=frappe.db.get_value('IL Classroom',row.classroom,'title')
         wallet=frappe.db.get_value('IL Wallet',row.payout_wallet,['beneficiary','owner_user'],as_dict=True) if row.payout_wallet else None
         row['recipient']=inst.title if not wallet or wallet.beneficiary=='Institute' else frappe.db.get_value('User',wallet.owner_user,'full_name')
         bundle=frappe.db.get_value('IL Enrollment',row.enrollment,'programme_enrollment')
         row['programme']=frappe.db.get_value('IL Programme Enrollment',bundle,'programme') if bundle else None
+        row['programme_title']=frappe.db.get_value('IL Programme',row['programme'],'title') if row['programme'] else None
     return rows
 
 

@@ -3,9 +3,9 @@ const monthlyPricing = {
   "body": "Your Subscription page shows your current plan, monthly price and billing dates. Class tuition is separate.",
   "formula": "Monthly total = the fixed price shown for your account.",
   "steps": [
-    "Every new account receives one 14-day trial from signup. Signing in again does not restart it.",
+    "Provider accounts receive one 14-day trial from signup. Signing in again does not restart it.",
     "Open Subscription to view your plan and monthly price. Teachers and institutes can choose View plans to see available packages.",
-    "Students have one account subscription across their learning space, not a subscription for every class. Institute administrators share one institute subscription.",
+    "Student LMS access is included; class tuition is separate. Independent teachers manage their own subscription. Institute administrators manage the institute subscription.",
     "Choose Manage under Payment details to update your invoice email or payment preference. Saving a preference does not charge you.",
     "Your invoices and receipts appear in Invoices & receipts. Download a document, then choose Print → Save as PDF for a PDF copy.",
     "Renewals follow your monthly billing anniversary. A 31 January cycle renews on the last day of February, then 31 March.",
@@ -53,7 +53,7 @@ export const guideContent=[{...monthlyPricing,title:'How SISU pricing works',pag
     "page": "payments",
     "icon": "Receipt",
     "subtitle": "Pay or review class payments",
-    "body": "Students choose the correct invoice, upload a bank slip and wait for approval. Reviewers verify the bank credit, inspect the student name, LMS ID, contact and submission date, then approve access or reject with a reason. A slip upload alone never unlocks a class.",
+    "body": "Students choose a class, review its fee and bank details, enter their transfer reference and upload a bank slip. The invoice is created automatically. Reviewers check the bank credit and approve or reject the slip. After approval, the student redeems a personal enrollment key within 15 minutes; expired keys can be resent. Uploading a slip alone does not unlock a class.",
     "audience": "all"
   },
   {

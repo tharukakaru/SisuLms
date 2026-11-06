@@ -4,13 +4,13 @@ from decimal import Decimal, InvalidOperation
 import re
 from urllib.parse import urlsplit
 CATEGORIES=('Teaching','Rent','Utilities','Marketing','Materials','Transport','Other')
-def expense(data):
+def expense(data, today=None):
     try:
         amount=Decimal(str(data.get('amount','')))
         if not amount.is_finite() or amount<=0 or amount>Decimal('100000000') or amount*100!=(amount*100).to_integral_value():raise ValueError()
     except (InvalidOperation,ValueError):raise ValueError('Use a positive amount with at most two decimal places')
     day=date.fromisoformat(str(data.get('date','')))
-    if day>date.today():raise ValueError('An expense date cannot be in the future')
+    if day>(today or date.today()):raise ValueError('An expense date cannot be in the future')
     category=data.get('category')
     if category not in CATEGORIES:raise ValueError('Choose an expense category')
     note=str(data.get('note','')).strip()

@@ -11,6 +11,10 @@ from .commercial_rules import PLANS
 from .plan_catalog import plan_features
 from .workspace_rules import expense,settings,review
 DT='IL Workspace Record'
+
+def business_today():
+    from zoneinfo import ZoneInfo
+    return datetime.now(ZoneInfo('Asia/Colombo')).date()
 def unpack(row):
     value=json.loads(row.payload or '{}')
     return dict(value,name=row.name,status=row.status,created_at=str(row.creation),subject_user=row.subject_user)
@@ -65,7 +69,7 @@ def expenses(start=None,end=None):
     from datetime import date
     account,_=actor(True);require(account,'expenses')
     try:
-        start=date.fromisoformat(start or date.today().replace(day=1).isoformat());end=date.fromisoformat(end or date.today().isoformat())
+        start=date.fromisoformat(start or business_today().replace(day=1).isoformat());end=date.fromisoformat(end or business_today().isoformat())
         if start>end:raise ValueError('Start date must precede the end date')
     except ValueError as exc:frappe.throw(str(exc))
     rows=[unpack(x) for x in frappe.get_all(DT,filters={'provider_account':account.name,'kind':'Expense'},fields=['*'],order_by='creation desc',limit_page_length=10001)]
@@ -75,7 +79,7 @@ def expenses(start=None,end=None):
 @frappe.whitelist(methods=['POST'])
 def add_expense(data):
     account,_=actor(True);require(account,'expenses');locked('IL Provider Account',account.name)
-    try:values=expense(frappe.parse_json(data))
+    try:values=expense(frappe.parse_json(data), today=business_today())
     except (ValueError,TypeError) as exc:frappe.throw(str(exc))
     key='expense:'+account.name+':'+values['token']
     existing=frappe.db.get_value(DT,{'record_key':key},'name')

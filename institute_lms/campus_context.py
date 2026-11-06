@@ -35,7 +35,7 @@ def membership(institute):
 
 def current_institute():
     require_user()
-    selected = frappe.session.data.get(SESSION_KEY)
+    selected = getattr(frappe.local,'student_request_institute',None) or frappe.session.data.get(SESSION_KEY)
     if not selected:
         frappe.throw('Choose an institute to continue.', frappe.PermissionError)
     membership(selected)

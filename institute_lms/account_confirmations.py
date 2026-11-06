@@ -4,11 +4,14 @@ from html import escape
 import frappe
 
 def queue(user,reference,subject,body):
-    if getattr(frappe.local,'site',None)!='sisuacademylk.com':return
+    site=getattr(frappe.local,'site',None)
+    if site not in ('sisuacademylk.com','staging.sisuacademylk.com'):return
     name='sisu-confirm-'+hashlib.sha256((user+':'+reference).encode()).hexdigest()[:32]
+    if site=='staging.sisuacademylk.com' and not reference.startswith(('enrollment-key:','enrollment-complete:')):return
     if frappe.db.exists('Notification Log',name):return
     frappe.get_doc({'doctype':'Notification Log','for_user':user,'type':'Alert','subject':subject,
         'email_content':escape(body)}).insert(ignore_permissions=True,set_name=name)
+    if site=='staging.sisuacademylk.com':return  # Test keys available in-app; no external test messages.
     frappe.enqueue('institute_lms.account_confirmations.deliver',notice=name,enqueue_after_commit=True)
 
 def deliver(notice):

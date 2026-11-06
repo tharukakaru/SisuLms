@@ -4,7 +4,8 @@ from .saas_rules import check_capacity
 
 def configured():
     return (not frappe.conf.get('il_tenant_id') and not frappe.conf.get('il_control_plane')
-            and bool(frappe.conf.get('il_usage_billing_enabled'))
+            and (bool(frappe.conf.get('il_usage_billing_enabled'))
+                 or frappe.conf.get('il_shared_campus_enabled') == 1)
             and type(frappe.conf.get('il_account_storage_bytes')) is int
             and 0 < frappe.conf.il_account_storage_bytes <= 1024**4)
 

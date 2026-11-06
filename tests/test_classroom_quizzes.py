@@ -66,7 +66,7 @@ class Boundary(unittest.TestCase):
         frappe.get_all = MagicMock(return_value=[])
         utils = types.ModuleType('frappe.utils'); utils.now_datetime = datetime.now
         api = types.ModuleType('institute_lms.api'); api.accessible_room = MagicMock()
-        teaching = types.ModuleType('institute_lms.teaching'); teaching.rights = MagicMock(return_value={'edit':True})
+        teaching = types.ModuleType('institute_lms.teaching'); teaching.rights = MagicMock(return_value={'teach':True,'edit':False})
         self.modules = patch.dict(sys.modules, {'frappe':frappe, 'frappe.utils':utils, 'institute_lms.api':api, 'institute_lms.teaching':teaching})
         self.modules.start()
         self.old = sys.modules.pop('institute_lms.classroom_quizzes', None)
@@ -115,9 +115,9 @@ class Boundary(unittest.TestCase):
         self.assertFalse(self.service.metadata('room-1')['schema_ready'])
 
     def test_metadata_rechecks_authorization_and_propagates_db_errors(self):
-        self.teacher();self.teaching.rights.return_value={'edit':False}
+        self.teacher();self.teaching.rights.return_value={'teach':False,'edit':False}
         with self.assertRaises(PermissionError): self.service.metadata('room-1')
-        self.teaching.rights.return_value={'edit':True}
+        self.teaching.rights.return_value={'teach':True,'edit':False}
         self.frappe.db.exists.side_effect=RuntimeError('connection unavailable')
         with self.assertRaises(RuntimeError): self.service.metadata('room-1')
 
@@ -140,11 +140,18 @@ class Boundary(unittest.TestCase):
         self.quiz.institute = 'other'
         with self.assertRaises(PermissionError): self.service.detail('quiz-1')
 
-    def test_teacher_requires_management_even_for_keys_and_results(self):
-        self.teacher(); self.teaching.rights.return_value = {'edit':False}
+    def test_unassigned_teacher_cannot_read_keys_or_manage_assessments(self):
+        self.teacher(); self.teaching.rights.return_value = {'teach':False,'edit':False}
         for call in (lambda:self.service.detail('quiz-1'),lambda:self.service.listing('room-1'),
                      lambda:self.service.submissions('quiz-1'),lambda:self.service.save({'classroom':'room-1'})):
             with self.assertRaises(PermissionError): call()
+
+    def test_teaching_only_assignment_can_read_keys_and_manage_assessments(self):
+        self.teacher()
+        self.teaching.rights.return_value = {'teach': True, 'edit': False}
+        self.assertTrue(self.service.room_access('room-1', manage=True)[3])
+        self.assertTrue(self.service.detail('quiz-1')['can_manage'])
+        self.assertIn('answer', self.service.detail('quiz-1')['questions'][0])
 
     def test_student_payload_and_results_exclude_keys(self):
         detail = self.service.detail('quiz-1')

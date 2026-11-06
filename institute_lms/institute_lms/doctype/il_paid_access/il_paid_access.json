@@ -20,7 +20,8 @@
     "status",
     "payment_channel",
     "gross_minor",
-    "grant_key"
+    "grant_key",
+    "enrollment_key_hash"
   ],
   "fields": [
     {
@@ -92,7 +93,7 @@
       "fieldname": "status",
       "label": "Status",
       "fieldtype": "Select",
-      "options": "Active\nRevoked",
+      "options": "Active\nRevoked\nAwaiting key",
       "default": "Active",
       "reqd": 1
     },
@@ -114,6 +115,13 @@
       "fieldtype": "Data",
       "label": "Grant key",
       "unique": 1
+    },
+    {
+      "fieldname": "enrollment_key_hash",
+      "label": "Enrollment key hash",
+      "fieldtype": "Data",
+      "hidden": 1,
+      "read_only": 1
     }
   ],
   "permissions": [

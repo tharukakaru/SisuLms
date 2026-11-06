@@ -83,6 +83,41 @@
       "label": "Access duration (days)",
       "fieldtype": "Int",
       "non_negative": 1
+    },
+    {
+      "fieldname": "sequential_modules",
+      "label": "Sequential modules",
+      "fieldtype": "Check",
+      "default": 0
+    },
+    {
+      "fieldname": "profile_image",
+      "label": "Profile image",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "certificate_template",
+      "label": "Certificate template",
+      "fieldtype": "Link",
+      "options": "File"
+    },
+    {
+      "fieldname": "certificate_preview",
+      "label": "Certificate PDF/image",
+      "fieldtype": "Link",
+      "options": "File"
+    },
+    {
+      "fieldname": "certificate_name_x",
+      "label": "Name horizontal position (%)",
+      "fieldtype": "Float",
+      "default": 50
+    },
+    {
+      "fieldname": "certificate_name_y",
+      "label": "Name vertical position (%)",
+      "fieldtype": "Float",
+      "default": 50
     }
   ],
   "field_order": [
@@ -98,7 +133,13 @@
     "ends_on",
     "active",
     "modules",
-    "access_duration_days"
+    "access_duration_days",
+    "sequential_modules",
+    "profile_image",
+    "certificate_template",
+    "certificate_preview",
+    "certificate_name_x",
+    "certificate_name_y"
   ],
   "permissions": [
     {

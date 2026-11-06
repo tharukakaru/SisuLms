@@ -166,4 +166,20 @@ def account_status():
 def account_notifications():
     from .wallet import signed_in
     signed_in()
-    return frappe.get_all('Notification Log',filters={'for_user':frappe.session.user,'name':['like','sisu-confirm-%']},fields=['name','subject','creation'],order_by='creation desc',limit_page_length=30)
+    return frappe.get_all('Notification Log',filters={'for_user':frappe.session.user,'name':['like','sisu-confirm-%']},fields=['name','subject','creation','read','email_content'],order_by='creation desc',limit_page_length=30)
+
+
+@frappe.whitelist(methods=['GET'])
+def account_unread():
+    from .wallet import signed_in
+    signed_in()
+    return {'count':frappe.db.count('Notification Log',{'for_user':frappe.session.user,'name':['like','sisu-confirm-%'],'read':0})}
+
+@frappe.whitelist(methods=['POST'])
+def read_account_notice(name):
+    from .wallet import signed_in
+    signed_in()
+    if not isinstance(name,str) or not name.startswith('sisu-confirm-') or not frappe.db.exists('Notification Log',{'name':name,'for_user':frappe.session.user}):
+        frappe.throw('Notification unavailable.',frappe.PermissionError)
+    frappe.db.set_value('Notification Log',name,'read',1)
+    return {'read':True}

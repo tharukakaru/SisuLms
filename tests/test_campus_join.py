@@ -25,7 +25,7 @@ class StudentJoinTests(TestCase):
         self.patches = patch.dict('sys.modules', {
             'frappe': self.f, 'frappe.model.naming': NS(make_autoname=self.allocate),
             'institute_lms.campus_context': NS(require_user=self.require_user),
-            'institute_lms.profiles': NS(required=lambda: self.student),
+            'institute_lms.profiles': NS(required=lambda: self.student,relate=MagicMock()),
         })
         self.patches.start()
         self.addCleanup(self.patches.stop)

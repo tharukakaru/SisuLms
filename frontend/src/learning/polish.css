@@ -1,6 +1,6 @@
 /* Locally bundled font and restrained feedback for actionable surfaces. */
 .app-shell :is(h1,h2,h3,.overview-kpi strong,.stat-card strong),.preview-login,.sisu-entry{font-family:'Manrope Variable','Noto Sans Sinhala','Noto Sans Tamil',sans-serif!important;letter-spacing:-.025em}
-.app-shell .student-hero-motion{position:absolute;right:24px;top:12px;width:42%;max-width:380px}.app-shell :is(.room-card,.overview-kpi,.stat-card){transition:box-shadow .2s,border-color .2s}.app-shell :is(.room-card,.overview-kpi,.stat-card):hover{border-color:#bda5d7;box-shadow:0 6px 22px #4b1f7b0b}.app-shell :is(button,.button):active{transform:scale(.98)}.app-shell :is(button,.button):focus-visible{outline:2px solid #6026a0;outline-offset:3px}
+.app-shell .student-hero-motion{position:absolute;right:24px;top:12px;width:42%;max-width:380px}.app-shell :is(.room-card,.overview-kpi,.stat-card){transition:box-shadow .2s,border-color .2s,transform .2s}.app-shell :is(.room-card,.overview-kpi,.stat-card):hover{border-color:#cdb8e8;box-shadow:0 10px 26px rgba(86,40,141,.09)}.app-shell :is(button,.button):active{transform:scale(.98)}.app-shell :is(button,.button):focus-visible{outline:2px solid #6026a0;outline-offset:3px}
 @media(max-width:650px){.app-shell .student-hero-motion{position:relative;right:auto;top:auto;width:270px;max-width:100%;margin:auto}.app-shell .hero{height:auto;min-height:0;display:flex;flex-direction:column;align-items:stretch;padding-bottom:35px}.app-shell .hero-copy{width:100%;max-width:none}.app-shell .hero-caption{display:none}}
 @media(prefers-reduced-motion:reduce){.app-shell :is(.room-card,.overview-kpi,.stat-card,button,.button){transition:none!important;transform:none!important}}
 
@@ -26,3 +26,52 @@
 @media(prefers-reduced-motion:reduce){.animated-learning-hero .hero-copy>*,.animated-learning-hero .education-motion,.animated-learning-hero .hero-label>span{animation:none!important}.animated-learning-hero:hover .motion-canvas,.animated-learning-hero .hero-copy>.button:hover svg{transform:none!important}}
 
 .app-shell .preview-cover-copy{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:24px;text-align:left;gap:8px;pointer-events:none}.app-shell .preview-cover-copy strong{font:650 clamp(17px,1.4vw,23px)/1.25 "Manrope Variable",sans-serif;color:#3f2858;letter-spacing:-.035em}.app-shell .preview-cover-copy small{font:500 11px/1.5 "Manrope Variable",sans-serif;color:#59466b}.app-shell .room-cover{position:relative}.app-shell .preview-cover-copy+ .cover-status{z-index:1}
+
+/* Figma 01 · Student visual aesthetic enhancements (preserving layout & positions) */
+.app-shell[data-student-theme=cozy]{--student-ink:#1f1830;--student-muted:#6e6482;--student-border:#ece5f6;--student-soft:#f4effc}
+.app-shell .sidebar{border-right-color:#efeaf6}
+.app-shell .sidebar-search{display:flex;align-items:center;gap:9px;background:#faf8fd;border:1px solid #eae2f5;border-radius:11px;padding:9px 12px;margin:20px 0 18px;color:#8a7fa0}
+.app-shell .sidebar-search input{border:0;background:transparent;outline:0;font-size:12px;color:var(--student-ink,#1f1830);width:100%}
+.app-shell .sidebar nav button.active,.app-shell .sidebar .settings-nav.active{background:#f3effc!important;color:#56288d!important;font-weight:700;box-shadow:inset 3px 0 0 #56288d}
+.app-shell .help-card{background:linear-gradient(145deg,#f7f3fc 0%,#efe8fa 100%);border-color:#e5dcf5;border-radius:15px}
+.app-shell .help-icon{background:#e9def8;color:#56288d}
+.app-shell .help-card button{color:#56288d;font-weight:700}
+.app-shell .topbar{border-bottom-color:#efeaf6}
+.app-shell .date-chip{border-color:#e9e1f5;border-radius:11px;background:#faf8fd;color:#5e5373;font-weight:600;box-shadow:0 2px 8px rgba(86,40,141,.04)}
+
+.app-shell .hero.animated-learning-hero{background:linear-gradient(120deg,#f3eefc 0%,#f8f4ff 55%,#fcf7f1 100%);border:1px solid #e9e0f6;border-radius:20px;box-shadow:0 10px 28px rgba(86,40,141,.05)}
+.app-shell[data-student-theme=dark] .hero.animated-learning-hero{background:linear-gradient(120deg,#2d233b 0%,#262033 100%);border-color:#473859}
+.app-shell .daily-learning-thought{background:rgba(255,255,255,.82);backdrop-filter:blur(8px);border:1px solid #e8dff5;border-radius:13px;padding:9px 13px;margin-top:10px;max-width:340px}
+.app-shell[data-student-theme=dark] .daily-learning-thought{background:rgba(34,27,45,.75);border-color:#4b3c5e}
+.app-shell .daily-learning-thought>span{display:block;font-size:8px;font-weight:750;letter-spacing:1.3px;color:#56288d}
+.app-shell .daily-learning-thought>p{margin-top:3px;font-size:11px;line-height:1.45;color:#3d3154;font-weight:500}
+.app-shell .hero .button.dark{background:linear-gradient(135deg,#4c2284 0%,#361563 100%);border-radius:10px;box-shadow:0 6px 16px rgba(76,34,132,.24);font-weight:700}
+
+.app-shell .learning-goals{border-color:#e7def5;border-radius:20px;box-shadow:0 8px 26px rgba(54,22,83,.06)}
+.app-shell .stat-card{border-color:#ece5f6;border-radius:15px;box-shadow:0 4px 16px rgba(32,20,56,.035)}
+.app-shell .stat-icon.violet{background:#f3effc;color:#56288d}
+.app-shell .stat-icon.peach{background:#fff3e6;color:#c87a32}
+.app-shell .stat-icon.mint{background:#e9f7ef;color:#1f6e45}
+
+.app-shell .room-card{border-color:#ece5f6;border-radius:16px;box-shadow:0 6px 20px rgba(32,20,56,.045)}
+.app-shell .room-cover,.app-shell .room-cover.violet{background:linear-gradient(135deg,#171236 0%,#261d54 58%,#362773 100%)}
+.app-shell .room-cover.peach,.app-shell .room-cover.indigo{background:linear-gradient(135deg,#1b143e 0%,#2c1f60 58%,#412c7b 100%)}
+.app-shell .room-cover.mint{background:linear-gradient(135deg,#15183a 0%,#21265a 58%,#2f3576 100%)}
+.app-shell .room-cover .subject-art{color:#c4b5fd;text-shadow:0 6px 18px rgba(10,7,28,.45)}
+.app-shell .room-cover.peach .subject-art,.app-shell .room-cover.indigo .subject-art{color:#fcd34d;text-shadow:0 6px 18px rgba(10,7,28,.45)}
+.app-shell .room-cover.mint .subject-art{color:#6ee7b7;text-shadow:0 6px 18px rgba(10,7,28,.45)}
+.app-shell .room-cover .art-orbit{border-color:rgba(196,181,253,.28)}
+.app-shell .room-cover .art-orbit:after{background:#fcd34d}
+.app-shell .room-cover .art-star{color:rgba(255,255,255,.78)}
+.app-shell .room-cover .cover-label{background:rgba(255,255,255,.14);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.22);color:#f6f3ff;border-radius:999px;padding:4px 9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.app-shell .room-cover .cover-status{background:rgba(255,255,255,.16);backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,.22)}
+.app-shell .room-body .subject-label{color:#6c3cb5;font-weight:750;letter-spacing:.09em}
+.app-shell .room-body .room-title{color:var(--student-ink,#1f1830);font-weight:750}
+.app-shell .access-label.green{color:#1f6e45;font-weight:700}
+
+.app-shell .panel{border-color:#ece5f6;border-radius:16px;box-shadow:0 6px 20px rgba(32,20,56,.035)}
+.app-shell .mini-calendar button.chosen{background:#56288d;color:#fff;box-shadow:0 4px 10px rgba(86,40,141,.25)}
+.app-shell .mini-calendar button.today:not(.chosen){color:#56288d;background:#f4effc;font-weight:750}
+.app-shell .today-card.violet{background:linear-gradient(135deg,#f5f0fc 0%,#efe8fa 100%);border:1px solid #e6dcf5}
+.app-shell .today-card.peach{background:linear-gradient(135deg,#fff6ec 0%,#fdecd9 100%);border:1px solid #f5dfc7}
+.app-shell .campus-strip{background:linear-gradient(120deg,#f5f0fc 0%,#faf7fe 100%);border-color:#e6dcf5;border-radius:16px}

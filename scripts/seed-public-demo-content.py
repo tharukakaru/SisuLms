@@ -13,6 +13,36 @@ def deferred(*a,**kw):
 def refresh(event=None,*a,**kw):
  if event in ('doc_update','list_update') and kw.get('after_commit') is True:return None
  deny()
+
+def add_practice_providers(frappe,inst,profiles,teacher,write,authorized_insert):
+ from frappe.utils import now_datetime
+ independent='sisu-public-demo-independent@example.invalid'
+ if frappe.db.exists('User',independent):
+  if frappe.db.get_value('User',independent,'enabled'):raise RuntimeError('Demo identity is enabled; review required')
+ else:frappe.get_doc(dict(doctype='User',email=independent,first_name='Demo Independent Teacher',enabled=0,user_type='Website User',send_welcome_email=0)).insert(ignore_permissions=True)
+ name=frappe.db.get_value('IL Public Profile',{'user':independent},'name')
+ solo=frappe.get_doc('IL Public Profile',name) if name else write(frappe.get_doc(dict(doctype='IL Public Profile',user=independent,kind='Teacher',username='sisu_demo_independent',display_name='[DEMO] Independent Science Teacher',country='Sri Lanka',status='Verified',bio='Fictional individual teacher. Follow for free and key-locked practice lessons, or register to test your student number.')))
+ if solo.kind!='Teacher' or solo.status!='Verified':raise RuntimeError('Independent demo profile changed')
+ # Inactive display fixture satisfies the classroom teacher link without granting
+ # an active institute membership or making this an institute-affiliated provider.
+ name=frappe.db.get_value('IL Member',{'user':independent,'institute':inst.name},'name')
+ solo_member=frappe.get_doc('IL Member',name) if name else frappe.get_doc(dict(doctype='IL Member',user=independent,institute=inst.name,role='Teacher',full_name='[DEMO] Independent Science Teacher',active=0,language='en',email_opt_in=0,whatsapp_opt_in=0))
+ if name and solo_member.active:raise RuntimeError('Independent demo membership changed')
+ if not name:
+  with authorized_insert(solo_member):solo_member.insert(ignore_permissions=True)
+ for profile,member,label,subject in [(solo,solo_member,'Independent science','Science'),(profiles['Teacher'],teacher,'Institute teacher mathematics','Mathematics')]:
+  for mode,fee in [('Free',0),('Paid',1000)]:
+   title='[DEMO] '+label+' - '+('free practice' if mode=='Free' else 'key-locked practice')
+   name=frappe.db.get_value('IL Classroom',{'institute':inst.name,'title':title},'name')
+   if name:
+    room=frappe.get_doc('IL Classroom',name)
+    if room.public_provider!=profile.name or room.fee_mode!=mode:raise RuntimeError('Demo classroom changed')
+   else:frappe.get_doc(dict(doctype='IL Classroom',institute=inst.name,title=title,subject=subject,teacher=member.name,active=1,owner_type='Teacher',owner_user=profile.user,public_provider=profile.name,fee_mode=mode,fee=fee,published=1,description='Fictional practice card. Demo enrollment key: SISU-DEMO. No real paid access or payment is granted.')).insert(ignore_permissions=True)
+ for profile in [profiles['Institute'],profiles['Teacher'],solo]:
+  headline='[DEMO] Welcome to your practice news feed'
+  name=frappe.db.get_value('IL Provider Update',{'profile':profile.name,'headline':headline},'name')
+  if not name:write(frappe.get_doc(dict(doctype='IL Provider Update',profile=profile.name,headline=headline,body='You followed '+profile.display_name+'. Explore our free practice and try a locked demo with key SISU-DEMO. This is fictional test content.',expires_at=now_datetime()+timedelta(days=30))))
+ print('PREPARED: independent teacher, institute teacher classes and provider news. Demo enrollment key: SISU-DEMO.')
 def main():
  if os.name!='posix' or Path.home()!=Path('/home/sisu'):raise RuntimeError('Run as sisu')
  logging.disable(logging.CRITICAL)
@@ -60,10 +90,15 @@ def main():
    relationship_key=hashlib.sha256((TEACHER+':'+profiles['Institute'].name+':Teacher membership').encode()).hexdigest()
    if not frappe.db.exists('IL Profile Relationship',{'relationship_key':relationship_key}):
     write(frappe.get_doc(dict(doctype='IL Profile Relationship',relationship_key=relationship_key,profile=profiles['Institute'].name,user=TEACHER,kind='Teacher membership',status='Active')))
-   from institute_lms.account_billing import account
+   from institute_lms.account_billing import account, sync_provider
    sub=account(inst,members['Admin'],create=True)
    # Demo-only, time-bounded entitlement; never renew it on reruns.
-   if sub.plan=='Individual':frappe.db.set_value('IL Account Subscription',sub.name,{'plan':'Gold','trial_until':now_datetime()+timedelta(days=30)})
+   if sub.plan=='Individual':
+    frappe.db.set_value('IL Account Subscription',sub.name,{'plan':'Gold','trial_until':now_datetime()+timedelta(days=30)})
+    sub.reload()
+    # This fixture-only entitlement must update both billing representations.
+    # The account creation hook has already created an Individual provider.
+    sync_provider(sub)
    from institute_lms.commercial import account_for,save
    from institute_lms.commercial_rules import beneficiary
    provider=account_for(frappe._dict(institute=inst.name,owner_type='Institute'),False)
@@ -75,6 +110,11 @@ def main():
      room=frappe.get_doc('IL Classroom',name)
      if room.fee_mode!=mode or float(room.fee)!=fee:raise RuntimeError('Demo class fee changed; review required')
     else:frappe.get_doc(dict(doctype='IL Classroom',institute=inst.name,title=title,subject='Mathematics',teacher=members['Teacher'].name,font='sans',active=1,owner_type='Institute',public_provider=profiles['Institute'].name,fee_mode=mode,fee=fee,published=1,description='Fictional demo. Free practice: solve 2x + 3 = 11. Subtract 3, then divide by 2: x = 4. Try 3x + 6 = 21 (answer: 5). The paid example is intentionally locked; do not make payment.')).insert(ignore_permissions=True)
+   add_practice_providers(frappe,inst,profiles,members['Teacher'],write,authorized_insert)
+   from institute_lms.profiles import search
+   visible=search('[DEMO]')
+   if not any(row.kind=='Institute' and row.name==profiles['Institute'].name for row in visible):raise RuntimeError('Demo institute did not appear in directory')
+   if not any(row.username=='sisu_demo_independent' and row.independent for row in visible):raise RuntimeError('Independent teacher did not appear in directory')
    frappe.db.commit()
   print('SAVED: labelled public demo institute, disabled display-only teacher/admin and published free/locked classes.')
   print('Students: verify account, find [DEMO] SISU Practice Institute, follow/register, select it and join the free class.')
@@ -84,5 +124,5 @@ def main():
 if __name__=='__main__':
  try:main()
  except Exception as exc:
-  print('STOPPED: '+type(exc).__name__+'. No credentials displayed. Transaction rolled back if not committed.')
+  print('STOPPED: '+type(exc).__name__+'. '+(str(exc)[:240] if isinstance(exc,RuntimeError) else 'Review the failed demo transaction.')+' No credentials displayed. Transaction rolled back if not committed.')
   raise SystemExit(1) from None

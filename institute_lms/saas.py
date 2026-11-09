@@ -135,6 +135,7 @@ def guard_request():
     if method in ('institute_lms.learning_preferences.get_preferences','institute_lms.learning_preferences.save_preferences'):return  # User-owned goals, never institute data.
     from .wallet import admin_actor
     if method.startswith('institute_lms.') and admin_actor():return  # Owner APIs enforce their own authorization.
+    if method in ('institute_lms.public_student.billing','institute_lms.public_student.classes','institute_lms.public_student.choices','institute_lms.public_student.schedule','institute_lms.public_student.action','institute_lms.public_student.upload_proof','institute_lms.public_student.proof','institute_lms.public_student.programme_certificate'):return  # Student bridge checks membership per operation.
     if module=='workspace':return  # Actor/feature checks inside workspace also check the owner's subscription.
     from .commercial import request_policy
     if request_policy(method,module):return
@@ -142,7 +143,7 @@ def guard_request():
     if module in ('health','release'):return  # Each facade method performs its own authorization.
     if method=='institute_lms.ai.archive_conversation':return  # ownership-only privacy operation
     if module in ('commerce_events','mobile_auth','saas','platform','subscription_payments','registration','portal_policy',
-                  'accounts','portal_session','campus_context','campus_join','cybersource','account_billing','billing_bridge','profiles','private_contact','mobile_verification','contact','devices','notification_service'):
+                  'accounts','portal_session','campus_context','campus_join','cybersource','account_billing','billing_bridge','password_reset','demo_learning','profiles','private_contact','mobile_verification','contact','devices','notification_service'):
         return
     if module in ('payments_lk','payments','lectures') and method.endswith('.notify'):return
     if method=='institute_lms.live_classes.webhook':return

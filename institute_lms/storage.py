@@ -11,6 +11,8 @@ from .usage import used
 
 def before_write(file_size):
     if frappe.flags.get('in_install') or frappe.flags.get('in_migrate'):return
+    from .profile_storage import bounded
+    if bounded(file_size):return
     if frappe.conf.get('il_control_plane'):
         frappe.throw('File uploads are disabled on the control-plane site')
     if frappe.conf.get('il_storage_backend','frappe')!='frappe' and (not frappe.get_hooks('write_file') or not frappe.conf.get('il_storage_read_adapter')):
@@ -19,12 +21,16 @@ def before_write(file_size):
 
 def file_saved(doc, method=None):
     if doc.is_folder or frappe.flags.get('in_install') or frappe.flags.get('in_migrate'):return
+    from .profile_storage import bounded
+    if bounded(doc.file_size,doc):return
     if frappe.conf.get('il_control_plane'):frappe.throw('Control-plane uploads disabled')
     size=int(doc.file_size or 0)
     quota('storage_bytes',lambda:max(0,used('storage_bytes')-size),size)
     record_metadata(doc)
 
 def record_metadata(doc):
+    from .campus_context import enabled
+    if enabled() and doc.attached_to_doctype=='IL Public Profile':return
     from .api import institute
     inst=institute();room=None
     if doc.attached_to_doctype=='IL Classroom':room=doc.attached_to_name

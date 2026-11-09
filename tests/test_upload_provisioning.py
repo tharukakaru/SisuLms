@@ -64,7 +64,8 @@ class UploadProvisioning(unittest.TestCase):
         self.env.update(resolved=MagicMock(),check_capacity=MagicMock())
         quota=function('saas','quota',self.env)
         before_write=function('storage','before_write',{'frappe':self.f,'quota':quota,'used':MagicMock()})
-        with self.assertRaisesRegex(PermissionError,'SaaS tenant must be provisioned before use'):before_write(100)
+        with patch.dict(sys.modules,{'institute_lms.profile_storage':types.SimpleNamespace(bounded=lambda *a:False)}):
+            with self.assertRaisesRegex(PermissionError,'SaaS tenant must be provisioned before use'):before_write(100)
         self.env['check_capacity'].assert_not_called()
 
     def test_configured_tenant_must_match_subscription_and_uses_lock(self):

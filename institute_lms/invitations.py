@@ -6,9 +6,12 @@ from frappe.utils import now_datetime,get_url,get_datetime
 from .registration import limit
 from .contact import email_address
 
-def send_notice(email,subject,body):
+def send_notice(email,subject,body,invitation=None):
     if not frappe.db.exists('Email Account',{'enable_outgoing':1}):return False
-    frappe.sendmail(recipients=[email],subject=subject,message='<p>'+escape(body)+'</p><p><a href="'+escape(get_url('/campus#dashboard'),quote=True)+'">Open SISU</a></p>',delayed=True)
+    queued=frappe.sendmail(recipients=[email],subject=subject,message='<p>'+escape(body)+'</p><p><a href="'+escape(get_url('/campus#dashboard'),quote=True)+'">Open SISU</a></p>',delayed=True,reference_doctype='IL Teacher Invitation' if invitation else None,reference_name=invitation)
+    if invitation:
+        if not queued:frappe.throw('The invitation email could not be queued. Check outgoing email settings.')
+        frappe.enqueue('institute_lms.invitations.dispatch_invitation',invitation=invitation,enqueue_after_commit=True,queue='short')
     return True
 
 def require_mail():
@@ -27,7 +30,7 @@ def invite_teacher(email):
         if frappe.db.exists('IL Teacher Invitation',{'institute':inst.name,'invite_email':email,'status':'Pending','expires_at':['>',now_datetime()]}):frappe.throw('An invitation for this email is already pending')
         d=frappe.get_doc({'doctype':'IL Teacher Invitation','institute':inst.name,'profile':profile,'invite_email':email,'invited_by':member.user,'status':'Pending','expires_at':now_datetime()+timedelta(days=7)})
         d.flags.contact_service=True;d.insert(ignore_permissions=True)
-        send_notice(email,'You are invited to teach at '+inst.title,inst.title+' invited you to connect on SISU. Sign in with this email using your verified teacher account, then review the invitation on your dashboard within 7 days. Accepting submits a membership request for institute approval.')
+        send_notice(email,'You are invited to teach at '+inst.title,inst.title+' invited you to connect on SISU. Sign in with this email using your verified teacher account, then review the invitation on your dashboard within 7 days. Accepting submits a membership request for institute approval.',invitation=d.name)
     return {'name':d.name,'status':'Pending','email_queued':True}
 
 @frappe.whitelist(methods=['POST'])
@@ -38,6 +41,8 @@ def list_invitations():
     rows=frappe.get_all('IL Teacher Invitation',filters=filters,fields=['name','invite_email','profile','status','expires_at'],order_by='creation desc',limit_page_length=50)
     for r in rows:
         r['institute_title']=frappe.db.get_value('IL Public Profile',r.profile,'display_name')
+        queue_status=frappe.db.get_value('Email Queue',{'reference_doctype':'IL Teacher Invitation','reference_name':r.name},'status')
+        r['email_status']={'Sent':'Sent to email server','Not Sent':'Queued for email','Sending':'Sending email','Error':'Email failed — contact support','Partially Sent':'Email delivery needs review'}.get(queue_status,'Email status unavailable')
         r['expired']=get_datetime(r.expires_at)<=now_datetime()
     return rows
 
@@ -68,3 +73,13 @@ def request_by_email(email):
     target=frappe.db.get_value('IL Public Profile',{'user':email,'kind':'Institute','status':'Verified'},'name')
     if target:relate(target,'Teacher membership')
     return {'message':'If this email belongs to a verified institute on this site, your request is now in its membership inbox.'}
+
+
+def dispatch_invitation(invitation):
+    """Send only this committed invitation; normal queue retry policy remains active."""
+    if not frappe.db.exists('IL Teacher Invitation',invitation):return
+    if frappe.db.get_default('suspend_email_queue') in (1,'1') or frappe.are_emails_muted():return
+    for name in frappe.get_all('Email Queue',filters={'reference_doctype':'IL Teacher Invitation',
+            'reference_name':invitation,'status':['in',['Not Sent','Partially Sent']]},pluck='name'):
+        queue=frappe.get_doc('Email Queue',name,for_update=True)
+        queue.send()

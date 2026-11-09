@@ -33,9 +33,31 @@ def membership(institute):
     return member
 
 
+def selected_institute():
+    if getattr(frappe.local, 'il_mobile_session', None):
+        return getattr(frappe.local, 'il_mobile_institute', None)
+    return frappe.session.data.get(SESSION_KEY)
+
+
+def save_selection(institute):
+    mobile = getattr(frappe.local, 'il_mobile_session', None)
+    if mobile:
+        doc = frappe.get_doc('IL Mobile Session', mobile)
+        if doc.user != frappe.session.user or doc.revoked:
+            frappe.throw('Mobile session unavailable.', frappe.PermissionError)
+        frappe.db.set_value('IL Mobile Session', mobile, 'institute', institute)
+        frappe.local.il_mobile_institute = institute
+    else:
+        if institute:
+            frappe.session.data[SESSION_KEY] = institute
+        else:
+            frappe.session.data.pop(SESSION_KEY, None)
+        frappe.local.session_obj.update(force=True)
+
+
 def current_institute():
     require_user()
-    selected = frappe.session.data.get(SESSION_KEY)
+    selected = getattr(frappe.local,'student_request_institute',None) or selected_institute()
     if not selected:
         frappe.throw('Choose an institute to continue.', frappe.PermissionError)
     membership(selected)
@@ -54,21 +76,19 @@ def choices():
         title = frappe.db.get_value('IL Institute', member.institute, 'title')
         if title:
             result.append({'institute': member.institute, 'title': title, 'role': member.role, 'student_number': member.name if member.role=='Student' else None})
-    selected = frappe.session.data.get(SESSION_KEY)
+    selected = selected_institute()
     return {'institutes': result, 'selected': selected if any(r['institute'] == selected for r in result) else None}
 
 
 @frappe.whitelist(methods=['POST'])
 def clear():
     require_user()
-    frappe.session.data.pop(SESSION_KEY, None)
-    frappe.local.session_obj.update(force=True)
+    save_selection(None)
     return {'selected': None, 'reload_required': True}
 
 
 @frappe.whitelist(methods=['POST'])
 def select(institute):
     member = membership(institute)
-    frappe.session.data[SESSION_KEY] = member.institute
-    frappe.local.session_obj.update(force=True)
+    save_selection(member.institute)
     return {'selected': member.institute, 'role': member.role, 'reload_required': True}

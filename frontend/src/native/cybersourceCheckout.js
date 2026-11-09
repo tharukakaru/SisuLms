@@ -1,13 +1,28 @@
 // Only the browser UI library is used. Session creation/authentication stays in Python.
-export const libraryURL = 'https://apitest.cybersource.com/uc/v1/assets/1.0.0/UnifiedCheckout.js'
-let loading
-export function loadCheckoutLibrary() {
-  if (window.VAS?.UnifiedCheckout) return Promise.resolve(window.VAS)
+let loading, loadedKey
+export function libraryMetadata(session) {
+  // Backend verifies the session signature; enforce its script origin and SRI too.
+  const segment=String(session).split('.')[1]
+  const claims=JSON.parse(atob(segment.replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(segment.length/4)*4,'=')))
+  const entries=(claims.ctx||[]).map(c=>c?.data).filter(d=>d?.clientLibrary)
+  if(entries.length!==1)throw Error('Checkout library metadata unavailable.')
+  const {clientLibrary,clientLibraryIntegrity}=entries[0]
+  const url=new URL(clientLibrary)
+  if(url.origin!=='https://testup.cybersource.com'||url.username||url.password||url.search||url.hash||!/^\/uc\/v1\/assets\/[A-Za-z0-9_-]+\/UnifiedCheckout\.js$/.test(url.pathname)||!/^sha(256|384|512)-[A-Za-z0-9+/]+={0,2}$/.test(clientLibraryIntegrity||''))throw Error('Checkout library metadata rejected.')
+  return {url:url.href,integrity:clientLibraryIntegrity}
+}
+export function loadCheckoutLibrary(session) {
+  const {url,integrity}=libraryMetadata(session)
+  const key=url+' '+integrity
+  if(loadedKey&&loadedKey!==key)throw Error('Reload this page before opening the updated checkout library.')
+  loadedKey=key
   if (!loading) loading = new Promise((resolve, reject) => {
     const script = document.createElement('script')
-    script.src = libraryURL
-    script.onload = () => { if (window.VAS?.UnifiedCheckout) resolve(window.VAS); else { script.remove(); loading = null; reject(Error('Checkout library unavailable.')) } }
-    script.onerror = () => { script.remove(); loading = null; reject(Error('Unable to load secure checkout.')) }
+    script.src = url
+    script.integrity=integrity
+    script.crossOrigin='anonymous'
+    script.onload = () => { if (window.VAS?.UnifiedCheckout) resolve(window.VAS); else { script.remove(); loading = null; loadedKey=null; reject(Error('Checkout library unavailable.')) } }
+    script.onerror = () => { script.remove(); loading = null; loadedKey=null; reject(Error('Unable to load secure checkout.')) }
     document.head.appendChild(script)
   })
   return loading

@@ -39,6 +39,19 @@
       "fieldname": "starts_on",
       "label": "Starts On",
       "fieldtype": "Date"
+    },
+    {
+      "fieldname": "module_code",
+      "label": "Module code",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "assessment_weight",
+      "label": "Assessment weight (%)",
+      "fieldtype": "Float",
+      "default": 90
     }
   ],
   "field_order": [
@@ -46,7 +59,9 @@
     "title",
     "teacher",
     "duration_weeks",
-    "starts_on"
+    "starts_on",
+    "module_code",
+    "assessment_weight"
   ],
   "permissions": []
 }

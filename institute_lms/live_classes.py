@@ -81,8 +81,8 @@ def join(name):
     if d.status!='Live':frappe.throw('This live lesson is not active')
     teacher=member.name==room.teacher or room.get('owner_user')==member.user
     from .live_provider import participant
-    return {**participant(d.provider_room,member.name,member.full_name,teacher,bool(d.student_publish)),
-            'name':d.name,'can_control':teacher,'recording_status':d.recording_status}
+    return {**participant(d.provider_room,member.name,member.full_name,teacher,member.role=='Student' or bool(d.student_publish)),
+            'name':d.name,'host_identity':room.teacher,'can_control':teacher,'recording_status':d.recording_status}
 
 @frappe.whitelist(methods=['POST'])
 def recording(name):
@@ -144,6 +144,7 @@ def webhook(**kwargs):
 def publish_recording(name,reviewed=False):
     d,_,_=checked(name,True)
     if d.recording_status!='Ready' or reviewed is not True:frappe.throw('Review the ready recording before publication')
+    if d.recording_published:return {'published':True}
     d.recording_published=1;managed(d);audit('Recording published',d.name,'Teacher reviewed classroom recording')
     from .product_events import classroom_event
     classroom_event(d.classroom,'recording.published',d.name,'Class recording is available: '+d.title)
@@ -201,3 +202,48 @@ def cleanup_failed(name,reason):
 def room_status(name):
     d,_,_=checked(name)
     return {'status':d.status,'recording_status':d.recording_status}
+
+
+@frappe.whitelist(methods=['GET', 'POST'])
+def chat(name, text=None):
+    """Ephemeral class chat; authors and host labels come from server membership."""
+    import time
+    import uuid
+    d, member, room = checked(name)
+    if d.status != 'Live':frappe.throw('This live lesson has ended')
+    key = 'il_live_chat:' + d.name
+    if text is not None:
+        if getattr(frappe.local, 'request', None) and frappe.request.method != 'POST':
+            frappe.throw('Use POST to send a message', frappe.PermissionError)
+        if not isinstance(text, str) or not text.strip() or len(text) > 1000:
+            frappe.throw('Write a message between 1 and 1000 characters')
+        with frappe.cache.lock(key, timeout=10, blocking_timeout=2):
+            throttle = key + ':' + member.name
+            now = time.time()
+            last = frappe.cache.get_value(throttle)
+            if last and now - float(last) < 2:frappe.throw('Wait a moment before sending another message')
+            rows = frappe.cache.get_value(key) or []
+            rows.append({'id':uuid.uuid4().hex, 'author':member.full_name or 'Participant',
+                         'host':member.name == room.teacher or room.get('owner_user') == member.user,
+                         'text':text.strip(), 'sent_at':now})
+            frappe.cache.set_value(key, rows[-100:], expires_in_sec=7200)
+            frappe.cache.set_value(throttle, now, expires_in_sec=10)
+    return {'messages':frappe.cache.get_value(key) or []}
+
+
+@frappe.whitelist(methods=['POST'])
+def edit_recording(name, title=None, remove=False, confirmed=False):
+    d, _, _ = checked(name, True)
+    if d.recording_status != 'Ready':frappe.throw('Only a ready recording can be edited')
+    if remove is True:
+        if confirmed is not True:frappe.throw('Confirm removal first')
+        d.recording_published = 0
+        managed(d)
+        audit('Recording unpublished', d.name, 'Teacher removed recording from student view; private recording retained')
+        return {'published':False, 'private_copy_retained':True}
+    if not isinstance(title, str) or not title.strip() or len(title.strip()) > 120:
+        frappe.throw('Enter a recording title between 1 and 120 characters')
+    d.title = title.strip()
+    managed(d)
+    audit('Recording renamed', d.name, 'Teacher updated recording title')
+    return {'title':d.title}

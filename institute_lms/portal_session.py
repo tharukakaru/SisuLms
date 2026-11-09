@@ -12,17 +12,16 @@ def current():
         return {'authenticated':True,'role':'Super Admin','control_plane':bool(frappe.conf.get('il_control_plane')),'user':frappe.session.user,'csrf_token':csrf}
     if frappe.conf.get('il_control_plane'):
         return {'authenticated':True,'role':'Billing','control_plane':True,'user':frappe.session.user,'csrf_token':csrf}
-    from .campus_context import enabled, SESSION_KEY
+    from .campus_context import enabled, selected_institute, save_selection
     shared = enabled()
     if shared:
-        selected = frappe.session.data.get(SESSION_KEY)
+        selected = selected_institute()
         admins=[]
         if not selected or not frappe.db.exists('IL Member', {'institute':selected,'user':frappe.session.user,'active':1}):
             admins=frappe.get_all('IL Member',filters={'user':frappe.session.user,'role':'Admin','active':1},pluck='institute')
             if len(admins)==1:
                 selected=admins[0]
-                frappe.session.data[SESSION_KEY]=selected
-                frappe.local.session_obj.update(force=True)
+                save_selection(selected)
 
         if not selected or not frappe.db.exists('IL Member', {'institute': selected, 'user': frappe.session.user, 'active': 1}):
             from .onboarding import account_kind

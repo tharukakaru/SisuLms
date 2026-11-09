@@ -156,3 +156,53 @@ current active-trial role checks do not prove post-trial coverage. Gateway tests
 2026-11-06: User confirms programme bank slip submitted and institute admin approved successfully (LKR 5000 paid). Student Subscription navigation removed; old subscription routes redirect to Class fees; provider subscriptions and institute-teacher read-only plan remain. Gateway acceptance still held for bank response.
 
 2026-11-06 USER ACCEPTANCE: independent teacher profile bank save passed; student programme invoice passed; institute admin programme creation and slip approval passed. Institute admin schedule, teaching team, community, directory, class fees, provider tools, news, profile/settings passed. Subscription and wallet/payout held for bank reply. Remaining: programme learning/completion/certificate browser acceptance and platform/super admin testing. Usage & Storage copy/layout polished without endpoint or financial action changes.
+
+2026-11-06: Platform owner Organizations follow-up prepared: successful registration resets fields, failed registration retains data; Manage uses institute name and grouped sections, visible reason, LKR price conversion, collapsed technical controls. Domain save preserves enabled state. Billing invitation uses compatible password token generator and queued mail from configured sender. 113 frontend/850 Python tests passed. Deployment, real queue rollback check and browser acceptance pending; no signing keys configured and no mail sent by local tests.
+
+2026-11-06 Owner plans release prepared (not deployed yet):
+- User confirmed Organizations form/table and floating notification browser acceptance.
+- Shared provider catalogue: owner site writes; public campus and Teen live site read canonical committed catalogue using a fixed read-only DB query. Staging remains isolated.
+- Card description and add/remove/reorder feature text separated from existing-tool access switches. Preview/review before publishing, stale revision protection; new invoice pricing only.
+- Marketing patch connects cards, comparison and calculator to same guest-safe catalogue; no stale fallback prices if unavailable.
+- Deployment: sisu-owner-plans.tgz; deploy-owner-plans.py; activate-owner-plans.py; activate-owner-plans-website.py + marketing_shared_plans.py; check-owner-plans.py.
+- Local: 855 Python / 115 frontend tests pass; browser editor desktop/mobile and marketing catalogue tests pass with mock API. Live deployment, DB connection check and cross-role browser acceptance pending.
+- Bank gateway still held. No invoice, paid period or payment changes made locally or by rollback checks.
+
+2026-11-07: User confirmed shared subscription-plan editor works. Owner plans deployment/checks and website activation passed (revision 0 before browser publishing).
+Site policies correction prepared: removed misleading STARTER/PREMIUM AI/CUSTOM template editor; added owner-only hosted website policy delivery/readiness monitor, guarded retry via existing scheduler, links to Plans and institute management. No live infrastructure/key/site provisioning is performed by the release. Missing setup is displayed explicitly; remote acknowledgement required for Delivered. 860 Python + 115 frontend tests passed. Remote deployment/browser acceptance pending.
+
+2026-11-10 Owner final-pass release prepared (NOT yet deployed):
+- User priority: two-hour handover window; finish owner first, production acceptance, GitHub, then role-wise Figma UI, gateway testing and test-account handover.
+- owner_operations: configured read-only public/Teen provider billing; owner-only authorization, bounded dates, pagination, scrubbed connection errors; combined audit and local email queue health.
+- OwnerProvisioning checklist and explicit verified-ready guard; compatible owner invitation email API; friendly owner controls/guide; legacy Site policies explanation removed.
+- 867 Python + 115 frontend tests pass; build/static and offline desktop/mobile owner navigation checks pass. Real hosting, email inbox and bank gateway acceptance are not implied.
+- Deploy sisu-owner-operations.tgz with deploy/activate/check-owner-operations.py. Exact commands and browser checklist: docs/platform-owner-acceptance.md.
+- No production changes or GitHub push performed in this turn. User runs authenticated deployment as in prior releases.
+
+2026-11-10 Production source conflict reconciled:
+- User downloaded sisu-owner-live-sources.tgz. Only ControlPlane.vue and platform.py differed from the old baseline.
+- Preserved live catalogue-backed organization plan selection/update, commercial_plan manifest field, running-before-ready requirement and provision_verification.require_verified guard.
+- Added release's confirmation checkbox without removing the existing server verification guard. Production checker mocks that guard explicitly during rollback testing; it does not claim real hosting verification.
+- Rebuilt owner-operations package with exact normalized before hashes from all seven downloaded production files. No broad hash bypass.
+- 867 Python / 116 frontend tests, build/static and mocked browser checks pass after merge. New production upload/deployment still pending.
+- IMPORTANT before GitHub/handover: production platform.py depends on institute_lms/provision_verification.py, which is not in this local checkout. Preserve the live file (deployment checks it exists and does not overwrite it); retrieve and review that module plus any dependencies before final repository synchronization.
+
+2026-11-10 Owner operations production deployed and checks passed (user supplied output). Owner dashboard follow-up prepared, not deployed:
+- User screenshot reports stale scheduled_worker_recent and 2 Not Sent emails. Optional service flags are local to owner website, not public campus; no claim of whole-LMS failure.
+- New owner overview uses configured read-only source connections for live campus membership/provider/approval/payout counts, registry setup counts and section shortcuts. Existing campus mutation panels stay on their own sites with their own owner authentication; no cross-site privilege grants.
+- Delegated owner sees disabled invitation action and primary-owner explanation; primary-only grant/revoke preserved.
+- diagnose-owner-scheduler.py is read-only across owner/public/Teen: safe scheduler flags, heartbeat age, scheduled job registration/last execution and email counts. Does not send mail, enable scheduler or bypass bank hold.
+- 869 Python / 116 frontend tests, production build and mocked browser checks pass. Package sisu-owner-dashboard.tgz baseline is the user-confirmed owner-operations release.
+- Full consolidation of cross-site mutation panels is NOT implemented by linking; public-site owner login may differ. Production provision_verification.py and dependencies still need retrieval/review before final GitHub synchronization.
+
+2026-11-10 Owner dashboard deployed and read-only acceptance passed. Scheduler diagnosis: System Settings enable_scheduler false on owner/public/Teen; public pause_scheduler true; heartbeat/flush never executed. Owner 2 unsent emails, public 2, Teen 0; no queue errors. Public pause is explicitly retained by activate-public-campus.py alongside il_payments_paused=1. Do not blindly enable all jobs or flush all messages. Expanded read-only diagnosis includes suspended email queue, payment pause and full registered job inventory before scoped activation.
+
+2026-11-10 Expanded diagnostics confirmed general email queue suspended on all three sites, payment hold true, scheduling disabled; public additionally paused. Prepared scoped owner-site service (not deployed yet): only heartbeat and new owner_invitation_delivery.dispatch active, all other owner scheduled jobs stopped with private backup, public/Teen unchanged. General mail suspension and payment hold preserved. Dispatcher accepts only the two exact requested access-invitation subjects, one enabled authorized recipient, newest invitation within one hour; skips old/multi-recipient/unrelated mail. Queued sending is an external action already requested by user for owner/billing invitations. Installer does not send directly; scheduled worker may send fresh invitations after restart. 875 Python tests pass. Scripts enable-owner-invitations.py/check-owner-invitations.py; payload institute_lms/owner_invitation_delivery.py. This is restricted owner operation, NOT full-campus launch readiness.
+
+2026-11-10 Billing invitation inbox delivery user-confirmed. Password setup failed in upstream /update-password page (refresh, then invalid credentials). Diagnosis: correct owner host, enabled Website User/billing contact, password login enabled, reset token still present, no last reset date. Root cause of native page failure not established. Never reuse screenshot-exposed password.
+Prepared sisu-owner-password-page.tgz: new /sisu_password form posts to unchanged native Frappe update_password API, preserves token validation/strength/reuse checks, handles mismatches/non-JSON/HTTP errors explicitly, only success after native API confirmation, continuation to /campus. New invitation links route to this form. No password/token manually set. 875 Python tests + mocked browser success/failure/mismatch/no-token tests pass. Deployment/browser acceptance still pending; this is a fix for silent failure visibility, not proof that underlying native reset now succeeds.
+
+2026-11-10 Final browser confirmation from user: billing invitation email arrived, password was saved, sign-in and billing dashboard access succeeded. Mark that specific flow passed end to end. Owner dashboard/scoped invitation service/password page deployment checks also passed in supplied production output. Bank gateway testing, general campus automation, owner-grant invitation acceptance and full cross-site owner consolidation are not implied by this confirmation.
+GitHub synchronization started at user request; blocked on retrieving the live-only provision_verification.py dependency before committing an incomplete checkout. Do not include diagnostic output, screenshots, credentials, or reset links in Git.
+
+2026-11-10 GitHub preparation: retrieved provision_verification.py from production; no further local imports. Added focused signed-evidence tests for valid, stale/future, mismatched and tampered records. 879 Python + 116 frontend tests pass; staging only release source/tests/docs/scripts and compiled assets. Diagnostic logs, screenshots and temporary preview files remain outside the commit.

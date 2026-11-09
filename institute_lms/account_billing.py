@@ -337,6 +337,7 @@ def guard_request():
     path=frappe.local.request.path
     method=frappe.form_dict.get('cmd') or (path.split('/method/',1)[1].rstrip('/') if '/method/' in path else '')
     module=method.split('.')[1] if method.startswith('institute_lms.') else ''
+    if method=='institute_lms.plan_catalog.public_catalog':return  # Public product catalogue, no account data.
     if method in ('institute_lms.learning_preferences.get_preferences','institute_lms.learning_preferences.save_preferences'):return  # User-owned goals, never institute data.
     # These endpoints must work before any institute is selected. Each checks
     # the shared-campus flag, active user and its own membership/profile rules.

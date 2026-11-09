@@ -19,7 +19,7 @@ def is_owner(user=None):
 
 def require_primary():
     if not is_owner() or frappe.session.user.lower() != primary_email():
-        frappe.throw('Only the primary owner can manage Super Admin access', frappe.PermissionError)
+        frappe.throw('Only the primary owner can manage Platform owner access', frappe.PermissionError)
 
 
 @frappe.whitelist(methods=['GET'])
@@ -65,8 +65,8 @@ def add(email, reason):
     doc.flags.owner_access_service = True
     doc.save(ignore_permissions=True)
     # Recipient must authenticate normally; email allowlisting never logs them in.
-    user.reset_password(send_email=True)
-    audit('Super Admin access granted', email, doc.reason)
+    queue_setup_email(user)
+    audit('Platform owner access granted', email, doc.reason)
     return {'status': 'Access granted; password setup email queued'}
 
 
@@ -82,12 +82,28 @@ def remove(email, reason):
     frappe.db.sql('SELECT name FROM `tabUser` WHERE name=%s FOR UPDATE', (primary_email(),))
     name = frappe.db.get_value('IL Owner Access', {'user': email}, 'name')
     if not name:
-        frappe.throw('Super Admin access record not found')
+        frappe.throw('Platform owner access record not found')
     doc = frappe.get_doc('IL Owner Access', name)
     doc.enabled = 0
     doc.reason = str(reason).strip()[:1000]
     doc.flags.owner_access_service = True
     doc.save(ignore_permissions=True)
     # Every owner request rechecks the DB, so open sessions lose privilege immediately.
-    audit('Super Admin access removed', email, doc.reason)
-    return {'status': 'Super Admin access removed; user account preserved'}
+    audit('Platform owner access removed', email, doc.reason)
+    return {'status': 'Platform owner access removed; user account preserved'}
+
+
+def queue_setup_email(user):
+    """Queue with the configured sender; support both deployed Frappe APIs."""
+    from html import escape
+    if not frappe.db.exists('Email Account', {'enable_outgoing': 1}):
+        frappe.throw('Configure outgoing email before inviting a Platform owner.')
+    reset = getattr(user, '_reset_password', None) or getattr(user, 'reset_password', None)
+    if not callable(reset):
+        frappe.throw('Password setup is unavailable. Contact the hosting operator.')
+    validate = getattr(user, 'validate_reset_password', None)
+    if callable(validate): validate()
+    link = reset(send_email=False).replace('/update-password?', '/sisu_password?', 1)
+    frappe.sendmail(recipients=[user.name], subject='Your SISU Platform owner access',
+        message='<p>You have been invited to manage SISU.</p><p><a href="'+escape(link, quote=True)+'">Set your password and sign in</a></p>',
+        delayed=True, redact_message_after_send=True)

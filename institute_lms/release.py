@@ -57,6 +57,10 @@ def control_room(page=0):
     owner();data={'plans':frappe.get_all('IL SaaS Plan',fields=['name','features','limits','price_minor','period_days','version'],limit_page_length=3),'usage_available':False}
     data['organizations']=organizations(page=page)
     data['jobs']=frappe.get_all('IL Provisioning Job',fields=['name','organization','status','detail','modified'],order_by='modified desc',limit_page_length=100)
+    for job in data['jobs']:
+        org=frappe.db.get_value('IL Organization',job.organization,['title','site_hostname'],as_dict=True) or {}
+        job['organization_title']=org.get('title') or 'Institute'
+        job['site_hostname']=org.get('site_hostname') or ''
     data['counts']={k:frappe.db.count('IL Organization',f) for k,f in [('registered',{}),('enabled',{'enabled':1}),('disabled',{'enabled':0})]}
     from .saas_rules import FEATURES,LIMITS
     data.update(feature_keys=FEATURES,limit_keys=LIMITS)

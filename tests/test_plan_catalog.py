@@ -5,6 +5,19 @@ class Rules(unittest.TestCase):
     def test_defaults_and_copy(self):
         p=defaults();v=validate(p);v['Gold']['monthly_lkr']=1
         self.assertEqual(p['Gold']['monthly_lkr'],15000)
+    def test_card_text_does_not_change_access(self):
+        p=defaults();features=dict(p['Gold']['features'])
+        p['Gold']['card_features']=['Custom description', 'Another benefit']
+        result=validate(p)
+        self.assertEqual(result['Gold']['features'],features)
+        p['Gold']['card_features']=[]
+        self.assertEqual(validate(p)['Gold']['card_features'],[])
+    def test_legacy_payload_and_invalid_card_features(self):
+        p=defaults();del p['Gold']['card_features']
+        self.assertTrue(validate(p)['Gold']['card_features'])
+        for rows in [[' '],['a'*161],['Same',' same '],[True],['x']*41,'text']:
+            p=defaults();p['Gold']['card_features']=rows
+            with self.assertRaises(ValueError):validate(p)
     def test_bad_price_and_unknown_features(self):
         for value in [True,-1,0,1.5,'2500',10000001]:
             p=defaults();p['Gold']['monthly_lkr']=value
@@ -25,7 +38,9 @@ class Service(unittest.TestCase):
         self.guard=types.ModuleType('institute_lms.account_billing');self.guard.require_owner=Mock()
         self.addCleanup(patch.stopall)
         patch.object(self.m,'frappe',self.fake).start()
-        patch.dict(sys.modules,{'institute_lms.account_billing':self.guard}).start()
+        patch.dict(sys.modules,{'institute_lms.account_billing':self.guard,'frappe':self.fake}).start()
+        import institute_lms.plan_catalog_source as source
+        patch.object(source,'frappe',self.fake).start()
     def test_unauthorized_cannot_read_or_publish(self):
         self.guard.require_owner.side_effect=PermissionError()
         for fn,args in [(self.m.admin_get,()),(self.m.publish,(defaults(),0,'Updated plan pricing'))]:

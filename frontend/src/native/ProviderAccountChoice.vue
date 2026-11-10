@@ -13,8 +13,8 @@ onMounted(()=>heading.value?.focus({preventScroll:true}))
     <h2 id="provider-account-title" ref="heading" tabindex="-1">Choose your provider account</h2>
     <p>Teach independently or join an institute.</p>
     <div class="provider-choices">
-      <button type="button" @click="$emit('choose','Individual Teacher')"><strong>Individual teacher</strong><span>Your own profile, classes and institute memberships.</span></button>
-      <button type="button" @click="$emit('choose','Individual Teacher')"><strong>Institute teacher</strong><span>Create your teacher account, then request access to an existing institute.</span></button>
+      <button type="button" @click="$emit('choose','Individual Teacher','individual')"><strong>Individual teacher</strong><span>Your own profile, classes and institute memberships.</span></button>
+      <button type="button" @click="$emit('choose','Individual Teacher','institute')"><strong>Institute teacher</strong><span>Create your teacher account, then request access to an existing institute.</span></button>
     </div>
   </div>
 </template>

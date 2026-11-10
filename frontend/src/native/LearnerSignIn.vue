@@ -10,7 +10,7 @@ onMounted(()=>heading.value?.focus({preventScroll:true}))
 
 <template>
   <div class="learner-signin">
-    <a class="learner-back" href="/login?redirect-to=/campus"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back to sign in</a>
+    <button type="button" class="learner-back" @click="$emit('choose-path')"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back</button>
     <h2 id="learner-signin-title" ref="heading" tabindex="-1">Your learning starts here.</h2>
     <p>Create your SISU learner account with Google.</p>
     <button type="button" class="learner-google" :disabled="!googleAvailable" :aria-describedby="!googleAvailable?'learner-google-unavailable':undefined" @click="$emit('google')">Continue with Google <ArrowRight :size="18" aria-hidden="true"/></button>
@@ -21,7 +21,7 @@ onMounted(()=>heading.value?.focus({preventScroll:true}))
 
 <style scoped>
 .learner-signin{font-family:'Manrope Variable',sans-serif;color:var(--entry-ink)}
-.learner-back{display:flex;align-items:center;gap:3px;width:fit-content;min-height:24px;font-size:13px;color:#56288d;text-decoration:none}
+.learner-back{padding:0;border:0;background:none;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:3px;width:fit-content;min-height:24px;font-size:13px;color:#56288d;text-decoration:none}
 .learner-back:hover{text-decoration:underline}
 .learner-signin h2{font:800 36px/1.2 'Manrope Variable',sans-serif;letter-spacing:-1.2px;margin:20px 0;color:var(--entry-ink)}
 .learner-signin h2:focus{outline:none}

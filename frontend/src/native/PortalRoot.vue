@@ -18,14 +18,14 @@ const firebaseTestPage=new URLSearchParams(location.search).get('firebase_test')
 
 import BrandLogo from '../BrandLogo.vue'
 
-import RoleWelcome from '../learning/RoleWelcome.vue'
 import WebWelcomeStory from '../learning/WebWelcomeStory.vue'
 import LearnerSignIn from './LearnerSignIn.vue'
 import ProviderAccountChoice from './ProviderAccountChoice.vue'
 
 import '@fontsource-variable/manrope'
 
-import {ref,onMounted} from 'vue'
+import {ref,onMounted,computed} from 'vue'
+import {rememberTeacherPath,resolveTeacherPath,teacherEntryView} from './teacherEntryPath'
 
 import Icon from '../Icon.vue'
 import {ArrowLeft} from 'lucide-vue-next'
@@ -60,29 +60,37 @@ const session=ref(null),error=ref(''),busy=ref(true),selected=ref('Student'),sig
 const roles=[{name:'Student',icon:'GraduationCap',text:'Learn, explore and grow.'},{name:'Teacher',icon:'BookOpen',text:'Your own teaching space.'},{name:'Institute',icon:'Building2',text:'Your teachers and classrooms.'}]
 
 const roleChosen=ref(false)
+const signupPath=ref(false)
+const hasPreviousPage=window.history.length>1
 const providerSignupKind=ref('')
+const teacherPath=ref('individual'),entryPath=ref('')
+const teacherView=computed(()=>teacherEntryView(session.value,entryPath.value,newGoogleSignup))
+function rememberEntry(){rememberTeacherPath(sessionStorage,selected.value==='Teacher'?teacherPath.value:'')}
+function continueIndividually(){entryPath.value='individual';rememberTeacherPath(sessionStorage,'individual');resolveTeacherPath(sessionStorage,session.value)}
 const roleCopy={
   Student:{title:'I’m a learner',description:'Find teachers, join classes and make room to grow.'},
   Teacher:{title:'I’m a teacher',description:'Teach your classes and manage your memberships.'},
   Institute:{title:'We’re an institute',description:'Manage your team, programmes and classrooms.'},
 }
 
-function openSignup(){sessionStorage.setItem('sisu_signup_role',selected.value==='Teacher'?'Individual Teacher':selected.value);signup.value=true}
+function openSignup(){if(selected.value==='Institute'){openProviderSignup('Institute');return}signupPath.value=true}
 
-function openProviderSignup(kind){providerSignupKind.value=kind;sessionStorage.setItem('sisu_signup_role',kind);signup.value=true}
+function openProviderSignup(kind,path){if(kind==='Individual Teacher'){teacherPath.value=path||teacherPath.value;rememberTeacherPath(sessionStorage,teacherPath.value)}else{rememberTeacherPath(sessionStorage,'')}providerSignupKind.value=kind;sessionStorage.setItem('sisu_signup_role',kind);signup.value=true}
 
-function chooseRole(role){selected.value=role;roleChosen.value=role!=='Institute';if(role==='Institute')openProviderSignup('Institute')}
+function chooseRole(role){roleChosen.value=selected.value===role?!roleChosen.value:true;selected.value=role;signupPath.value=false;providerSignupKind.value=''}
 
-async function google(){try{const r=await request('portal_policy','google_start');const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
+function goBack(){if(signupPath.value){signupPath.value=false}else if(roleChosen.value){roleChosen.value=false}else if(hasPreviousPage){window.history.back()}}
 
-async function connect(){busy.value=true;error.value='';try{session.value=await request('portal_session','current',{},'GET');if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message}finally{busy.value=false}}
+async function google(){rememberEntry();try{const r=await request('portal_policy','google_start');const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
+
+async function connect(){busy.value=true;error.value='';try{session.value=await request('portal_session','current',{},'GET');if(!newGoogleSignup)entryPath.value=resolveTeacherPath(sessionStorage,session.value);if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message}finally{busy.value=false}}
 
 onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('portal_policy','public',{},'GET').then(p=>policy.value=p).catch(()=>{})}})
 
 </script>
 
 <template>
-<CampusSwitcher provider v-if="session?.shared_campus&&session.authenticated&&!session.member&&session.role!=='Student'&&session.onboarding_kind!=='Student'&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)"/>
+<CampusSwitcher provider v-if="teacherView!=='institute'&&session?.shared_campus&&session.authenticated&&!session.member&&session.role!=='Student'&&session.onboarding_kind!=='Student'&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)"/>
 
 <PasswordConfirmation v-if="passwordConfirmation"/><section v-else-if="firebaseTestPage" class="panel" style="max-width:760px;margin:40px auto;padding:24px"><h1>SISU browser notification test</h1><p>This test uses your configured sandbox account.</p><a href="/sandbox_firebase_login">Sign in as sandbox Administrator</a><FirebasePush/></section>
 
@@ -90,31 +98,36 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 
   <Subscription v-else-if="session?.control_plane&&session.authenticated" control-plane/>
 
-  <ProviderAccessGate v-else-if="session?.member&&session.role!=='Student'&&(!subscription||(subscription.workspace_available??subscription.available)===false)" :role="session.role" @changed="connect"/><AccountSubscription v-else-if="session?.member&&session.role!=='Student'&&(!subscription||(subscription.workspace_available??subscription.available)===false)" standalone @changed="connect"/>
+  <ProviderAccessGate v-else-if="teacherView==='institute'" key="institute-entry" role="Teacher" selection-only @continue="continueIndividually" @changed="connect">
+    <details v-if="session.shared_campus" class="teacher-approved-workspaces"><summary>Open an approved teaching workspace</summary><CampusSwitcher provider @opening="continueIndividually"/></details>
+    <button v-else-if="session.member" type="button" class="entry-secondary" @click="continueIndividually">Open my current workspace</button>
+  </ProviderAccessGate>
+
+  <ProviderAccessGate v-else-if="session?.member&&session.role!=='Student'&&(!subscription||(subscription.workspace_available??subscription.available)===false)" key="workspace-access" :role="session.role" :initial-individual="entryPath==='individual'" @changed="connect"/><AccountSubscription v-else-if="session?.member&&session.role!=='Student'&&(!subscription||(subscription.workspace_available??subscription.available)===false)" standalone @changed="connect"/>
 
   <Owner v-else-if="session?.role==='Super Admin'" :session="session"/>
 
-  <Campus v-else-if="session?.shared_campus&&!session.member&&session.onboarding_kind==='Student'&&!newGoogleSignup" shared-campus :general-session="session"/><GeneralCampus v-else-if="session?.shared_campus&&!session.member&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)&&!(policy.self_signup_enabled&&newGoogleSignup)" :session="session"/>
+  <Campus v-else-if="session?.shared_campus&&!session.member&&session.onboarding_kind==='Student'&&!newGoogleSignup" shared-campus :general-session="session"/><GeneralCampus v-else-if="teacherView!=='setup'&&session?.shared_campus&&!session.member&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)&&!(policy.self_signup_enabled&&newGoogleSignup)" :session="session"/>
   <OperatorWorkspace v-else-if="session?.role==='Operator'" standalone/>
 
   <Campus v-else-if="session?.member" :shared-campus="session.shared_campus"/>
 
-  <VerifiedSignup v-else-if="session?.authenticated && policy.self_signup_enabled && newGoogleSignup" :policy="policy" google-session @back="connect"/><VerificationLayout v-else-if="session?.authenticated" back-href="/login?redirect-to=/campus"><MobileVerification onboarding/><details class="verification-channel"><summary>Complete your profile</summary><p>Complete your profile and mobile verification before your workspace is activated.</p><p>Account type: {{session.onboarding_kind}}</p><Profile :key="session.onboarding_kind" :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':session.onboarding_kind}" @saved="connect"/><a href="/me">Account settings</a> · <a href="/api/method/logout">Sign out</a></details></VerificationLayout>
+  <VerifiedSignup v-else-if="session?.authenticated && policy.self_signup_enabled && newGoogleSignup" :policy="policy" google-session @back="connect"/><VerificationLayout v-else-if="session?.authenticated" @back="goBack"><MobileVerification onboarding/><details class="verification-channel"><summary>Complete your profile</summary><p>Complete your profile and mobile verification before your workspace is activated.</p><p>Account type: {{session.onboarding_kind}}</p><Profile :key="session.onboarding_kind" :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':session.onboarding_kind}" @saved="connect"/><a href="/me">Account settings</a> · <a href="/api/method/logout">Sign out</a></details></VerificationLayout>
 
   <Signup v-else-if="signup" :initial-provider-kind="providerSignupKind" @back="signup=false" @dashboard="connect"/>
 
-  <main v-else class="sisu-entry role-selection" :class="{'entry-dark':dark,'role-selection-expanded':roleChosen&&selected==='Institute'}">
+  <main v-else class="sisu-entry role-selection" :class="{'entry-dark':dark,'role-selection-expanded':roleChosen&&!signupPath}">
 
     <header class="role-selection-header"><a href="#" class="entry-brand" aria-label="SISU home"><BrandLogo/></a><button v-if="roleChosen&&selected==='Institute'" class="entry-icon" @click="dark=!dark" :aria-label="dark?'Light mode':'Dark mode'"><Icon :name="dark?'Sun':'Moon'"/></button></header>
 
-    <div class="entry-layout"><WebWelcomeStory :provider="roleChosen&&selected==='Teacher'"/>
+    <div class="entry-layout"><WebWelcomeStory :provider="signupPath&&selected==='Teacher'"/>
 
-    <section class="entry-card" :aria-labelledby="roleChosen&&selected==='Teacher'?'provider-account-title':roleChosen&&selected==='Student'?'learner-signin-title':'role-selection-title'">
-      <LearnerSignIn v-if="roleChosen&&selected==='Student'" :google-available="!!policy.google_available" @google="google" @choose-path="roleChosen=false"/>
-      <ProviderAccountChoice v-else-if="roleChosen&&selected==='Teacher'" @choose="openProviderSignup" @back="roleChosen=false"/>
-      <template v-else><a class="role-back-link" href="/login?redirect-to=/campus"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back to sign in</a><h2 id="role-selection-title">Choose your SISU role</h2><p class="role-selection-subtitle">Your next chapter starts here.</p><div class="entry-roles"><button v-for="r in roles" :key="r.name" type="button" @click="chooseRole(r.name)" :class="{selected:roleChosen&&selected===r.name}" :aria-pressed="roleChosen&&selected===r.name" aria-controls="role-selection-actions"><div><strong>{{roleCopy[r.name].title}}</strong><small>{{roleCopy[r.name].description}}</small></div></button></div>
+    <section class="entry-card" :aria-labelledby="signupPath&&selected==='Teacher'?'provider-account-title':signupPath&&selected==='Student'?'learner-signin-title':'role-selection-title'">
+      <LearnerSignIn v-if="signupPath&&selected==='Student'" :google-available="!!policy.google_available" @google="google" @choose-path="signupPath=false"/>
+      <ProviderAccountChoice v-else-if="signupPath&&selected==='Teacher'" @choose="openProviderSignup" @back="signupPath=false"/>
+      <template v-else><button v-if="roleChosen||hasPreviousPage" type="button" class="role-back-link" @click="goBack"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back</button><h2 id="role-selection-title">Choose your SISU role</h2><p class="role-selection-subtitle">Your next chapter starts here.</p><div class="entry-roles"><button v-for="r in roles" :key="r.name" type="button" @click="chooseRole(r.name)" :class="{selected:roleChosen&&selected===r.name}" :aria-expanded="roleChosen&&selected===r.name" aria-controls="role-selection-actions"><div><strong>{{roleCopy[r.name].title}}</strong><small>{{roleCopy[r.name].description}}</small></div></button></div>
 
-      <div id="role-selection-actions" v-show="roleChosen"><RoleWelcome :role="selected"/><div class="entry-login-actions"><a class="entry-primary" href="/login?redirect-to=/campus">Sign in with email and password →</a><button class="entry-primary entry-google" :disabled="!policy.google_available" @click="google"><img :src="'/assets/frappe/icons/social/google.svg'" alt="" width="20" height="20"/>Continue with Google</button></div><p v-if="!policy.google_available" class="entry-subtle">Google sign-in is being set up for this site. Students need Google to sign in.</p><p class="entry-secure"><Icon name="ShieldCheck" :size="15"/>Your account determines your permissions.</p><div class="entry-divider"><span>NEW TO SISU?</span></div><button class="entry-secondary" @click="openSignup">Create your account <Icon name="Plus" :size="16"/></button><p class="entry-subtle">{{policy.self_signup_enabled?'Verify your email and phone, create your password, then sign in.':'Students use Google. Teachers and institutes apply for review, then set a password through a secure email.'}}</p></div>
+      <div id="role-selection-actions" v-show="roleChosen"><p class="entry-action-title">{{selected==='Student'?'Learner':selected}} account</p><fieldset v-if="selected==='Teacher'" class="teacher-entry-path"><legend>How would you like to continue?</legend><label><input v-model="teacherPath" type="radio" value="individual" name="teacher-entry-path">Individual teacher</label><label><input v-model="teacherPath" type="radio" value="institute" name="teacher-entry-path">Institute teacher</label></fieldset><div class="entry-login-actions"><a class="entry-primary" href="/login?redirect-to=/campus" @click="rememberEntry">Sign in with email and password →</a><button class="entry-primary entry-google" :disabled="!policy.google_available" @click="google">Continue with Google</button></div><p v-if="!policy.google_available" class="entry-subtle">Google sign-in is being set up for this site. Students need Google to sign in.</p><p class="entry-secure"><Icon name="ShieldCheck" :size="15"/>Your account determines your permissions.</p><div class="entry-divider"><span>NEW TO SISU?</span></div><button class="entry-secondary" @click="openSignup">Create a new account <Icon name="Plus" :size="16"/></button><p class="entry-subtle">{{policy.self_signup_enabled?'Verify your email and phone, create your password, then sign in.':'Students use Google. Teachers and institutes apply for review, then set a password through a secure email.'}}</p></div>
 
       </template>
 
@@ -152,7 +165,7 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 .role-selection :deep(.web-story-art){width:calc(100% - 140px);height:auto;aspect-ratio:1;object-fit:contain;margin:46px 68px 10px}
 .role-selection :deep(.web-welcome-story footer){min-height:166px;padding:44px 48px 72px;gap:10px;margin-top:auto}
 .role-selection .entry-card{min-width:0;padding:0 48px 0 0;border:0;border-radius:0;box-shadow:none;background:transparent}
-.role-back-link{display:flex;width:fit-content;align-items:center;gap:3px;min-height:24px;color:#56288d;font-size:13px;text-decoration:none}
+.role-back-link{padding:0;border:0;background:none;font-family:inherit;cursor:pointer;display:flex;width:fit-content;align-items:center;gap:3px;min-height:24px;color:#56288d;font-size:13px;text-decoration:none}
 .role-back-link:hover{text-decoration:underline}
 .role-selection .entry-card>h2{font-family:'Manrope Variable',sans-serif;font-size:36px;font-weight:800;line-height:1.2;letter-spacing:-1.2px;margin:24px 0 20px;color:var(--entry-ink)}
 .role-selection .entry-card>.role-selection-subtitle{font-size:14px;line-height:24px;margin:0;color:var(--entry-muted)}
@@ -166,7 +179,12 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 .role-selection.entry-dark .entry-roles button{background:var(--entry-card)}
 .role-selection.entry-dark .entry-roles button:is(:hover,.selected){background:#40314f}
 .role-selection.entry-dark .role-back-link{color:#ceb4ef}
-.role-selection-expanded .entry-card{padding-top:120px;padding-bottom:40px}
+.role-selection-expanded .entry-card{padding-top:48px;padding-bottom:40px}
+.role-selection #role-selection-actions{margin-top:20px;padding:20px 24px;border:1px solid var(--entry-border);border-radius:20px;background:#fcfbfe}
+.role-selection.entry-dark #role-selection-actions{background:var(--entry-card)}
+.role-selection .entry-action-title{margin:0;color:var(--entry-ink);font-size:16px;font-weight:800}
+.role-selection #role-selection-actions .entry-primary{background:#56288d;border-color:#56288d;box-shadow:none}
+.role-selection #role-selection-actions .entry-google{background:#fff;color:#56288d;border-color:var(--entry-border)}
 .role-selection .entry-bottom{padding:24px 48px 0}
 @media(min-width:1000px) and (max-width:1250px){
   .role-selection .entry-layout{grid-template-columns:minmax(0,45%) minmax(0,1fr);gap:48px}
@@ -189,4 +207,13 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
   .role-selection .entry-roles strong{font-size:19px}
   .role-selection .entry-roles small{font-size:13px}
 }
+</style>
+
+<style scoped>
+.teacher-entry-path{display:flex;flex-wrap:wrap;gap:12px 24px;border:0;padding:0;margin:16px 0 0;color:var(--entry-ink)}
+.teacher-entry-path legend{font-size:12px;margin-bottom:10px;color:var(--entry-muted)}
+.teacher-entry-path label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.teacher-entry-path input{accent-color:#56288d}
+.teacher-approved-workspaces{margin-top:24px;font-size:13px;color:#56288d}
+.teacher-approved-workspaces summary{cursor:pointer;padding:8px 0}
 </style>

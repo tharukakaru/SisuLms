@@ -2,6 +2,29 @@
 
 final result: passed
 
+## Teacher sign-in routing
+
+- Added an Individual teacher / Institute teacher choice to the expanded teacher sign-in panel. Both use the existing email/password URL and Google handler. Both signup choices still submit `Individual Teacher`; the second frontend event argument is only navigation intent.
+- Individual teachers continue to the server-selected workspace when available, or the existing billing/verification/profile setup when access is not ready. Institute teachers see the three-option workspace welcome screen, with the existing institute request purposes. Approved workspaces remain accessible; selecting one uses the unchanged campus-context request and dismisses the introduction before reload.
+- The choice is tab-local, expires after 24 hours, binds to the authenticated teacher, and clears on logout, another identity or a non-teacher account. It does not grant roles, membership or classroom access. Google signup completion retains its verification flow. Direct sign-ins without a choice retain existing routing.
+- Added helper and rendered Vue integration tests for sign-in return, active/inactive workspace access, individual continuation, both institute request purposes, signup kind preservation, shared-campus setup and identity isolation. All 121 frontend tests pass. Production build and whitespace checks pass; the build retains its existing large-chunk warning.
+- Browser checked both sign-in paths through a local-only login fixture, institute choice persistence after reload, individual billing gating, and mobile layout without horizontal overflow. No browser console errors. Evidence: `local-private/teacher-entry-institute.png`, `local-private/teacher-entry-options.png`, and `local-private/teacher-entry-mobile.png`. No live credentials, account creation, API contracts, backend code or model formats changed.
+
+## Existing teacher workspace selection
+
+- Source: `C:/Users/nim20/AppData/Local/Temp/codex-clipboard-26f3b63a-a702-4920-a681-344f3b884773.png` (806 x 615). Rendered capture: `local-private/teacher-workspace-desktop.png` (1440 x 1100, matching CSS viewport, 1x density). Combined normalized comparison: `local-private/teacher-workspace-comparison.png`. Full-size controls were also inspected for readable text and focus styling.
+- Updated the Teacher branch of ProviderAccessGate using the existing TeacherSignupLayout, logo and provider artwork. Centered the workspace welcome text with the purple individual-teacher action, pale registered-institute action and text application action. Retained the product's Manrope typeface and purple/lavender tokens. Minor inherited display-font differences and slightly narrower action widths remain P3 polish; no actionable P0/P1/P2 differences. Copy matches the reference except Back intentionally returns to the previous view instead of linking to login, following the user's navigation requirement.
+- The individual action reveals the unchanged SubscriptionBilling component. Institute actions retain the exact `Existing teacher confirmation` and `New application` purposes and unchanged InstituteJoinPicker. Its selection limits, pending/approved requests, submission feedback and refresh controls remain available. The institute-owner branch remains unchanged. The new state only controls which existing UI is visible.
+- Browser checks: both institute actions reached their existing pickers, submitted fictitious local requests with the same profiles/purpose payloads and displayed confirmation. Back returned to the three actions. Individual continuation displayed billing. Console errors: none. Mobile evidence: `local-private/teacher-workspace-mobile.png` at 390 x 844, with no horizontal overflow.
+- All 116 frontend tests passed; production build passed with existing chunk warnings. InstituteJoinPicker and SubscriptionBilling have no source changes. No backend/API/model changes or live applications/payments. Final result: passed.
+
+## Expanded role sign-in and signup choices
+
+- Supersedes direct role-to-signup entry: selecting Student, Teacher or Institute now expands a shared panel with the existing email/password sign-in link, Google action and “Create a new account”. Selecting the same role again collapses the panel; choosing a different role switches it. Role buttons expose their expanded state accessibly.
+- “Create a new account” routes Student to the existing Google learner signup, Teacher to Individual teacher / Institute teacher choices, and Institute to the institute form. Form Back and choice Back preserve their corresponding role context. Only PortalRoot UI state, template and styles changed; existing API calls, signup fields/models, validation and backend remain unchanged.
+- Browser exercised each role, account-creation destination, teacher form, institute form, return navigation, role switching and collapse. Desktop evidence: `local-private/role-expanded-actions.png` at 1440px viewport. Mobile: `local-private/role-expanded-mobile.png` at 390 x 844 with no horizontal overflow. Removed dependence on the unavailable decorative Google icon in this panel, leaving the existing labeled Google action intact.
+- All 116 frontend tests passed. PortalRoot script/template compile and whitespace checks passed. Existing sign-in URL and Google handler are unchanged; no live login or account creation performed. Final result: passed.
+
 ## Direct institute role entry
 
 - “We're an institute” now opens the existing styled Institute signup directly, using the same provider selection handler and signup kind. Back restores role selection. This removes the old intermediate institute login/actions view from this path without modifying signup models, validation, requests or backend code.

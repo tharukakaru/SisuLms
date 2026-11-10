@@ -2,10 +2,11 @@
 import {ref,computed,onMounted,onBeforeUnmount} from 'vue'
 import {request} from './client'
 const props=defineProps({provider:Boolean})
+const emit=defineEmits(['opening'])
 const chosen=computed(()=>institutes.value.find(i=>i.institute===selected.value))
 const institutes=ref([]),selected=ref(''),loading=ref(true),saving=ref(false),error=ref('')
 async function load(){loading.value=true;error.value='';try{const data=await request('campus_context','choices',{},'GET');institutes.value=data.institutes;selected.value=data.selected||''}catch(e){error.value=e.message}finally{loading.value=false}}
-async function change(){saving.value=true;error.value='';try{await request('campus_context',selected.value?'select':'clear',selected.value?{institute:selected.value}:{});window.location.assign('/campus')}catch(e){error.value=e.message;saving.value=false}}
+async function change(){saving.value=true;error.value='';try{await request('campus_context',selected.value?'select':'clear',selected.value?{institute:selected.value}:{});emit('opening');window.location.assign('/campus')}catch(e){error.value=e.message;saving.value=false}}
 onMounted(()=>{load();window.addEventListener('sisu-memberships',load)})
 onBeforeUnmount(()=>window.removeEventListener('sisu-memberships',load))
 </script>

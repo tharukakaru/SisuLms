@@ -1,15 +1,24 @@
 <script setup>
 import discover from '../assets/figma/discover.png'
+import providerCommunity from '../assets/figma/provider-community.png'
+defineProps({provider:Boolean})
 </script>
 
 <template>
-  <section class="web-welcome-story" aria-label="Welcome to SISU">
+  <section class="web-welcome-story" :class="{'provider-story':provider}" aria-label="Welcome to SISU">
     <div class="web-story-copy">
-      <span>A LITTLE SPARK. A BIGGER WORLD.</span>
-      <h1>Big dreams.<br>Start here.</h1>
-      <p>A place for curious minds, inspiring teachers<br>and all the things you’ll become.</p>
+      <template v-if="provider">
+        <span>GOOD PEOPLE. BRIGHT FUTURES.</span>
+        <h1>Learning is better.<br>Together.</h1>
+        <p>Meet your people. Share what you know.<br>Build something brighter together.</p>
+      </template>
+      <template v-else>
+        <span>A LITTLE SPARK. A BIGGER WORLD.</span>
+        <h1>Big dreams.<br>Start here.</h1>
+        <p>A place for curious minds, inspiring teachers<br>and all the things you’ll become.</p>
+      </template>
     </div>
-    <img class="web-story-art" :src="discover" alt="Students learning together with the SISU mascot" width="560" height="460">
+    <img class="web-story-art" :src="provider?providerCommunity:discover" :alt="provider?'Learners and the SISU mascot learning together with an online teacher':'Students learning together with the SISU mascot'" width="560" height="460">
     <footer><strong>More than lessons. A place to belong.</strong><span>Learn · Connect · Grow</span></footer>
   </section>
 </template>
@@ -27,5 +36,6 @@ import discover from '../assets/figma/discover.png'
   .web-welcome-story footer{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:10px;min-height:172px;padding:46px 48px 24px;margin-top:auto;background:url('../assets/figma/story-footer.svg') top center/cover no-repeat;color:white}
   .web-welcome-story footer strong{font-size:16px;line-height:1.4}
   .web-welcome-story footer span{font-size:12px;line-height:1.4}
+  .web-welcome-story.provider-story footer{background-image:url('../assets/figma/provider-story-footer.svg');color:#56288d}
 }
 </style>

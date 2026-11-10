@@ -20,12 +20,15 @@ import BrandLogo from '../BrandLogo.vue'
 
 import RoleWelcome from '../learning/RoleWelcome.vue'
 import WebWelcomeStory from '../learning/WebWelcomeStory.vue'
+import LearnerSignIn from './LearnerSignIn.vue'
+import ProviderAccountChoice from './ProviderAccountChoice.vue'
 
 import '@fontsource-variable/manrope'
 
 import {ref,onMounted} from 'vue'
 
 import Icon from '../Icon.vue'
+import {ArrowLeft} from 'lucide-vue-next'
 
 import '../brand.css'
 
@@ -55,7 +58,17 @@ const session=ref(null),error=ref(''),busy=ref(true),selected=ref('Student'),sig
 
 const roles=[{name:'Student',icon:'GraduationCap',text:'Learn, explore and grow.'},{name:'Teacher',icon:'BookOpen',text:'Your own teaching space.'},{name:'Institute',icon:'Building2',text:'Your teachers and classrooms.'}]
 
+const roleChosen=ref(false)
+const providerSignupKind=ref('')
+const roleCopy={
+  Student:{title:'I’m a learner',description:'Find teachers, join classes and make room to grow.'},
+  Teacher:{title:'I’m a teacher',description:'Teach your classes and manage your memberships.'},
+  Institute:{title:'We’re an institute',description:'Manage your team, programmes and classrooms.'},
+}
+
 function openSignup(){sessionStorage.setItem('sisu_signup_role',selected.value==='Teacher'?'Individual Teacher':selected.value);signup.value=true}
+
+function openProviderSignup(kind){providerSignupKind.value=kind;sessionStorage.setItem('sisu_signup_role',kind);signup.value=true}
 
 async function google(){try{const r=await request('portal_policy','google_start');const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
 
@@ -85,21 +98,26 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 
   <VerifiedSignup v-else-if="session?.authenticated && policy.self_signup_enabled && newGoogleSignup" :policy="policy" google-session @back="connect"/><div v-else-if="session?.authenticated" class="entry-onboarding"><h1>Let’s make this space yours.</h1><p>Complete your profile and mobile verification before your workspace is activated.</p><p>Account type: {{session.onboarding_kind}}</p><MobileVerification/><Profile :key="session.onboarding_kind" :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':session.onboarding_kind}" @saved="connect"/><a href="/me">Account settings</a><a href="/api/method/logout">Sign out</a></div>
 
-  <Signup v-else-if="signup" @back="signup=false" @dashboard="connect"/>
+  <Signup v-else-if="signup" :initial-provider-kind="providerSignupKind" @back="signup=false" @dashboard="connect"/>
 
-  <main v-else class="sisu-entry" :class="{'entry-dark':dark}">
+  <main v-else class="sisu-entry role-selection" :class="{'entry-dark':dark,'role-selection-expanded':roleChosen&&selected==='Institute'}">
 
-    <header><a href="#" class="entry-brand"><BrandLogo/></a><div><span class="entry-note">A little space. A world of possibility.</span><button class="entry-icon" @click="dark=!dark" :aria-label="dark?'Light mode':'Dark mode'"><Icon :name="dark?'Sun':'Moon'"/></button></div></header>
+    <header class="role-selection-header"><a href="#" class="entry-brand" aria-label="SISU home"><BrandLogo/></a><button v-if="roleChosen&&selected==='Institute'" class="entry-icon" @click="dark=!dark" :aria-label="dark?'Light mode':'Dark mode'"><Icon :name="dark?'Sun':'Moon'"/></button></header>
 
-    <div class="entry-layout"><WebWelcomeStory/><section class="entry-story"><span class="entry-kicker">YOUR NEXT CHAPTER STARTS HERE</span><h1>Big dreams.<br>Little steps.<br><em>Your space.</em></h1><p>A calm home for learning, teaching and all the wonderful things you’ll become.</p><div class="entry-garden" aria-hidden="true"><span class="entry-orbit"></span><div class="entry-book"><Icon name="BookOpen" :size="75"/><span>Keep growing.</span></div><span class="garden-spark">✧</span><span class="garden-leaf">❧</span><span class="garden-dot"></span></div><footer><span>✦ A place to belong</span><span>Made for curious minds</span></footer></section>
+    <div class="entry-layout"><WebWelcomeStory :provider="roleChosen&&selected==='Teacher'"/>
 
-    <section class="entry-card"><span class="entry-kicker">COME ON IN</span><h2>It’s good to see you.</h2><p>Choose your space to get started.</p><div class="entry-roles"><button v-for="r in roles" :key="r.name" @click="selected=r.name" :class="{selected:selected===r.name}" :aria-pressed="selected===r.name"><span><Icon :name="r.icon" :size="21"/></span><div><strong>{{r.name}}</strong><small>{{r.text}}</small></div><i>{{selected===r.name?'✓':'›'}}</i></button></div>
+    <section class="entry-card" :aria-labelledby="roleChosen&&selected==='Teacher'?'provider-account-title':roleChosen&&selected==='Student'?'learner-signin-title':'role-selection-title'">
+      <LearnerSignIn v-if="roleChosen&&selected==='Student'" :google-available="!!policy.google_available" @google="google" @choose-path="roleChosen=false"/>
+      <ProviderAccountChoice v-else-if="roleChosen&&selected==='Teacher'" @choose="openProviderSignup"/>
+      <template v-else><a class="role-back-link" href="/login?redirect-to=/campus"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back to sign in</a><h2 id="role-selection-title">Choose your SISU role</h2><p class="role-selection-subtitle">Your next chapter starts here.</p><div class="entry-roles"><button v-for="r in roles" :key="r.name" type="button" @click="selected=r.name;roleChosen=true" :class="{selected:roleChosen&&selected===r.name}" :aria-pressed="roleChosen&&selected===r.name" aria-controls="role-selection-actions"><div><strong>{{roleCopy[r.name].title}}</strong><small>{{roleCopy[r.name].description}}</small></div></button></div>
 
-      <RoleWelcome :role="selected"/><div class="entry-login-actions"><a class="entry-primary" href="/login?redirect-to=/campus">Sign in with email and password →</a><button class="entry-primary entry-google" :disabled="!policy.google_available" @click="google"><img :src="'/assets/frappe/icons/social/google.svg'" alt="" width="20" height="20"/>Continue with Google</button></div><p v-if="!policy.google_available" class="entry-subtle">Google sign-in is being set up for this site. Students need Google to sign in.</p><p class="entry-secure"><Icon name="ShieldCheck" :size="15"/>Your account determines your permissions.</p><div class="entry-divider"><span>NEW TO SISU?</span></div><button class="entry-secondary" @click="openSignup">Create your account <Icon name="Plus" :size="16"/></button><p class="entry-subtle">{{policy.self_signup_enabled?'Verify your email and phone, create your password, then sign in.':'Students use Google. Teachers and institutes apply for review, then set a password through a secure email.'}}</p>
+      <div id="role-selection-actions" v-show="roleChosen"><RoleWelcome :role="selected"/><div class="entry-login-actions"><a class="entry-primary" href="/login?redirect-to=/campus">Sign in with email and password →</a><button class="entry-primary entry-google" :disabled="!policy.google_available" @click="google"><img :src="'/assets/frappe/icons/social/google.svg'" alt="" width="20" height="20"/>Continue with Google</button></div><p v-if="!policy.google_available" class="entry-subtle">Google sign-in is being set up for this site. Students need Google to sign in.</p><p class="entry-secure"><Icon name="ShieldCheck" :size="15"/>Your account determines your permissions.</p><div class="entry-divider"><span>NEW TO SISU?</span></div><button class="entry-secondary" @click="openSignup">Create your account <Icon name="Plus" :size="16"/></button><p class="entry-subtle">{{policy.self_signup_enabled?'Verify your email and phone, create your password, then sign in.':'Students use Google. Teachers and institutes apply for review, then set a password through a secure email.'}}</p></div>
+
+      </template>
 
       <div v-if="error" class="entry-status" role="status"><span class="status-dot"></span><div><strong>Connection or account issue</strong><p>{{error}}</p><button @click="connect" :disabled="busy">Check connection again</button></div></div><p v-else-if="busy" role="status">Checking your session…</p>
 
-    </section></div><footer class="entry-bottom">{{policy.self_signup_enabled?'Teachers and institutes select and pay for a plan before workspace access.':'One 14-day trial per new account. Then a monthly subscription.'}}<span>Secure access · No sample accounts</span></footer>
+    </section></div><footer v-if="roleChosen&&selected==='Institute'" class="entry-bottom">{{policy.self_signup_enabled?'Teachers and institutes select and pay for a plan before workspace access.':'One 14-day trial per new account. Then a monthly subscription.'}}<span>Secure access · No sample accounts</span></footer>
 
   </main>
 
@@ -116,3 +134,56 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 
 
 <style scoped>.entry-login-actions{display:grid;gap:16px;margin-top:18px}.entry-card .entry-login-actions .entry-primary{margin:0;min-height:52px}</style>
+
+<style scoped>
+.sisu-entry.role-selection{--entry-bg:#fff;--entry-card:#fff;--entry-ink:#19182e;--entry-muted:#78758b;--entry-border:#e7e3ef;position:relative;min-height:100vh;padding:24px;background:var(--entry-bg);font-family:'Manrope Variable',sans-serif}
+.sisu-entry.role-selection.entry-dark{--entry-bg:#201a2d;--entry-card:#2c243b;--entry-ink:#f5f1fb;--entry-muted:#b3a5c5;--entry-border:#584965}
+.role-selection .role-selection-header{position:absolute;top:64px;left:max(72px,calc((100% - 1392px)/2 + 48px));right:72px;z-index:1}
+.role-selection .entry-brand{display:flex;line-height:1}
+.role-selection .entry-layout{max-width:1392px;min-height:calc(100vh - 48px);grid-template-columns:minmax(0,600px) minmax(0,1fr);gap:96px;margin:0 auto;align-items:center}
+.role-selection :deep(.web-welcome-story){display:flex;flex-direction:column;align-self:stretch;min-height:1052px;padding:142px 0 0;border-radius:0 0 32px 32px;background:#fff;color:#56288d}
+.role-selection :deep(.web-story-copy){padding:0 48px}
+.role-selection :deep(.web-story-copy>span){font-size:10px;letter-spacing:1.3px}
+.role-selection :deep(.web-story-copy h1){font-size:55px!important;line-height:1.08!important;letter-spacing:-1.8px;margin:22px 0}
+.role-selection :deep(.web-story-copy p){font-size:16px;line-height:1.4;font-weight:700}
+.role-selection :deep(.web-story-art){width:calc(100% - 140px);height:auto;aspect-ratio:1;object-fit:contain;margin:46px 68px 10px}
+.role-selection :deep(.web-welcome-story footer){min-height:166px;padding:44px 48px 72px;gap:10px;margin-top:auto}
+.role-selection .entry-card{min-width:0;padding:0 48px 0 0;border:0;border-radius:0;box-shadow:none;background:transparent}
+.role-back-link{display:flex;width:fit-content;align-items:center;gap:3px;min-height:24px;color:#56288d;font-size:13px;text-decoration:none}
+.role-back-link:hover{text-decoration:underline}
+.role-selection .entry-card>h2{font-family:'Manrope Variable',sans-serif;font-size:36px;font-weight:800;line-height:1.2;letter-spacing:-1.2px;margin:24px 0 20px;color:var(--entry-ink)}
+.role-selection .entry-card>.role-selection-subtitle{font-size:14px;line-height:24px;margin:0;color:var(--entry-muted)}
+.role-selection .entry-roles{gap:20px;margin:20px 0 0}
+.role-selection .entry-card .entry-roles button{min-height:102px;padding:22px 24px;border:1px solid var(--entry-border);border-radius:20px;background:#fcfbfe;font-family:inherit;color:var(--entry-ink);transition:background .15s,border-color .15s}
+.role-selection .entry-roles button div{gap:6px}
+.role-selection .entry-roles strong{font-size:20px;font-weight:800;line-height:1.4}
+.role-selection .entry-roles small{font-size:14px;line-height:1.5;color:var(--entry-muted)}
+.role-selection .entry-card .entry-roles button:hover,.role-selection .entry-card .entry-roles button.selected{background:#f4effb;border-color:#9574bd}
+.role-selection :is(.entry-roles button,.role-back-link,.entry-icon):focus-visible{outline:3px solid #8b61bb;outline-offset:4px}
+.role-selection.entry-dark .entry-roles button{background:var(--entry-card)}
+.role-selection.entry-dark .entry-roles button:is(:hover,.selected){background:#40314f}
+.role-selection.entry-dark .role-back-link{color:#ceb4ef}
+.role-selection-expanded .entry-card{padding-top:120px;padding-bottom:40px}
+.role-selection .entry-bottom{padding:24px 48px 0}
+@media(min-width:1000px) and (max-width:1250px){
+  .role-selection .entry-layout{grid-template-columns:minmax(0,45%) minmax(0,1fr);gap:48px}
+  .role-selection .entry-card{padding-right:24px}
+  .role-selection :deep(.web-story-copy){padding-inline:32px}
+  .role-selection :deep(.web-story-copy h1){font-size:48px!important}
+  .role-selection :deep(.web-story-art){width:calc(100% - 64px);margin-inline:32px}
+}
+@media(max-width:999px){
+  .sisu-entry.role-selection{padding:32px 24px}
+  .role-selection .role-selection-header{position:static;max-width:648px;margin:0 auto 60px}
+  .role-selection .entry-layout{display:block;min-height:0;max-width:648px;margin:0 auto}
+  .role-selection :deep(.web-welcome-story){display:none}
+  .role-selection .entry-card{padding:0}
+  .role-selection .entry-bottom{padding:32px 0 0}
+}
+@media(max-width:480px){
+  .role-selection .entry-card>h2{font-size:30px;letter-spacing:-1px}
+  .role-selection .entry-card .entry-roles button{padding:20px;min-height:112px}
+  .role-selection .entry-roles strong{font-size:19px}
+  .role-selection .entry-roles small{font-size:13px}
+}
+</style>

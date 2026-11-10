@@ -29,6 +29,7 @@ async function compile(name,output,realGate=false){
       if(path==='vue')return line
       if(path==='./teacherEntryPath')return line.replace(path,path+'.js')
       if(path==='./ProviderAccessGate.vue'&&realGate)return `import ProviderAccessGate from './.teacher-gate-flow-test.mjs'`
+      if(path==='./PaymentRequired.vue')return `import PaymentRequired from './.payment-required-flow-test.mjs'`
       if(path==='./client')return 'const request=(...args)=>globalThis.__teacherFlowRequest(...args)'
       if(path==='../asyncPage')return `const defineAsyncComponent=loader=>stub(loader.toString().match(/import\\(['"](.+?)['"]\\)/)[1].split('/').pop().replace('.vue',''))`
       if(binding.startsWith('{'))return binding.slice(1,-1).split(',').map(n=>`const ${n.trim()}=stub('${n.trim()}')`).join('\n')
@@ -41,20 +42,22 @@ async function compile(name,output,realGate=false){
 test('teacher sign-in routes preserve access gates, institute actions and signup kinds',async()=>{
   const output=new URL('../src/native/.teacher-portal-flow-test.mjs',import.meta.url)
   const gateOutput=new URL('../src/native/.teacher-gate-flow-test.mjs',import.meta.url)
+  const paymentOutput=new URL('../src/native/.payment-required-flow-test.mjs',import.meta.url)
   const previous={window:globalThis.window,location:globalThis.location,sessionStorage:globalThis.sessionStorage,__teacherFlowRequest:globalThis.__teacherFlowRequest}
   const values=new Map(),calls=[]
   globalThis.sessionStorage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)}
   globalThis.location={hash:'',search:''}
   globalThis.window={history:{length:1}}
-  let session={authenticated:false},available=true,app
+  let session={authenticated:false},available=true,billingError=false,app
   globalThis.__teacherFlowRequest=async(...args)=>{
     calls.push(args)
     if(args[0]==='portal_session')return session
     if(args[0]==='portal_policy')return {self_signup_enabled:true,google_available:true}
-    if(args[0]==='account_billing')return {account:{workspace_available:available}}
+    if(args[0]==='account_billing'){if(billingError)throw Error('Unable to check billing. Try again.');return {account:{workspace_available:available}}}
     throw Error('Unexpected API call '+args[0])
   }
   try{
+    await compile('PaymentRequired',paymentOutput)
     await compile('ProviderAccessGate',gateOutput)
     await compile('PortalRoot',output,true)
     const {default:Portal}=await import(output.href)
@@ -67,7 +70,7 @@ test('teacher sign-in routes preserve access gates, institute actions and signup
       const signIn=nodes(root).find(n=>n.tag==='a'&&n.props.href==='/login?redirect-to=/campus')
       assert.ok(signIn);signIn.props.onClick()
       session=teacher;await state.connect();await flush()
-      if(path==='individual')assert.ok(marker(root,paid?'App':'SubscriptionBilling'))
+      if(path==='individual')assert.ok(paid?marker(root,'App'):button(root,'Open billing'))
       else{
         assert.ok(button(root,'Continue as individual teacher'))
         assert.equal(marker(root,'App'),undefined)
@@ -78,10 +81,19 @@ test('teacher sign-in routes preserve access gates, institute actions and signup
         assert.equal(marker(root,'InstituteJoinPicker').props.purpose,'New application')
         marker(root,'InstituteJoinPicker').props.onBack();await nextTick()
         button(root,'Continue as individual teacher').props.onClick();await nextTick()
-        assert.ok(marker(root,paid?'App':'SubscriptionBilling'))
+        assert.ok(paid?marker(root,'App'):button(root,'Open billing'))
       }
       assert.deepEqual(calls.filter(c=>c[0]==='account_billing'),[['account_billing','status']])
       assert.deepEqual(calls.filter(c=>c[0]==='portal_session'),[['portal_session','current',{},'GET'],['portal_session','current',{},'GET']])
+      if(!paid){
+        button(root,'Open billing').props.onClick();await nextTick()
+        assert.ok(marker(root,'SubscriptionBilling'))
+        button(root,'Back').props.onClick();await nextTick()
+        assert.ok(button(root,'Check again'))
+        available=true;button(root,'Check again').props.onClick();await flush()
+        assert.ok(marker(root,'App'))
+        assert.equal(calls.filter(c=>c[0]==='account_billing').length,2)
+      }
       app.unmount();app=null
     }
     for(const path of ['individual','institute']){
@@ -97,5 +109,16 @@ test('teacher sign-in routes preserve access gates, institute actions and signup
       assert.ok(marker(root,'App'));assert.equal(button(root,'Join your registered institute'),undefined)
       app.unmount();app=null
     }
-  }finally{app?.unmount();Object.assign(globalThis,previous);await Promise.all([unlink(output),unlink(gateOutput)])}
+    values.clear();session={...teacher,role:'Admin',member:{role:'Admin'}};available=false
+    const root={children:[]};app=renderer.createApp(Portal);app.mount(root);await flush()
+    assert.ok(button(root,'Open billing'))
+    billingError=true;button(root,'Check again').props.onClick();await flush()
+    assert.ok(nodes(root).some(n=>n.props?.role==='alert'&&n.text==='Unable to check billing. Try again.'))
+    assert.equal(marker(root,'App'),undefined)
+    button(root,'Open billing').props.onClick();await nextTick()
+    assert.ok(marker(root,'SubscriptionBilling'))
+    button(root,'Back').props.onClick();await nextTick()
+    billingError=false;available=true;button(root,'Check again').props.onClick();await flush()
+    assert.ok(marker(root,'App'))
+  }finally{app?.unmount();Object.assign(globalThis,previous);await Promise.all([unlink(output),unlink(gateOutput),unlink(paymentOutput)])}
 })

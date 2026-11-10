@@ -2,6 +2,15 @@
 
 final result: passed
 
+## Payment-required screen
+
+- Source: `C:/Users/nim20/AppData/Local/Temp/codex-clipboard-69270fbe-80cf-4cd4-9d62-ab3a55c5d67e.png` (765 x 577). Implementation: `local-private/payment-required-desktop.png` (1440 x 1100 at a matching CSS viewport, 1x density). Compared together in `local-private/payment-required-comparison.png`, with the implementation proportionally reduced to the reference height. The reference is a reduced desktop composition; the existing desktop/mobile breakpoint remains intact.
+- Reused VerificationLayout, the existing verification illustration, SISU logo, dark purple footer, Manrope typography and Lucide arrows. Added the subscription-attention heading, muted explanatory copy, outlined Payment required card, purple Open billing action and pale Check again action. No generated assets, new backend routes or model changes.
+- Full-view comparison and readable desktop/mobile captures show no actionable P0/P1/P2 mismatches. Remaining P3 differences are the inherited display-font weight/shape, illustration raster sharpness, and small proportional spacing differences from the reference. No additional focused crop was necessary because all controls and text were readable at full size. First visual comparison passed; no visual correction loop was needed.
+- Open billing reveals the existing SubscriptionBilling component; its requests, plan controls, invoices and checkout remain unchanged. Check again emits the existing changed event to refresh session/billing access. Refresh loading/error state is displayed, and Back from billing returns to the summary. Teacher institute selection and existing access conditions remain unchanged. Existing Back behavior is retained rather than introducing a login redirect.
+- Browser verified the payment summary, refresh while unavailable, opening billing and returning, plus mobile at 390 x 844 with no horizontal overflow. Mobile capture: `local-private/payment-required-mobile.png`. Browser console errors: none. Local fixtures only; no live payments or credentials were used.
+- All 121 frontend tests pass, including rendered teacher/admin payment-summary transitions, billing navigation, refresh errors, and server-confirmed access recovery. Production build and whitespace checks pass; the pre-existing chunk-size warning remains. Final result: passed.
+
 ## Teacher sign-in routing
 
 - Added an Individual teacher / Institute teacher choice to the expanded teacher sign-in panel. Both use the existing email/password URL and Google handler. Both signup choices still submit `Individual Teacher`; the second frontend event argument is only navigation intent.

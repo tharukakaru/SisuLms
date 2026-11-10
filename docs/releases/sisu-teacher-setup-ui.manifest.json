@@ -1,0 +1,18 @@
+{
+  "frontend/src/native/GeneralCampus.vue": {
+    "before": "7e1da4befb770cfdb6af15975ae4c502f858bf610ccad996382c391ba1f16640",
+    "after": "cdf721ce559274509805e15a92b13d3b8c1833275ee27fa40a6cbbdaa0390a39"
+  },
+  "frontend/src/native/CampusSwitcher.vue": {
+    "before": "89c2c7bf4db5c499fe0b913480f605062b4409c8c357d6e85b99c1859ed5713b",
+    "after": "3c33e099535f9b7df08c63cf296c4c65348f9c1866e11bd6d5f3aa5e23ac9c48"
+  },
+  "frontend/src/native/InstituteJoinPicker.vue": {
+    "before": "1b605e3bb4139e35be2ad1559eca9c2f7a9576fa97b5649c381838a14fa54571",
+    "after": "0868bb746f534e3fb0a7f4aac128ec19d3726febac385f287c4d7ab68fcc840c"
+  },
+  "frontend/src/native/TeacherSetup.vue": {
+    "before": null,
+    "after": "baa5685f119266d7d44e7a28646d0f7179dee91a7c96aefa7207e8955a7de2f4"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "frontend/src/main.js": {
+    "before": "d4babd0653101f1747d345c2f491d23449fce3e895f93cff86473f6e5aec8a99",
+    "after": "8316ebd966a246db508733700e5cf80a12aa1b6777f05a27bbe74afcca6175c9"
+  },
+  "frontend/src/native/ControlPlane.vue": {
+    "before": "56289bc7cbf7d5e6b6e7f923b270ca287699cc00c2b38899ba0c360d39f676c9",
+    "after": "05d685511916056b8476c2f7365122c3ac164df2ca096705075e8a6a6791348f"
+  },
+  "frontend/src/native/PortalRoot.vue": {
+    "before": "e6a3e680faff4206a613c9122804a52a29d689ce798e147938d3d168c1cea965",
+    "after": "2f023cebfc83db995560cd9ade5cae418faf13f9c0b8c32b4ce9f79e9288dbc8"
+  },
+  "frontend/src/web-refinement.css": {
+    "before": null,
+    "after": "c891cf71ba2d2c8bae385221c94ecd6320c15ccf589aec41294a2ac79ba12a1d"
+  },
+  "frontend/src/learning/WebWelcomeStory.vue": {
+    "before": null,
+    "after": "aacfff0184aa8f127857cab00beed5fc56e219f3723304246af2febcfedb334b"
+  },
+  "frontend/src/assets/figma/discover.png": {
+    "before": null,
+    "after": "6e3acb2723dffed02a7b5deba0c3e9e133b672fd7430e29d67a6ab68fb8f7e28"
+  },
+  "frontend/src/assets/figma/story-footer.svg": {
+    "before": null,
+    "after": "bab6006872f140f298cc2aea79efe6e791c89aff18e8ec6c2bf421295495828a"
+  },
+  "institute_lms/public/demo/accounting.png": {
+    "before": null,
+    "after": "26a88ac9d410798c99e4639d7314081ce802bc0ea61be6901ce2b295718d8715"
+  },
+  "institute_lms/public/demo/biology.png": {
+    "before": null,
+    "after": "818daca08fef404912814cdcdb803170f61e5e581b9f6645cae723d13205c00c"
+  },
+  "institute_lms/public/demo/dilini.jpg": {
+    "before": null,
+    "after": "f29a547f7c661d493ae5d710bd822b52b9804086a875d1be7798ee3af4345ba2"
+  },
+  "institute_lms/public/demo/economics.png": {
+    "before": null,
+    "after": "35bed7b64dc3cb870e4a05ce366585a39d969849349e855d138e274a5f459e3a"
+  },
+  "institute_lms/public/demo/institute-admin.jpg": {
+    "before": null,
+    "after": "7421f935cb68243072487f7fb0b1be2b3999cd44bf244d08b305dac780cc294f"
+  },
+  "institute_lms/public/demo/kasun.jpg": {
+    "before": null,
+    "after": "505665d7fc062eff54eace34637aafd4cc4cd439dc723ecbb0d4da2216c13fb5"
+  },
+  "institute_lms/public/demo/navodya.jpg": {
+    "before": null,
+    "after": "bad992f8a10e7f9ffc4fb056b988f53c92264b0c45751c4aec508866c122b676"
+  },
+  "institute_lms/public/demo/physics.png": {
+    "before": null,
+    "after": "599a79ca36869ec6c56213152ba67b0f9b87e5dcd97ad1f8398a2a1b4453dc04"
+  }
+}

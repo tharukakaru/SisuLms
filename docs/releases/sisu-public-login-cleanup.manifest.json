@@ -1,0 +1,6 @@
+{
+  "frontend/src/native/PortalRoot.vue": {
+    "before": "2f023cebfc83db995560cd9ade5cae418faf13f9c0b8c32b4ce9f79e9288dbc8",
+    "after": "603b899fef249249a6c5c440b8f7a945514947b6e202f82b466680520b6778c3"
+  }
+}

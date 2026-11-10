@@ -7,12 +7,14 @@ const demoClass=ref(null)
 import ProfileEditor from '../commerce/ProfileEditor.vue'
 import MobileVerification from './MobileVerification.vue'
 import InstituteJoinPicker from './InstituteJoinPicker.vue'
+import TeacherSetup from './TeacherSetup.vue'
 const joinPurpose=ref('')
 const props=defineProps({session:{type:Object,required:true},embedded:Boolean,instituteScope:Boolean,section:{type:String,default:'discover'}})
 const profileVersion=ref(0)
 
 const tab=ref(props.section),query=ref(''),providers=ref([]),news=ref([]),classes=ref([]),busy=ref(false),error=ref(''),selected=ref(null),following=ref({}),saving=ref('')
 async function load(){
+ if(!props.embedded&&props.session.onboarding_kind==='Teacher')return
  if(busy.value)return
  busy.value=true;error.value=''
  try{
@@ -39,7 +41,7 @@ async function follow(p){
 onMounted(load)
 </script>
 <template>
-<DemoLesson v-if="demoClass" :classroom="demoClass" @close="demoClass=null" @unlocked="load"/><main class="general-campus" :class="{embedded}">
+<TeacherSetup v-if="!embedded&&session.onboarding_kind==='Teacher'"/><template v-else><DemoLesson v-if="demoClass" :classroom="demoClass" @close="demoClass=null" @unlocked="load"/><main class="general-campus" :class="{embedded}">
 <aside v-if="!embedded" class="campus-sidebar"><a class="campus-brand" href="/">sisu.</a><p>Your learning space</p><nav aria-label="Dashboard"><button v-for="item in [['discover','Teachers & institutes'],['classes','My classes'],['news','News'],['profile','My profile']]" :key="item[0]" :aria-pressed="tab===item[0]" :disabled="busy" @click="choose(item[0])">{{item[1]}}</button></nav><a href="/api/method/logout">Sign out</a></aside><div class="campus-content">
 <header v-if="!embedded"><span>YOUR LEARNING SPACE</span><h1>{{session.onboarding_kind==='Teacher'?'Your teaching community':'My SISU'}}</h1><p>{{session.onboarding_kind==='Teacher'?'Open your teaching workspace above, or find an institute to teach with.':'Discover your next class and stay connected with the people you learn from.'}}</p></header>
 <section v-if="session.onboarding_kind==='Teacher'" class="teacher-join"><h2>Teach with your institute</h2><p>Request to join an institute. Its administrator must approve you before you can use its teaching workspace.</p><div class="actions"><button @click="joinPurpose='Existing teacher confirmation'">I already teach at an institute</button><button @click="joinPurpose='New application'">Apply to an institute</button></div><InstituteJoinPicker v-if="joinPurpose" :key="joinPurpose" :purpose="joinPurpose" @back="joinPurpose=''"/></section>
@@ -50,7 +52,7 @@ onMounted(load)
 <section v-else-if="tab==='profile'"><h2>My account</h2><p>You can explore SISU without joining an institute. Verify your phone and complete your profile when you are ready to follow providers or register.</p><ProfileEditor :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':session.onboarding_kind||'Student'}"/><a href="/api/method/logout">Sign out</a></section>
 <section v-else><h2>Classes from your follows</h2><p>Institute classes you have enrolled in are also available in that institute’s workspace.</p><div class="cards"><article v-for="c in classes" :key="c.name"><small>{{c.fee_mode==='Free'?'Free':'Locked'}} · {{c.provider_name}}</small><h3>{{c.title}}</h3><p>{{c.subject}}</p><span v-if="c.demo" class="demo-badge">{{c.unlocked?'Unlocked demo':'Locked demo'}}</span><button v-if="c.demo" class="button primary" @click="demoClass=c">{{c.unlocked?'Open demo lesson':'Enter enrollment key'}}</button><p v-else>Register with this provider and open its workspace to enroll. Following does not unlock paid classes.</p></article></div><div v-if="!busy&&!error&&!classes.length" class="friendly-empty"><span aria-hidden="true">▱</span><h3>Your next class is waiting to be discovered</h3><p>Follow a teacher or institute to discover their published free classes here.</p></div></section>
 <InstituteRegistration v-if="selected" :institute="selected" @close="selected=null"/>
-</div></main>
+</div></main></template>
 </template>
 <style scoped>.demo-badge{display:block;margin:12px 0;color:#633491;font-size:13px;font-weight:700}.friendly-empty{min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;border:1px dashed #dcd4e9;border-radius:22px;background:linear-gradient(135deg,#f5f2fb99,#fff9);margin:24px 0;color:#746784}.friendly-empty>span{font-size:60px;opacity:.25}.friendly-empty h3{font-size:20px;color:#574668}.friendly-empty p{max-width:480px}.search input::placeholder{font-size:13px;color:#8a7f97}.general-campus .search input{padding-inline:20px}
 .general-campus{max-width:1150px;margin:32px auto;padding:24px;color:#38284a;font-family:Manrope,system-ui,sans-serif}.general-campus header span{font-size:12px;letter-spacing:.12em}.general-campus h1{font-size:38px;margin:10px 0}.general-campus p{line-height:1.7}.general-campus nav,.actions,.search{display:flex;gap:14px;flex-wrap:wrap}.general-campus nav{margin:28px 0}.general-campus button{padding:12px 18px;border:1px solid #d8cfe7;border-radius:12px;background:white;color:#502785;font:inherit;cursor:pointer}.general-campus button[aria-pressed=true]{background:#56288d;color:white}.general-campus button:disabled{opacity:.6;cursor:default}.general-campus input{flex:1;min-width:170px;padding:14px;border:1px solid #d8cfe7;border-radius:12px;font:inherit}.general-campus label{display:block;margin-bottom:10px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(290px,100%),1fr));gap:20px}.general-campus article{padding:24px;border:1px solid #e5ddef;border-radius:18px;margin:16px 0;background:white}.general-campus h2{font-size:23px}.actions{margin-top:18px}

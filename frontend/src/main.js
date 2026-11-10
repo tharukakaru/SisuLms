@@ -3,6 +3,7 @@ import App from './native/PortalRoot.vue'
 import './style.css'
 import './brand.css'
 import './clean.css'
+import './web-refinement.css'
 import {installSignOut} from './logout'
 installSignOut()
 // Only retired fictional workspace stores are removed. Personal notes, uploaded

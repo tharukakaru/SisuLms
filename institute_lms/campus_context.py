@@ -33,9 +33,19 @@ def membership(institute):
     return member
 
 
+def selected_institute():
+    # Mobile tokens retain their own fixed, validated institute context.
+    override = getattr(frappe.local, 'student_request_institute', None)
+    if override:
+        return override
+    if getattr(frappe.local, 'il_mobile_session', None):
+        return getattr(frappe.local, 'il_mobile_institute', None)
+    return frappe.session.data.get(SESSION_KEY)
+
+
 def current_institute():
     require_user()
-    selected = getattr(frappe.local,'student_request_institute',None) or frappe.session.data.get(SESSION_KEY)
+    selected = selected_institute()
     if not selected:
         frappe.throw('Choose an institute to continue.', frappe.PermissionError)
     membership(selected)

@@ -10,6 +10,7 @@
     "device_id",
     "token_hash",
     "google_authenticated",
+    "institute",
     "expires_at",
     "revoked"
   ],
@@ -37,6 +38,12 @@
       "fieldname": "google_authenticated",
       "label": "Google Authenticated",
       "fieldtype": "Check"
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
     },
     {
       "fieldname": "expires_at",

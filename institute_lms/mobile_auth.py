@@ -53,8 +53,12 @@ def approve(challenge,state,redirect_uri):
     google=bool(getattr(frappe.session,'data',{}).get('il_google_session'))
     student=frappe.db.exists('IL Member',{'user':frappe.session.user,'role':'Student'}) or frappe.db.exists('IL Public Profile',{'user':frappe.session.user,'kind':'Student'})
     if student and not google:frappe.throw('Students must authenticate with Google',frappe.AuthenticationError)
+    from .campus_context import enabled, selected_institute, membership
+    selected = selected_institute() if enabled() else None
+    if selected:
+        membership(selected)
     code=secrets.token_urlsafe(32);key=hashlib.sha256(code.encode()).hexdigest()
-    frappe.cache.set_value('il_mobile_code:'+key,dict(user=frappe.session.user,challenge=challenge,redirect_uri=redirect_uri,google=google),expires_in_sec=120)
+    frappe.cache.set_value('il_mobile_code:'+key,dict(user=frappe.session.user,challenge=challenge,redirect_uri=redirect_uri,google=google,institute=selected),expires_in_sec=120)
     frappe.local.response.update(type='redirect',location=redirect_uri+'?'+urlencode(dict(code=code,state=state)))
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
@@ -68,9 +72,15 @@ def exchange(code,verifier,redirect_uri,device_id):
         calculated=base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).decode().rstrip('=')
         if not d or d['redirect_uri']!=redirect_uri or not hmac.compare_digest(d['challenge'],calculated):frappe.throw('Expired or invalid handoff',frappe.AuthenticationError)
         if not frappe.db.get_value('User',d['user'],'enabled'):frappe.throw('Account disabled')
+        selected = d.get('institute')
+        if selected and not frappe.db.exists('IL Member', {
+            'user': d['user'], 'institute': selected, 'active': 1,
+            'role': ['in', ['Student', 'Teacher', 'Admin']],
+        }):
+            frappe.throw('Institute membership changed. Sign in again.', frappe.PermissionError)
         token=secrets.token_urlsafe(48);expires=now_datetime()+timedelta(days=7)
         managed(frappe.get_doc({'doctype':'IL Mobile Session','user':d['user'],'token_hash':hashlib.sha256(token.encode()).hexdigest(),
-            'device_id':device_id,'google_authenticated':int(d['google']),'expires_at':expires,'revoked':0}))
+            'device_id':device_id,'google_authenticated':int(d['google']),'institute':selected,'expires_at':expires,'revoked':0}))
         frappe.cache.delete_value(key)
     frappe.local.response_headers['Cache-Control']='no-store'
     return {'access_token':token,'token_type':'Sisu','expires_at':expires,'site':get_url()}
@@ -89,9 +99,12 @@ def authenticate():
     d=frappe.get_doc('IL Mobile Session',name) if name else None
     if not d or d.revoked or get_datetime(d.expires_at)<=now_datetime() or not frappe.db.get_value('User',d.user,'enabled'):
         frappe.throw('Mobile session expired or revoked',frappe.AuthenticationError)
+    request_args = frappe.local.form_dict.copy()
     frappe.set_user(d.user)
+    frappe.local.form_dict.update(request_args)
     frappe.local.il_mobile_session=d.name
     frappe.local.il_mobile_google=bool(d.google_authenticated)
+    frappe.local.il_mobile_institute=d.get('institute')
 
 @frappe.whitelist(methods=['POST'])
 def logout(session=None):

@@ -14,7 +14,12 @@ ACCOUNT = 'IL Account Subscription'
 INVOICE = 'IL Account Invoice'
 
 def provider_lkr(a):
-    return bool(frappe.conf.get('il_usage_billing_enabled')) and a.role in ('Teacher','Institute')
+    if a.role not in ('Teacher', 'Institute'):
+        return False
+    return bool(
+        frappe.conf.get('il_four_plan_lkr_enabled')
+        or frappe.conf.get('il_usage_billing_enabled')
+    )
 def price(a, plan):
     if a.role == 'Student': return 0
     if provider_lkr(a):

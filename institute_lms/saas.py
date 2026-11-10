@@ -79,6 +79,8 @@ def apply_manifest(payload, signature):
     previous_end=str(d.ends_at)
     for key in ('plan','state','starts_at','ends_at','grace_until','lease_until','revision','enabled'):
         d.set(key, data.get(key))
+    if 'commercial_plan' in data and frappe.get_meta('IL Subscription').has_field('commercial_plan'):
+        d.commercial_plan = data['commercial_plan']
     d.features=json.dumps(data['features']); d.limits=json.dumps(data['limits']); d.overrides='{}'
     d.support_tier=data.get('support_tier','standard')
     d.base_features=json.dumps(data.get('base_features') or {})

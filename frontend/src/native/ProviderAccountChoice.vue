@@ -2,26 +2,26 @@
 import {onMounted,ref} from 'vue'
 import {ArrowLeft} from 'lucide-vue-next'
 
-defineEmits(['choose'])
+defineEmits(['choose','back'])
 const heading=ref(null)
 onMounted(()=>heading.value?.focus({preventScroll:true}))
 </script>
 
 <template>
   <div class="provider-account-choice">
-    <a class="provider-back" href="/login?redirect-to=/campus"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back to sign in</a>
+    <button type="button" class="provider-back" @click="$emit('back')"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back to role selection</button>
     <h2 id="provider-account-title" ref="heading" tabindex="-1">Choose your provider account</h2>
-    <p>Teach independently or administer an institute.</p>
+    <p>Teach independently or join an institute.</p>
     <div class="provider-choices">
       <button type="button" @click="$emit('choose','Individual Teacher')"><strong>Individual teacher</strong><span>Your own profile, classes and institute memberships.</span></button>
-      <button type="button" @click="$emit('choose','Institute')"><strong>Institute or school</strong><span>A branded workspace for your teaching community.</span></button>
+      <button type="button" @click="$emit('choose','Individual Teacher')"><strong>Institute teacher</strong><span>Create your teacher account, then request access to an existing institute.</span></button>
     </div>
   </div>
 </template>
 
 <style scoped>
 .provider-account-choice{font-family:'Manrope Variable',sans-serif;color:var(--entry-ink)}
-.provider-back{display:flex;align-items:center;gap:3px;width:fit-content;min-height:24px;font-size:13px;color:#56288d;text-decoration:none}
+.provider-back{display:flex;align-items:center;gap:3px;width:fit-content;min-height:24px;padding:0;border:0;background:none;font:inherit;font-size:13px;color:#56288d;text-decoration:none;cursor:pointer}
 .provider-back:hover{text-decoration:underline}
 .provider-account-choice h2{font:800 36px/1.2 'Manrope Variable',sans-serif;letter-spacing:-1.2px;margin:24px 0 20px;color:var(--entry-ink)}
 .provider-account-choice h2:focus{outline:none}

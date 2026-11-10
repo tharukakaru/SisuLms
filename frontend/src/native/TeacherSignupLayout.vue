@@ -1,14 +1,14 @@
 <script setup>
 import BrandLogo from '../BrandLogo.vue'
 import WebWelcomeStory from '../learning/WebWelcomeStory.vue'
-defineProps({active:Boolean,institute:Boolean})
+defineProps({active:Boolean,institute:Boolean,verification:Boolean})
 </script>
 
 <template>
-  <div :class="[active?'teacher-signup-layout':'signup-layout-passthrough',{'institute-signup-layout':active&&institute}]">
+  <div :class="[active?'teacher-signup-layout':'signup-layout-passthrough',{'institute-signup-layout':active&&institute,'verification-layout':active&&verification}]">
     <aside v-if="active" class="teacher-signup-story">
       <a href="/campus" class="teacher-signup-brand" aria-label="SISU home"><BrandLogo/></a>
-      <WebWelcomeStory provider/>
+      <WebWelcomeStory provider :verification="verification"/>
     </aside>
     <slot/>
   </div>
@@ -54,9 +54,16 @@ div.teacher-signup-layout .teacher-signup-form .signup-feedback:empty{display:no
 div.teacher-signup-layout .teacher-signup-form .application-layout{display:block;max-width:none;margin:0}
 div.teacher-signup-layout .teacher-signup-form .application-form{padding:0;border:0;box-shadow:none;background:none;border-radius:0}
 div.teacher-signup-layout .teacher-signup-form .application-form form{margin:0}
-div.teacher-signup-layout.institute-signup-layout .teacher-signup-form label,div.teacher-signup-layout.institute-signup-layout .teacher-field-group{gap:8px;margin-bottom:20px}
-div.teacher-signup-layout.institute-signup-layout .teacher-paired-fields label{margin:0}
-div.teacher-signup-layout.institute-signup-layout .teacher-signup-form :is(input:not([type=checkbox]),select){height:50px;padding-block:12px}
+/* Institute account details keep their required fields within the reference's compact layout. */
+div.teacher-signup-layout.institute-signup-layout:not(.verification-layout) .teacher-signup-form{min-height:0;padding-bottom:0}
+div.teacher-signup-layout.institute-signup-layout:not(.verification-layout) .teacher-signup-form label,div.teacher-signup-layout.institute-signup-layout:not(.verification-layout) .teacher-field-group{gap:6px;margin-bottom:16px}
+div.teacher-signup-layout.institute-signup-layout:not(.verification-layout) .teacher-paired-fields label{margin:0}
+div.teacher-signup-layout.institute-signup-layout:not(.verification-layout) .teacher-signup-form :is(input:not([type=checkbox]),select){height:44px;padding-block:9px}
+div.teacher-signup-layout.institute-signup-layout:not(.verification-layout) .teacher-signup-form :is(h1,h2){margin:16px 0}
+div.teacher-signup-layout.institute-signup-layout:not(.verification-layout) .teacher-signup-intro{margin-bottom:16px}
+div.teacher-signup-layout.institute-signup-layout:not(.verification-layout) .teacher-signup-form .teacher-consent{margin-bottom:18px}
+div.teacher-signup-layout.institute-signup-layout:not(.verification-layout) .teacher-signup-form button.teacher-submit{box-shadow:none}
+div.teacher-signup-layout.institute-signup-layout:not(.verification-layout) .teacher-signup-form .teacher-extra-options{margin:12px 0 0}
 @media(min-width:1000px){
   div.teacher-signup-layout.institute-signup-layout .teacher-signup-form{padding-top:24px}
 }

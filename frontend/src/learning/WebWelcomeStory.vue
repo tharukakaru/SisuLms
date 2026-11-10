@@ -1,13 +1,19 @@
 <script setup>
 import discover from '../assets/figma/discover.png'
 import providerCommunity from '../assets/figma/provider-community.png'
-defineProps({provider:Boolean})
+import verificationJourney from '../assets/figma/verification-journey.png'
+defineProps({provider:Boolean,verification:Boolean})
 </script>
 
 <template>
   <section class="web-welcome-story" :class="{'provider-story':provider}" aria-label="Welcome to SISU">
     <div class="web-story-copy">
-      <template v-if="provider">
+      <template v-if="verification">
+        <span>YOUR JOURNEY IS ONLY BEGINNING.</span>
+        <h1>Little steps.<br>Limitless you.</h1>
+        <p>Make space for your next chapter.<br>We’ll be here, cheering you on.</p>
+      </template>
+      <template v-else-if="provider">
         <span>GOOD PEOPLE. BRIGHT FUTURES.</span>
         <h1>Learning is better.<br>Together.</h1>
         <p>Meet your people. Share what you know.<br>Build something brighter together.</p>
@@ -18,7 +24,7 @@ defineProps({provider:Boolean})
         <p>A place for curious minds, inspiring teachers<br>and all the things you’ll become.</p>
       </template>
     </div>
-    <img class="web-story-art" :src="provider?providerCommunity:discover" :alt="provider?'Learners and the SISU mascot learning together with an online teacher':'Students learning together with the SISU mascot'" width="560" height="460">
+    <img class="web-story-art" :src="verification?verificationJourney:provider?providerCommunity:discover" :alt="verification?'A learner and the SISU mascot climbing a stack of books toward a star':provider?'Learners and the SISU mascot learning together with an online teacher':'Students learning together with the SISU mascot'" width="560" height="460">
     <footer><strong>More than lessons. A place to belong.</strong><span>Learn · Connect · Grow</span></footer>
   </section>
 </template>

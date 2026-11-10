@@ -33,6 +33,7 @@ import {ArrowLeft} from 'lucide-vue-next'
 import '../brand.css'
 
 import MobileVerification from './MobileVerification.vue'
+import VerificationLayout from './VerificationLayout.vue'
 
 import {request} from './client'
 
@@ -70,6 +71,8 @@ function openSignup(){sessionStorage.setItem('sisu_signup_role',selected.value==
 
 function openProviderSignup(kind){providerSignupKind.value=kind;sessionStorage.setItem('sisu_signup_role',kind);signup.value=true}
 
+function chooseRole(role){selected.value=role;roleChosen.value=role!=='Institute';if(role==='Institute')openProviderSignup('Institute')}
+
 async function google(){try{const r=await request('portal_policy','google_start');const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
 
 async function connect(){busy.value=true;error.value='';try{session.value=await request('portal_session','current',{},'GET');if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message}finally{busy.value=false}}
@@ -96,7 +99,7 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 
   <Campus v-else-if="session?.member" :shared-campus="session.shared_campus"/>
 
-  <VerifiedSignup v-else-if="session?.authenticated && policy.self_signup_enabled && newGoogleSignup" :policy="policy" google-session @back="connect"/><div v-else-if="session?.authenticated" class="entry-onboarding"><h1>Let’s make this space yours.</h1><p>Complete your profile and mobile verification before your workspace is activated.</p><p>Account type: {{session.onboarding_kind}}</p><MobileVerification/><Profile :key="session.onboarding_kind" :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':session.onboarding_kind}" @saved="connect"/><a href="/me">Account settings</a><a href="/api/method/logout">Sign out</a></div>
+  <VerifiedSignup v-else-if="session?.authenticated && policy.self_signup_enabled && newGoogleSignup" :policy="policy" google-session @back="connect"/><VerificationLayout v-else-if="session?.authenticated" back-href="/login?redirect-to=/campus"><MobileVerification onboarding/><details class="verification-channel"><summary>Complete your profile</summary><p>Complete your profile and mobile verification before your workspace is activated.</p><p>Account type: {{session.onboarding_kind}}</p><Profile :key="session.onboarding_kind" :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':session.onboarding_kind}" @saved="connect"/><a href="/me">Account settings</a> · <a href="/api/method/logout">Sign out</a></details></VerificationLayout>
 
   <Signup v-else-if="signup" :initial-provider-kind="providerSignupKind" @back="signup=false" @dashboard="connect"/>
 
@@ -108,8 +111,8 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 
     <section class="entry-card" :aria-labelledby="roleChosen&&selected==='Teacher'?'provider-account-title':roleChosen&&selected==='Student'?'learner-signin-title':'role-selection-title'">
       <LearnerSignIn v-if="roleChosen&&selected==='Student'" :google-available="!!policy.google_available" @google="google" @choose-path="roleChosen=false"/>
-      <ProviderAccountChoice v-else-if="roleChosen&&selected==='Teacher'" @choose="openProviderSignup"/>
-      <template v-else><a class="role-back-link" href="/login?redirect-to=/campus"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back to sign in</a><h2 id="role-selection-title">Choose your SISU role</h2><p class="role-selection-subtitle">Your next chapter starts here.</p><div class="entry-roles"><button v-for="r in roles" :key="r.name" type="button" @click="selected=r.name;roleChosen=true" :class="{selected:roleChosen&&selected===r.name}" :aria-pressed="roleChosen&&selected===r.name" aria-controls="role-selection-actions"><div><strong>{{roleCopy[r.name].title}}</strong><small>{{roleCopy[r.name].description}}</small></div></button></div>
+      <ProviderAccountChoice v-else-if="roleChosen&&selected==='Teacher'" @choose="openProviderSignup" @back="roleChosen=false"/>
+      <template v-else><a class="role-back-link" href="/login?redirect-to=/campus"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back to sign in</a><h2 id="role-selection-title">Choose your SISU role</h2><p class="role-selection-subtitle">Your next chapter starts here.</p><div class="entry-roles"><button v-for="r in roles" :key="r.name" type="button" @click="chooseRole(r.name)" :class="{selected:roleChosen&&selected===r.name}" :aria-pressed="roleChosen&&selected===r.name" aria-controls="role-selection-actions"><div><strong>{{roleCopy[r.name].title}}</strong><small>{{roleCopy[r.name].description}}</small></div></button></div>
 
       <div id="role-selection-actions" v-show="roleChosen"><RoleWelcome :role="selected"/><div class="entry-login-actions"><a class="entry-primary" href="/login?redirect-to=/campus">Sign in with email and password →</a><button class="entry-primary entry-google" :disabled="!policy.google_available" @click="google"><img :src="'/assets/frappe/icons/social/google.svg'" alt="" width="20" height="20"/>Continue with Google</button></div><p v-if="!policy.google_available" class="entry-subtle">Google sign-in is being set up for this site. Students need Google to sign in.</p><p class="entry-secure"><Icon name="ShieldCheck" :size="15"/>Your account determines your permissions.</p><div class="entry-divider"><span>NEW TO SISU?</span></div><button class="entry-secondary" @click="openSignup">Create your account <Icon name="Plus" :size="16"/></button><p class="entry-subtle">{{policy.self_signup_enabled?'Verify your email and phone, create your password, then sign in.':'Students use Google. Teachers and institutes apply for review, then set a password through a secure email.'}}</p></div>
 

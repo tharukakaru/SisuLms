@@ -588,23 +588,6 @@ export function sisuLocalDevDbPlugin() {
           return
         }
 
-        if (key === 'portal_policy.google_start') {
-          const targetUser = db.users['student@admin.com']
-          const cookie = `sisu_local_sid=${encodeURIComponent(targetUser.email)}; Path=/; HttpOnly; SameSite=Lax`
-          sendJson(
-            res,
-            200,
-            {
-              message: {
-                simulated_user: targetUser.email,
-                url: 'https://accounts.google.com/o/oauth2/v2/auth?simulated=1',
-              },
-            },
-            { 'Set-Cookie': cookie }
-          )
-          return
-        }
-
         // 2. Account Billing & Capabilities
         if (key === 'account_billing.status') {
           const available = currentUser?.subscription_available !== false

@@ -1,5 +1,6 @@
 <script setup>
 import {ref,computed,onMounted} from 'vue'
+import GoogleIcon from '../GoogleIcon.vue'
 import VerifiedSignup from './VerifiedSignup.vue'
 import OnboardingWelcomePanel from './OnboardingWelcomePanel.vue'
 import {request} from './client'
@@ -12,7 +13,7 @@ const welcomeVariant=computed(()=>{
   return 'grow'
 })
 async function run(fn){busy.value=true;error.value='';try{await fn()}catch(e){error.value=e.message}finally{busy.value=false}}
-async function google(){await run(async()=>{const r=await request('portal_policy','google_start');if(r?.simulated_user){emit('dashboard');return}const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is not available.');location.assign(u.href)})}
+async function google(){await run(async()=>{const r=await request('portal_policy','google_start');const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is not available.');location.assign(u.href)})}
 async function submit(){await run(async()=>{const r=await request('registration','request_code',{data:{...form.value,kind:kind.value,privacy_accepted:accepted.value,privacy_policy_version:policy.value.privacy_policy_version}});challenge.value=r.challenge;stage.value='verify'})}
 async function verify(){await run(async()=>{const r=await request('registration','verify_code',{challenge:challenge.value,code:code.value});reference.value=r.reference;stage.value='done'})}
 onMounted(()=>run(async()=>policy.value=await request('portal_policy','public',{},'GET')))
@@ -62,6 +63,7 @@ onMounted(()=>run(async()=>policy.value=await request('portal_policy','public',{
           <p class="application-body-note">Students sign in with Google, then complete their profile and phone verification. One account can follow and join multiple teachers and institutes. Your account includes one 14-day trial. Your monthly price is shown on the Subscription page before payment. Class tuition is separate.</p>
           <div class="application-actions">
             <button type="button" class="sisu-pill-btn sisu-pill-primary" :disabled="busy||!policy.google_available" @click="google">
+              <GoogleIcon />
               <span>Continue with Google</span>
               <span aria-hidden="true">→</span>
             </button>

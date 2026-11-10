@@ -17,7 +17,7 @@ const newGoogleSignup=new URLSearchParams(location.search).get('verified_signup'
 const firebaseTestPage=new URLSearchParams(location.search).get('firebase_test')==='1'
 
 import BrandLogo from '../BrandLogo.vue'
-
+import GoogleIcon from '../GoogleIcon.vue'
 import OnboardingWelcomePanel from './OnboardingWelcomePanel.vue'
 
 import '@fontsource-variable/manrope'
@@ -153,20 +153,7 @@ async function requestForgotReset(){
   }
 }
 
-async function google(){
-  try{
-    const r=await request('portal_policy','google_start');
-    if(r?.simulated_user){
-      await connect()
-      return
-    }
-    const u=new URL(r.url);
-    if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');
-    location.assign(u.href)
-  }catch(e){
-    error.value=e.message
-  }
-}
+async function google(){try{const r=await request('portal_policy','google_start');const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
 
 async function connect(){busy.value=true;error.value='';try{session.value=await request('portal_session','current',{},'GET');if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message}finally{busy.value=false}}
 
@@ -311,7 +298,7 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
               <span class="entry-arrow" aria-hidden="true">→</span>
             </a>
             <button class="entry-primary entry-google" type="button" :disabled="!policy.google_available" @click="google">
-              <img :src="'/assets/frappe/icons/social/google.svg'" alt="" width="20" height="20"/>
+              <GoogleIcon />
               <span>Continue with Google</span>
             </button>
           </div>
@@ -565,6 +552,25 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
   border-color: #6c6aee;
 }
 
+.entry-dark .entry-roles button:hover:not(.selected) {
+  background: #25203b;
+  border-color: rgba(164, 132, 233, 0.45);
+}
+
+.entry-dark .entry-roles button.selected {
+  background: rgba(108, 106, 238, 0.22);
+  border-color: #8f85f3;
+}
+
+.entry-dark .entry-roles button > span {
+  background: rgba(108, 106, 238, 0.25);
+  color: #c4b5fd;
+}
+
+.entry-dark .entry-roles button i {
+  color: #c4b5fd;
+}
+
 .entry-roles button > span {
   display: grid;
   place-items: center;
@@ -644,29 +650,63 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
   line-height: 1;
 }
 
-.entry-google {
-  min-height: clamp(40px, 5.2vh, 44px);
-  border-radius: 12px;
+.entry-google,
+.entry-primary.entry-google {
+  min-height: clamp(40px, 5.2vh, 46px);
+  padding: clamp(8px, 1.1vh, 10px) 18px;
+  border-radius: 27px;
   background: #ffffff;
   color: #19182e;
   border: 1px solid #c4bbd5;
-  box-shadow: none;
+  box-shadow: 0 1px 3px rgba(25, 24, 46, 0.04);
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
 }
 
-.entry-dark .entry-google {
+.entry-google:hover:not(:disabled),
+.entry-primary.entry-google:hover:not(:disabled) {
+  background: #f5f2fd !important;
+  border-color: #56288d !important;
+  color: #56288d !important;
+  box-shadow: 0 4px 14px rgba(86, 40, 141, 0.14) !important;
+  transform: translateY(-1px);
+}
+
+.entry-google:active:not(:disabled),
+.entry-primary.entry-google:active:not(:disabled) {
+  background: #ede7fa !important;
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(86, 40, 141, 0.12) !important;
+}
+
+.entry-dark .entry-google,
+.entry-dark .entry-primary.entry-google {
   background: #25203b;
   color: #f3f1fb;
   border-color: rgba(196, 187, 213, 0.28);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-.entry-google:hover:not(:disabled) {
-  background: #fcfcfe;
-  border-color: #56288d;
+.entry-dark .entry-google:hover:not(:disabled),
+.entry-dark .entry-primary.entry-google:hover:not(:disabled) {
+  background: #312b4d !important;
+  color: #ffffff !important;
+  border-color: #8f85f3 !important;
+  box-shadow: 0 4px 16px rgba(108, 106, 238, 0.25) !important;
+  transform: translateY(-1px);
 }
 
-.entry-google:disabled {
+.entry-dark .entry-google:active:not(:disabled),
+.entry-dark .entry-primary.entry-google:active:not(:disabled) {
+  background: #282240 !important;
+  transform: translateY(0);
+}
+
+.entry-google:disabled,
+.entry-primary.entry-google:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .entry-google img {
@@ -711,6 +751,12 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 .entry-secondary:hover {
   border-color: #6c6aee;
   background: rgba(108, 106, 238, 0.04);
+}
+
+.entry-dark .entry-secondary:hover {
+  border-color: #8f85f3;
+  background: rgba(108, 106, 238, 0.18);
+  color: #ffffff;
 }
 
 .entry-primary:focus-visible,

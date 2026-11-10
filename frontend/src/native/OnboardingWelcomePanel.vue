@@ -241,19 +241,50 @@ const currentScene = computed(() => scenes[props.variant] || scenes.discover)
   opacity: 0.92;
 }
 
-:global(.entry-dark) .sisu-welcome-panel,
-:global([data-student-theme='dark']) .sisu-welcome-panel {
-  background: #171429;
-  border-color: rgba(164, 132, 233, 0.18);
+:global(.entry-dark .sisu-welcome-panel),
+:global([data-student-theme='dark'] .sisu-welcome-panel) {
+  background: #171429 !important;
+  border-color: rgba(164, 132, 233, 0.18) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45) !important;
 }
 
-:global(.entry-dark) .sisu-welcome-kicker,
-:global(.entry-dark) .sisu-welcome-heading,
-:global(.entry-dark) .sisu-welcome-subtitle,
-:global([data-student-theme='dark']) .sisu-welcome-kicker,
-:global([data-student-theme='dark']) .sisu-welcome-heading,
-:global([data-student-theme='dark']) .sisu-welcome-subtitle {
-  color: #e9dffb;
+:global(.entry-dark .sisu-welcome-kicker),
+:global([data-student-theme='dark'] .sisu-welcome-kicker) {
+  color: #c4b5fd !important;
+}
+
+:global(.entry-dark .sisu-welcome-heading),
+:global([data-student-theme='dark'] .sisu-welcome-heading) {
+  color: #ffffff !important;
+}
+
+:global(.entry-dark .sisu-welcome-subtitle),
+:global([data-student-theme='dark'] .sisu-welcome-subtitle) {
+  color: #d1c7e8 !important;
+}
+
+:global(.entry-dark .sisu-welcome-mobile-pill),
+:global([data-student-theme='dark'] .sisu-welcome-mobile-pill) {
+  background: #25203b !important;
+  color: #c4b5fd !important;
+}
+
+:global(.entry-dark .sisu-welcome-panel.sisu-welcome-discover),
+:global([data-student-theme='dark'] .sisu-welcome-panel.sisu-welcome-discover) {
+  --wave-bg: #4a34a8 !important;
+  --wave-text: #ffffff !important;
+}
+
+:global(.entry-dark .sisu-welcome-panel.sisu-welcome-connect),
+:global([data-student-theme='dark'] .sisu-welcome-panel.sisu-welcome-connect) {
+  --wave-bg: #321c56 !important;
+  --wave-text: #e9dffb !important;
+}
+
+:global(.entry-dark .sisu-welcome-panel.sisu-welcome-grow),
+:global([data-student-theme='dark'] .sisu-welcome-panel.sisu-welcome-grow) {
+  --wave-bg: #3b1766 !important;
+  --wave-text: #ffffff !important;
 }
 
 @media (max-width: 1040px) {

@@ -1,5 +1,6 @@
 <script setup>
 import {computed,ref,nextTick,onMounted,onUnmounted} from 'vue'
+import GoogleIcon from '../GoogleIcon.vue'
 import OnboardingWelcomePanel from './OnboardingWelcomePanel.vue'
 import {request,csrf} from './client'
 const props=defineProps({policy:Object,googleSession:Boolean});const emit=defineEmits(['back','verified','dashboard'])
@@ -22,7 +23,7 @@ const welcomeVariant=computed(()=>{
   if(token.value||done.value)return 'grow'
   return form.value.kind==='Student'?'discover':'connect'
 })
-function google(){sessionStorage.setItem('sisu_signup_role',form.value.kind);run(async()=>{const r=await request('portal_policy','google_start',{signup:1});if(r?.simulated_user){location.replace('/campus');return}const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in unavailable');location.assign(u.href)})}
+function google(){sessionStorage.setItem('sisu_signup_role',form.value.kind);run(async()=>{const r=await request('portal_policy','google_start',{signup:1});const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in unavailable');location.assign(u.href)})}
 {const role=sessionStorage.getItem('sisu_signup_role');if(['Student','Individual Teacher','Institute'].includes(role))form.value.kind=role}
 async function reveal(){await nextTick();feedback.value?.scrollIntoView({behavior:'smooth',block:'center'});feedback.value?.focus({preventScroll:true})}
 function invalid(event){error.value='Please complete '+(event.target.getAttribute('aria-label')||'the highlighted required field')+'. '+event.target.validationMessage;reveal()}
@@ -45,7 +46,7 @@ onMounted(()=>{if(props.googleSession)run(async()=>{const d=await request('regis
         <p class="verified-lead">{{token ? 'Verify your email and mobile number, then choose your password.' : 'Your next chapter starts here.'}}</p>
 
         <button v-if="!googleSession&&!token&&!done" type="button" class="google-signup" :disabled="busy||!policy.google_available" @click="google">
-          <img :src="'/assets/frappe/icons/social/google.svg'" alt="" width="20" height="20"/>
+          <GoogleIcon />
           <span>Sign up with Google</span>
           <span class="google-arrow" aria-hidden="true">→</span>
         </button>
@@ -354,11 +355,47 @@ onMounted(()=>{if(props.googleSession)run(async()=>{const d=await request('regis
   border: 1px solid #c4bbd5;
   border-radius: 27px;
   margin-bottom: 18px;
+  color: #19182e;
+  box-shadow: 0 1px 3px rgba(25, 24, 46, 0.04);
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
 }
 
 .verified-signup .google-signup:hover:not(:disabled) {
   border-color: #56288d;
-  background: #fcfcfe;
+  background: #f5f2fd;
+  color: #56288d;
+  box-shadow: 0 4px 14px rgba(86, 40, 141, 0.14);
+  transform: translateY(-1px);
+}
+
+.verified-signup .google-signup:active:not(:disabled) {
+  background: #ede7fa;
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(86, 40, 141, 0.12);
+}
+
+:global(.entry-dark .verified-signup .google-signup) {
+  background: #25203b !important;
+  color: #f3f1fb !important;
+  border-color: rgba(196, 187, 213, 0.28) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+:global(.entry-dark .verified-signup .google-signup:hover:not(:disabled)) {
+  background: #312b4d !important;
+  color: #ffffff !important;
+  border-color: #8f85f3 !important;
+  box-shadow: 0 4px 16px rgba(108, 106, 238, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+:global(.entry-dark .verified-signup .google-signup:active:not(:disabled)) {
+  background: #282240 !important;
+  transform: translateY(0);
+}
+
+:global(.entry-dark .google-arrow) {
+  color: #c4b5fd !important;
 }
 
 .google-arrow {

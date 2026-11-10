@@ -14,7 +14,12 @@ ACCOUNT = 'IL Account Subscription'
 INVOICE = 'IL Account Invoice'
 
 def provider_lkr(a):
-    return bool(frappe.conf.get('il_usage_billing_enabled')) and a.role in ('Teacher','Institute')
+    if a.role not in ('Teacher', 'Institute'):
+        return False
+    return bool(
+        frappe.conf.get('il_four_plan_lkr_enabled')
+        or frappe.conf.get('il_usage_billing_enabled')
+    )
 def price(a, plan):
     if a.role == 'Student': return 0
     if provider_lkr(a):
@@ -337,6 +342,7 @@ def guard_request():
     path=frappe.local.request.path
     method=frappe.form_dict.get('cmd') or (path.split('/method/',1)[1].rstrip('/') if '/method/' in path else '')
     module=method.split('.')[1] if method.startswith('institute_lms.') else ''
+    if method=='institute_lms.plan_catalog.public_catalog':return  # Public product catalogue, no account data.
     if method in ('institute_lms.learning_preferences.get_preferences','institute_lms.learning_preferences.save_preferences'):return  # User-owned goals, never institute data.
     # These endpoints must work before any institute is selected. Each checks
     # the shared-campus flag, active user and its own membership/profile rules.

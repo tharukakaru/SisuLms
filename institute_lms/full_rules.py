@@ -36,6 +36,9 @@ def final_policy(record, now=None):
                   organization_enabled=bool(record.get('enabled')), policy_current=fresh,
                   tenant_id=record.get('tenant_id'), starts_at=record.get('starts_at'), ends_at=record.get('ends_at'),
                   grace_until=record.get('grace_until'), lease_until=record.get('lease_until'), revision=record.get('revision', 0))
+    commercial_plan = record.get('commercial_plan')
+    if commercial_plan in ('Individual', 'Silver', 'Gold', 'Platinum'):
+        result['commercial_plan'] = commercial_plan
     return result
 
 def month_end(start):

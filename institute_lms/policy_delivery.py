@@ -25,8 +25,11 @@ def dispatch():
             sent_modified=str(d.modified)
             try:
                 org=frappe.get_doc('IL Organization',d.organization)
-                allowed=frappe.conf.get('il_policy_delivery_hosts') or []
-                if org.site_hostname not in allowed:raise ValueError('policy_host_not_allowlisted')
+                from .site_policies import blockers
+                if not org.enabled or blockers(org):
+                    d.next_attempt=now_datetime()+timedelta(minutes=5)
+                    managed(d);frappe.db.commit()
+                    continue
                 from .platform import signed_policy
                 payload=signed_policy(org.name)
                 # Save issued revision before delivery; a crash retries a newer revision safely.

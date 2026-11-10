@@ -89,3 +89,6 @@ scheduler_events["cron"]["*/5 * * * *"].append("institute_lms.whatsapp_webhook.r
 for _dt in ('IL Account Invoice','IL Usage Invoice','IL Profile Relationship'):
     _ai_hook(_dt,'on_update','institute_lms.sandbox_notices.observe')
 scheduler_events['daily'].append('institute_lms.sandbox_notices.expiry')
+
+# Scoped owner invitations; dispatcher is a no-op on campus sites.
+scheduler_events['cron'].setdefault('*/1 * * * *', []).append('institute_lms.owner_invitation_delivery.dispatch')

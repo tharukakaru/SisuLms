@@ -104,7 +104,7 @@ def institute_plan():
     if not name:
         return {'institute': inst.title, 'plan': None, 'state': 'Not configured', 'features': {}}
     from .account_billing import state
-    from .plan_catalog import plan_features
+    from .plan_catalog import plan_features, plan
     account = frappe.get_doc('IL Account Subscription', name)
     return {'institute': inst.title, 'plan': account.plan, 'state': state(account)['state'],
-        'features': plan_features(account.plan)}
+        'features': plan_features(account.plan), 'card_features': plan(account.plan)['card_features'], 'description': plan(account.plan)['description']}

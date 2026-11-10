@@ -79,6 +79,8 @@ def apply_manifest(payload, signature):
     previous_end=str(d.ends_at)
     for key in ('plan','state','starts_at','ends_at','grace_until','lease_until','revision','enabled'):
         d.set(key, data.get(key))
+    if 'commercial_plan' in data and frappe.get_meta('IL Subscription').has_field('commercial_plan'):
+        d.commercial_plan = data['commercial_plan']
     d.features=json.dumps(data['features']); d.limits=json.dumps(data['limits']); d.overrides='{}'
     d.support_tier=data.get('support_tier','standard')
     d.base_features=json.dumps(data.get('base_features') or {})
@@ -132,6 +134,7 @@ def guard_request():
     path=frappe.local.request.path
     method=frappe.form_dict.get('cmd') or (path.split('/method/',1)[1].rstrip('/') if '/method/' in path else '')
     module=method.split('.')[1] if method.startswith('institute_lms.') else ''
+    if method=='institute_lms.plan_catalog.public_catalog':return  # Public product catalogue, no account data.
     if method in ('institute_lms.learning_preferences.get_preferences','institute_lms.learning_preferences.save_preferences'):return  # User-owned goals, never institute data.
     from .wallet import admin_actor
     if method.startswith('institute_lms.') and admin_actor():return  # Owner APIs enforce their own authorization.

@@ -945,4 +945,38 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
     padding: 10px 14px;
   }
 }
+
+@media (min-width: 1000px) {
+  main.sisu-entry {
+    padding: clamp(10px, 1.8vh, 20px) clamp(16px, 2.5vw, 28px);
+  }
+
+  main.sisu-entry > .entry-layout {
+    max-width: 1180px;
+    grid-template-columns: minmax(360px, 500px) minmax(0, 620px);
+    gap: clamp(20px, 2.8vw, 40px);
+    margin: 0 auto;
+    align-items: center;
+  }
+
+  main.sisu-entry .entry-card-wrap .entry-card {
+    padding: clamp(14px, 2.2vh, 28px) clamp(20px, 3vw, 36px);
+  }
+
+  main.sisu-entry .entry-card-wrap .entry-card h2 {
+    font-size: clamp(26px, 3vh, 34px);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+  }
+
+  main.sisu-entry .entry-card-wrap .entry-card .entry-roles button {
+    min-height: 60px;
+    border-radius: 16px;
+  }
+
+  main.sisu-entry .entry-card-wrap .entry-card .entry-login-actions .entry-primary,
+  main.sisu-entry .entry-card-wrap .entry-card .entry-login-actions .entry-google {
+    border-radius: 27px;
+  }
+}
 </style>

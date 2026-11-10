@@ -10,7 +10,7 @@ onMounted(()=>{load();window.addEventListener('sisu-memberships',load)})
 onBeforeUnmount(()=>window.removeEventListener('sisu-memberships',load))
 </script>
 <template>
-  <section class="campus-switcher" :class="{provider}" :aria-label="provider?'Your teaching workspaces':'Your institutes'">
+  <section v-if="!provider||loading||error||institutes.length" class="campus-switcher" :class="{provider}" :aria-label="provider?'Your teaching workspaces':'Your institutes'">
     <div class="campus-switcher-head">
       <small>{{provider?"YOUR TEACHING SPACE":"YOUR LEARNING SPACE"}}</small>
       <h2>{{provider?"Choose your teaching workspace":"Choose your institute"}}</h2>

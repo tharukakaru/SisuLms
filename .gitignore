@@ -15,3 +15,7 @@ common_site_config.json
 # Payment certificates and local sandbox credentials
 *.p12
 *.pfx
+
+# Local development mock database
+.local-dev-db.json
+frontend/.local-dev-db.json

@@ -153,7 +153,20 @@ async function requestForgotReset(){
   }
 }
 
-async function google(){try{const r=await request('portal_policy','google_start');const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
+async function google(){
+  try{
+    const r=await request('portal_policy','google_start');
+    if(r?.simulated_user){
+      await connect()
+      return
+    }
+    const u=new URL(r.url);
+    if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');
+    location.assign(u.href)
+  }catch(e){
+    error.value=e.message
+  }
+}
 
 async function connect(){busy.value=true;error.value='';try{session.value=await request('portal_session','current',{},'GET');if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message}finally{busy.value=false}}
 

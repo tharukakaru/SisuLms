@@ -22,7 +22,7 @@ const welcomeVariant=computed(()=>{
   if(token.value||done.value)return 'grow'
   return form.value.kind==='Student'?'discover':'connect'
 })
-function google(){sessionStorage.setItem('sisu_signup_role',form.value.kind);run(async()=>{const r=await request('portal_policy','google_start',{signup:1});const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in unavailable');location.assign(u.href)})}
+function google(){sessionStorage.setItem('sisu_signup_role',form.value.kind);run(async()=>{const r=await request('portal_policy','google_start',{signup:1});if(r?.simulated_user){location.replace('/campus');return}const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in unavailable');location.assign(u.href)})}
 {const role=sessionStorage.getItem('sisu_signup_role');if(['Student','Individual Teacher','Institute'].includes(role))form.value.kind=role}
 async function reveal(){await nextTick();feedback.value?.scrollIntoView({behavior:'smooth',block:'center'});feedback.value?.focus({preventScroll:true})}
 function invalid(event){error.value='Please complete '+(event.target.getAttribute('aria-label')||'the highlighted required field')+'. '+event.target.validationMessage;reveal()}

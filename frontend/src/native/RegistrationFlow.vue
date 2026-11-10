@@ -12,7 +12,7 @@ const welcomeVariant=computed(()=>{
   return 'grow'
 })
 async function run(fn){busy.value=true;error.value='';try{await fn()}catch(e){error.value=e.message}finally{busy.value=false}}
-async function google(){await run(async()=>{const r=await request('portal_policy','google_start');const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is not available.');location.assign(u.href)})}
+async function google(){await run(async()=>{const r=await request('portal_policy','google_start');if(r?.simulated_user){emit('dashboard');return}const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is not available.');location.assign(u.href)})}
 async function submit(){await run(async()=>{const r=await request('registration','request_code',{data:{...form.value,kind:kind.value,privacy_accepted:accepted.value,privacy_policy_version:policy.value.privacy_policy_version}});challenge.value=r.challenge;stage.value='verify'})}
 async function verify(){await run(async()=>{const r=await request('registration','verify_code',{challenge:challenge.value,code:code.value});reference.value=r.reference;stage.value='done'})}
 onMounted(()=>run(async()=>policy.value=await request('portal_policy','public',{},'GET')))

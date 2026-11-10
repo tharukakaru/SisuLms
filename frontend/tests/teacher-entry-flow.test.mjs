@@ -109,6 +109,21 @@ test('teacher sign-in routes preserve access gates, institute actions and signup
       assert.ok(marker(root,'App'));assert.equal(button(root,'Join your registered institute'),undefined)
       app.unmount();app=null
     }
+    values.clear();session={authenticated:true,user:'institute@example.invalid',role:'Campus',member:null,onboarding_kind:'Institute',shared_campus:true}
+    const onboardingRoot={children:[]};app=renderer.createApp(Portal);app.mount(onboardingRoot);await flush()
+    assert.ok(marker(onboardingRoot,'MobileVerification'))
+    assert.equal(marker(onboardingRoot,'ProfileEditor'),undefined)
+    button(onboardingRoot,'Complete your profile').props.onClick();await flush()
+    const editor=marker(onboardingRoot,'ProfileEditor')
+    assert.deepEqual(editor.props.member,{user:session.user,full_name:session.user,role:'Admin'})
+    assert.equal(editor.parent.props.class,'onboarding-profile-page')
+    button(onboardingRoot,'Back to verification').props.onClick();await nextTick()
+    assert.equal(editor.parent.style.display,'none')
+    button(onboardingRoot,'Complete your profile').props.onClick();await nextTick()
+    assert.equal(marker(onboardingRoot,'ProfileEditor'),editor,'Returning preserves the mounted editor and unsaved inputs')
+    session={...session,role:'Admin',member:{role:'Admin'}};available=true
+    await editor.props.onSaved();await flush();assert.ok(marker(onboardingRoot,'App'))
+    app.unmount();app=null
     values.clear();session={...teacher,role:'Admin',member:{role:'Admin'}};available=false
     const root={children:[]};app=renderer.createApp(Portal);app.mount(root);await flush()
     assert.ok(button(root,'Open billing'))

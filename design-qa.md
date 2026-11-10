@@ -2,6 +2,13 @@
 
 final result: passed
 
+## Onboarding profile width correction
+
+- Corrected the cramped profile editor shown in `C:/Users/nim20/AppData/Local/Temp/codex-clipboard-f380d6fa-4643-4d1a-8327-7ecfaba8f2e7.png`. The verification screen now has a Complete your profile action, which opens the existing editor in a separate centered page with 960px of desktop content space. The illustration is confined to the verification step.
+- Back to verification returns within onboarding. Both steps stay mounted once opened, preserving unfinished profile entries and verification state. ProfileEditor receives the same member object, fields, role mapping and saved handler. ProfileEditor, MobileVerification, backend code and API contracts are unchanged.
+- Browser tested opening the wider page, editing a tagline, returning to verification and reopening without losing the text, and saving to a local-only fixture. Mobile at 390 x 844 has no horizontal overflow; desktop checked at 1440 x 1100. No browser console errors. Evidence: `local-private/profile-onboarding-desktop.png` and `local-private/profile-onboarding-mobile.png`.
+- All 121 frontend tests and the production build pass. The rendered onboarding test verifies the institute role mapping, persistent editor instance, and the existing saved event returning to server-authorized workspace access. The existing build chunk-size warning remains. Final result: passed.
+
 ## Payment-required screen
 
 - Source: `C:/Users/nim20/AppData/Local/Temp/codex-clipboard-69270fbe-80cf-4cd4-9d62-ab3a55c5d67e.png` (765 x 577). Implementation: `local-private/payment-required-desktop.png` (1440 x 1100 at a matching CSS viewport, 1x density). Compared together in `local-private/payment-required-comparison.png`, with the implementation proportionally reduced to the reference height. The reference is a reduced desktop composition; the existing desktop/mobile breakpoint remains intact.

@@ -24,7 +24,7 @@ import ProviderAccountChoice from './ProviderAccountChoice.vue'
 
 import '@fontsource-variable/manrope'
 
-import {ref,onMounted,computed} from 'vue'
+import {ref,onMounted,computed,nextTick} from 'vue'
 import {rememberTeacherPath,resolveTeacherPath,teacherEntryView} from './teacherEntryPath'
 
 import Icon from '../Icon.vue'
@@ -63,6 +63,8 @@ const roleChosen=ref(false)
 const signupPath=ref(false)
 const hasPreviousPage=window.history.length>1
 const providerSignupKind=ref('')
+const profileOpen=ref(false),profileStarted=ref(false),profileHeading=ref(null),profileContinue=ref(null)
+function showProfile(open){profileOpen.value=open;if(open)profileStarted.value=true;nextTick(()=>(open?profileHeading.value:profileContinue.value)?.focus())}
 const teacherPath=ref('individual'),entryPath=ref('')
 const teacherView=computed(()=>teacherEntryView(session.value,entryPath.value,newGoogleSignup))
 function rememberEntry(){rememberTeacherPath(sessionStorage,selected.value==='Teacher'?teacherPath.value:'')}
@@ -112,7 +114,24 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 
   <Campus v-else-if="session?.member" :shared-campus="session.shared_campus"/>
 
-  <VerifiedSignup v-else-if="session?.authenticated && policy.self_signup_enabled && newGoogleSignup" :policy="policy" google-session @back="connect"/><VerificationLayout v-else-if="session?.authenticated" @back="goBack"><MobileVerification onboarding/><details class="verification-channel"><summary>Complete your profile</summary><p>Complete your profile and mobile verification before your workspace is activated.</p><p>Account type: {{session.onboarding_kind}}</p><Profile :key="session.onboarding_kind" :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':session.onboarding_kind}" @saved="connect"/><a href="/me">Account settings</a> · <a href="/api/method/logout">Sign out</a></details></VerificationLayout>
+  <VerifiedSignup v-else-if="session?.authenticated && policy.self_signup_enabled && newGoogleSignup" :policy="policy" google-session @back="connect"/>
+  <template v-else-if="session?.authenticated">
+    <VerificationLayout v-show="!profileOpen" @back="goBack">
+      <MobileVerification onboarding/>
+      <section class="onboarding-profile-next" aria-label="Profile completion">
+        <p>Complete your profile and mobile verification before your workspace is activated.</p>
+        <button ref="profileContinue" type="button" class="teacher-submit" @click="showProfile(true)">Complete your profile <Icon name="ArrowRight" :size="16"/></button>
+        <p><a href="/me">Account settings</a> · <a href="/api/method/logout">Sign out</a></p>
+      </section>
+    </VerificationLayout>
+    <main v-if="profileStarted" v-show="profileOpen" class="onboarding-profile-page" aria-labelledby="onboarding-profile-title">
+      <header class="onboarding-profile-header"><a href="/campus" aria-label="SISU home"><BrandLogo/></a><nav aria-label="Account"><a href="/me">Account settings</a><a href="/api/method/logout">Sign out</a></nav></header>
+      <button type="button" class="onboarding-profile-back" @click="showProfile(false)"><ArrowLeft :size="16" aria-hidden="true"/>Back to verification</button>
+      <h1 id="onboarding-profile-title" ref="profileHeading" tabindex="-1">Complete your profile</h1>
+      <p class="onboarding-profile-intro">Complete your profile and mobile verification before your workspace is activated. Account type: {{session.onboarding_kind}}.</p>
+      <Profile :key="session.onboarding_kind" :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':session.onboarding_kind}" @saved="connect"/>
+    </main>
+  </template>
 
   <Signup v-else-if="signup" :initial-provider-kind="providerSignupKind" @back="signup=false" @dashboard="connect"/>
 
@@ -216,4 +235,21 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 .teacher-entry-path input{accent-color:#56288d}
 .teacher-approved-workspaces{margin-top:24px;font-size:13px;color:#56288d}
 .teacher-approved-workspaces summary{cursor:pointer;padding:8px 0}
+</style>
+
+<style scoped>
+.onboarding-profile-next{margin-top:28px;border-top:1px solid #e7e3ef;padding-top:20px}
+.onboarding-profile-next p{font:400 13px/1.7 'Manrope Variable',sans-serif;color:#78758b;margin:0 0 16px}
+.onboarding-profile-next p:last-child{margin:18px 0 0}
+.onboarding-profile-next a{color:#56288d}
+.onboarding-profile-page{max-width:1056px;min-height:100vh;margin:0 auto;padding:40px 48px 64px;background:#fff;color:#19182e;font-family:'Manrope Variable',sans-serif}
+.onboarding-profile-header{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:40px}
+.onboarding-profile-header nav{display:flex;gap:24px;font-size:13px}
+.onboarding-profile-header a{color:#56288d}
+.onboarding-profile-back{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:6px 0;font:400 13px/24px 'Manrope Variable',sans-serif;color:#56288d;cursor:pointer}
+.onboarding-profile-page>h1{font-size:32px;line-height:1.25;letter-spacing:-1px;margin:20px 0 12px}
+.onboarding-profile-page>h1:focus{outline:none}
+.onboarding-profile-intro{font-size:14px;line-height:1.7;color:#78758b;margin:0 0 28px;max-width:720px}
+.onboarding-profile-page :is(a,button):focus-visible{outline:3px solid #8b61bb;outline-offset:4px}
+@media(max-width:600px){.onboarding-profile-page{padding:28px 20px 40px}.onboarding-profile-header{align-items:flex-start;flex-wrap:wrap;gap:20px;margin-bottom:28px}.onboarding-profile-header nav{gap:20px}.onboarding-profile-page>h1{font-size:28px}}
 </style>

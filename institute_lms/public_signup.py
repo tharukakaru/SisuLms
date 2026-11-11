@@ -37,6 +37,8 @@ def start(data):
     try:fields=rules.details(data)
     except ValueError as error:frappe.throw(str(error))
     google=google_identity(fields['email'])
+    if google and fields['kind'] != 'Student':
+        frappe.throw('Learner Google signup creates a Student account. Use provider signup for a teaching account.')
     if frappe.session.user!='Guest' and not google:frappe.throw('Use the Google account you just signed in with, or sign out.')
     from .portal_policy import public
     policy=public()
@@ -79,7 +81,7 @@ def complete(token,password,confirmation):
     ready()
     with frappe.cache.lock(challenges.key(token),timeout=60):
         state=read(token)
-        if not rules.verified(state,time.time()):frappe.throw('Verify email and phone before saving.')
+        if not rules.account_creation_ready(state,time.time()):frappe.throw('Complete the required verification before saving.')
         data=state['details'];email=data['email']
         google=state.get('google_user')==email and google_identity(email)
         if state.get('google_user') and not google:frappe.throw('Google session changed. Start again.')
@@ -100,9 +102,10 @@ def complete(token,password,confirmation):
                     'enabled':1,'user_type':'Website User','send_welcome_email':0,'new_password':password}).insert(ignore_permissions=True)
             from .profiles import write
             from frappe.utils import now_datetime
-            phone_name=frappe.db.get_value('IL Verified Phone',{'user':email},'name')
-            phone_doc=frappe.get_doc('IL Verified Phone',phone_name) if phone_name else frappe.get_doc({'doctype':'IL Verified Phone','user':email})
-            phone_doc.phone=data['phone'];phone_doc.verified_at=now_datetime();write(phone_doc)
+            if state.get('phone_verified') is True:
+                phone_name=frappe.db.get_value('IL Verified Phone',{'user':email},'name')
+                phone_doc=frappe.get_doc('IL Verified Phone',phone_name) if phone_name else frappe.get_doc({'doctype':'IL Verified Phone','user':email})
+                phone_doc.phone=data['phone'];phone_doc.verified_at=now_datetime();write(phone_doc)
             kind={'Individual Teacher':'Teacher','Institute':'Institute','Student':'Student'}[data['kind']]
             profile_name=frappe.db.get_value('IL Public Profile',{'user':email},'name')
             profile=frappe.get_doc('IL Public Profile',profile_name) if profile_name else frappe.get_doc({'doctype':'IL Public Profile','user':email,'kind':kind})
@@ -116,10 +119,10 @@ def complete(token,password,confirmation):
             # No membership, global role, subscription, paid grant or institute
             # ownership is created by this identity-verification transaction.
             frappe.get_doc({'doctype':'IL Registration Request','email':email,'account_type':data['kind'],
-                'status':'Approved','email_verified':1,'details':json.dumps({**data,'flow':'public-account-v1'}),
-                'review_reason':'Email and phone verified; no workspace permissions or provider endorsement granted.'}).insert(ignore_permissions=True)
+                'status':'Approved','email_verified':1,'details':json.dumps({**data,'flow':'public-account-v1','onboarding_version':2}),
+                'review_reason':'Email verified; phone verification '+('complete' if state.get('phone_verified') is True else 'required on first login')+'; no workspace permissions or provider endorsement granted.'}).insert(ignore_permissions=True)
             from .account_confirmations import queue
-            queue(email,'account-verified','Account verified','Your SISU account has been successfully verified. You can now follow teachers and register with providers.')
+            queue(email,'account-verified','Account created','Your SISU account has been created. Sign in to complete any remaining profile and mobile verification steps.')
             frappe.db.commit()
             state['consumed']=True;challenges.store(token,state)
     return {'created':True,'message':'Your account is ready. Sign in to your SISU space.'}

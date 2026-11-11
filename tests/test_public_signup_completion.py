@@ -38,7 +38,7 @@ class PublicAccountCompletion(TestCase):
                 self.assertEqual(profile['status'],'Verified' if kind=='Student' else 'Pending')
     def test_missing_phone_verification_writes_nothing(self):
         self.state['phone_verified']=False
-        with self.assertRaisesRegex(ValueError,'Verify email and phone'):self.complete('token','a-password-123','a-password-123')
+        with self.assertRaisesRegex(ValueError,'required verification'):self.complete('token','a-password-123','a-password-123')
         self.assertEqual(self.docs,[]);self.f.db.commit.assert_not_called()
     def test_changed_google_session_writes_nothing(self):
         self.state['google_user']=self.data['email']
@@ -52,3 +52,22 @@ class PublicAccountCompletion(TestCase):
         self.state['consumed']=True
         with self.assertRaises(ValueError):self.complete('token','a-password-123','a-password-123')
         self.assertEqual(self.docs,[])
+
+    def test_provider_creation_defers_phone_without_claiming_verification(self):
+        for kind in ('Individual Teacher', 'Institute'):
+            with self.subTest(kind=kind):
+                self.docs.clear(); self.state.pop('consumed', None)
+                self.data['kind'] = kind; self.state['phone_verified'] = False
+                self.assertTrue(self.complete('token','a-password-123','a-password-123')['created'])
+                self.assertEqual([d['doctype'] for d in self.docs],
+                                 ['User','IL Public Profile','IL Registration Request'])
+                self.assertEqual(self.docs[1]['status'], 'Pending')
+                self.assertNotIn('workspace', self.docs[1])
+                self.assertNotIn('roles', self.docs[0])
+
+    def test_provider_without_email_proof_cannot_create_account(self):
+        self.data['kind'] = 'Individual Teacher'
+        self.state['email_verified'] = False
+        with self.assertRaises(ValueError):
+            self.complete('token','a-password-123','a-password-123')
+        self.assertEqual(self.docs, [])

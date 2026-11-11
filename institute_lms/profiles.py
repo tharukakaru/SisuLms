@@ -79,6 +79,15 @@ def save_profile(data):
             from .onboarding import activate
             activate(p)
     if kind!='Student' and p.status=='Pending':owner_notice('Provider profile awaits verification: @'+username,p.name)
+    if kind in ('Teacher','Institute'):
+        rows=frappe.get_all('IL Registration Request',filters={'email':frappe.session.user,'status':'Approved','email_verified':1},fields=['name','details'],order_by='creation desc',limit_page_length=10)
+        for row in rows:
+            try: details=json.loads(row.details or '{}')
+            except (ValueError,TypeError): continue
+            if isinstance(details,dict) and details.get('flow')=='public-account-v1' and details.get('onboarding_version')==2:
+                details['onboarding_profile_completed']=True
+                frappe.db.set_value('IL Registration Request',row.name,'details',json.dumps(details))
+                break
     return {'name':p.name,'username':username,'status':p.status,'code':p.code,'lms_id':p.lms_id}
 
 @frappe.whitelist()
@@ -226,7 +235,7 @@ def followed_updates(page=0):
     values.append(max(0,min(int(page),10000))*25)
     # Join on verified providers and the current user's follows, then paginate in
     # SQL so one popular provider cannot expose someone else's private records.
-    return frappe.db.sql('''SELECT u.name,u.headline,u.body,u.url,u.expires_at,p.display_name,p.username
+    return frappe.db.sql('''SELECT u.name,u.headline,u.body,u.url,u.expires_at,p.display_name,p.username,p.cover_image,p.profile_image
         FROM `tabIL Provider Update` u JOIN `tabIL Public Profile` p ON p.name=u.profile
         WHERE u.expires_at>%s AND p.status='Verified' AND EXISTS
         (SELECT 1 FROM `tabIL Profile Relationship` r WHERE r.profile=p.name AND r.user=%s

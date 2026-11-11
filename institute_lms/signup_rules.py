@@ -12,6 +12,12 @@ def details(data):
     if not isinstance(data,dict) or data.get('kind') not in EXTRA:
         raise ValueError('Choose Student, Individual Teacher or Institute.')
     kind=data['kind']; result={'kind':kind}
+    if kind == 'Individual Teacher':
+        path = data.get('teaching_path', 'individual')
+        if path not in ('individual', 'institute'):
+            raise ValueError('Choose independent teaching or institute teaching.')
+        # An onboarding preference, never a membership or permission grant.
+        result['teaching_path'] = path
     for field in (*COMMON,*EXTRA[kind],*OPTIONAL):
         value=data.get(field,'')
         if not isinstance(value,str) or len(value)>500 or any(c in value for c in '\r\n\x00'):
@@ -47,3 +53,13 @@ def password(value,confirmation):
 def verified(state,now):
     return bool(state and now<state.get('expires',0) and state.get('email_verified') is True
                 and state.get('phone_verified') is True and not state.get('consumed'))
+
+
+def account_creation_ready(state, now):
+    """Providers verify the phone on first login; students retain both checks."""
+    if not state or state.get('consumed') or now >= state.get('expires', 0):
+        return False
+    kind = (state.get('details') or {}).get('kind')
+    if kind not in EXTRA or state.get('email_verified') is not True:
+        return False
+    return kind != 'Student' or state.get('phone_verified') is True

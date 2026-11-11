@@ -18,14 +18,15 @@ def main():
     frappe.connect()
     try:
         rows = frappe.get_all('IL CyberSource Attempt', filters={'invoice': 'fm34oisjhc', 'kind': 'subscription'},
-            fields=['name', 'status', 'browser_event', 'session_expires', 'transaction_id'],
+            fields=['name', 'reference', 'creation', 'status', 'browser_event', 'session_expires', 'transaction_id'],
             order_by='creation desc', limit_page_length=5)
         print(json.dumps({'attempts': rows}, default=str))
         for row in rows[:1]:
             doc = frappe.get_doc('IL CyberSource Attempt', row.name)
-            print(json.dumps({'expired': float(doc.session_expires or 0) <= time.time(),
+            print(json.dumps({'expired': (float(doc.session_expires) <= time.time()) if doc.session_expires else None,
                               'invoice_currency': doc.currency, 'amount_minor': doc.amount_minor}))
             token = doc.get_password('session_token', raise_exception=False)
+            print(json.dumps({'saved_session_token_present': bool(token), 'settlement_recorded': bool(doc.settlement_key)}))
             if token:
                 claims = json.loads(unb64(token.split('.')[1]))
                 # Only permit known display metadata; never output the JWT or full claims.
@@ -45,15 +46,9 @@ def main():
                     'query': 'clientReferenceInformation.code:' + doc.reference,
                     'offset': 0, 'limit': 10, 'sort': 'submitTimeUtc:desc'})
                 print(json.dumps({'report_lookup': 'PASS', 'matching_transaction_count':
-                    len(report.get('_embedded', {}).get('transactionSummaries', []))}))
+                    report.get('totalCount')}))
             except Exception as exc:
                 print(json.dumps({'report_lookup': 'UNCONFIRMED', 'exception': type(exc).__name__}))
-        url = 'https://apitest.cybersource.com/uc/v1/assets/1.0.0/UnifiedCheckout.js'
-        with requests.Session() as client:
-            client.trust_env = False
-            with client.get(url, timeout=(5, 20), allow_redirects=False, stream=True) as response:
-                print(json.dumps({'configured_library_http_status': response.status_code,
-                                  'content_type': response.headers.get('Content-Type', '')[:100]}))
         print('READ ONLY: no attempt reset, new session, payment, invoice change or credentials displayed.')
     finally:
         frappe.db.rollback()

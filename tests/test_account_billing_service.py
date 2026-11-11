@@ -124,6 +124,15 @@ class BillingService(unittest.TestCase):
     def test_trial_has_no_charge(self):
         self.a.trial_until=self.now+timedelta(days=3)
         with self.assertRaises(ValueError):self.make()
+    def test_explicit_start_paid_during_trial_only_creates_unpaid_invoice(self):
+        self.a.trial_until=self.now+timedelta(days=3)
+        before=self.a.trial_until
+        bill=self.b.make_invoice(self.a,start_paid=True)
+        self.assertEqual(bill.status,'Unpaid')
+        self.assertEqual(self.a.trial_until,before)
+        self.assertFalse(self.a.paid_until)
+        self.assertEqual(self.b.make_invoice(self.a,start_paid=True).name,bill.name)
+
     def test_invoice_idempotency_and_snapshot(self):
         first=self.make();again=self.make()
         self.assertEqual(first.name,again.name)

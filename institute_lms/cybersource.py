@@ -30,6 +30,13 @@ def save(doc):
     return doc.save(ignore_permissions=True)
 
 
+def payment_paused():
+    testers = frappe.conf.get('il_cybersource_test_users')
+    if testers is not None:
+        return frappe.session.user not in testers
+    return bool(frappe.conf.get('il_payments_paused'))
+
+
 def settings(scope):
     root = frappe.conf.get('il_cybersource') or {}
     if not isinstance(root, dict) or root.get('enabled') is not True or root.get('mode') != 'sandbox':
@@ -46,6 +53,9 @@ def settings(scope):
 
 
 def source(kind, invoice, payable=True):
+    if frappe.conf.get('il_cybersource_test_users') is not None:
+        if frappe.session.user not in frappe.conf.get('il_cybersource_test_users') or kind != 'subscription':
+            frappe.throw('Sandbox checkout is restricted to subscription test accounts', frappe.PermissionError)
     if kind not in KINDS: frappe.throw('Unsupported invoice type')
     if frappe.session.user == 'Guest': frappe.throw('Sign in to pay', frappe.PermissionError)
     from .api import identity, scoped
@@ -89,6 +99,9 @@ def source(kind, invoice, payable=True):
 
 
 def lock_invoice(kind, invoice):
+    if frappe.conf.get('il_cybersource_test_users') is not None:
+        if frappe.session.user not in frappe.conf.get('il_cybersource_test_users') or kind != 'subscription':
+            frappe.throw('Sandbox checkout is restricted to subscription test accounts', frappe.PermissionError)
     if kind not in KINDS: frappe.throw('Unsupported invoice type')
     frappe.db.sql('SELECT name FROM `tab' + KINDS[kind] + '` WHERE name=%s FOR UPDATE', (invoice,))
 
@@ -111,12 +124,12 @@ def availability(kind, invoice):
     _, _, scope, _, _ = source(kind, invoice, payable=False)
     root = frappe.conf.get('il_cybersource') or {}
     configured = isinstance(root, dict) and root.get('enabled') is True and root.get('mode') == 'sandbox'
-    return {'paused': bool(frappe.conf.get('il_payments_paused')), 'available': bool(not frappe.conf.get('il_payments_paused') and configured and scope in (root.get('merchants') or {})), 'mode': 'sandbox'}
+    return {'paused': payment_paused(), 'available': bool(not payment_paused() and configured and scope in (root.get('merchants') or {})), 'mode': 'sandbox'}
 
 
 @frappe.whitelist(methods=['POST'])
 def start(kind, invoice):
-    if frappe.conf.get('il_payments_paused'):
+    if payment_paused():
         frappe.throw("Payment gateway isn't connected yet. Please try again later.")
     from .registration import limit
     limit('cybersource-start:' + frappe.session.user)

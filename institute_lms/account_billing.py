@@ -214,7 +214,7 @@ def void_open(a):
         if bill.status!='Unpaid':continue
         bill.status='Void'; bill.open_key=None; save(bill)
 
-def make_invoice(a):
+def make_invoice(a, start_paid=False):
     if a.role == 'Student':
         frappe.throw('Student dashboard access is included; no student platform subscription invoice is created')
     if not provider_lkr(a) and (a.country_status not in ('Verified','Change requested') or not a.billing_country):
@@ -222,7 +222,7 @@ def make_invoice(a):
     if not a.enabled: frappe.throw('Subscription is suspended')
     if a.cancel_at_end: frappe.throw('Resume your subscription before creating an invoice')
     now=now_datetime()
-    if now<get_datetime(a.trial_until) and not a.paid_until and not a.get('onboarding_payment_required'):
+    if now<get_datetime(a.trial_until) and not a.paid_until and not a.get('onboarding_payment_required') and not start_paid:
         frappe.throw('Your free trial is still active. Billing begins after it ends.')
     if a.paid_until and now<get_datetime(a.paid_until):
         frappe.throw('Your subscription is already paid. Your next invoice is created on the renewal date.')
@@ -241,13 +241,13 @@ def make_invoice(a):
         billed_to=a.display_name,billing_email=a.billing_email or a.user)))
 
 @frappe.whitelist(methods=['POST'])
-def invoice():
+def invoice(start_paid=False):
     a=account(create=True,lock=True)
     prior=frappe.db.get_value(INVOICE,{'subscription':a.name,'status':'Unpaid'},'name')
-    bill=make_invoice(a)
+    bill=make_invoice(a, start_paid=start_paid in (True,1,'1'))
     if bill.name!=prior:queue_document(bill,'Invoice')
     return {'invoice':bill.name,'amount_minor':bill.amount_minor,'currency':bill.currency,'checkout_available':False,
-            'message':'Invoice created. Payment gateway is not connected; no charge has been made.'}
+            'message':'Invoice created. Review the amount and use the available payment option below. No charge has been made.'}
 
 @frappe.whitelist(methods=['POST'])
 def cancel(cancel=True):
@@ -333,7 +333,7 @@ def daily():
         # Initial invoices are requested by the user; renew only an established paid account.
         if not a.paid_until:continue
         if old:continue  # Do not accumulate invoices while access is locked; user may request a fresh period.
-        bill=make_invoice(a)
+        bill=make_invoice(a, start_paid=start_paid in (True,1,'1'))
         if bill.name!=old:queue_document(bill,'Invoice')
 
 def guard_request():

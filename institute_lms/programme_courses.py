@@ -121,6 +121,7 @@ def payment_details(programme):
         {'programme': p.name, 'student': member.name, 'active': 1}, 'billing_enrollment')
     details['invoice'] = frappe.db.get_value('IL Invoice',
         {'enrollment': purchase, 'student': member.name}, 'name') if purchase else None
+    details['invoice_status'] = frappe.db.get_value('IL Invoice', details['invoice'], 'status') if details.get('invoice') else None
     return details
 
 

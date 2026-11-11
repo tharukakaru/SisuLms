@@ -137,4 +137,4 @@ def people(query=''):
     users=frappe.get_all('IL Member',filters={'institute':inst.name,'active':1,'role':['in',['Teacher','Admin']]},pluck='user',limit_page_length=0)
     return frappe.get_all('IL Public Profile',filters={'user':['in',users or ['__none__']],'status':'Verified'},
         or_filters=[['display_name','like','%'+str(query)[:80]+'%'],['username','like','%'+str(query)[:80]+'%']],
-        fields=['name','display_name','kind','profile_image','tagline','bio'],order_by='display_name',limit_page_length=100)
+        fields=['name','username','display_name','kind','profile_image','cover_image','tagline','bio','socials','code','lms_id','qualifications','curriculum','grades','languages','country'],order_by='display_name',limit_page_length=100)

@@ -1,5 +1,5 @@
 const monthlyPricing = {
-  "subtitle": "Your monthly subscription · USD",
+  "subtitle": "Your monthly subscription · LKR",
   "body": "Your Subscription page shows your current plan, monthly price and billing dates. Class tuition is separate.",
   "formula": "Monthly total = the fixed price shown for your account.",
   "steps": [
@@ -11,11 +11,11 @@ const monthlyPricing = {
     "Renewals follow your monthly billing anniversary. A 31 January cycle renews on the last day of February, then 31 March.",
     "Package changes during a paid period apply at renewal. Cancelling keeps your current access until its end date.",
     "Your course duration does not change the monthly SISU subscription price. Any class tuition is separate.",
-    "Online payments are coming soon. Bank transfers require verified payment confirmation before access renews."
+    "Provider checkout activates access only after verified payment. Students pay class or programme tuition by bank transfer and submit a slip for review."
   ]
 }
 
-export const guideContent=[{...monthlyPricing,title:'How SISU pricing works',page:'subscription',icon:'Receipt',audience:'all'},{title:'Provider tools',page:'workspace',icon:'Settings2',subtitle:'Expenses, team access and content settings',body:'Gold and Platinum providers can record expenses, filter by date and export CSV; grant 2 or 5 expense-only operator seats; and configure document, protected-video and browser-session limits. Platinum adds PDF watermarks and workspace name / accent settings. Setup is required for external services.',audience:'provider'},{title:"Usage & storage",page:"storage",icon:"HardDrive",subtitle:"Keep your institute organised",body:"Institute admins can review storage use and available capacity. Remove or archive outdated material through its normal classroom controls; protect records needed for enrolled learners.",audience:"admin"},
+export const guideContent=[{title:'Join a class or programme',page:'classrooms',icon:'BookOpen',audience:'all',body:'My classrooms opens with regular classes. Use All, Unlocked or Locked and the available filters. Open Programmes for complete courses. Choose Enroll now, copy the provider bank details and continue to Class fees. The invoice and amount are selected for you; add your transfer reference, date and slip. Your institute administrator or independent teacher reviews the payment. After approval, use your personal enrollment key. Programme modules unlock in order after required assessment submissions; attendance contributes to grades but does not block completion.'},{...monthlyPricing,title:'How SISU pricing works',page:'subscription',icon:'Receipt',audience:'all'},{title:'Provider tools',page:'workspace',icon:'Settings2',subtitle:'Expenses, team access and content settings',body:'Gold and Platinum providers can record expenses, filter by date and export CSV; grant 2 or 5 expense-only operator seats; and configure document, protected-video and browser-session limits. Platinum adds PDF watermarks and workspace name / accent settings. Setup is required for external services.',audience:'provider'},{title:"Usage & storage",page:"storage",icon:"HardDrive",subtitle:"Keep your institute organised",body:"Institute admins can review storage use and available capacity. Remove or archive outdated material through its normal classroom controls; protect records needed for enrolled learners.",audience:"admin"},
   {
     "title": "Overview",
     "page": "dashboard",

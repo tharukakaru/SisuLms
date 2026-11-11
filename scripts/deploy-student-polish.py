@@ -1,4 +1,4 @@
-"""Deploy the reviewed owner panel update; retain old assets for open tabs."""
+"""Deploy desktop web presentation; retain old assets for open tabs."""
 import hashlib
 import json
 import os
@@ -10,7 +10,7 @@ from pathlib import Path
 
 BENCH = Path('/home/sisu/frappe-bench')
 APP = BENCH / 'apps/institute_lms'
-ALLOWED = {'frontend/src/commerce/ProfileEditor.vue', 'frontend/src/native/StudentAccountSummary.vue', 'institute_lms/institute_lms/doctype/il_account_request/il_account_request.json', 'institute_lms/public_signup.py', 'institute_lms/saas.py', 'frontend/src/App.vue', 'frontend/src/ContactSettings.vue', 'frontend/src/native/GeneralCampus.vue', 'institute_lms/accounts.py', 'frontend/src/commerce/LmsIdentityCard.vue', 'frontend/src/AccountControls.vue', 'institute_lms/profiles.py', 'institute_lms/account_billing.py', 'frontend/src/native/VerifiedSignup.vue'}
+ALLOWED = {'institute_lms/hooks.py', 'frontend/src/native/AccountReceipts.vue', 'institute_lms/public/login-presentation.js', 'frontend/src/native/CampusSwitcher.vue', 'institute_lms/public/login-footer.svg', 'institute_lms/public/login-community.png', 'institute_lms/public/login-presentation.css', 'frontend/src/PageLoading.vue'}
 
 
 def digest(data):
@@ -21,9 +21,11 @@ def main():
     if os.name != 'posix' or Path.home() != Path('/home/sisu'):
         raise RuntimeError('Run as sisu')
     os.umask(0o022)
+    if not (APP / 'institute_lms/provision_verification.py').is_file():
+        raise RuntimeError('Existing hosting verification module is missing; preserve and restore it before deployment.')
     with tarfile.open('/tmp/sisu-student-polish.tgz') as archive:
         manifest = json.load(archive.extractfile('manifest.json'))
-        if set(manifest) != ALLOWED or len(archive.getmembers()) != len(ALLOWED) + 1:
+        if set(manifest) != ALLOWED or len(archive.getmembers()) != len(ALLOWED)+1:
             raise RuntimeError('Unexpected UI payload')
         payload = {}
         for name in ALLOWED:
@@ -35,7 +37,7 @@ def main():
             if path.is_symlink() or digest(payload[name]) != manifest[name]['after']:
                 raise RuntimeError('UI payload mismatch')
             actual = digest(path.read_bytes()) if path.exists() else None
-            if actual not in (manifest[name]['before'], manifest[name]['after']):
+            if actual not in (manifest[name]['before'], manifest[name]['after'], *manifest[name].get('accepted_before',[])):
                 raise RuntimeError('Source conflict: ' + name)
     root = Path.home() / '.sisu-secrets'
     if root.is_symlink() or not root.is_dir() or root.stat().st_mode & 0o077:
@@ -54,12 +56,13 @@ def main():
             shutil.copytree(src, dst)
         else:
             shutil.copy2(src, dst)
-    with (backup / 'database-backup.log').open('w') as log:
-        subprocess.run(['/usr/local/bin/bench', '--site', 'sisuacademylk.com', 'backup'], cwd=BENCH, stdout=log, stderr=log, check=True)
     try:
         for name, data in payload.items():
+            (APP / name).parent.mkdir(parents=True, exist_ok=True)
             (APP / name).write_bytes(data)
             (APP / name).chmod(0o644)
+        for site in ('sisuacademylk.com', 'teen.sisuacademylk.com', 'platform.sisuacademylk.com', 'staging.sisuacademylk.com'):
+            subprocess.run(['/usr/local/bin/bench', '--site', site, 'clear-cache'], cwd=BENCH, check=True)
         env = os.environ.copy()
         env['PATH'] = '/opt/node-v24.15.0-linux-x64/bin:' + env.get('PATH', '')
         with (backup / 'build.log').open('w') as log:
@@ -84,20 +87,18 @@ def main():
                 shutil.copytree(src, dst, dirs_exist_ok=True)
             else:
                 shutil.copy2(src, dst)
-        print('Previous UI restored. Private build log:', backup / 'build.log')
+        print('Previous sources/UI restored. Private build log:', backup / 'build.log')
         raise
-    # Only the public site needs the optional institute link for own erasure requests.
-    with (backup / 'migration.log').open('w') as log:
-        subprocess.run(['/usr/local/bin/bench', '--site', 'sisuacademylk.com', 'migrate'], cwd=BENCH, stdout=log, stderr=log, check=True)
     for site in ('sisuacademylk.com', 'teen.sisuacademylk.com', 'platform.sisuacademylk.com', 'staging.sisuacademylk.com'):
+        subprocess.run(['/usr/local/bin/bench', '--site', site, 'clear-cache'], cwd=BENCH, check=True)
         subprocess.run(['/usr/local/bin/bench', '--site', site, 'clear-website-cache'], cwd=BENCH, check=True)
-    print('DEPLOYED: student verification feedback, dashboard request, empty states, profile/Settings separation and institute news scope. Restart web and test in your browser.')
-    print('Public schema migrated after database backup. No messages sent or accounts deleted. Payments and WhatsApp settings unchanged. Deletion remains a tracked request, not automatic erasure.')
+    print('DEPLOYED: consistent loading screen, compact dropdown, green notifications and native login presentation. Restart web, run checks and hard-refresh.')
+    print('No schema or bank-account data changes by deployment. Existing enrollments/payments unchanged. Gateway configuration unchanged. No demo records changed by this installer.')
 
 
 if __name__ == '__main__':
     try:
         main()
     except Exception as exc:
-        print('STOPPED [' + type(exc).__name__ + ']. ' + (str(exc) if isinstance(exc, RuntimeError) else 'Check private build/migration logs. Do not retry blindly; browser result not confirmed.'))
+        print('STOPPED [' + type(exc).__name__ + ']. ' + (str(exc) if isinstance(exc, RuntimeError) else 'Check private build log; browser result not confirmed.'))
         raise SystemExit(1) from None

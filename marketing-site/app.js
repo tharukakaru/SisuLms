@@ -1,6 +1,6 @@
 const base='';
 const lms=(h='dashboard')=>`${base}/campus#${h}`;
-const signup=()=>`${base}/campus`;
+const signup=()=>`${base}/campus?signup=1&start_trial=1`;
 const enter=(href,label,cls='button primary')=>`<a class="${cls}" href="${href}">${label} ${arrow}</a>`;
 const route=location.pathname.split('/').filter(Boolean)[0]||'home';
 const page=['students','teachers','institutes','contact'].includes(route)?route:'home';

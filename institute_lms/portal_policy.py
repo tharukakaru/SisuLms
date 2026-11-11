@@ -42,6 +42,13 @@ def stamp_session(login_manager=None):
     frappe.session.data['il_google_session']=int(path=='/api/method/'+callback and frappe.session.user!='Guest')
     frappe.local.session_obj.update(force=True)
 
+def student_password_account(user):
+    """Opt-in normal Frappe password authentication for enabled learner accounts."""
+    if user in ('Guest','Administrator') or not getattr(frappe,'conf',{}).get('il_student_password_login_enabled'):return False
+    return bool(frappe.db.get_value('User',user,'enabled') and (
+        frappe.db.exists('IL Public Profile',{'user':user,'kind':'Student'}) or
+        frappe.db.exists('IL Member',{'user':user,'role':'Student','active':1})))
+
 def verified_public_password_account(user):
     from .public_signup import enabled
     if not enabled(getattr(frappe,'conf',{})) or user in ('Guest','Administrator'):return False
@@ -52,7 +59,7 @@ def verified_public_password_account(user):
 
 
 def require_google_student():
-    if verified_public_password_account(frappe.session.user):return
+    if student_password_account(frappe.session.user) or verified_public_password_account(frappe.session.user):return
     if getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost':
         from .self_signup import marker
         if marker(frappe.session.user):return
@@ -61,7 +68,7 @@ def require_google_student():
 
 def validate_login(login_manager):
     user=login_manager.user
-    if verified_public_password_account(user):return
+    if student_password_account(user) or verified_public_password_account(user):return
     if getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost':
         from .self_signup import marker
         if marker(user):return

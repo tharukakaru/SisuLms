@@ -65,6 +65,16 @@ class PolicyBoundary(unittest.TestCase):
     def test_student_password_login_is_blocked_before_session_creation(self):
         self.f.db.exists.return_value=True
         with self.assertRaises(PermissionError):self.policy.validate_login(types.SimpleNamespace(user='student@example.invalid'))
+    def test_opt_in_student_password_policy_preserves_enabled_account_boundary(self):
+        with patch.object(self.f,'conf',{'il_student_password_login_enabled':1},create=True):
+            self.f.db.exists.return_value=True
+            self.f.db.get_value.return_value=1
+            self.policy.validate_login(types.SimpleNamespace(user='student@example.invalid'))
+            self.policy.require_google_student()
+            self.f.db.get_value.return_value=0
+            with self.assertRaises(PermissionError):self.policy.validate_login(types.SimpleNamespace(user='student@example.invalid'))
+            self.assertFalse(self.policy.student_password_account('Guest'))
+
     def test_provider_password_login_remains_supported(self):
         self.policy.validate_login(types.SimpleNamespace(user='teacher@example.invalid'))
 

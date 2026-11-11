@@ -107,4 +107,4 @@ def institute_plan():
     from .plan_catalog import plan_features, plan
     account = frappe.get_doc('IL Account Subscription', name)
     return {'institute': inst.title, 'plan': account.plan, 'state': state(account)['state'],
-        'features': plan_features(account.plan), 'card_features': plan(account.plan)['card_features'], 'description': plan(account.plan)['description']}
+        'monthly_lkr': plan(account.plan)['monthly_lkr'], 'features': plan_features(account.plan), 'card_features': plan(account.plan)['card_features'], 'description': plan(account.plan)['description']}

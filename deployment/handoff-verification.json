@@ -1,6 +1,12 @@
 {
   "verified_files": 1202,
   "export_archive_sha256": "bf364781fbe01c4dc7827ee9028dcd88ed9702616449db09e1925b19749f0a4c",
-  "source": "Direct production export",
-  "changes_to_live_server": false
+  "source": "Direct LMS production export plus confirmed deployed marketing release",
+  "changes_to_live_server": false,
+  "marketing_release": {
+    "main": "1b53720",
+    "develop": "6cea59d",
+    "deployed_at_utc": "2026-11-12T12:25:34.918090Z",
+    "verification": "User supplied successful publish-marketing.py HTTPS checks; LMS retained from original export. Current nginx hash not re-exported."
+  }
 }

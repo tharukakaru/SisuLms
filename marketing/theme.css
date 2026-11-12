@@ -289,103 +289,12 @@ h3 { line-height: 1.25; }
 .hero-photo .hero-descriptor span { color: #fff; }
 .hero-photo .hero-row p { max-width: 380px; font-size: 16px; line-height: 1.7; }
 .hero-photo .hero-row { gap: 26px; }
-/* Clear liquid glass app-download card blending at top-left and bottom-right corners */
-.hero-photo .app-download {
-  position: relative;
-  width: 320px;
-  max-width: 100%;
-  padding: 16px 18px 18px;
-  /* Blends smoothly into the background at top-left (0%) and bottom-right (100%), keeping crisp clarity across the middle */
-  background: linear-gradient(135deg,
-    rgba(113, 157, 240, 0.08) 0%,
-    rgba(255, 255, 255, 0.28) 28%,
-    rgba(255, 255, 255, 0.22) 68%,
-    rgba(113, 157, 240, 0.12) 100%
-  );
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  /* Soft borders that dissolve at the blending corners */
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-top-color: rgba(255, 255, 255, 0.2);
-  border-left-color: rgba(255, 255, 255, 0.2);
-  border-radius: 26px;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45),
-              0 18px 36px -12px rgba(24, 42, 88, 0.25);
-  color: #0b1329;
-  transition: transform .35s cubic-bezier(.2,.65,.3,1), box-shadow .35s ease;
-}
-.hero-photo .app-download:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg,
-    rgba(113, 157, 240, 0.12) 0%,
-    rgba(255, 255, 255, 0.35) 28%,
-    rgba(255, 255, 255, 0.28) 68%,
-    rgba(113, 157, 240, 0.18) 100%
-  );
-  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.6),
-              0 24px 44px -10px rgba(24, 42, 88, 0.32);
-}
-.hero-photo .app-download-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 14px;
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: -.01em;
-  color: #0b1329;
-}
-.hero-photo .app-download-heading .icon {
-  width: 15px;
-  height: 15px;
-  color: #2e2699;
-}
-.hero-photo .app-download-heading span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.hero-photo .app-download-stores {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-/* Flat native button styling: no nested card-within-card, clean transparent background with clear icons and text */
-.hero-photo .app-download-store {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 48px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  box-shadow: none;
-  color: #0b1329;
-  font-size: 13px;
-  line-height: 1.15;
-  font-weight: 600;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  transition: background .2s, border-color .2s, transform .2s;
-}
-.hero-photo .app-download-store:hover {
-  background: rgba(255, 255, 255, 0.35);
-  border-color: rgba(255, 255, 255, 0.65);
-  transform: translateY(-1px);
-}
-.hero-photo .app-download-store .brand-ico {
-  width: 22px;
-  height: 22px;
-}
-.hero-photo .app-download-store small {
-  display: block;
-  margin-top: 2px;
-  font-size: 10px;
-  color: #384260;
-  font-weight: 500;
-}
+.hero-photo .app-download { background: #000; border-color: #000; color: #fff; }
+.hero-photo .app-download-heading, .hero-photo .countdown-digit { color: #fff; }
+.hero-photo .app-download-heading .icon { color: #fff; }
+.hero-photo .countdown-label, .hero-photo .countdown-unit::after { color: #333; }
+.hero-photo .app-download-store { background: #1a1a1a; border-color: #303030; color: #fff; }
+.hero-photo .app-download-store small { color: #ccc; }
 .hero-photo .marquee { background: transparent; border: 0; z-index: 2; padding-block: 30px; }
 .hero-photo .marquee-set span { display: inline-flex; align-items: center; gap: 13px; color: #ffffffbd; font-size: clamp(22px, 2vw, 30px); font-weight: 600; letter-spacing: -.035em; padding-right: 64px; text-shadow: 0 1px 8px #174b7840; }
 .hero-photo .marquee-set .icon { width: 32px; height: 32px; flex: none; stroke-width: 1.7; }
@@ -765,6 +674,9 @@ h3 { line-height: 1.25; }
 }
 /* Final navigation, learning and footer refinements. */
 .curiosity-accent{color:var(--accent-light,#c2a0ff)}
+.hero-photo .app-download{background:#000;border-color:#000;color:#fff}
+.hero-photo .app-download-heading,.hero-photo .app-download-heading .icon{color:#fff}
+.hero-photo .app-download-store{background:#1a1a1a;border-color:#303030;color:#fff}
 #getting-started .role-tabs button[aria-selected=true]{background:#4e1885;color:#fff;box-shadow:none}
 .learner-art img{transition:transform .6s cubic-bezier(.2,.65,.3,1);transform-origin:center}
 .voice-track{position:relative;scroll-snap-type:none;scroll-behavior:auto}
@@ -819,3 +731,59 @@ h3 { line-height: 1.25; }
 #faq .faq summary:hover,#faq .faq details[open]>summary{color:#c5a4ff}
 #faq .faq p{color:#9d96a8;padding-bottom:20px}
 #faq .faq summary:focus-visible{outline:2px solid #9868d7;outline-offset:3px;border-radius:6px}
+
+/* ---------- Responsive pass: every screen size and aspect ratio ---------- */
+/* Large monitors at 100% scaling: scale the whole page up instead of leaving a narrow strip of small text.
+   Each step needs both width and height, so ultrawide and tall screens get the scale their shorter side allows.
+   Browser zoom and OS display scaling shrink the CSS viewport, so these steps switch off on their own. */
+@media(min-width:2000px) and (min-height:1150px){html{zoom:1.15}}
+@media(min-width:2400px) and (min-height:1350px){html{zoom:1.35}}
+@media(min-width:3000px) and (min-height:1700px){html{zoom:1.65}}
+@media(min-width:3600px) and (min-height:2000px){html{zoom:2}}
+@media(min-width:4800px) and (min-height:2700px){html{zoom:2.6}}
+@media(min-width:7000px) and (min-height:3900px){html{zoom:3.6}}
+
+/* Touch targets: 44px minimum. Same visual spacing as before; the row shifts left so the first icon stays aligned. */
+.ft-socials{gap:6px;margin-left:-9px}
+.ft-socials>a,.ft-socials>span{width:44px;height:44px}
+@media(pointer:coarse){input[type=range]{height:44px;margin:6px 0 -8px}}
+
+/* Legibility: no text under 11.5px on small screens */
+@media(max-width:600px){.hero-photo .feature-label{font-size:11.5px}}
+@media(max-width:360px){.hero-photo .app-download-heading{font-size:11.5px}.hero-photo .app-download-heading .icon{width:14px}}
+#mobile .store small,.ft-qr-label{font-size:11.5px}
+
+/* Long words and addresses wrap instead of pushing past the edge on the narrowest phones */
+.site-footer a,.site-footer p,.faq summary,.plan li{overflow-wrap:anywhere}
+
+/* Narrowest phones (folded Galaxy Z Fold, 280-315px): keep the navbar on one row.
+   The button reads "Free trial" on screen; screen readers still hear "Start free trial". */
+.nav-cta-short{display:none}
+@media(max-width:315px){
+ .nav{padding-left:14px;padding-right:8px}
+ .nav .logo{zoom:.8}
+ .nav-end{gap:6px}
+ .nav .nav-cta{min-width:0;padding:8px 12px;font-size:12.5px}
+ .nav-cta-long{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+ .nav-cta-short{display:inline}
+}
+
+/* Footer app badges: on narrow phones the two side-by-side badges can't fit their text, so stack them */
+@media(max-width:359px){
+ .site-footer .ft-stores{grid-template-columns:1fr;justify-items:center}
+ .ft-download{width:100%;max-width:260px}
+}
+
+/* Mobile menu: Contact lines up with the other links */
+@media(max-width:900px){#navigation .nav-contact{padding-inline:12px}}
+
+/* Stacked hero (phones and tablets): the photo sits below the text. Fill the space above it with the photo's own
+   top-edge colours (they shift left to right) and fade the photo's top edge in, so the section reads as one background. */
+@media(max-width:1100px){
+ .hero-photo{background:linear-gradient(90deg,#6d9df1 0%,#76a0f2 25%,#6f9cef 50%,#7fa2f3 75%,#7c9beb 100%)}
+ .hero-photo .hero-media{aspect-ratio:1376/768}
+ .hero-photo .hero-image{object-fit:cover;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 22%);mask-image:linear-gradient(to bottom,transparent 0,#000 22%)}
+}
+/* Stacked hero: crop the wide photo to the student and laptop instead of shrinking all of it, so she reads at phone size */
+@media(max-width:1100px){.hero-photo .hero-media{aspect-ratio:3/2}.hero-photo .hero-image{object-position:92% bottom}}
+@media(max-width:600px){.hero-photo .hero-media{aspect-ratio:1/1}}

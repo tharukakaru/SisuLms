@@ -1,6 +1,6 @@
 # Production source handover — 12 November 2026
 
-Branch: **mergetharukaa-prod**. The LMS and marketing files were exported directly from production. `deployment/production-manifest.json` records their hashes, active marketing release, framework commits and runtime versions. `deployment/handoff-verification.json` records archive verification. Repository tests, scripts and documentation supplement the export and are not claimed to be deployed files.
+Branch: **mergetharukaa-prod**. The LMS files were exported directly from production. Marketing was updated to the release deployed and verified on 12 November at 12:25 UTC; its privacy page is retained from the export. `deployment/production-manifest.json` records their hashes, active marketing release, framework commits and runtime versions. `deployment/handoff-verification.json` records archive verification. Repository tests, scripts and documentation supplement the export and are not claimed to be deployed files.
 
 ## Project layout
 
@@ -21,7 +21,7 @@ Use Linux/WSL and a separate Frappe Bench/site for development. Match framework 
 
 Inside `frontend/`, use `npm ci`, `npm test` and `npm run build`. Builds update `institute_lms/public/portal` and the campus entry, intentionally changing snapshot hashes. Backend integration tests need Frappe. Do not rebuild the baseline just to compare it with production.
 
-Marketing upstream is `Sisu-Academy/sisu-academy-platform`, main `d8dbdd0`, develop `d8ce42c`, plus SISU integration. The export is already static and uses `/marketing/` asset paths; do not prefix them twice. Preserve LMS `/campus`, `/api`, `/assets` and authentication routing. The separate bookstore application is not included.
+Marketing upstream is `Sisu-Academy/sisu-academy-platform`, main `1b53720`, develop `6cea59d`, plus SISU integration. The export is already static and uses `/marketing/` asset paths; do not prefix them twice. Preserve LMS `/campus`, `/api`, `/assets` and authentication routing. The separate bookstore application is not included.
 
 ## Workflows and remaining work
 
@@ -37,4 +37,6 @@ Review feature changes and test on staging. Back up database, configuration and 
 
 Web service: `frappe-bench-web:frappe-bench-frappe-web`. Worker group: `frappe-bench-workers:`. Verify homepage, catalogue, signup/login, slip upload, provider billing and owner access after deployment.
 
-This is application source, not a complete server restore. Customer databases, uploads, secrets, certificates, runtime configurations, nginx content and installed dependencies are excluded. Framework revisions and routing hash are included; obtain private operational backups separately. Never commit credentials or customer data. Older repository documents describe earlier releases and must be read with this handover.
+This is application source, not a complete server restore. Customer databases, uploads, secrets, certificates, runtime configurations, nginx content and installed dependencies are excluded. Framework revisions and the previous routing hash are included; obtain private operational backups separately. Never commit credentials or customer data. Older repository documents describe earlier releases and must be read with this handover.
+
+The same snapshot is also intended for `https://github.com/tharukakaru/Sisu.git` on `main`. Both repositories contain the full LMS application and served marketing website; private runtime data is excluded.

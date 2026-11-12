@@ -13,17 +13,17 @@ const emit=defineEmits(['changed'])
 const checkoutTargetId='cybs-checkout-'+crypto.randomUUID()
 const paused=ref(false),popup=ref(false)
 
-const available=ref(false),busy=ref(false),message=ref(''),attempt=ref(null)
+const available=ref(false),busy=ref(false),message=ref(''),attempt=ref(null),gatewayMode=ref('unavailable')
 
 let client,checkout,disposed=false
 
-onMounted(async()=>{try{const r=await request('cybersource','availability',{kind:props.kind,invoice:props.invoice});available.value=r.available;paused.value=!!r.paused}catch{available.value=false}})
+onMounted(async()=>{try{const r=await request('cybersource','availability',{kind:props.kind,invoice:props.invoice});available.value=r.available;paused.value=!!r.paused;gatewayMode.value=r.mode||'unavailable'}catch{available.value=false}})
 
 function cleanup(){try{checkout?.destroy()}catch{}try{client?.destroy()}catch{}checkout=null;client=null}
 
 onBeforeUnmount(()=>{disposed=true;cleanup()})
 
-async function verify(){busy.value=true;try{const r=await request('cybersource','reconcile',{attempt:attempt.value});message.value=paymentMessage(r);if(r.status==='succeeded')emit('changed')}catch(e){message.value=e.message}finally{busy.value=false}}
+async function verify(){busy.value=true;try{const r=await request('cybersource','reconcile',{attempt:attempt.value});message.value=paymentMessage(r,props.kind);if(r.status==='succeeded')emit('changed')}catch(e){message.value=e.message}finally{busy.value=false}}
 
 async function pay(){
 
@@ -31,7 +31,7 @@ async function pay(){
 
  let stage='session-request'
 
- busy.value=true;message.value='Opening secure sandbox checkout…'
+ busy.value=true;message.value='Opening secure checkout…'
 
  try{
 
@@ -39,11 +39,11 @@ async function pay(){
 
   attempt.value=r.name
 
-  if(!r.session){message.value=paymentMessage(r);return}
+  if(!r.session){message.value=paymentMessage(r,props.kind);return}
 
   stage='library-load'
 
-  const VAS=await loadCheckoutLibrary(r.session)
+  const VAS=await loadCheckoutLibrary(r.session, r.mode)
 
   if(disposed)return
 
@@ -91,7 +91,7 @@ async function pay(){
 
 </script>
 
-<template><div v-if="available||paused" class="cybs-payment"><button type="button" class="button primary small" :disabled="busy" @click="pay">Pay online · sandbox</button><button v-if="attempt" type="button" class="button subtle small" :disabled="busy" @click="verify">Check payment status</button><div v-if="popup" role="alertdialog" aria-modal="true" aria-label="Payment unavailable" class="payment-unavailable"><p>Online checkout is temporarily paused while sandbox payment testing is completed. No payment has been taken.</p><button type="button" @click="popup=false">Close</button></div><small v-if="message" role="status">{{message}}</small><small>Test payments only. You approve every payment; no automatic renewals.</small><div :id="checkoutTargetId" class="cybs-checkout-target"></div></div></template>
+<template><div v-if="available||paused" class="cybs-payment"><button type="button" class="button primary small" :disabled="busy" @click="pay">Pay securely · LKR</button><button v-if="attempt" type="button" class="button subtle small" :disabled="busy" @click="verify">Check payment status</button><div v-if="popup" role="alertdialog" aria-modal="true" aria-label="Payment unavailable" class="payment-unavailable"><p>Online checkout is temporarily unavailable. No payment has been taken.</p><button type="button" @click="popup=false">Close</button></div><small v-if="message" role="status">{{message}}</small><small>{{gatewayMode==='sandbox'?'Sandbox: test payments only.':'Customer-authorized LKR payments only.'}} No automatic renewals.</small><div :id="checkoutTargetId" class="cybs-checkout-target"></div></div></template>
 
 <style scoped>.cybs-payment{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.cybs-checkout-target{flex-basis:100%;width:100%;min-width:0}.cybs-payment small{flex-basis:100%;max-width:380px;white-space:normal;font-size:11px;line-height:1.6}</style>
 

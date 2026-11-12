@@ -26,7 +26,7 @@
       "label": "Kind",
       "fieldtype": "Select",
       "read_only": 1,
-      "options": "tuition\nsubscription\nplatform\nusage"
+      "options": "tuition\nsubscription\nplatform\nusage\ngateway_test"
     },
     {
       "fieldname": "invoice",

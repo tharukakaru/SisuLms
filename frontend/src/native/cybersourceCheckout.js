@@ -1,6 +1,6 @@
 // Only the browser UI library is used. Session creation/authentication stays in Python.
 let loading, loadedKey
-export function libraryMetadata(session) {
+export function libraryMetadata(session, mode="sandbox") {
   // Backend verifies the session signature; enforce its script origin and SRI too.
   const segment=String(session).split('.')[1]
   const claims=JSON.parse(atob(segment.replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(segment.length/4)*4,'=')))
@@ -8,11 +8,12 @@ export function libraryMetadata(session) {
   if(entries.length!==1)throw Error('Checkout library metadata unavailable.')
   const {clientLibrary,clientLibraryIntegrity}=entries[0]
   const url=new URL(clientLibrary)
-  if(url.origin!=='https://testup.cybersource.com'||url.username||url.password||url.search||url.hash||!/^\/uc\/v1\/assets\/[A-Za-z0-9_-]+\/UnifiedCheckout\.js$/.test(url.pathname)||!/^sha(256|384|512)-[A-Za-z0-9+/]+={0,2}$/.test(clientLibraryIntegrity||''))throw Error('Checkout library metadata rejected.')
+  const trustedHosts=mode==='live'?['https://api.cybersource.com']:mode==='sandbox'?['https://testup.cybersource.com','https://apitest.cybersource.com']:[]
+  if(!trustedHosts.includes(url.origin)||url.username||url.password||url.search||url.hash||!/^\/uc\/v1\/assets\/[A-Za-z0-9_-]+\/UnifiedCheckout\.js$/.test(url.pathname)||!/^sha(256|384|512)-[A-Za-z0-9+/]+={0,2}$/.test(clientLibraryIntegrity||''))throw Error('Checkout library metadata rejected.')
   return {url:url.href,integrity:clientLibraryIntegrity}
 }
-export function loadCheckoutLibrary(session) {
-  const {url,integrity}=libraryMetadata(session)
+export function loadCheckoutLibrary(session, mode="sandbox") {
+  const {url,integrity}=libraryMetadata(session, mode)
   const key=url+' '+integrity
   if(loadedKey&&loadedKey!==key)throw Error('Reload this page before opening the updated checkout library.')
   loadedKey=key
@@ -27,7 +28,14 @@ export function loadCheckoutLibrary(session) {
   })
   return loading
 }
-export function paymentMessage(value) {
+export function paymentMessage(value, kind) {
+  if (kind === 'gateway_test') {
+    if (value?.status === 'succeeded') return 'LKR 50 gateway test payment verified successfully. This transaction does not pay any subscription invoice or activate subscription access.'
+    if (value?.status === 'failed') return 'LKR 50 gateway test payment declined. No subscription invoice was paid.'
+    if (value?.status === 'review') return 'The LKR 50 gateway test needs review. Do not attempt another payment. Contact SISU support.'
+    if (value?.browser_event === 'cancelled') return 'Gateway test checkout closed. Payment status must be verified before further action. Do not pay again.'
+    return value?.message || 'LKR 50 gateway test verification pending. Do not pay again.'
+  }
   if (value?.status === 'succeeded') return 'Payment verified. Your invoice and access have been updated.'
   if (value?.status === 'failed') return 'Payment declined. Your invoice remains unpaid.'
   if (value?.status === 'review') return 'This payment needs review. Please contact SISU before paying again.'

@@ -158,10 +158,31 @@ def status():
     plans=[dict(plan=p,monthly_minor=price(a,p),**(catalog_plan(p) if provider_lkr(a) else {}))
            for p in (('Student',) if a.role=='Student' else PLANS)]
     cybs=frappe.conf.get('il_cybersource') or {}
-    sandbox=bool(isinstance(cybs,dict) and cybs.get('enabled') is True and cybs.get('mode')=='sandbox' and (cybs.get('merchants') or {}).get('platform'))
-    return dict(account=public_account(a), plans=plans,gateway_ready=sandbox,
+    configured=bool(
+        isinstance(cybs, dict)
+        and cybs.get('enabled') is True
+        and (cybs.get('merchants') or {}).get('platform')
+    )
+    sandbox=bool(configured and cybs.get('mode')=='sandbox')
+    live=bool(
+        configured
+        and cybs.get('mode')=='live'
+        and cybs.get('live_checkout_approved') is True
+    )
+    from .cybersource import payment_paused
+    gateway_ready=bool(
+        (sandbox or live)
+        and not payment_paused()
+    )
+    gateway_message=(
+        'Online checkout is available on eligible unpaid invoices. '
+        'Every payment requires your approval; no automatic renewal charges.'
+        if gateway_ready
+        else 'Online checkout is currently unavailable. No automatic card collection is performed.'
+    )
+    return dict(account=public_account(a), plans=plans,gateway_ready=gateway_ready,
                 bank_instructions=str(frappe.conf.get('il_subscription_bank_instructions') or ''),
-                gateway_message=('Sandbox online checkout is available on unpaid invoices. Every payment requires your approval; no automatic renewal charges.' if sandbox else 'Online checkout is not configured. No automatic card collection is performed.'),
+                gateway_message=gateway_message,
                 invoices=frappe.get_all(INVOICE,filters={'subscription':a.name},fields=['name','plan','currency','amount_minor','period_start','period_end','status','paid_at','receipt_number','creation'],order_by='creation desc',limit_page_length=60))
 
 @frappe.whitelist(methods=['POST'])

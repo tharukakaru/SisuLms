@@ -8,7 +8,14 @@ import uuid
 from decimal import Decimal, InvalidOperation
 from urllib.parse import urlsplit
 
-HOST = 'apitest.cybersource.com'  # Deliberately no production endpoint in this release.
+HOST = 'apitest.cybersource.com'  # Kept for sandbox callers.
+HOSTS = {'sandbox': HOST, 'live': 'api.cybersource.com'}
+
+
+def host_for(mode):
+    if mode not in HOSTS:
+        raise ValueError('Unsupported CyberSource environment')
+    return HOSTS[mode]
 METHODS = {'PANENTRY', 'GOOGLEPAY', 'APPLEPAY', 'CLICKTOPAY'}
 
 
@@ -58,13 +65,15 @@ def unb64(value):
     return base64.urlsafe_b64decode(value + '=' * (-len(value) % 4))
 
 
-def request_jwt(method, path, body, merchant, key_id, private_key, now=None):
+def request_jwt(method, path, body, merchant, key_id, private_key, now=None, host=HOST):
     """P12-key JWT v2 authentication, implemented directly (no provider SDK)."""
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.asymmetric import padding
     now = int(time.time()) if now is None else now
+    if host not in HOSTS.values():
+        raise ValueError('Unsupported CyberSource API host')
     claims = {'iat': now, 'exp': now + 120, 'iss': merchant, 'jti': str(uuid.uuid4()),
-              'request-host': HOST, 'request-method': method.lower(),
+              'request-host': host, 'request-method': method.lower(),
               'request-resource-path': path, 'v-c-jwt-version': '2', 'v-c-merchant-id': merchant}
     if body:
         claims.update(digest=base64.b64encode(hashlib.sha256(body).digest()).decode(),
@@ -76,7 +85,7 @@ def request_jwt(method, path, body, merchant, key_id, private_key, now=None):
 
 
 def verify_session(token, fetch_key, now=None):
-    """Trust only RSA keys fetched from the fixed CyberSource sandbox origin."""
+    """Trust only signature keys fetched by the caller from its fixed provider environment."""
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.asymmetric import padding, rsa
     if not isinstance(token, str) or len(token) > 64000:

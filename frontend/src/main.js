@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, nextTick } from 'vue'
 import App from './native/PortalRoot.vue'
 import './style.css'
 import './brand.css'
@@ -12,3 +12,6 @@ for (const key of ['sisu-demo-v2','sisu-community-v1','sisu-wallet-preview-v1'])
   try { localStorage.removeItem(key) } catch { /* Private browsing may deny storage. */ }
 }
 createApp(App).mount('#app')
+nextTick(() => {
+  document.getElementById('sisu-boot-loader')?.remove()
+})

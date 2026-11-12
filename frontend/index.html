@@ -1,1 +1,36 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="csrf-token" content="{{ csrf_token }}"><meta name="theme-color" content="#7563e6"><meta name="description" content="Your classes, your community. Sisu institute learning portal."><title>Sisu · Your learning space</title></head><body><div id="app"></div><script type="module" src="/src/main.js"></script></body></html>
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="csrf-token" content="{{ csrf_token }}"><meta name="theme-color" content="#7563e6"><meta name="description" content="Your classes, your community. Sisu institute learning portal."><title>Sisu · Your learning space</title></head><body>
+<style>
+#sisu-boot-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 25px;
+  background: #f9f8fd;
+  font-family: Arial, sans-serif;
+}
+#sisu-boot-loader img {
+  width: 160px;
+  max-width: 60vw;
+  height: auto;
+  object-fit: contain;
+}
+#sisu-boot-loader p {
+  margin: 0;
+  font-size: 13px;
+  color: #9078ff;
+  text-align: center;
+}
+</style>
+<div id="sisu-boot-loader"
+     role="status"
+     aria-label="SISU Academy is loading">
+  <img src="/src/assets/sisu-original-light.png"
+       alt="SISU"
+       width="160">
+  <p>Making room for learning...</p>
+</div>
+<div id="app"></div><script type="module" src="/src/main.js"></script></body></html>

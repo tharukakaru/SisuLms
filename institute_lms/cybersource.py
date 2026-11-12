@@ -1,4 +1,4 @@
-"""Customer-initiated sandbox checkout, isolated from Payments.lk and bank review.
+"""Customer-initiated CyberSource checkout, isolated from Payments.lk and bank review.
 
 Browser completion/cancellation is only a hint. Only authenticated CyberSource
 reports can settle an invoice. No scheduled charging, saved card or MIT endpoint.
@@ -17,6 +17,17 @@ KINDS = {'tuition': 'IL Invoice', 'subscription': 'IL Account Invoice', 'platfor
 ACTIVE = ('creating', 'pending', 'review')
 
 
+def attempt_environment(attempt):
+    try:
+        value = json.loads(attempt.evidence or '{}')
+    except (TypeError, ValueError):
+        frappe.throw('Invalid stored payment environment')
+    mode = value.get('environment', 'sandbox')
+    if mode not in ('sandbox', 'live'):
+        frappe.throw('Unknown stored payment environment')
+    return mode
+
+
 def assert_no_active(kind, invoice):
     """Called under the invoice lock by alternative settlement paths."""
     root = frappe.conf.get('il_cybersource')
@@ -31,31 +42,38 @@ def save(doc):
 
 
 def payment_paused():
+    # The global administrative pause always takes precedence.
+    if frappe.conf.get('il_payments_paused'):
+        return True
     testers = frappe.conf.get('il_cybersource_test_users')
     if testers is not None:
         return frappe.session.user not in testers
-    return bool(frappe.conf.get('il_payments_paused'))
+    return False
 
 
-def settings(scope):
+def settings(scope, for_reconciliation=False):
     root = frappe.conf.get('il_cybersource') or {}
-    if not isinstance(root, dict) or root.get('enabled') is not True or root.get('mode') != 'sandbox':
-        frappe.throw('CyberSource sandbox is not configured')
+    if not isinstance(root, dict) or root.get('enabled') is not True or root.get('mode') not in ('sandbox', 'live'):
+        frappe.throw('CyberSource is not configured')
+    mode = root['mode']
+    if mode == 'live' and not for_reconciliation and root.get('live_checkout_approved') is not True:
+        frappe.throw('Live CyberSource checkout requires an explicit production approval flag')
     c = (root.get('merchants') or {}).get(scope)
-    if not isinstance(c, dict) or not all(c.get(k) for k in ('merchant_id', 'key_id', 'p12_path', 'p12_password')):
-        frappe.throw('CyberSource sandbox credentials are not configured for this payment recipient')
+    if not isinstance(c, dict) or not all(c.get(k) for k in ('merchant_id', 'key_id')) or not (
+            c.get('p12_path') and c.get('p12_password') or c.get('shared_secret')):
+        frappe.throw('CyberSource credentials are not configured for this payment recipient')
     if not isinstance(c.get('methods'), list) or not c['methods']:
-        frappe.throw('No sandbox payment methods have been activated')
+        frappe.throw('No payment methods have been activated')
     configured = origin(root.get('origin', ''))
     if get_url().rstrip('/') != configured:
-        frappe.throw('Open the configured HTTPS sandbox site to pay')
-    return dict(c, mode='sandbox', origin=configured)
+        frappe.throw('Open the configured HTTPS checkout site to pay')
+    return dict(c, mode=mode, origin=configured)
 
 
 def source(kind, invoice, payable=True):
-    if frappe.conf.get('il_cybersource_test_users') is not None:
+    if payable and frappe.conf.get('il_cybersource_test_users') is not None:
         if frappe.session.user not in frappe.conf.get('il_cybersource_test_users') or kind != 'subscription':
-            frappe.throw('Sandbox checkout is restricted to subscription test accounts', frappe.PermissionError)
+            frappe.throw('Checkout is restricted to approved subscription test accounts', frappe.PermissionError)
     if kind not in KINDS: frappe.throw('Unsupported invoice type')
     if frappe.session.user == 'Guest': frappe.throw('Sign in to pay', frappe.PermissionError)
     from .api import identity, scoped
@@ -98,10 +116,10 @@ def source(kind, invoice, payable=True):
     return doc, inst, scope, total, currency
 
 
-def lock_invoice(kind, invoice):
-    if frappe.conf.get('il_cybersource_test_users') is not None:
+def lock_invoice(kind, invoice, for_reconciliation=False):
+    if not for_reconciliation and frappe.conf.get('il_cybersource_test_users') is not None:
         if frappe.session.user not in frappe.conf.get('il_cybersource_test_users') or kind != 'subscription':
-            frappe.throw('Sandbox checkout is restricted to subscription test accounts', frappe.PermissionError)
+            frappe.throw('Checkout is restricted to approved subscription test accounts', frappe.PermissionError)
     if kind not in KINDS: frappe.throw('Unsupported invoice type')
     frappe.db.sql('SELECT name FROM `tab' + KINDS[kind] + '` WHERE name=%s FOR UPDATE', (invoice,))
 
@@ -123,8 +141,12 @@ def public(a):
 def availability(kind, invoice):
     _, _, scope, _, _ = source(kind, invoice, payable=False)
     root = frappe.conf.get('il_cybersource') or {}
-    configured = isinstance(root, dict) and root.get('enabled') is True and root.get('mode') == 'sandbox'
-    return {'paused': payment_paused(), 'available': bool(not payment_paused() and configured and scope in (root.get('merchants') or {})), 'mode': 'sandbox'}
+    configured = (isinstance(root, dict) and root.get('enabled') is True
+                  and root.get('mode') in ('sandbox', 'live')
+                  and (root.get('mode') == 'sandbox' or root.get('live_checkout_approved') is True))
+    return {'paused': payment_paused(),
+            'available': bool(not payment_paused() and configured and scope in (root.get('merchants') or {})),
+            'mode': root.get('mode') if configured else 'unavailable'}
 
 
 @frappe.whitelist(methods=['POST'])
@@ -137,23 +159,26 @@ def start(kind, invoice):
     lock_invoice(kind, invoice)
     doc, inst, scope, total, currency = source(kind, invoice)
     c = settings(scope)
+    if currency != 'LKR':
+        frappe.throw('SISU CyberSource checkout accepts LKR only')
     if currency not in c.get('currencies', ['LKR']):
-        frappe.throw('This invoice currency has not been enabled for the sandbox merchant')
+        frappe.throw('This invoice currency has not been enabled for the merchant')
     active_key = kind + ':' + invoice
     existing = frappe.db.get_value(DT, {'active_key': active_key}, 'name')
     if existing:
         a = accessible(existing)
-        if (a.merchant_id != c['merchant_id'] or a.amount_minor != total or a.currency != currency):
+        if (a.merchant_id != c['merchant_id'] or attempt_environment(a) != c['mode']
+                or a.amount_minor != total or a.currency != currency):
             frappe.throw('Checkout changed; reconcile the retained payment first')
         # Never hand the same capture context to a second tab/request. A lost
         # response is retained for reconciliation rather than risking two payments.
-        return dict(public(a), mode='sandbox')
+        return dict(public(a), mode=c['mode'])
     reference = 'sisu-' + uuid.uuid4().hex
     body = session_request(reference, total, currency, c['origin'], c['methods'])
     a = save(frappe.get_doc(dict(doctype=DT, reference=reference, active_key=active_key,
         kind=kind, invoice=invoice, institute=inst.name, customer=frappe.session.user,
         merchant_scope=scope, merchant_id=c['merchant_id'], amount_minor=total, currency=currency,
-        status='creating', request_snapshot=json.dumps(body))))
+        status='creating', evidence=json.dumps({'environment': c['mode']}), request_snapshot=json.dumps(body))))
     # An ambiguous crash can never silently create a second active checkout.
     frappe.db.commit()
     try:
@@ -165,7 +190,7 @@ def start(kind, invoice):
     a.session_token = token
     a.session_expires = claims['exp']
     a.status = 'pending'; save(a)
-    return dict(public(a), session=token, mode='sandbox')
+    return dict(public(a), session=token, mode=c['mode'])
 
 
 @frappe.whitelist(methods=['POST'])
@@ -186,8 +211,9 @@ def status(attempt):
 @frappe.whitelist(methods=['POST'])
 def reconcile(attempt):
     a = accessible(attempt)
-    c = settings(a.merchant_scope)
-    if a.merchant_id != c['merchant_id']: frappe.throw('Merchant changed; restore the original sandbox configuration')
+    c = settings(a.merchant_scope, for_reconciliation=True)
+    if a.merchant_id != c['merchant_id'] or attempt_environment(a) != c['mode']:
+        frappe.throw('Merchant or environment changed; restore the original payment configuration')
     # Lock before checking the cooldown; concurrent polls must not multiply provider requests.
     a = frappe.get_doc(DT, a.name, for_update=True)
     if a.status in ('succeeded', 'failed'): return public(a)
@@ -209,11 +235,11 @@ def reconcile(attempt):
                                             'currency': a.currency, 'amount_minor': a.amount_minor})
     except (ProviderUnavailable, ValueError, TypeError, KeyError):
         return dict(public(a), message='Payment verification is pending. No access has been activated.')
-    lock_invoice(a.kind, a.invoice)
+    lock_invoice(a.kind, a.invoice, for_reconciliation=True)
     a = frappe.get_doc(DT, a.name, for_update=True)
     if a.status == 'succeeded': return public(a)
     a.transaction_id = transaction_id
-    a.evidence = json.dumps({'id': transaction_id, 'merchantId': data.get('merchantId'),
+    a.evidence = json.dumps({'environment': c['mode'], 'id': transaction_id, 'merchantId': data.get('merchantId'),
         'clientReferenceInformation': data.get('clientReferenceInformation'),
         'applications': data.get('applicationInformation', {}).get('applications'),
         'paymentSolution': data.get('processingInformation', {}).get('paymentSolution')})
@@ -242,21 +268,22 @@ def reconcile(attempt):
 
 def settle(a, doc):
     """Private, invoked only after authenticated, exact-bound report verification."""
-    reference = 'cybs-sandbox:' + a.settlement_key
+    mode = attempt_environment(a)
+    reference = ('cybs-live:' if mode == 'live' else 'cybs-sandbox:') + a.settlement_key
     if a.kind == 'subscription':
         from .account_billing import record_verified_payment
-        record_verified_payment(a.invoice, reference, a.amount_minor, a.currency, 'CyberSource sandbox')
+        record_verified_payment(a.invoice, reference, a.amount_minor, a.currency, 'CyberSource ' + mode)
     elif a.kind == 'usage':
         from .usage_billing import record_verified_payment
-        record_verified_payment(a.invoice, reference, doc.amount_lkr, 'CyberSource sandbox authorization and capture verified', remote_reviewer='CyberSource sandbox')
+        record_verified_payment(a.invoice, reference, doc.amount_lkr, 'CyberSource ' + mode + ' authorization and capture verified', remote_reviewer='CyberSource ' + mode)
     elif a.kind == 'platform':
         from .commercial import save as provider_save
         doc.update(dict(status='Paid', payment_reference=reference, settlement_key=a.settlement_key,
-                   paid_at=now_datetime(), receipt_number='RC-' + doc.name, payment_channel='CyberSource sandbox'))
+                   paid_at=now_datetime(), receipt_number='RC-' + doc.name, payment_channel='CyberSource ' + mode))
         provider_save(doc)
     else:
         doc.update(dict(status='Paid', payment_id=reference, paid_at=now_datetime(),
-                   receipt_number='RC-' + doc.name, gateway_status='cybersource:sandbox:captured'))
+                   receipt_number='RC-' + doc.name, gateway_status='cybersource:' + mode + ':captured'))
         doc.save(ignore_permissions=True)
         from .commercial import account_for, configured_access, grant, notify_people
         room = frappe.get_doc('IL Classroom', doc.classroom)
@@ -296,17 +323,18 @@ def close_unpaid(attempt, reason):
         frappe.throw('Wait until the session expiry and reporting delay have passed; uncertain sessions need support review')
     if time.time() > expires + 6 * 86400:
         frappe.throw('This attempt is outside the default reporting window; support must reconcile archived transactions')
-    c = settings(a.merchant_scope)
-    if c['merchant_id'] != a.merchant_id: frappe.throw('Restore the original merchant configuration')
+    c = settings(a.merchant_scope, for_reconciliation=True)
+    if c['merchant_id'] != a.merchant_id or attempt_environment(a) != c['mode']:
+        frappe.throw('Restore the original merchant environment')
     result = request(c, 'POST', '/tss/v2/searches', {
         'save': False, 'query': 'clientReferenceInformation.code:' + a.reference,
         'offset': 0, 'limit': 10, 'sort': 'submitTimeUtc:desc'})
     if result.get('totalCount') != 0:
         frappe.throw('Cannot confirm an empty transaction report; reconcile this attempt')
-    lock_invoice(a.kind, a.invoice)
+    lock_invoice(a.kind, a.invoice, for_reconciliation=True)
     a = frappe.get_doc(DT, attempt, for_update=True)
     if a.status not in ACTIVE or a.transaction_id or a.settlement_key:
         frappe.throw('Attempt changed; review its latest status')
     a.status = 'cancelled'; a.active_key = None; save(a)
-    audit('Close unpaid CyberSource sandbox attempt', a.name, reason.strip()[:1000])
+    audit('Close unpaid CyberSource attempt', a.name, reason.strip()[:1000])
     return public(a)

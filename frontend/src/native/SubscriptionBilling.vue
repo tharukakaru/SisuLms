@@ -23,7 +23,7 @@ async function choose(plan){await run(async()=>{await request('account_billing',
 async function invoice(){await run(async()=>{const r=await request('account_billing','invoice',{start_paid:1});checkoutInvoice.value=r.invoice;await load();notice.value=r.message})}
 async function cancel(){await run(async()=>{await request('account_billing','cancel',{cancel:!account.value.cancel_at_end});await load();notice.value=account.value.cancel_at_end?'Renewal cancelled. Your current access keeps its end date.':'Renewal resumed.'})}
 async function download(name){await run(async()=>{const result=await request('account_billing','document',{invoice:name});const url=URL.createObjectURL(new Blob([result.html],{type:'text/html'}));const a=document.createElement('a');a.href=url;a.download=result.filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)})}
-onMounted(()=>run(load))
+onMounted(async()=>{await run(load)})
 </script>
 <template>
  <main class="billing-page" :class="{'billing-standalone':standalone}" :aria-busy="busy">

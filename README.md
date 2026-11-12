@@ -1,4 +1,12 @@
-# SISU LMS — monthly subscription release
+# SISU production source handover
+
+**Start with [the current production handover](docs/PRODUCTION_HANDOVER.md).** Branch `mergetharukaa-prod` includes the exported LMS backend, frontend, compiled assets and the main website in `marketing/`. File hashes and runtime versions are in `deployment/`.
+
+This is application source, not a server/database restore. Credentials, databases, user uploads and runtime secrets are excluded. Verify with `python scripts/verify-production-snapshot.py`.
+
+---
+
+## Historical release notes (superseded by the handover above)
 
 Updated 18 October 2026. Start with [the current subscription contract and deployment handover](docs/ACCOUNT_SUBSCRIPTIONS.md).
 

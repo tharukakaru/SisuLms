@@ -2,6 +2,12 @@
 
 Branch: **mergetharukaa-prod**. The LMS files were exported directly from production. Marketing was updated to the release deployed and verified on 12 November at 12:25 UTC; its privacy page is retained from the export. `deployment/production-manifest.json` records their hashes, active marketing release, framework commits and runtime versions. `deployment/handoff-verification.json` records archive verification. Repository tests, scripts and documentation supplement the export and are not claimed to be deployed files.
 
+## Post-export correction (not yet deployed)
+
+The CI repair corrects `account_billing.daily()` to create a normal unpaid renewal invoice instead of referencing an undefined `start_paid` variable. It does not charge a card or extend access. Regression coverage checks that repeated runs create only one invoice and preserve the access expiry. Payment test fixtures were also updated for the exported gateway interface.
+
+The production manifest remains the original deployment evidence. On this revision, the snapshot verifier is expected to report only `lms/institute_lms/account_billing.py: changed`. Commit `dcbe367` is the unchanged exported baseline. Deploy and validate the renewal correction separately before claiming this revision exactly matches the live server.
+
 ## Project layout
 
 - `institute_lms/`: Frappe backend, DocTypes, campus entry and compiled assets.

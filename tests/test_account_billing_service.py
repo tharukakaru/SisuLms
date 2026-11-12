@@ -37,7 +37,9 @@ class BillingService(unittest.TestCase):
         from institute_lms.plan_catalog_rules import defaults
         self.catalog=types.ModuleType('institute_lms.plan_catalog')
         self.catalog.plan=lambda name:defaults()[name]
-        self.patches=[patch.dict(sys.modules,{'institute_lms.plan_catalog':self.catalog}),patch.object(self.b,'frappe',self.fake),patch.object(self.b,'now_datetime',lambda:self.now),patch.object(self.b,'account',lambda **kw:self.a),patch.object(self.b,'save',self.save),patch.object(self.b,'queue_document',lambda bill,kind:self.sent.append((bill.name,kind))),patch.object(self.b,'require_owner',self.check_owner),patch.object(self.b,'country_code',lambda c:c if c in ('LK','US') else self.fake.throw('invalid country'))]
+        self.gateway=types.ModuleType('institute_lms.cybersource')
+        self.gateway.payment_paused=lambda:True
+        self.patches=[patch.dict(sys.modules,{'institute_lms.plan_catalog':self.catalog,'institute_lms.cybersource':self.gateway}),patch.object(self.b,'frappe',self.fake),patch.object(self.b,'now_datetime',lambda:self.now),patch.object(self.b,'account',lambda **kw:self.a),patch.object(self.b,'save',self.save),patch.object(self.b,'queue_document',lambda bill,kind:self.sent.append((bill.name,kind))),patch.object(self.b,'require_owner',self.check_owner),patch.object(self.b,'country_code',lambda c:c if c in ('LK','US') else self.fake.throw('invalid country'))]
         for p in self.patches:p.start()
         self.addCleanup(lambda:[p.stop() for p in reversed(self.patches)])
 
@@ -116,6 +118,19 @@ class BillingService(unittest.TestCase):
         else:rows=self.get_all(doctype,filters)
         return rows[0].get(field or 'name') if rows else None
     def make(self):return self.b.make_invoice(self.a)
+
+    def test_daily_renews_expired_paid_account_once_without_unlocking(self):
+        self.a.paid_until=self.now-timedelta(days=1)
+        expiry=self.a.paid_until
+        original_get_all=self.fake.get_all
+        self.fake.get_all=lambda doctype,**kw: [self.a.name] if doctype==self.b.ACCOUNT else original_get_all(doctype,**kw)
+        self.b.daily()
+        self.b.daily()
+        bills=[r for (doctype,name),r in self.rows.items() if doctype==self.b.INVOICE]
+        self.assertEqual(len(bills),1)
+        self.assertEqual(bills[0].status,'Unpaid')
+        self.assertEqual(self.a.paid_until,expiry)
+        self.assertEqual(self.sent,[(bills[0].name,'Invoice')])
 
     def test_pending_country_cannot_issue(self):
         self.a.billing_country=None;self.a.country_status='Pending review'

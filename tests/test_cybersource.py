@@ -117,7 +117,7 @@ class Service(unittest.TestCase):
         f.get_doc=lambda *a,**kw:self.a
         self.m.save=lambda doc:doc
         self.m.accessible=lambda name:self.a
-        self.m.settings=lambda scope:dict(merchant_id='sandbox_merchant')
+        self.m.settings=lambda scope, **kwargs:dict(merchant_id='sandbox_merchant', mode='sandbox')
         self.m.source=lambda *a,**kw:(Row(status='Unpaid'),Row(name='inst'),'scope',10000,'LKR')
         self.m.settle=MagicMock()
 
@@ -210,7 +210,7 @@ class Service(unittest.TestCase):
         self.f.db.commit=lambda:events.append('commit')
         self.f.get_doc=lambda doc,*a,**kw:Row(doc,name='new') if isinstance(doc,dict) else self.a
         self.m.source=lambda *a,**kw:(Row(status='Unpaid'),Row(name='inst'),'platform',10000,'LKR')
-        self.m.settings=lambda scope:dict(merchant_id='sandbox_merchant',origin='https://sandbox.example.test',methods=['PANENTRY'])
+        self.m.settings=lambda scope:dict(merchant_id='sandbox_merchant',mode='sandbox',origin='https://sandbox.example.test',methods=['PANENTRY'])
         def provider(c,method,path,body,token=False):
             self.assertEqual(events,['commit'])
             self.assertEqual(body['data']['orderInformation']['amountDetails']['totalAmount'],'100.00')

@@ -354,7 +354,7 @@ def daily():
         # Initial invoices are requested by the user; renew only an established paid account.
         if not a.paid_until:continue
         if old:continue  # Do not accumulate invoices while access is locked; user may request a fresh period.
-        bill=make_invoice(a, start_paid=start_paid in (True,1,'1'))
+        bill=make_invoice(a)
         if bill.name!=old:queue_document(bill,'Invoice')
 
 def guard_request():

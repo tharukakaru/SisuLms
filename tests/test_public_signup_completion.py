@@ -15,7 +15,7 @@ class Record:
 
 class PublicAccountCompletion(TestCase):
     def setUp(self):
-        self.data=dict(kind='Student',email='student@example.invalid',phone='+94761234567',first_name='Test',last_name='Student',username='test_student',country='Sri Lanka',bio='',qualifications='',privacy_policy_url='/privacy',privacy_policy_version='v1')
+        self.data=dict(kind='Student',email='student@example.invalid',phone='+94761234567',first_name='Test',last_name='Student',username='test_student',country='Sri Lanka',birth_date='2005-02-28',bio='',qualifications='',privacy_policy_url='/privacy',privacy_policy_version='v1')
         self.state=dict(flow='public-account-v1',details=self.data,expires=time.time()+600,email_verified=True,phone_verified=True)
         self.docs=[]
         def doc(data):
@@ -34,8 +34,31 @@ class PublicAccountCompletion(TestCase):
                 self.assertTrue(self.complete('token','a-password-123','a-password-123')['created'])
                 self.assertEqual([d['doctype'] for d in self.docs],['User','IL Verified Phone','IL Public Profile','IL Registration Request'])
                 user=self.docs[0];self.assertEqual(user['user_type'],'Website User');self.assertNotIn('roles',user)
+                self.assertEqual(user.get('birth_date'),'2005-02-28' if kind=='Student' else None)
                 profile=self.docs[2];self.assertNotIn('workspace',profile)
+                self.assertNotIn('birth_date',profile)
                 self.assertEqual(profile['status'],'Verified' if kind=='Student' else 'Pending')
+    def test_google_signup_saves_birthday_on_the_existing_user(self):
+        self.state['google_user']=self.data['email']
+        self.f.session.user=self.data['email']
+        self.challenges.google_identity.return_value=True
+        existing=Record({'doctype':'User','email':self.data['email']})
+        original=self.f.get_doc
+        self.f.get_doc=lambda *args:existing if args[0]=='User' else original(*args)
+        with patch.dict('sys.modules',{'frappe.utils.password':NS(update_password=Mock())}):
+            self.complete('token','a-password-123','a-password-123')
+        self.assertEqual(existing.birth_date,'2005-02-28')
+        profile=next(d for d in self.docs if d['doctype']=='IL Public Profile')
+        self.assertNotIn('birth_date',profile)
+
+    def test_old_or_invalid_birthday_challenge_writes_nothing(self):
+        for value in (None,'2005-02-30','2999-01-01'):
+            self.data['birth_date']=value
+            with self.subTest(value=value),self.assertRaisesRegex(ValueError,'date of birth|Date of birth'):
+                self.complete('token','a-password-123','a-password-123')
+            self.assertEqual(self.docs,[])
+        self.f.db.commit.assert_not_called()
+
     def test_missing_phone_verification_writes_nothing(self):
         self.state['phone_verified']=False
         with self.assertRaisesRegex(ValueError,'required verification'):self.complete('token','a-password-123','a-password-123')

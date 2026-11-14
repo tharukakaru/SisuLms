@@ -96,6 +96,8 @@ def complete(token,password,confirmation):
         state=read(token)
         if not rules.account_creation_ready(state,time.time()):frappe.throw('Complete the required verification before saving.')
         data=state['details'];email=data['email']
+        try:birth_fields={'birth_date':rules.birth_date(data.get('birth_date'))} if data['kind']=='Student' else {}
+        except ValueError as error:frappe.throw(str(error))
         from .signup_environment import student_kind_allowed
         if not student_kind_allowed(getattr(frappe,'conf',{}), data['kind']):frappe.throw('Only student signup is enabled on this site.')
         google=state.get('google_user')==email and google_identity(email)
@@ -109,12 +111,12 @@ def complete(token,password,confirmation):
         with frappe.cache.lock('il_signup_account:'+hashlib.sha256(email.encode()).hexdigest(),timeout=60):
             if frappe.db.exists('User',email) and not google:frappe.throw('Account already exists. Please sign in.')
             if google:
-                user=frappe.get_doc('User',email);user.first_name=data['first_name'];user.last_name=data['last_name'];user.save(ignore_permissions=True)
+                user=frappe.get_doc('User',email);user.first_name=data['first_name'];user.last_name=data['last_name'];user.update(birth_fields);user.save(ignore_permissions=True)
                 from frappe.utils.password import update_password
                 update_password(email,password,logout_all_sessions=False)
             else:
                 frappe.get_doc({'doctype':'User','email':email,'first_name':data['first_name'],'last_name':data['last_name'],
-                    'enabled':1,'user_type':'Website User','send_welcome_email':0,'new_password':password}).insert(ignore_permissions=True)
+                    'enabled':1,'user_type':'Website User','send_welcome_email':0,'new_password':password,**birth_fields}).insert(ignore_permissions=True)
             from .profiles import write
             from frappe.utils import now_datetime
             if state.get('phone_verified') is True:
@@ -128,7 +130,6 @@ def complete(token,password,confirmation):
             profile.update({'username':data['username'],
                 'display_name':data.get('organization') or data['first_name']+' '+data['last_name'],
                 'country':data['country'],'bio':data['bio'],'qualifications':data['qualifications']})
-            if kind=='Student':profile.grades=data.get('grade','')
             if not profile_name or kind=='Student':profile.status='Verified' if kind=='Student' else 'Pending'
             write(profile)
             # No membership, global role, subscription, paid grant or institute

@@ -168,6 +168,8 @@ def complete(token,password,confirmation):
         state=read(token)
         if not rules.verified(state,time.time()):frappe.throw('Verify both email and phone before saving.')
         data=state['details'];email=data['email']
+        try:birth_fields={'birth_date':rules.birth_date(data.get('birth_date'))} if data['kind']=='Student' else {}
+        except ValueError as error:frappe.throw(str(error))
         is_google=state.get('google_user')==email and google_identity(email)
         if state.get('google_user') and not is_google:frappe.throw('Google session changed. Start again.')
         if not is_google and frappe.session.user!='Guest':frappe.throw('Sign out before creating another account.')
@@ -187,10 +189,10 @@ def complete(token,password,confirmation):
                     frappe.throw('Institute workspace assignment requires review.')
             # User.new_password follows Frappe strength checks and password hashing.
             if is_google:
-                user=frappe.get_doc('User',email);user.first_name=data['first_name'];user.last_name=data['last_name'];user.new_password=password;user.save(ignore_permissions=True)
+                user=frappe.get_doc('User',email);user.first_name=data['first_name'];user.last_name=data['last_name'];user.update(birth_fields);user.new_password=password;user.save(ignore_permissions=True)
             else:
                 user=frappe.get_doc({'doctype':'User','email':email,'first_name':data['first_name'],'last_name':data['last_name'],
-                    'enabled':1,'user_type':'Website User','send_welcome_email':0,'new_password':password}).insert(ignore_permissions=True)
+                    'enabled':1,'user_type':'Website User','send_welcome_email':0,'new_password':password,**birth_fields}).insert(ignore_permissions=True)
             from .profiles import write
             from frappe.utils import now_datetime
             write(frappe.get_doc({'doctype':'IL Verified Phone','user':email,'phone':data['phone'],'verified_at':now_datetime()}))

@@ -34,7 +34,7 @@ def membership(institute):
 
 
 def selected_institute():
-    # Mobile tokens retain their own fixed, validated institute context.
+    # Mobile tokens retain their own validated institute context.
     override = getattr(frappe.local, 'student_request_institute', None)
     if override:
         return override
@@ -64,21 +64,40 @@ def choices():
         title = frappe.db.get_value('IL Institute', member.institute, 'title')
         if title:
             result.append({'institute': member.institute, 'title': title, 'role': member.role, 'student_number': member.name if member.role=='Student' else None})
-    selected = frappe.session.data.get(SESSION_KEY)
+    selected = selected_institute()
     return {'institutes': result, 'selected': selected if any(r['institute'] == selected for r in result) else None}
 
 
 @frappe.whitelist(methods=['POST'])
 def clear():
     require_user()
-    frappe.session.data.pop(SESSION_KEY, None)
-    frappe.local.session_obj.update(force=True)
+    _set_selection(None)
     return {'selected': None, 'reload_required': True}
 
 
 @frappe.whitelist(methods=['POST'])
 def select(institute):
     member = membership(institute)
-    frappe.session.data[SESSION_KEY] = member.institute
-    frappe.local.session_obj.update(force=True)
+    _set_selection(member.institute)
     return {'selected': member.institute, 'role': member.role, 'reload_required': True}
+
+
+def _set_selection(institute):
+    mobile_session = getattr(frappe.local, 'il_mobile_session', None)
+    if mobile_session:
+        from frappe.utils import get_datetime, now_datetime
+        from .saas import managed
+        # Lock the authenticated device session; never accept a client session ID.
+        doc = frappe.get_doc('IL Mobile Session', mobile_session, for_update=True)
+        if (doc.user != frappe.session.user or doc.revoked
+                or get_datetime(doc.expires_at) <= now_datetime()):
+            frappe.throw('Mobile session expired or revoked.', frappe.PermissionError)
+        doc.institute = institute
+        managed(doc)
+        frappe.local.il_mobile_institute = institute
+        return
+    if institute is None:
+        frappe.session.data.pop(SESSION_KEY, None)
+    else:
+        frappe.session.data[SESSION_KEY] = institute
+    frappe.local.session_obj.update(force=True)

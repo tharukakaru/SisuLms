@@ -134,3 +134,18 @@ def module_image(classroom, kind, url):
     room.set(kind, verified_image(url, member))
     room.save(ignore_permissions=True)
     return {'saved': True}
+
+
+@frappe.whitelist(methods=['POST'])
+def module_images(classroom, images):
+    """Validate both photo URLs before updating the module in one save."""
+    from .api import classroom_for, verified_image
+    _, member, room = classroom_for(classroom, write=True)
+    images = frappe.parse_json(images) if isinstance(images, str) else images
+    if not room.get('programme') or not isinstance(images, dict) or not images or set(images) - {'cover_image', 'profile_image'}:
+        frappe.throw('Choose programme module photos')
+    checked = {kind: verified_image(url, member) for kind, url in images.items()}
+    for kind, url in checked.items():
+        room.set(kind, url)
+    room.save(ignore_permissions=True)
+    return checked

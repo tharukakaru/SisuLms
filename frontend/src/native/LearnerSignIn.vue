@@ -14,7 +14,7 @@ onMounted(()=>heading.value?.focus({preventScroll:true}))
     <h2 id="learner-signin-title" ref="heading" tabindex="-1">Your learning starts here.</h2>
     <p>Create your SISU learner account with Google or your email.</p>
     <button v-if="emailAvailable" type="button" class="learner-google" @click="$emit('email')">Create account with email <ArrowRight :size="18" aria-hidden="true"/></button>
-    <button type="button" class="learner-google" :disabled="!googleAvailable" :aria-describedby="!googleAvailable?'learner-google-unavailable':undefined" @click="$emit('google')">Continue with Google <ArrowRight :size="18" aria-hidden="true"/></button>
+    <button type="button" class="learner-google" :disabled="!googleAvailable" :aria-describedby="!googleAvailable?'learner-google-unavailable':undefined" @click="$emit('google')"><img :src="'/assets/frappe/icons/social/google.svg'" alt="" width="20" height="20" style="display:inline-block;vertical-align:middle;margin-right:8px;flex-shrink:0" />Continue with Google <ArrowRight :size="18" aria-hidden="true"/></button>
     <p v-if="!googleAvailable" id="learner-google-unavailable" class="learner-unavailable" role="status">Google sign-in is being set up for this site. Use email signup if available, or try again later.</p>
     <button type="button" class="learner-other-path" @click="$emit('choose-path')">Choose another path <ArrowRight :size="18" aria-hidden="true"/></button>
   </div>

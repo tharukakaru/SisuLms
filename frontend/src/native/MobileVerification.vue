@@ -1,4 +1,5 @@
 <script setup>
+import PhoneInput from '../shared/PhoneInput.vue'
 import {ref,onMounted,onBeforeUnmount,watch} from 'vue'
 import {request} from './client'
 import './release.css'
@@ -20,7 +21,7 @@ onMounted(async()=>{try{config.value=await request('release','otp_status',{},'GE
   <template v-else>
     <p v-if="config&&!config.SMS&&!config.WHATSAPP" class="verification-feedback">SMS and WhatsApp verification are not configured. Contact the administrator.</p>
     <form @submit.prevent="issue">
-      <label>Mobile number<input v-model="phone" type="tel" required pattern="\+[1-9][0-9]{7,14}" placeholder="+94" :disabled="busy||cooldown>0"></label>
+      <label>Mobile number<PhoneInput v-model="phone" required :disabled="busy||cooldown>0" /></label>
       <button class="teacher-submit" :disabled="busy||cooldown>0||!config?.[channel]">{{cooldown?'Try again in '+String(Math.floor(cooldown/60)).padStart(2,'0')+':'+String(cooldown%60).padStart(2,'0'):busy?'Sending…':'Send verification code'}}<ArrowRight :size="16" aria-hidden="true"/></button>
     </form>
     <form class="verification-phone-form" @submit.prevent="verify">
@@ -30,7 +31,7 @@ onMounted(async()=>{try{config.value=await request('release','otp_status',{},'GE
     </form>
     <details class="verification-channel"><summary>Verification method · {{channel}}</summary><label>Channel<select v-model="channel" :disabled="busy||cooldown>0" @change="challenge=null;code='' "><option :disabled="!config?.SMS">SMS</option><option :disabled="!config?.WHATSAPP">WHATSAPP</option></select></label></details>
   </template>
-</section><section v-else class="release panel"><h2>Verify your mobile</h2><p v-if="error" class="error" role="alert">{{error}}</p><p v-if="verified" role="status">Mobile verified.</p><button v-if="verified" class="button subtle" @click="verified=false">Verify another number</button><template v-else><p v-if="config&&!config.SMS&&!config.WHATSAPP">SMS and WhatsApp verification are not configured. Contact the administrator.</p><form @submit.prevent="issue"><label>Channel<select v-model="channel" :disabled="busy||cooldown>0" @change="challenge=null;code='' "><option :disabled="!config?.SMS">SMS</option><option :disabled="!config?.WHATSAPP">WHATSAPP</option></select></label><label>Mobile number<input v-model="phone" type="tel" required pattern="\+[1-9][0-9]{7,14}" placeholder="+94…" :disabled="busy||cooldown>0"></label><button class="button subtle" :disabled="busy||cooldown>0||!config?.[channel]">{{cooldown?'Try again in '+String(Math.floor(cooldown/60)).padStart(2,'0')+':'+String(cooldown%60).padStart(2,'0'):'Send verification code'}}</button></form><form v-if="challenge" @submit.prevent="verify"><p>Code expires in {{expiry}} seconds. Failed attempts are limited by the server.</p><label>Six-digit code<input v-model="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label><button class="button primary" :disabled="busy||!expiry">Verify</button></form></template></section></template>
+</section><section v-else class="release panel"><h2>Verify your mobile</h2><p v-if="error" class="error" role="alert">{{error}}</p><p v-if="verified" role="status">Mobile verified.</p><button v-if="verified" class="button subtle" @click="verified=false">Verify another number</button><template v-else><p v-if="config&&!config.SMS&&!config.WHATSAPP">SMS and WhatsApp verification are not configured. Contact the administrator.</p><form @submit.prevent="issue"><label>Channel<select v-model="channel" :disabled="busy||cooldown>0" @change="challenge=null;code='' "><option :disabled="!config?.SMS">SMS</option><option :disabled="!config?.WHATSAPP">WHATSAPP</option></select></label><label>Mobile number<PhoneInput v-model="phone" required :disabled="busy||cooldown>0" /></label><button class="button subtle" :disabled="busy||cooldown>0||!config?.[channel]">{{cooldown?'Try again in '+String(Math.floor(cooldown/60)).padStart(2,'0')+':'+String(cooldown%60).padStart(2,'0'):'Send verification code'}}</button></form><form v-if="challenge" @submit.prevent="verify"><p>Code expires in {{expiry}} seconds. Failed attempts are limited by the server.</p><label>Six-digit code<input v-model="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label><button class="button primary" :disabled="busy||!expiry">Verify</button></form></template></section></template>
 
 <style scoped>
 .verification-success{background:#ecf8f1;color:#17643a;border:1px solid #bee4cd;border-radius:12px;padding:14px 18px}

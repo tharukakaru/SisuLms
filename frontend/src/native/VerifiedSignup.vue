@@ -1,11 +1,13 @@
 <script setup>
+import CountrySelect from '../shared/CountrySelect.vue'
+import PhoneInput from '../shared/PhoneInput.vue'
 import {computed,ref,nextTick,onMounted,onUnmounted} from 'vue'
 import {request,csrf} from './client'
 import TeacherSignupLayout from './TeacherSignupLayout.vue'
 import VerificationLayout from './VerificationLayout.vue'
 import {ArrowLeft,ArrowRight} from 'lucide-vue-next'
 const props=defineProps({policy:Object,googleSession:Boolean,studentOnly:Boolean});const emit=defineEmits(['back','verified'])
-const form=ref({kind:'Student',first_name:'',last_name:'',email:'',phone:'',username:'',country:'',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,grade:'',subject:'',organization:'',job:'',backup_name:'',backup_email:'',website:'',qualifications:'',bio:'',privacy_accepted:false})
+const form=ref({kind:'Student',first_name:'',last_name:'',email:'',phone:'',username:'',country:'Sri Lanka',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,grade:'',subject:'',organization:'',job:'',backup_name:'',backup_email:'',website:'',qualifications:'',bio:'',privacy_accepted:false})
 const teacherSignup=computed(()=>['Individual Teacher','Institute Teacher'].includes(form.value.kind)&&!props.googleSession)
 const instituteSignup=computed(()=>form.value.kind==='Institute'&&!props.googleSession)
 const providerSignup=computed(()=>teacherSignup.value||instituteSignup.value)
@@ -84,11 +86,11 @@ onMounted(()=>{if(props.googleSession)run(async()=>{const d=await request('regis
   </div></div>
   <label>Email<input v-model="form.email" aria-label="Email" type="email" required maxlength="254" placeholder="teacher@example.com" autocomplete="email"></label>
   <label>Preferred username<input v-model="form.username" aria-label="Username" required maxlength="60" pattern="[a-z][a-z0-9_]{2,29}" title="Use 3–30 lowercase letters, digits or underscores; start with a letter." placeholder="Choose a username" autocomplete="username"></label>
-  <label>Phone number<input v-model="form.phone" aria-label="Phone" type="tel" required maxlength="254" placeholder="+94" autocomplete="tel"></label>
+  <label>Phone number<PhoneInput v-model="form.phone" aria-label="Phone" required /></label>
   <label>Subject / expertise<input v-model="form.subject" aria-label="Subject / expertise" required maxlength="254" placeholder="e.g. Combined Mathematics"></label>
   <label>Professional qualifications<input v-model="form.qualifications" aria-label="Qualifications" maxlength="500" placeholder="Your qualifications"></label>
   <div class="teacher-field-group" role="group" aria-labelledby="teacher-location-label"><span id="teacher-location-label">Country / time zone</span><div class="teacher-paired-fields">
-    <label><span class="teacher-sr-only">Country</span><input v-model="form.country" aria-label="Country" required maxlength="254" placeholder="Country" autocomplete="country-name"></label>
+    <label><span class="teacher-sr-only">Country</span><CountrySelect v-model="form.country" aria-label="Country" required /></label>
     <label><span class="teacher-sr-only">Timezone</span><input v-model="form.timezone" aria-label="Timezone" required maxlength="254" placeholder="e.g. Asia/Colombo"></label>
   </div></div>
 
@@ -100,15 +102,15 @@ onMounted(()=>{if(props.googleSession)run(async()=>{const d=await request('regis
   </div></div>
   <label>Your role at the institute<input v-model="form.job" aria-label="Your role at the institute" required maxlength="254" placeholder="Owner, principal or administrator" autocomplete="organization-title"></label>
   <label>Email<input v-model="form.email" aria-label="Email" type="email" required maxlength="254" placeholder="institute@example.com" autocomplete="email"></label>
-  <label>Phone number<input v-model="form.phone" aria-label="Phone number" type="tel" required maxlength="254" placeholder="+94" autocomplete="tel"></label>
+  <label>Phone number<PhoneInput v-model="form.phone" aria-label="Phone number" required /></label>
   <label>Recovery contact name<input v-model="form.backup_name" aria-label="Recovery contact name" required maxlength="60" placeholder="Enter contact name"></label>
   <label>Recovery contact email<input v-model="form.backup_email" aria-label="Recovery contact email" type="email" required maxlength="254" placeholder="recovery@example.com"></label>
   <label>Preferred username<input v-model="form.username" aria-label="Username" required maxlength="60" pattern="[a-z][a-z0-9_]{2,29}" title="Use 3–30 lowercase letters, digits or underscores; start with a letter." placeholder="Choose a username" autocomplete="username"></label>
   <div class="teacher-field-group" role="group" aria-labelledby="institute-location-label"><span id="institute-location-label">Country / time zone</span><div class="teacher-paired-fields">
-    <label><span class="teacher-sr-only">Country</span><input v-model="form.country" aria-label="Country" required maxlength="254" placeholder="Country" autocomplete="country-name"></label>
+    <label><span class="teacher-sr-only">Country</span><CountrySelect v-model="form.country" aria-label="Country" required /></label>
     <label><span class="teacher-sr-only">Timezone</span><input v-model="form.timezone" aria-label="Timezone" required maxlength="254" placeholder="e.g. Asia/Colombo"></label>
   </div></div>
-</template><div v-else class="signup-grid"><label v-for="field in required" :key="field">{{label(field)}} · Required<input v-model="form[field]" :aria-label="label(field)" :readonly="googleSession&&field==='email'" :type="field.includes('email')?'email':field==='phone'?'tel':'text'" required :maxlength="field.includes('name')?60:254" :pattern="field==='username'?'[a-z][a-z0-9_]{2,29}':undefined" :title="field==='username'?'Use 3–30 lowercase letters, digits or underscores; start with a letter.':undefined" :placeholder="field==='phone'?'+94761234567':field==='username'?'e.g. sisu_student':''"/></label><p class="phone-help">Sri Lankan mobile: use +94 and omit the first 0. For example, 0761234567 → +94761234567. Use a mobile number you can receive verification codes on.</p><label v-for="field in ['website','qualifications','bio']" :key="field">{{label(field)}} · Optional<input v-model="form[field]" :aria-label="label(field)" :readonly="googleSession&&field==='email'" :type="field==='website'?'url':'text'" maxlength="500"/></label></div>
+</template><div v-else class="signup-grid"><label v-for="field in required" :key="field">{{label(field)}} · Required<PhoneInput v-if="field==='phone'" v-model="form[field]" required /><CountrySelect v-else-if="field==='country'" v-model="form[field]" required /><input v-else v-model="form[field]" :aria-label="label(field)" :readonly="googleSession&&field==='email'" :type="field.includes('email')?'email':field==='phone'?'tel':'text'" required :maxlength="field.includes('name')?60:254" :pattern="field==='username'?'[a-z][a-z0-9_]{2,29}':undefined" :title="field==='username'?'Use 3–30 lowercase letters, digits or underscores; start with a letter.':undefined" :placeholder="field==='phone'?'+94761234567':field==='username'?'e.g. sisu_student':''"/></label><p class="phone-help">Choose your country code and enter a mobile number that can receive verification codes.</p><label v-for="field in (form.kind==='Student'?[]:['website','qualifications','bio'])" :key="field">{{label(field)}} · Optional<PhoneInput v-if="field==='phone'" v-model="form[field]" required /><CountrySelect v-else-if="field==='country'" v-model="form[field]" required /><input v-else v-model="form[field]" :aria-label="label(field)" :readonly="googleSession&&field==='email'" :type="field==='website'?'url':'text'" maxlength="500"/></label></div>
 <div v-if="providerSignup" class="teacher-password-fields">
   <label>Password · Required
     <input v-model="password"

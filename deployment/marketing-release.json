@@ -1,9 +1,9 @@
 {
-  "source_commit": "1b53720",
-  "included_develop_commit": "6cea59d",
-  "archive_sha256": "01b30655c9d273cc661568882afbbd3f65613cea24904882e53c8b9de6202a2f",
-  "files": 138,
-  "size_bytes": 53206393,
+  "source_commit": "69031d8",
+  "included_develop_commit": "1a26cf5",
+  "archive_sha256": "e10eb7a450b2a6bf31e0f4524003e0a888559df3fe7f86edc5499c79f29ed03e",
+  "files": 83,
+  "size_bytes": 30092747,
   "integration": "Published catalogue and /campus login/signup links; original public contact settings.",
   "validation": "Local five-page browser checks passed. Production deployment confirmed by user output: five pages, assets, campus and unchanged catalogue passed HTTPS verification."
 }

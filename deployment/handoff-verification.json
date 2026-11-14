@@ -4,9 +4,10 @@
   "source": "Direct LMS production export plus confirmed deployed marketing release",
   "changes_to_live_server": false,
   "marketing_release": {
-    "main": "1b53720",
-    "develop": "6cea59d",
-    "deployed_at_utc": "2026-11-12T12:25:34.918090Z",
+    "main": "69031d8",
+    "develop": "1a26cf5",
+    "deployed_at_utc": "2026-11-14T02:24:08.257798Z",
     "verification": "User supplied successful publish-marketing.py HTTPS checks; LMS retained from original export. Current nginx hash not re-exported."
-  }
+  },
+  "latest_marketing_verified_files": 83
 }

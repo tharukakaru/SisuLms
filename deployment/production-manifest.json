@@ -2,7 +2,7 @@
   "format_version": 1,
   "exported_at_utc": "2026-11-12T04:58:30.359228+00:00",
   "application_root": "/home/sisu/frappe-bench/apps/institute_lms",
-  "marketing_root": "/var/www/sisu-marketing-releases/main-1b53720-20261112T122534918090Z",
+  "marketing_root": "/var/www/sisu-marketing-releases/main-69031d8-20261114T022408257798Z",
   "framework_commits": {
     "frappe": "980bdb0aa497ef787679353e0dbc16fd7cefbb36",
     "lms": "389d8a2720bfbd4b2e0de3f0f3c15d4cf0485d1e",
@@ -5248,708 +5248,350 @@
       "sha256": "38df2378ed26e20124d8c38a945af1b4a058656aab3b3b1f71a9d8a629cc0d81",
       "size": 86
     },
-    "marketing-live/app.js": {
-      "sha256": "08a02a2c96dcbd40b3681a541d6e16c2d5d8ef89d97507781c073acd13dc717b",
-      "size": 93718,
-      "lf_sha256": "78780fabf187b43a6efdda55e1d4f2014ce2be26f44850778460d04eb8242237"
-    },
-    "marketing-live/assets/BG2.jpg": {
-      "sha256": "e74a16d6585f13de5a170cec0bdc29faa2874025daca42f9cdce53c0dd11164c",
-      "size": 379317,
-      "lf_sha256": "aad981943d9273a94428aaf3d5882ff0ba625b9c5de3a0aeef98ab1653501c63"
-    },
-    "marketing-live/assets/BG2.mp4": {
-      "sha256": "3fb2b2296ee3be9c89ead13b272d386790411cb1e28152b5e2a0cd9c68be4a3b",
-      "size": 508614,
-      "lf_sha256": "37da635da0688eb3be8d18c154f0ec93fc19fe0ff5683be7c18885da0817c601"
-    },
-    "marketing-live/assets/Book Cover/English/01.png": {
-      "sha256": "533de2c0c34317da710ef98b725e4a87e7047ecb2b2b9d4547fd35129888b29d",
-      "size": 505311,
-      "lf_sha256": "7cf55b4ac8d0da699648bb5c189245b2525f4256872a9e2cf28c93865e9e9d3e"
-    },
-    "marketing-live/assets/Book Cover/English/02.png": {
-      "sha256": "14667b712b4fbb4069e99bacffe4548765ef16786ce9173cc733a95f76927bfb",
-      "size": 505961,
-      "lf_sha256": "33c2b463cfdb33906fca95dfc3009603728313113268a7e8c98ab3eb70ca388b"
-    },
-    "marketing-live/assets/Book Cover/English/03.png": {
-      "sha256": "e76087f006e42d94bded021278aec23ccdc80c24afbbc742e20e4046c5555a51",
-      "size": 464669,
-      "lf_sha256": "6e99c9a5e1e107c42dfccb8d14c45d310fab6f5db98d662ab299a17e26d4883e"
-    },
-    "marketing-live/assets/Book Cover/English/04.png": {
-      "sha256": "b4a7bd1c11a7540fb629f7c8327c244f94d4b949d994880d10e7905c4f973a40",
-      "size": 426869,
-      "lf_sha256": "9452087cb40adc61ea5ab5edbf95df61f2ed579e80f1f7820fcd62a131204e83"
-    },
-    "marketing-live/assets/Book Cover/English/05.png": {
-      "sha256": "3a9e18149547e1461370518f299fb207f77596d776ae1427b6e5abe1ccf852fb",
-      "size": 471157,
-      "lf_sha256": "645516d23f01b3ea0937cdcfbe2ec02b20da9446700207b46ed7154524663577"
-    },
-    "marketing-live/assets/Book Cover/English/06.png": {
-      "sha256": "653dd3181af1714e55390f4d0950e0a2e8bd644d550a123e71dc90860aea3f97",
-      "size": 438155,
-      "lf_sha256": "3b958cb0cebf3d7c5e217dc9e74f585d4b64f7630afbf868e2368f23b5691fc7"
-    },
-    "marketing-live/assets/Book Cover/Sinhala/01.png": {
-      "sha256": "6f3679e26d4412443c9611dc45907756905a8604d0235eeaa527646d5f285a02",
-      "size": 503852,
-      "lf_sha256": "d5f3d94d1acfce193788303c99bf3cdc2740a4df5c2f8bd7bac3ca73305d4d03"
-    },
-    "marketing-live/assets/Book Cover/Sinhala/02.png": {
-      "sha256": "c0c9684059b1d9188319b22cd2cce9273f43a732f97bc56015fc99e3c4d2e9cd",
-      "size": 509952,
-      "lf_sha256": "73e0086f9a80025b381dd7c4d801dc3427d153e8bb0003ec324e5b2e1ab7323d"
-    },
-    "marketing-live/assets/Book Cover/Sinhala/03.png": {
-      "sha256": "090c7e3f94da119fb49eebfed568d0cdb1487779aa1c69f8c89b692c8869c763",
-      "size": 432316,
-      "lf_sha256": "2552784a3f706dba2206fb008153a0dde68f5ac5f12713d8a7c1d18e9297af3b"
-    },
-    "marketing-live/assets/Book Cover/Sinhala/04.png": {
-      "sha256": "f72e4817789f884a9cbf622756591b9ebbb31a225f2b6db6a7dd5885360660ff",
-      "size": 443486,
-      "lf_sha256": "5318cb08b76090f2fedf75b5e417d2d0022ec25c589419bbe574a5a6e435797b"
-    },
-    "marketing-live/assets/Book Cover/Sinhala/05.png": {
-      "sha256": "fdd578c03d49130e8dc6ee0dd0a66ceec2593e08180790f938eaff537c0843e9",
-      "size": 470255,
-      "lf_sha256": "772172791be476cf40c6adbd8498595c54f5bf30da48e0e218f8af620c6cad2b"
-    },
-    "marketing-live/assets/Book Cover/Sinhala/06.png": {
-      "sha256": "fa57d83a3debb292037fd0042bfc43cfd0e4a07b957c86c775b86b239b02ae99",
-      "size": 478209,
-      "lf_sha256": "a8af0a06296f722e7aa413c653d9dc89ce38e5cf63e9c4beaede2cba336f5b0c"
-    },
-    "marketing-live/assets/Discover Teachers with SISU.png": {
-      "sha256": "3dc25179e30b4eefebba5ca59b4b134c834216e9444c8b21a07c911e1b2ee3ef",
-      "size": 1907603,
-      "lf_sha256": "59c2ebb68df682c3b4695037366a52a88b43e4353984bb8fa9c4a1c691b8a736"
-    },
-    "marketing-live/assets/Friendly Teacher Profile Workspace.png": {
-      "sha256": "5af1bbaffda9c716d9fc0770f1ec20c1636ebbb4682c0689f06328e1207f5fdd",
-      "size": 1816609,
-      "lf_sha256": "b6b1c77ebaf884ac2a64a2c4e869584efbba8a3c7ded7b9d3ba7364d4fdc7488"
-    },
-    "marketing-live/assets/Interactive Virtual Classroom with Purple Mascot.png": {
-      "sha256": "02d740f373077aa13113bb2cc0e99935b9c41d43d875e1add87c9be754463f7e",
-      "size": 1866795,
-      "lf_sha256": "b95f5ad4d515fde54dfcfb5bb476a8dde8d00b73b205cc0b10746d3ece033de3"
-    },
-    "marketing-live/assets/SISU Institute Learning Hub.png": {
-      "sha256": "582e8a9bcf868f11db3b16c408178959b75ce7fb1065c986cc89935ce7bb01e1",
-      "size": 1973454,
-      "lf_sha256": "1743d9dc55fb5090b8fc2a9754c51457b6e5b27f24111e0ace68f0e3d2284a4b"
-    },
-    "marketing-live/assets/Sri Lankan Teacher at Her Desk.png": {
-      "sha256": "1f19682e97b47f40b79495cb823f3ac9437b8be9d50af1bae15f8e1eb8133fed",
-      "size": 1984294,
-      "lf_sha256": "efa593239532c92e67c498387e3b745a1fc73e876cf50659e4c8bedd2c9ba5b8"
-    },
-    "marketing-live/assets/Sri Lankan hybrid classroom lesson.png": {
-      "sha256": "36a731c43ef163a7b43f2873dc1bf9f7775eea9a166d1c405e2f9b5e26ae2b03",
-      "size": 2087121,
-      "lf_sha256": "00b5ff928a488fc44da5aa64790ccde4a9dd0476b251488af7866610421fbfbd"
-    },
-    "marketing-live/assets/Student_with_Laptop_on_Lavender_40e563cb.jpg": {
-      "sha256": "5b353bc0d52d60d8958234fd66226b03e5d4609f6e7ba0e1f27993aaa3ea6eac",
-      "size": 677400,
-      "lf_sha256": "d7e1063c12f13ecec9a69662570c4a10e7323aeaab0c37558dd475adf11c0ab0"
-    },
-    "marketing-live/assets/Students Studying Together by the Window.png": {
-      "sha256": "5388ff8c69e451173ac4bb6e88085a8aff448334c6ab7858437cae7d71b35568",
-      "size": 2119472,
-      "lf_sha256": "6c2cc92c0e1da067e891ed1b19ea05049925a5aeac9f37b800d3c51daebd3e20"
-    },
-    "marketing-live/assets/Three Sri Lankan educators in a classroom.png": {
-      "sha256": "8f051c24a748416a8d39d639a5f6da1a6940897d16360e8133506f9ae9cb1011",
-      "size": 2160015,
-      "lf_sha256": "2fdbe96f6e2b74fd90173bc4988fdd70fd2325490bc1535ccc39d626cb343849"
-    },
-    "marketing-live/assets/app-download-placeholder.svg": {
-      "sha256": "501eeb3ddd2ce670a65f351d109ebda4baa9a99121e7d93cb42933b126d70e29",
-      "size": 12688,
-      "lf_sha256": "501eeb3ddd2ce670a65f351d109ebda4baa9a99121e7d93cb42933b126d70e29"
-    },
-    "marketing-live/assets/element.png": {
-      "sha256": "20b41b96211281cd9b9d51c76a43b03c8321e8a71f6e4881b80edea570c4b49d",
-      "size": 124116,
-      "lf_sha256": "7ee1b3008fef336826c85661c0ac573d7a6e033552c4992c7b8d85ad9c767b27"
-    },
-    "marketing-live/assets/element/part-1.png": {
-      "sha256": "d500b11d2b00ec1ffad2c95736a9e92ecba619539c2b8cb2bff56585a6145b4c",
-      "size": 28452,
-      "lf_sha256": "580ea5e2bf3ffeada6917f345e957cedddeb42fd4bc22cd6792c2d5e8bcd158b"
-    },
-    "marketing-live/assets/element/part-2.png": {
-      "sha256": "a023522a6793280f97d50db615d3c8d71030f791425ee12300358888e33b5c5b",
-      "size": 30074,
-      "lf_sha256": "fc0d3cf5b1c3c8e60ee83dd8534703850956fbd75d7a13b550d6023835270e0a"
-    },
-    "marketing-live/assets/element/part-3.png": {
-      "sha256": "ef2be0761a9c536d871125fe4fc175815ed8c41061b881c0c40837e83047c51d",
-      "size": 11818,
-      "lf_sha256": "e9655153db105f5ef0b229998926a4e913b88b7ebe1bc7dcbab48b70ce1bacbd"
-    },
-    "marketing-live/assets/element/part-4.png": {
-      "sha256": "7d64a694e6ff894da91068040aa6f6e2f5b81a191719349f2a29f6d83c87222f",
-      "size": 8292,
-      "lf_sha256": "ef860a771f4399def9dc15a2703fa7d4ceb0659c71d0ea632bcdf38b9779549c"
-    },
-    "marketing-live/assets/element/part-5.png": {
-      "sha256": "556f231a115c53f55c11eb506ee14c1283404a9a42c49518e9d8cd5f1a72149a",
-      "size": 5817,
-      "lf_sha256": "89aaa48d0ec15f5d388ecccc1a400fbb862e48b191ef2857e04c6181460d2b34"
-    },
-    "marketing-live/assets/element/part-6.png": {
-      "sha256": "c4d19bc169801b2ea9831557eee6770fd08f83ceaab29b626562c8c5cafdf668",
-      "size": 488,
-      "lf_sha256": "048ee861c64fc613599cf90ea8358c287540d7ce4218bbf2d63d1b1fac50e6ec"
-    },
-    "marketing-live/assets/element/part-7.png": {
-      "sha256": "78b42ce87400404d6f13b76ac720cb4a67f8f86b9319562b61636f15e1fa5cde",
-      "size": 338,
-      "lf_sha256": "5f07a2c42510e9243578abf4efcb3fe995fa791460a6b9317427880f27d598e8"
-    },
-    "marketing-live/assets/examlab/english-language.webp": {
-      "sha256": "0ba91a2af6e9f46dc64cbce36c03cf1a8b5091a5f18e238c56434900d27f6136",
-      "size": 19306,
-      "lf_sha256": "0ba91a2af6e9f46dc64cbce36c03cf1a8b5091a5f18e238c56434900d27f6136"
-    },
-    "marketing-live/assets/examlab/history.webp": {
-      "sha256": "6c6e5d954835afb8a695ffcf54d580499d6c021f487d58a9b433f42d7ca45431",
-      "size": 19256,
-      "lf_sha256": "5724d73204d569e2ccef2bdb3630e2b6817305b6a9809e1be51772680be45c5c"
-    },
-    "marketing-live/assets/examlab/maths.webp": {
-      "sha256": "b19436a4229e111a5771349b1fcdc28b3db064be90d554c55ef8cd0a7ee3a091",
-      "size": 17974,
-      "lf_sha256": "b19436a4229e111a5771349b1fcdc28b3db064be90d554c55ef8cd0a7ee3a091"
-    },
-    "marketing-live/assets/examlab/science.webp": {
-      "sha256": "ff6250726e2731ff71df98a48252464850d9906e1df052699b86421cc8b4c15e",
-      "size": 23242,
-      "lf_sha256": "ff6250726e2731ff71df98a48252464850d9906e1df052699b86421cc8b4c15e"
-    },
-    "marketing-live/assets/girl-stop-poster.jpg": {
-      "sha256": "c948be8ba94259139d0f3046937db42b18e3ea0733b3ad6e100582f8d7875cbf",
-      "size": 71153,
-      "lf_sha256": "c948be8ba94259139d0f3046937db42b18e3ea0733b3ad6e100582f8d7875cbf"
-    },
-    "marketing-live/assets/girl-stop.mp4": {
-      "sha256": "cefd819553600991665d26ad7bf389035419a09c05d3d7b5ded46d64cd42d33a",
-      "size": 159675,
-      "lf_sha256": "7fe581bbad3c07be999f00b81f49148d28e07409b86a2dc46cb0a8c733e9df4e"
-    },
-    "marketing-live/assets/learnverse-final-discover-1448.webp": {
-      "sha256": "868ca7dc2f931cf3b240b89bfbc8282f75a3e06c6eaac63d369d248733d472b3",
-      "size": 141668,
-      "lf_sha256": "77bb3aaa7e7baea1011238f2456aae8363d97e711549d3926968c3516a1e9ed8"
-    },
-    "marketing-live/assets/learnverse-final-discover-480.webp": {
-      "sha256": "44c0f57ed749ebd7b193471be8650acc08734c84b91fc705c3aed5c4bf2460e7",
-      "size": 27708,
-      "lf_sha256": "44c0f57ed749ebd7b193471be8650acc08734c84b91fc705c3aed5c4bf2460e7"
-    },
-    "marketing-live/assets/learnverse-final-discover-960.webp": {
-      "sha256": "c55192a48dd95ef8131981458a3188f5b9a8beb2d3676e49b77446b779d30ef6",
-      "size": 78522,
-      "lf_sha256": "e24c59ea15623bd2cb20c1ca8410b58ee9ca66bf952cade31ea1366c040c895b"
-    },
-    "marketing-live/assets/learnverse-final-learn-1448.webp": {
-      "sha256": "9b96c14cf488c80949c464bf856baaa62a995971eaf4c57f5664b0bc1d668053",
-      "size": 143018,
-      "lf_sha256": "0a87f34e7ed79a66e96228e9c40ac98e7c4e3bd480b6d111f16143b8b9987fbc"
-    },
-    "marketing-live/assets/learnverse-final-learn-480.webp": {
-      "sha256": "a3aa42b118b052fd6ea69b076502a5f1a6e9946abeb615092ba2c03981cfb1a2",
-      "size": 30300,
-      "lf_sha256": "a3aa42b118b052fd6ea69b076502a5f1a6e9946abeb615092ba2c03981cfb1a2"
-    },
-    "marketing-live/assets/learnverse-final-learn-960.webp": {
-      "sha256": "1d817f3e92e35d9a5dca1c8ba74f156f6a8ffd0a8053f85ae782de164327eb11",
-      "size": 83892,
-      "lf_sha256": "1d817f3e92e35d9a5dca1c8ba74f156f6a8ffd0a8053f85ae782de164327eb11"
-    },
-    "marketing-live/assets/learnverse-final-manage-1448.webp": {
-      "sha256": "39d37ac8bb1cee23671247bd31da855f600f9e9e4d4231e0b820cc0e3881c21b",
-      "size": 170606,
-      "lf_sha256": "2f3073a29370eeb6971264654d6ab55a6992b964ef264075e23940e5a8824a4d"
-    },
-    "marketing-live/assets/learnverse-final-manage-480.webp": {
-      "sha256": "6bc72190246159b292a621f634e71e284146c79a678b632904af6c7ca9f93a10",
-      "size": 38274,
-      "lf_sha256": "0e6f7ec2b90953150835a9b92f7a7941c20da9f16216116ed3e66aca6cb53e0d"
-    },
-    "marketing-live/assets/learnverse-final-manage-960.webp": {
-      "sha256": "9a19454c02a0877ee433e848c98e2cd7af5208ded8f0f3749de580cdf7eadeec",
-      "size": 104090,
-      "lf_sha256": "6cae51bda1a60ca8a3942ec6fc24de5e201754795652e83a952bcdb5a30d5e2a"
-    },
-    "marketing-live/assets/learnverse-final-teach-1448.webp": {
-      "sha256": "b81b129239aa084a67f7da5fde125df45a243dd0ff4861a20b5790c02c0f75e2",
-      "size": 120000,
-      "lf_sha256": "dba03c39acb713322f8afc808385a58130f46a5e8c6e8484e0ea3880ebcee22a"
-    },
-    "marketing-live/assets/learnverse-final-teach-480.jpeg": {
-      "sha256": "98bd2b58c4bf9fa291ee9b01e61cb99a6fcfe38829335cc02bdd1344868a178c",
-      "size": 30905,
-      "lf_sha256": "98bd2b58c4bf9fa291ee9b01e61cb99a6fcfe38829335cc02bdd1344868a178c"
-    },
-    "marketing-live/assets/learnverse-final-teach-480.webp": {
-      "sha256": "91071d39cbe97d284d3b335774e07c366dd73b4323ee8ee60571a034849a6ca6",
-      "size": 22164,
-      "lf_sha256": "91071d39cbe97d284d3b335774e07c366dd73b4323ee8ee60571a034849a6ca6"
-    },
-    "marketing-live/assets/learnverse-final-teach-960.webp": {
-      "sha256": "213b080531bea97b4888495d1f41821f077019907b122e2ef4acbbf1942c9063",
-      "size": 66598,
-      "lf_sha256": "213b080531bea97b4888495d1f41821f077019907b122e2ef4acbbf1942c9063"
-    },
-    "marketing-live/assets/learnverse-generated-discover-1448.webp": {
-      "sha256": "8ff6b0729141336b19f376a8b8c08eb7407222a5aa5b093c50a0e70cae4f572a",
-      "size": 142212,
-      "lf_sha256": "1f031a4a8131e8ee91cf82817bae16380f8657418ab1a3a07a2f4258e72f3def"
-    },
-    "marketing-live/assets/learnverse-generated-discover-480.webp": {
-      "sha256": "4d81c33ffb50d2fabbdc4f2cda075a36114575645da6628af8d535d5ccd09b86",
-      "size": 26922,
-      "lf_sha256": "4d81c33ffb50d2fabbdc4f2cda075a36114575645da6628af8d535d5ccd09b86"
-    },
-    "marketing-live/assets/learnverse-generated-discover-960.webp": {
-      "sha256": "d72b11af711b10d780333c353ec17684166f6226d721031968edbb0b2f16eb14",
-      "size": 80502,
-      "lf_sha256": "d72b11af711b10d780333c353ec17684166f6226d721031968edbb0b2f16eb14"
-    },
-    "marketing-live/assets/learnverse-generated-learn-1448.webp": {
-      "sha256": "ad9a04fff49696f0f43283526503a88afffce3f7262f520621557a8875a59bab",
-      "size": 126354,
-      "lf_sha256": "7bd9f3619c07c66f67728a563f64fc8d8f6ef4e60cd18de51a731fe43058d31d"
-    },
-    "marketing-live/assets/learnverse-generated-learn-480.webp": {
-      "sha256": "500d06b14c2197beed15cca21de7fd3c44fe0cba2fd67a43ca1e9976c3daf06f",
-      "size": 31750,
-      "lf_sha256": "22a2c948c672e9e0592f6d080fc8ce34b10478bf3809c43c783c73e140a51cc2"
-    },
-    "marketing-live/assets/learnverse-generated-learn-960.webp": {
-      "sha256": "517f5b1ccfa7bcdc5701fd2968531cf01f97e67a76ad32cc211c28d871099e35",
-      "size": 78940,
-      "lf_sha256": "ad4aebddb7d9a2a259a641dc76fbd2d00b197d9c9039cba475947088f4b821ee"
-    },
-    "marketing-live/assets/learnverse-generated-manage-1448.webp": {
-      "sha256": "11a8484b2dd5e077002290c477e443047ad92b2ee1ae3b8a4837add16f5e72cd",
-      "size": 176104,
-      "lf_sha256": "3ce6af9707702cd54db9ea35e0010d137ff8011b2a110f5389c7b2f1d736988c"
-    },
-    "marketing-live/assets/learnverse-generated-manage-480.webp": {
-      "sha256": "8f91c97f08d89f06d3ae176d07becf132666a4e61b3d27efbd4ebe9cf45d0948",
-      "size": 39356,
-      "lf_sha256": "34bda3ae5c4588e6393f9a27999c69eab426e63f802f7d135223db811bd1c7c5"
-    },
-    "marketing-live/assets/learnverse-generated-manage-960.webp": {
-      "sha256": "1ba362a9c3dd0fd4decbbca0fa30fa8175bb6f0045e841395d1b480dcbee33f6",
-      "size": 107402,
-      "lf_sha256": "d0742f59c8a0adfefaa2f586e543cf5f109a88a4e27660958bc362307b7e1d89"
-    },
-    "marketing-live/assets/learnverse-generated-teach-1448.webp": {
-      "sha256": "54fb63306ff8845b08b928655a65b31beb9d522ac0287e85d2e2e102268d96dc",
-      "size": 72728,
-      "lf_sha256": "54fb63306ff8845b08b928655a65b31beb9d522ac0287e85d2e2e102268d96dc"
-    },
-    "marketing-live/assets/learnverse-generated-teach-480.webp": {
-      "sha256": "1eeff52cc406d25caa2d69cb8acf955f873e7141184c18d5be01845453dc8331",
-      "size": 13070,
-      "lf_sha256": "1eeff52cc406d25caa2d69cb8acf955f873e7141184c18d5be01845453dc8331"
-    },
-    "marketing-live/assets/learnverse-generated-teach-960.webp": {
-      "sha256": "71a12737843a70e8846c78ccc4c39a613c28d8bc46a12a2e0b4c8986b8aec94d",
-      "size": 40032,
-      "lf_sha256": "71a12737843a70e8846c78ccc4c39a613c28d8bc46a12a2e0b4c8986b8aec94d"
-    },
-    "marketing-live/assets/learnverse-hero-1280.webp": {
-      "sha256": "b237373a91a442e85a87fb37c9fd3d4b8b012173fc77d4072b112ad0dd9631f3",
-      "size": 91404,
-      "lf_sha256": "630ef45aea67ac859fda217a01823a4673e4878c15be132728e6519572385579"
-    },
-    "marketing-live/assets/learnverse-hero-1672.webp": {
-      "sha256": "9951d8659b427cfad66127d16d9439a84304c61d2b29bebd3b8bae16d5c4e308",
-      "size": 133476,
-      "lf_sha256": "b43a7f1cbc70593cd9bb1694dc27096d7fb6b0cd5b95ae39a46fca52834562b2"
-    },
-    "marketing-live/assets/learnverse-hero-640.webp": {
-      "sha256": "aa4251703a29d1500ad23cc37d5f0f203283a947cf5896d504e3c53306fc781e",
-      "size": 29668,
-      "lf_sha256": "aa4251703a29d1500ad23cc37d5f0f203283a947cf5896d504e3c53306fc781e"
-    },
-    "marketing-live/assets/learnverse-hero-960.webp": {
-      "sha256": "522416a7c5942317f0ac59c78f9bc0ebb31e04694d75a1bd0647e5d5281920c9",
-      "size": 57390,
-      "lf_sha256": "522416a7c5942317f0ac59c78f9bc0ebb31e04694d75a1bd0647e5d5281920c9"
-    },
-    "marketing-live/assets/learnverse-story-discover-480.webp": {
-      "sha256": "00d616c7f9bec73be83ce967878c0ece0fe76861ddc611845b06d5307c22b9df",
-      "size": 44936,
-      "lf_sha256": "a4898662e0d7619de924de5cec28d20ee72802764de9277592258b703a87ea78"
-    },
-    "marketing-live/assets/learnverse-story-discover-900.webp": {
-      "sha256": "ade1d0b0cc5baf80c282abbb724f8f65018b57a60ca1762b5e79b0da244a7263",
-      "size": 77226,
-      "lf_sha256": "ade1d0b0cc5baf80c282abbb724f8f65018b57a60ca1762b5e79b0da244a7263"
-    },
-    "marketing-live/assets/learnverse-story-discover-original.png": {
-      "sha256": "fedfdb1264fb60a9b8224d0ae3f0fe218f1d0bf070156e466f600928d4879067",
-      "size": 660622,
-      "lf_sha256": "e910de751fb174aae5ecf45916670e7731b0023a57d3a82f5b50e5a86bf26625"
-    },
-    "marketing-live/assets/learnverse-story-learn-480.webp": {
-      "sha256": "bdb1d1f26276e2d8442f7510a71233ce11601798207070261ad6cfb96bcef182",
-      "size": 41036,
-      "lf_sha256": "bdb1d1f26276e2d8442f7510a71233ce11601798207070261ad6cfb96bcef182"
-    },
-    "marketing-live/assets/learnverse-story-learn-900.webp": {
-      "sha256": "734de576e8528cf287b13cba89c6d057fd532740fa3bf751f4fc7b63c7f739bc",
-      "size": 74830,
-      "lf_sha256": "abf730819c1ddafe5a7df610fd5e99ce296f906afe76cf4e85af3957fd4e33da"
-    },
-    "marketing-live/assets/learnverse-story-learn-original.png": {
-      "sha256": "6ec5e8bc2fe78c9f9beb233230a7915f58b2d72aa207518689116ea0f68a19a7",
-      "size": 581445,
-      "lf_sha256": "9b978b325df0b3035455d3fc4e2804137d97c747afc61a751ff9993978cbb08e"
-    },
-    "marketing-live/assets/learnverse-story-manage-480.webp": {
-      "sha256": "317152f2de195b56bd666fe44c84a068a9b2f074b37d5877079fdbcc2070297c",
-      "size": 47512,
-      "lf_sha256": "cca8e796ef043b874cfbfb17035837fe48100c4349011b35e9e924d3c5795bf6"
-    },
-    "marketing-live/assets/learnverse-story-manage-900.webp": {
-      "sha256": "b57e4831de8014c0285b5a582380eb75d27839f8e984a7d7dc123a45301ad54d",
-      "size": 87154,
-      "lf_sha256": "6f80bb3a576cf24b6fe08038626c9091fde5be9fcbada335ba871170921424a6"
-    },
-    "marketing-live/assets/learnverse-story-manage-original.png": {
-      "sha256": "23a7e13c271b57e86e7fca150086acc030b1e5f3e7cb101e194c7276477edfba",
-      "size": 694227,
-      "lf_sha256": "8ecd3ce08f1c1818127c66dd14622a3d1abab78d8c97ad8e4400aaf9cceca7df"
-    },
-    "marketing-live/assets/learnverse-story-teach-480.webp": {
-      "sha256": "b25c2049b258a132169b07f2566e0aec477435916cb13deae7eeeb823b9588fc",
-      "size": 23054,
-      "lf_sha256": "b25c2049b258a132169b07f2566e0aec477435916cb13deae7eeeb823b9588fc"
-    },
-    "marketing-live/assets/learnverse-story-teach-900.webp": {
-      "sha256": "5f113cb677d09453fe598981c1e67583e080e3d555f350c5b2933f89525e044b",
-      "size": 63572,
-      "lf_sha256": "63363dc595c4a75171fa306329a6a22fed79e0a256d93dab169959661ab84b6c"
-    },
-    "marketing-live/assets/learnverse-story-teach-original.png": {
-      "sha256": "da78c566a6b080f81b256cfb396697af8061661f8168b813feb793d4caab1cc0",
-      "size": 384670,
-      "lf_sha256": "cae78424abf7feb59a07b2c43148816986ca0ae81624c2409f27dd6d47bc56a3"
-    },
-    "marketing-live/assets/learnverse-student-1280.webp": {
-      "sha256": "8e642da494e616661be607033c5120ff962cb9a5249f6809c236636b03233e27",
-      "size": 199390,
-      "lf_sha256": "36232046f5bd102331acfa505c1ff360cbfb27e81656a638b278dc1246e9e35f"
-    },
-    "marketing-live/assets/learnverse-student-1672.webp": {
-      "sha256": "37a562dc33180e76f4b43c333106fba977011f21af29283e3ad6457b651a87fb",
-      "size": 295180,
-      "lf_sha256": "d3aa3261ee5a30c8cd1cb8a53ae9e674b3d190a5e2dd8ce9c4d8a47ce56d72e5"
-    },
-    "marketing-live/assets/learnverse-student-640.webp": {
-      "sha256": "30d34fc192989a51958d8fd349ecd646f8caaf7bb095fb520f83739ef730d61e",
-      "size": 64986,
-      "lf_sha256": "30d34fc192989a51958d8fd349ecd646f8caaf7bb095fb520f83739ef730d61e"
-    },
-    "marketing-live/assets/learnverse-student-960.webp": {
-      "sha256": "81e5f07ab41c8adb9ba24f570aeafb2c5a57dc2dacf6d6746394de106c5bf124",
-      "size": 128028,
-      "lf_sha256": "81e5f07ab41c8adb9ba24f570aeafb2c5a57dc2dacf6d6746394de106c5bf124"
-    },
-    "marketing-live/assets/learnverse-world-hd-small.webp": {
-      "sha256": "f7db6859819ac7ccbfc1677b34ae64752a87b56f1035edb265a2da6d9a27ce28",
-      "size": 874146,
-      "lf_sha256": "bb00105251e049eaff268f5cdce1b77d51f3ae027528a6921153e9a1be8ece7f"
-    },
-    "marketing-live/assets/learnverse-world.mp4": {
-      "sha256": "a4fdc2514fe4c88ea6cae102011d21488f3a0378160195a2be4efb9638aa7140",
-      "size": 6773634,
-      "lf_sha256": "fc8ab7c250b86fa55c89c9a9717708f7619cac3aa709aa0ae25c812cff21db50"
-    },
-    "marketing-live/assets/logo-mark-light.png": {
-      "sha256": "47864208ce571b5262229c6d2a3fdef5bb692a65fa247dbba44de9fd2d5e5adf",
-      "size": 592,
-      "lf_sha256": "f3f7176bb01d6df214fa49c04b85d6f72188889aca07b5cd0e3573aed1a3fcc3"
-    },
-    "marketing-live/assets/logo-mark.png": {
-      "sha256": "e84ebfae16b82d497b77bb002399dad1de23feac789e053a19bb720e95cc3b04",
-      "size": 165464,
-      "lf_sha256": "41ac3ab2c0992d7dda823571ebf16a588777b5290ef5c0b8e5f85889de96b2d0"
-    },
-    "marketing-live/assets/logo-original-dark.png": {
-      "sha256": "b1f60921482913212ca0ff5deb4545bf8d4a639c3712e7d79d1810f7683d3c85",
-      "size": 129591,
-      "lf_sha256": "8b36999534e59b5e6b2f313d8e7c6fdc2945616e64b84f02604dc05aff90ef53"
-    },
-    "marketing-live/assets/logo-original-light.png": {
-      "sha256": "702982bd76b1c42c687ad912101ec180f20f3b4df6659b9ebf3b44c0862f725f",
-      "size": 145744,
-      "lf_sha256": "d574aa7bb218789610d2652167b5a268c62d4daadeb8075f1641864494498124"
-    },
-    "marketing-live/assets/manrope-latin-ext-wght-normal-Ch3YOpNY.woff2": {
-      "sha256": "3911b66d9f2e005a4b989223405d0e5032619c668597ba467cc76a23c8fffcfb",
-      "size": 15120,
-      "lf_sha256": "3911b66d9f2e005a4b989223405d0e5032619c668597ba467cc76a23c8fffcfb"
-    },
-    "marketing-live/assets/manrope-latin-wght-normal-DHIcAJRg.woff2": {
-      "sha256": "a30ddcd349703aff7464c34bef3fffdff405ee50c113440d7c8693c02d210972",
-      "size": 24836,
-      "lf_sha256": "a30ddcd349703aff7464c34bef3fffdff405ee50c113440d7c8693c02d210972"
-    },
-    "marketing-live/assets/mascot.png": {
-      "sha256": "56f9f4fe6a1824c517cb66528704de608450b052939dc24fcac76bc42f30162c",
-      "size": 215990,
-      "lf_sha256": "2b400f6de196dd41f0dd700dd33fba8a24d8fde4dab66365ce17f67c8ec91ab8"
-    },
-    "marketing-live/assets/online-education-loop-poster.jpg": {
-      "sha256": "1ddc05718aa26db9f64ace62b42eacdb03845c84a9bdb4c76c64ea48f4a1ad55",
-      "size": 159826,
-      "lf_sha256": "fb013845fe2abf58b2576c463c28f35361149ffa0cc87eebddd17448a036f08d"
-    },
-    "marketing-live/assets/online-education-loop.mp4": {
-      "sha256": "d01dfadf6aa4392658c719b57e28526dc844ae315a314ec62d50bc35d3fcce37",
-      "size": 685701,
-      "lf_sha256": "75b433ae7b94c2f93f69ec0043219e07440863de40f7b96ba771e4f8b9070a2e"
-    },
-    "marketing-live/assets/online-education-loop.webm": {
-      "sha256": "a3ae17c753393df1ab8fc1151a3194119da693bf4ffdf83613395cf095bc99ab",
-      "size": 418899,
-      "lf_sha256": "b48ce4cc2b23defc05930be51399948f2627a2c7d3f1e7d11106560c2851ac3c"
-    },
-    "marketing-live/assets/sisu-balanced-student-overview.png": {
-      "sha256": "15d7e4fba6519149b0d30756e2698e9d9cd66d1f41b92381a0fc700a070a5e4f",
-      "size": 138459,
-      "lf_sha256": "15d7e4fba6519149b0d30756e2698e9d9cd66d1f41b92381a0fc700a070a5e4f"
-    },
-    "marketing-live/assets/sisu-bank-payment-review.png": {
-      "sha256": "0dbbdcdab2939ab4a4e61828d62a684e822e78c30dd161b916a63279199f1a9c",
-      "size": 134701,
-      "lf_sha256": "e3688a0fbe9ca2d91731741d8d1ec7c84141d2e93200e035d2fe36f7b15d6887"
-    },
-    "marketing-live/assets/sisu-focus.mp4": {
-      "sha256": "e18ace407a9c3c2e270297b8b65cca85ada6e997b2f9083e8d0903a508730e38",
-      "size": 716385,
-      "lf_sha256": "2b82cc36225fe44c7107807c397f6bd33a8037649d7797da19b366930bab3b53"
-    },
-    "marketing-live/assets/sisu-focus.webm": {
-      "sha256": "e8dcf0fc760107df79bc1bf82e67addc37f7cc608566365ea9d1510957b4b250",
-      "size": 685082,
-      "lf_sha256": "2351c14eb71c0592f4eb3e67b894c4f30e4f37ab629d08aa2ccbba4f14f2d26b"
-    },
-    "marketing-live/assets/sisu-institute-overview.png": {
-      "sha256": "85317e3e372d3fed4538f0aca911cd856b7a5ac5fd57187c862f84786cb75360",
-      "size": 162298,
-      "lf_sha256": "85317e3e372d3fed4538f0aca911cd856b7a5ac5fd57187c862f84786cb75360"
-    },
-    "marketing-live/assets/sisu-larger-teacher-illustration.png": {
-      "sha256": "1b8b5c32ff3850721b71b4d1149746b1c2ab6a13e8bcce9793240dddf37d2420",
-      "size": 160630,
-      "lf_sha256": "3e14dd565eb9bae510a591d0798bde33bb1f7dbd6792e91e6f8a861b1ad7ec11"
-    },
-    "marketing-live/assets/sisu-mascot.webm": {
-      "sha256": "ba6fbbb5914ed9e632417b619fe55ae8bdc8e901615df623f8a3cbcf2d141183",
-      "size": 782928,
-      "lf_sha256": "da72da20f22650ab5f4b8551208bd86897c08476ebbd93d1f3569ff25c8136f1"
-    },
-    "marketing-live/assets/sisu-material-delivery.png": {
-      "sha256": "1fed0cf772a15b996ea03138d9ee9eecd003a63fd95b0faaaf8ba056fe4a9000",
-      "size": 121123,
-      "lf_sha256": "d9080ab73f136a936d9878106f221ec1ec9cd2acda32c97cc3175e611712fe96"
-    },
-    "marketing-live/assets/sisu-mobile-creative-1280.webp": {
-      "sha256": "bbca2a2c6c702f9d96b9a7c0d22bf627bf605e6e345985683cd23b73048f977e",
-      "size": 122488,
-      "lf_sha256": "9210613b096b3a42828158e0b0ad000cd15a14f7e848b38d883af44e2170a100"
-    },
-    "marketing-live/assets/sisu-mobile-creative-540.webp": {
-      "sha256": "4d79177388566330eaca9672677b78f2627787edb629f806bcbd2e87cbfd4c76",
-      "size": 34834,
-      "lf_sha256": "7dfce8ede4d94e709840abaebf8fb8b4335201051dcd41f8d975bb83ca890e05"
-    },
-    "marketing-live/assets/sisu-mobile-creative-900.webp": {
-      "sha256": "6b8939e1f34b6385cbad441e400cf4de12b2a969ba26dbf54fe7dd1b576b3357",
-      "size": 75276,
-      "lf_sha256": "6b8939e1f34b6385cbad441e400cf4de12b2a969ba26dbf54fe7dd1b576b3357"
-    },
-    "marketing-live/assets/sisu-original-color.png": {
-      "sha256": "6bb10ff888678301e7b70a1c1da9e2109fb23d1dec8eb228c6c17cbe3546be8b",
-      "size": 145807,
-      "lf_sha256": "135d8823a794719f0553585f0d92f29ca4f6c14930baad622091337176703e9c"
-    },
-    "marketing-live/assets/sisu-stream-schedule.png": {
-      "sha256": "36690fa58602a61c50e7c0026efde98aa436512434d2a2f1c32908aaa1c78658",
-      "size": 105859,
-      "lf_sha256": "36690fa58602a61c50e7c0026efde98aa436512434d2a2f1c32908aaa1c78658"
-    },
-    "marketing-live/assets/sisu-study-library.png": {
-      "sha256": "0be64ee87c3de61fe881a72a67df4e04eedba46b307153b33cb728e0b5169ad3",
-      "size": 201042,
-      "lf_sha256": "16c45374ebf1220184d20580095dfe5d1916b5527f91d745823f1b7d0a081727"
-    },
-    "marketing-live/assets/sisu-teacher-overview.png": {
-      "sha256": "9c6a263063b2d0571dc1df55f3acbb968121531271dede89de5a73eca6829bf1",
-      "size": 155798,
-      "lf_sha256": "3e0cef54d65b5bd779fd750fa7a3f6101f76e6287a15aa2e066f51c7b4a81ecb"
-    },
-    "marketing-live/assets/sisu-teacher-workspace.mp4": {
-      "sha256": "47a65c95421af0c089ce313af8f7aad61d308c0d9fcc2be627dfa199b00a42da",
-      "size": 239793,
-      "lf_sha256": "5b1541d1aa3dcafae15732b7776192a4287485241dc74518d271abefc14096aa"
-    },
-    "marketing-live/assets/sisu-teacher-workspace.webp": {
-      "sha256": "0a52bf9bd4f205b0a849fb17d57bef52034ea61eb658fc5515e7ddc7036e18cf",
-      "size": 71776,
-      "lf_sha256": "9369258e8352e06832e741e2c332d22aa41959b8d5bacf13553b1526d92c2839"
-    },
-    "marketing-live/assets/sisu-three-phones.png": {
-      "sha256": "52a477f9e9a628de0004e5aa9a755f84ac54cbba15ab46dce6e490369d4854f0",
-      "size": 1720392,
-      "lf_sha256": "ca7f4e933e76f92e2b345123b9b427b8e5162c10f03cde78739b48242e8ce51e"
-    },
-    "marketing-live/assets/sisu-unified-classroom.png": {
-      "sha256": "bd2b4d195d76bf116dbb33d74e387dbf40d30d066c7d9b142e1f3a030b10f141",
-      "size": 102529,
-      "lf_sha256": "bd2b4d195d76bf116dbb33d74e387dbf40d30d066c7d9b142e1f3a030b10f141"
-    },
-    "marketing-live/assets/source-sans-3-latin-wght-normal-Bo_j9asI.woff2": {
-      "sha256": "19143dca075972bc84e3fd9eab7416dd40cc565dccb2435a044bdfabe060c7d5",
-      "size": 28872,
-      "lf_sha256": "19143dca075972bc84e3fd9eab7416dd40cc565dccb2435a044bdfabe060c7d5"
-    },
-    "marketing-live/assets/source-serif-4-latin-wght-italic-B-rCj6ir.woff2": {
-      "sha256": "b4f56ddc9873487f1c9a3ad5bbce31982fe89b951f57e4604f62b4c8a540fb19",
-      "size": 51576,
-      "lf_sha256": "b4f56ddc9873487f1c9a3ad5bbce31982fe89b951f57e4604f62b4c8a540fb19"
-    },
-    "marketing-live/assets/student-learning-dashboard.png": {
-      "sha256": "20f1b0ecfa397166d4f73f40d0e7e55cd851e474adef545765fed5b31182f5ff",
-      "size": 1596555,
-      "lf_sha256": "388f419a24b6f591477d734491a33f1c57934eb046e109a3e4bbf24ba3ec0d39"
-    },
-    "marketing-live/assets/student-learning-together.png": {
-      "sha256": "82a87fb558ed4d30a7bc2ffed4646fcdc383751f804caae0bf8ee49211108eda",
-      "size": 2243346,
-      "lf_sha256": "0c5e3e4676818c15f0e6cbea3e0f9aaa8cbb60f7dbe62da096d9162972f0ab17"
-    },
-    "marketing-live/assets/study.png": {
-      "sha256": "29d128691f75dba3870da90c28aa0737c3fe58da87e2f91040a8b72f15e59d53",
-      "size": 240940,
-      "lf_sha256": "fc84294e18f7cd983bd19a1f17a70781af4d4bd223190cf48ed5d6783ec1e8ea"
-    },
-    "marketing-live/assets/sunlit-teacher-workspace.png": {
-      "sha256": "85c08e75925bef609d43e4764c004e7b624b7db1ee15854dd5f2336af10d380d",
-      "size": 1817903,
-      "lf_sha256": "21444d491dfaa4f97329c9f1a73a3abf198c3e89204fa226d72bc96677f302ac"
-    },
-    "marketing-live/assets/testimonial-portraits.png": {
-      "sha256": "103630680b3a65d6ceda2550fcebcfabad5186d771f9005abb8d917954b2cdb5",
-      "size": 2378637,
-      "lf_sha256": "e9a9b9bf30167c0886a23cef68ace146ae778e283048d8524ab60193f0fc9890"
-    },
-    "marketing-live/assets/user.png": {
-      "sha256": "b2dbb311f9ca87646f51bb6ff079d5feb52a058720e29d056c530a8daa54b97c",
-      "size": 282883,
-      "lf_sha256": "d4c1d15e5094ed42742be3c05073f2fe186ab7d302ba99b8a3fc3bb712784c87"
-    },
-    "marketing-live/assets/vision-sisu.webp": {
-      "sha256": "ccc893f71fc4202071827d99e564af5a4c0671fc4e1cf5ae701cb7ad5248ca19",
-      "size": 66274,
-      "lf_sha256": "3b84a2bc906a97b65d4ade7f0d743baa04a01d3f15ee87759944dc3a120764d4"
-    },
-    "marketing-live/assets/white-classrooms.mp4": {
-      "sha256": "a6b00930babcca7b0997f805e1e74d61ae0302f1d491e9cff5d1b43408a9ae11",
-      "size": 248323,
-      "lf_sha256": "dd8b1b6dee45dfe788988527bb1167a909884b07634595cdc748e9742c8a9ed2"
-    },
-    "marketing-live/assets/white-classrooms.webp": {
-      "sha256": "b501fe695af4e54a80c23156ae638cfa4ce9c972f039ff0db54e28c33e5d3d67",
-      "size": 176918,
-      "lf_sha256": "c994f1c5dd8b74ac46f811a06e5f644f0c82b023a1becf249a04be9c421c0e7e"
-    },
-    "marketing-live/assets/white-community.mp4": {
-      "sha256": "e8226a9718da5cf32ef4656d0bb1e874818dd57230af30ccb113cd0fc295a32e",
-      "size": 413110,
-      "lf_sha256": "0b53b987e475e0da0bf6e717b896928aacdac752f4225b85ec036786253382ee"
-    },
-    "marketing-live/assets/white-community.webp": {
-      "sha256": "392c298ade55e8bb9378777bcad119c694269eff30e9e6f0c69d8eb37a4f024f",
-      "size": 116734,
-      "lf_sha256": "aa4d3a72e282614724ec7bf811a63ae928b78e9aafca8e143dc386b819f75365"
-    },
-    "marketing-live/assets/white-focus.mp4": {
-      "sha256": "49711d9e487676d58a843ebed1569a4ed69c1eaf5b10cb616243695b4582d0de",
-      "size": 133467,
-      "lf_sha256": "49711d9e487676d58a843ebed1569a4ed69c1eaf5b10cb616243695b4582d0de"
-    },
-    "marketing-live/assets/white-focus.webp": {
-      "sha256": "81df4cfc149600764cbdd96a6208a4bd95293ef63224581e44689551ba3ce359",
-      "size": 151362,
-      "lf_sha256": "ecffccee7d59dbcc1f8a9e93a3e10599949ee91c9c4e7a2d717d346048830289"
-    },
-    "marketing-live/config.js": {
-      "sha256": "977bdd53fb8d45abad8e07eaf8eb87bb52651d2e1fd9a496023c2c4e5a9f369e",
-      "size": 152,
-      "lf_sha256": "977bdd53fb8d45abad8e07eaf8eb87bb52651d2e1fd9a496023c2c4e5a9f369e"
-    },
-    "marketing-live/contact/index.html": {
-      "sha256": "6a83aa46373da922debe88102f4275da01dadb9f81852bbbd9dbb5e1c8398d96",
-      "size": 1205,
-      "lf_sha256": "6a83aa46373da922debe88102f4275da01dadb9f81852bbbd9dbb5e1c8398d96"
-    },
-    "marketing-live/index.html": {
-      "sha256": "c4f92ae1ec4d394760c0c185cfb39185813bf9420f74ffd4436c7143b7de7f53",
-      "size": 1267,
-      "lf_sha256": "c4f92ae1ec4d394760c0c185cfb39185813bf9420f74ffd4436c7143b7de7f53"
-    },
-    "marketing-live/institutes/index.html": {
-      "sha256": "6a83aa46373da922debe88102f4275da01dadb9f81852bbbd9dbb5e1c8398d96",
-      "size": 1205,
-      "lf_sha256": "6a83aa46373da922debe88102f4275da01dadb9f81852bbbd9dbb5e1c8398d96"
-    },
     "marketing-live/privacy/index.html": {
       "sha256": "3ff8650c9614f95328f43e3c6355dd39189f0a458eb616ae9442cc6a7af4cb53",
       "size": 6375,
       "lf_sha256": "3ff8650c9614f95328f43e3c6355dd39189f0a458eb616ae9442cc6a7af4cb53"
     },
+    "marketing-live/app.js": {
+      "sha256": "08a02a2c96dcbd40b3681a541d6e16c2d5d8ef89d97507781c073acd13dc717b",
+      "size": 93718
+    },
+    "marketing-live/assets/app-download-placeholder.svg": {
+      "sha256": "501eeb3ddd2ce670a65f351d109ebda4baa9a99121e7d93cb42933b126d70e29",
+      "size": 12688
+    },
+    "marketing-live/assets/BG2.jpg": {
+      "sha256": "e74a16d6585f13de5a170cec0bdc29faa2874025daca42f9cdce53c0dd11164c",
+      "size": 379317
+    },
+    "marketing-live/assets/BG2.mp4": {
+      "sha256": "3fb2b2296ee3be9c89ead13b272d386790411cb1e28152b5e2a0cd9c68be4a3b",
+      "size": 508614
+    },
+    "marketing-live/assets/Book Cover/English/01.png": {
+      "sha256": "533de2c0c34317da710ef98b725e4a87e7047ecb2b2b9d4547fd35129888b29d",
+      "size": 505311
+    },
+    "marketing-live/assets/Book Cover/English/02.png": {
+      "sha256": "14667b712b4fbb4069e99bacffe4548765ef16786ce9173cc733a95f76927bfb",
+      "size": 505961
+    },
+    "marketing-live/assets/Book Cover/English/03.png": {
+      "sha256": "e76087f006e42d94bded021278aec23ccdc80c24afbbc742e20e4046c5555a51",
+      "size": 464669
+    },
+    "marketing-live/assets/Book Cover/English/04.png": {
+      "sha256": "b4a7bd1c11a7540fb629f7c8327c244f94d4b949d994880d10e7905c4f973a40",
+      "size": 426869
+    },
+    "marketing-live/assets/Book Cover/English/05.png": {
+      "sha256": "3a9e18149547e1461370518f299fb207f77596d776ae1427b6e5abe1ccf852fb",
+      "size": 471157
+    },
+    "marketing-live/assets/Book Cover/English/06.png": {
+      "sha256": "653dd3181af1714e55390f4d0950e0a2e8bd644d550a123e71dc90860aea3f97",
+      "size": 438155
+    },
+    "marketing-live/assets/Book Cover/Sinhala/01.png": {
+      "sha256": "6f3679e26d4412443c9611dc45907756905a8604d0235eeaa527646d5f285a02",
+      "size": 503852
+    },
+    "marketing-live/assets/Book Cover/Sinhala/02.png": {
+      "sha256": "c0c9684059b1d9188319b22cd2cce9273f43a732f97bc56015fc99e3c4d2e9cd",
+      "size": 509952
+    },
+    "marketing-live/assets/Book Cover/Sinhala/03.png": {
+      "sha256": "090c7e3f94da119fb49eebfed568d0cdb1487779aa1c69f8c89b692c8869c763",
+      "size": 432316
+    },
+    "marketing-live/assets/Book Cover/Sinhala/04.png": {
+      "sha256": "f72e4817789f884a9cbf622756591b9ebbb31a225f2b6db6a7dd5885360660ff",
+      "size": 443486
+    },
+    "marketing-live/assets/Book Cover/Sinhala/05.png": {
+      "sha256": "fdd578c03d49130e8dc6ee0dd0a66ceec2593e08180790f938eaff537c0843e9",
+      "size": 470255
+    },
+    "marketing-live/assets/Book Cover/Sinhala/06.png": {
+      "sha256": "fa57d83a3debb292037fd0042bfc43cfd0e4a07b957c86c775b86b239b02ae99",
+      "size": 478209
+    },
+    "marketing-live/assets/element/part-1.png": {
+      "sha256": "d500b11d2b00ec1ffad2c95736a9e92ecba619539c2b8cb2bff56585a6145b4c",
+      "size": 28452
+    },
+    "marketing-live/assets/element/part-2.png": {
+      "sha256": "a023522a6793280f97d50db615d3c8d71030f791425ee12300358888e33b5c5b",
+      "size": 30074
+    },
+    "marketing-live/assets/element/part-3.png": {
+      "sha256": "ef2be0761a9c536d871125fe4fc175815ed8c41061b881c0c40837e83047c51d",
+      "size": 11818
+    },
+    "marketing-live/assets/element/part-4.png": {
+      "sha256": "7d64a694e6ff894da91068040aa6f6e2f5b81a191719349f2a29f6d83c87222f",
+      "size": 8292
+    },
+    "marketing-live/assets/element/part-5.png": {
+      "sha256": "556f231a115c53f55c11eb506ee14c1283404a9a42c49518e9d8cd5f1a72149a",
+      "size": 5817
+    },
+    "marketing-live/assets/element/part-6.png": {
+      "sha256": "c4d19bc169801b2ea9831557eee6770fd08f83ceaab29b626562c8c5cafdf668",
+      "size": 488
+    },
+    "marketing-live/assets/element/part-7.png": {
+      "sha256": "78b42ce87400404d6f13b76ac720cb4a67f8f86b9319562b61636f15e1fa5cde",
+      "size": 338
+    },
+    "marketing-live/assets/element.png": {
+      "sha256": "20b41b96211281cd9b9d51c76a43b03c8321e8a71f6e4881b80edea570c4b49d",
+      "size": 124116
+    },
+    "marketing-live/assets/learnverse-final-discover-1448.webp": {
+      "sha256": "868ca7dc2f931cf3b240b89bfbc8282f75a3e06c6eaac63d369d248733d472b3",
+      "size": 141668
+    },
+    "marketing-live/assets/learnverse-final-discover-480.webp": {
+      "sha256": "44c0f57ed749ebd7b193471be8650acc08734c84b91fc705c3aed5c4bf2460e7",
+      "size": 27708
+    },
+    "marketing-live/assets/learnverse-final-discover-960.webp": {
+      "sha256": "c55192a48dd95ef8131981458a3188f5b9a8beb2d3676e49b77446b779d30ef6",
+      "size": 78522
+    },
+    "marketing-live/assets/learnverse-final-learn-1448.webp": {
+      "sha256": "9b96c14cf488c80949c464bf856baaa62a995971eaf4c57f5664b0bc1d668053",
+      "size": 143018
+    },
+    "marketing-live/assets/learnverse-final-learn-480.webp": {
+      "sha256": "a3aa42b118b052fd6ea69b076502a5f1a6e9946abeb615092ba2c03981cfb1a2",
+      "size": 30300
+    },
+    "marketing-live/assets/learnverse-final-learn-960.webp": {
+      "sha256": "1d817f3e92e35d9a5dca1c8ba74f156f6a8ffd0a8053f85ae782de164327eb11",
+      "size": 83892
+    },
+    "marketing-live/assets/learnverse-final-manage-1448.webp": {
+      "sha256": "39d37ac8bb1cee23671247bd31da855f600f9e9e4d4231e0b820cc0e3881c21b",
+      "size": 170606
+    },
+    "marketing-live/assets/learnverse-final-manage-480.webp": {
+      "sha256": "6bc72190246159b292a621f634e71e284146c79a678b632904af6c7ca9f93a10",
+      "size": 38274
+    },
+    "marketing-live/assets/learnverse-final-manage-960.webp": {
+      "sha256": "9a19454c02a0877ee433e848c98e2cd7af5208ded8f0f3749de580cdf7eadeec",
+      "size": 104090
+    },
+    "marketing-live/assets/learnverse-final-teach-1448.webp": {
+      "sha256": "b81b129239aa084a67f7da5fde125df45a243dd0ff4861a20b5790c02c0f75e2",
+      "size": 120000
+    },
+    "marketing-live/assets/learnverse-final-teach-480.jpeg": {
+      "sha256": "98bd2b58c4bf9fa291ee9b01e61cb99a6fcfe38829335cc02bdd1344868a178c",
+      "size": 30905
+    },
+    "marketing-live/assets/learnverse-final-teach-480.webp": {
+      "sha256": "91071d39cbe97d284d3b335774e07c366dd73b4323ee8ee60571a034849a6ca6",
+      "size": 22164
+    },
+    "marketing-live/assets/learnverse-final-teach-960.webp": {
+      "sha256": "213b080531bea97b4888495d1f41821f077019907b122e2ef4acbbf1942c9063",
+      "size": 66598
+    },
+    "marketing-live/assets/learnverse-world-hd-small.webp": {
+      "sha256": "f7db6859819ac7ccbfc1677b34ae64752a87b56f1035edb265a2da6d9a27ce28",
+      "size": 874146
+    },
+    "marketing-live/assets/learnverse-world.mp4": {
+      "sha256": "a4fdc2514fe4c88ea6cae102011d21488f3a0378160195a2be4efb9638aa7140",
+      "size": 6773634
+    },
+    "marketing-live/assets/logo-mark-light.png": {
+      "sha256": "47864208ce571b5262229c6d2a3fdef5bb692a65fa247dbba44de9fd2d5e5adf",
+      "size": 592
+    },
+    "marketing-live/assets/logo-mark.png": {
+      "sha256": "e84ebfae16b82d497b77bb002399dad1de23feac789e053a19bb720e95cc3b04",
+      "size": 165464
+    },
+    "marketing-live/assets/logo-original-dark.png": {
+      "sha256": "b1f60921482913212ca0ff5deb4545bf8d4a639c3712e7d79d1810f7683d3c85",
+      "size": 129591
+    },
+    "marketing-live/assets/manrope-latin-ext-wght-normal-Ch3YOpNY.woff2": {
+      "sha256": "3911b66d9f2e005a4b989223405d0e5032619c668597ba467cc76a23c8fffcfb",
+      "size": 15120
+    },
+    "marketing-live/assets/manrope-latin-wght-normal-DHIcAJRg.woff2": {
+      "sha256": "a30ddcd349703aff7464c34bef3fffdff405ee50c113440d7c8693c02d210972",
+      "size": 24836
+    },
+    "marketing-live/assets/mascot.png": {
+      "sha256": "56f9f4fe6a1824c517cb66528704de608450b052939dc24fcac76bc42f30162c",
+      "size": 215990
+    },
+    "marketing-live/assets/sisu-balanced-student-overview.png": {
+      "sha256": "15d7e4fba6519149b0d30756e2698e9d9cd66d1f41b92381a0fc700a070a5e4f",
+      "size": 138459
+    },
+    "marketing-live/assets/sisu-bank-payment-review.png": {
+      "sha256": "0dbbdcdab2939ab4a4e61828d62a684e822e78c30dd161b916a63279199f1a9c",
+      "size": 134701
+    },
+    "marketing-live/assets/sisu-focus.mp4": {
+      "sha256": "e18ace407a9c3c2e270297b8b65cca85ada6e997b2f9083e8d0903a508730e38",
+      "size": 716385
+    },
+    "marketing-live/assets/sisu-focus.webm": {
+      "sha256": "e8dcf0fc760107df79bc1bf82e67addc37f7cc608566365ea9d1510957b4b250",
+      "size": 685082
+    },
+    "marketing-live/assets/sisu-institute-overview.png": {
+      "sha256": "85317e3e372d3fed4538f0aca911cd856b7a5ac5fd57187c862f84786cb75360",
+      "size": 162298
+    },
+    "marketing-live/assets/sisu-larger-teacher-illustration.png": {
+      "sha256": "1b8b5c32ff3850721b71b4d1149746b1c2ab6a13e8bcce9793240dddf37d2420",
+      "size": 160630
+    },
+    "marketing-live/assets/sisu-mascot.webm": {
+      "sha256": "ba6fbbb5914ed9e632417b619fe55ae8bdc8e901615df623f8a3cbcf2d141183",
+      "size": 782928
+    },
+    "marketing-live/assets/sisu-material-delivery.png": {
+      "sha256": "1fed0cf772a15b996ea03138d9ee9eecd003a63fd95b0faaaf8ba056fe4a9000",
+      "size": 121123
+    },
+    "marketing-live/assets/sisu-original-color.png": {
+      "sha256": "6bb10ff888678301e7b70a1c1da9e2109fb23d1dec8eb228c6c17cbe3546be8b",
+      "size": 145807
+    },
+    "marketing-live/assets/sisu-stream-schedule.png": {
+      "sha256": "36690fa58602a61c50e7c0026efde98aa436512434d2a2f1c32908aaa1c78658",
+      "size": 105859
+    },
+    "marketing-live/assets/sisu-study-library.png": {
+      "sha256": "0be64ee87c3de61fe881a72a67df4e04eedba46b307153b33cb728e0b5169ad3",
+      "size": 201042
+    },
+    "marketing-live/assets/sisu-teacher-overview.png": {
+      "sha256": "9c6a263063b2d0571dc1df55f3acbb968121531271dede89de5a73eca6829bf1",
+      "size": 155798
+    },
+    "marketing-live/assets/sisu-teacher-workspace.mp4": {
+      "sha256": "47a65c95421af0c089ce313af8f7aad61d308c0d9fcc2be627dfa199b00a42da",
+      "size": 239793
+    },
+    "marketing-live/assets/sisu-teacher-workspace.webp": {
+      "sha256": "0a52bf9bd4f205b0a849fb17d57bef52034ea61eb658fc5515e7ddc7036e18cf",
+      "size": 71776
+    },
+    "marketing-live/assets/sisu-three-phones.png": {
+      "sha256": "52a477f9e9a628de0004e5aa9a755f84ac54cbba15ab46dce6e490369d4854f0",
+      "size": 1720392
+    },
+    "marketing-live/assets/sisu-unified-classroom.png": {
+      "sha256": "bd2b4d195d76bf116dbb33d74e387dbf40d30d066c7d9b142e1f3a030b10f141",
+      "size": 102529
+    },
+    "marketing-live/assets/source-sans-3-latin-wght-normal-Bo_j9asI.woff2": {
+      "sha256": "19143dca075972bc84e3fd9eab7416dd40cc565dccb2435a044bdfabe060c7d5",
+      "size": 28872
+    },
+    "marketing-live/assets/source-serif-4-latin-wght-italic-B-rCj6ir.woff2": {
+      "sha256": "b4f56ddc9873487f1c9a3ad5bbce31982fe89b951f57e4604f62b4c8a540fb19",
+      "size": 51576
+    },
+    "marketing-live/assets/student-learning-together.png": {
+      "sha256": "82a87fb558ed4d30a7bc2ffed4646fcdc383751f804caae0bf8ee49211108eda",
+      "size": 2243346
+    },
+    "marketing-live/assets/Student_with_Laptop_on_Lavender_40e563cb.jpg": {
+      "sha256": "5b353bc0d52d60d8958234fd66226b03e5d4609f6e7ba0e1f27993aaa3ea6eac",
+      "size": 677400
+    },
+    "marketing-live/assets/study.png": {
+      "sha256": "29d128691f75dba3870da90c28aa0737c3fe58da87e2f91040a8b72f15e59d53",
+      "size": 240940
+    },
+    "marketing-live/assets/sunlit-teacher-workspace.png": {
+      "sha256": "85c08e75925bef609d43e4764c004e7b624b7db1ee15854dd5f2336af10d380d",
+      "size": 1817903
+    },
+    "marketing-live/assets/testimonial-portraits.png": {
+      "sha256": "103630680b3a65d6ceda2550fcebcfabad5186d771f9005abb8d917954b2cdb5",
+      "size": 2378637
+    },
+    "marketing-live/assets/user.png": {
+      "sha256": "b2dbb311f9ca87646f51bb6ff079d5feb52a058720e29d056c530a8daa54b97c",
+      "size": 282883
+    },
+    "marketing-live/assets/white-classrooms.mp4": {
+      "sha256": "a6b00930babcca7b0997f805e1e74d61ae0302f1d491e9cff5d1b43408a9ae11",
+      "size": 248323
+    },
+    "marketing-live/assets/white-classrooms.webp": {
+      "sha256": "b501fe695af4e54a80c23156ae638cfa4ce9c972f039ff0db54e28c33e5d3d67",
+      "size": 176918
+    },
+    "marketing-live/assets/white-community.mp4": {
+      "sha256": "e8226a9718da5cf32ef4656d0bb1e874818dd57230af30ccb113cd0fc295a32e",
+      "size": 413110
+    },
+    "marketing-live/assets/white-community.webp": {
+      "sha256": "392c298ade55e8bb9378777bcad119c694269eff30e9e6f0c69d8eb37a4f024f",
+      "size": 116734
+    },
+    "marketing-live/assets/white-focus.mp4": {
+      "sha256": "49711d9e487676d58a843ebed1569a4ed69c1eaf5b10cb616243695b4582d0de",
+      "size": 133467
+    },
+    "marketing-live/assets/white-focus.webp": {
+      "sha256": "81df4cfc149600764cbdd96a6208a4bd95293ef63224581e44689551ba3ce359",
+      "size": 151362
+    },
+    "marketing-live/config.js": {
+      "sha256": "977bdd53fb8d45abad8e07eaf8eb87bb52651d2e1fd9a496023c2c4e5a9f369e",
+      "size": 152
+    },
+    "marketing-live/contact/index.html": {
+      "sha256": "6e97b5298ab8b90c768df415cc2338d160b88268a1e95fe362875953fb747728",
+      "size": 1257
+    },
+    "marketing-live/index.html": {
+      "sha256": "f2bcb5931c7466b0a5636924dfdeef21849848e91756531a6d40ad06ab9d2981",
+      "size": 1292
+    },
+    "marketing-live/institutes/index.html": {
+      "sha256": "6e97b5298ab8b90c768df415cc2338d160b88268a1e95fe362875953fb747728",
+      "size": 1257
+    },
     "marketing-live/students/index.html": {
-      "sha256": "6a83aa46373da922debe88102f4275da01dadb9f81852bbbd9dbb5e1c8398d96",
-      "size": 1205,
-      "lf_sha256": "6a83aa46373da922debe88102f4275da01dadb9f81852bbbd9dbb5e1c8398d96"
+      "sha256": "6e97b5298ab8b90c768df415cc2338d160b88268a1e95fe362875953fb747728",
+      "size": 1257
     },
     "marketing-live/style.css": {
       "sha256": "e0f5031a32359481b84847918a711859cbd5479fd53e38098f552e08582f897e",
-      "size": 50606,
-      "lf_sha256": "e0f5031a32359481b84847918a711859cbd5479fd53e38098f552e08582f897e"
+      "size": 50606
     },
     "marketing-live/teachers/index.html": {
-      "sha256": "6a83aa46373da922debe88102f4275da01dadb9f81852bbbd9dbb5e1c8398d96",
-      "size": 1205,
-      "lf_sha256": "6a83aa46373da922debe88102f4275da01dadb9f81852bbbd9dbb5e1c8398d96"
+      "sha256": "6e97b5298ab8b90c768df415cc2338d160b88268a1e95fe362875953fb747728",
+      "size": 1257
     },
     "marketing-live/theme.css": {
       "sha256": "797dd936edd74359effe4991047b9b02ce0269701b2062b28acefa955ea56fd2",
-      "size": 58667,
-      "lf_sha256": "797dd936edd74359effe4991047b9b02ce0269701b2062b28acefa955ea56fd2"
+      "size": 58667
     }
   },
   "previous_nginx_config_sha256": "515e9609a42e027bc910a1b25ddde175dece32f351a5538548c4b4cf3245dd5b",
   "nginx_config_sha256": null,
   "marketing_update": {
-    "main": "1b53720",
-    "develop": "6cea59d",
-    "deployed_at_utc": "2026-11-12T12:25:34.918090Z",
+    "main": "69031d8",
+    "develop": "1a26cf5",
+    "deployed_at_utc": "2026-11-14T02:24:08.257798Z",
     "verification": "User supplied successful publish-marketing.py HTTPS checks; LMS retained from original export. Current nginx hash not re-exported."
   }
 }

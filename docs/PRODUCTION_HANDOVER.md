@@ -1,6 +1,6 @@
-# Production source handover — 12 November 2026
+# Production source handover — 14 November 2026
 
-Branch: **mergetharukaa-prod**. The LMS files were exported directly from production. Marketing was updated to the release deployed and verified on 12 November at 12:25 UTC; its privacy page is retained from the export. `deployment/production-manifest.json` records their hashes, active marketing release, framework commits and runtime versions. `deployment/handoff-verification.json` records archive verification. Repository tests, scripts and documentation supplement the export and are not claimed to be deployed files.
+Branch: **mergetharukaa-prod**. The LMS files were exported directly from production. Marketing was updated to the release deployed and verified on 14 November at 02:24 UTC; its privacy page is retained from the export. `deployment/production-manifest.json` records their hashes, active marketing release, framework commits and runtime versions. `deployment/handoff-verification.json` records archive verification. Repository tests, scripts and documentation supplement the export and are not claimed to be deployed files.
 
 ## Post-export correction (not yet deployed)
 
@@ -27,7 +27,7 @@ Use Linux/WSL and a separate Frappe Bench/site for development. Match framework 
 
 Inside `frontend/`, use `npm ci`, `npm test` and `npm run build`. Builds update `institute_lms/public/portal` and the campus entry, intentionally changing snapshot hashes. Backend integration tests need Frappe. Do not rebuild the baseline just to compare it with production.
 
-Marketing upstream is `Sisu-Academy/sisu-academy-platform`, main `1b53720`, develop `6cea59d`, plus SISU integration. The export is already static and uses `/marketing/` asset paths; do not prefix them twice. Preserve LMS `/campus`, `/api`, `/assets` and authentication routing. The separate bookstore application is not included.
+Marketing upstream is `Sisu-Academy/sisu-academy-platform`, main `69031d8`, develop `1a26cf5`, plus SISU integration. The export is already static and uses `/marketing/` asset paths; do not prefix them twice. Preserve LMS `/campus`, `/api`, `/assets` and authentication routing. The separate bookstore application is not included.
 
 ## Workflows and remaining work
 

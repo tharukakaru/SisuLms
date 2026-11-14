@@ -4,7 +4,7 @@ from institute_lms import signup_rules as rules
 
 class SignupRules(unittest.TestCase):
     def form(self,kind='Student'):
-        return dict(kind=kind,first_name='Test',last_name='Person',email='test@example.com',phone='+94741575022',username='testperson',country='LK',timezone='UTC',grade='Adult',subject='Maths',organization='Test Institute',job='Owner',backup_name='Recovery',backup_email='recovery@example.com',privacy_accepted=True)
+        return dict(kind=kind,first_name='Test',last_name='Person',email='test@example.com',phone='+94741575022',username='testperson',country='LK',timezone='UTC',birth_date='2005-02-28',subject='Maths',organization='Test Institute',job='Owner',backup_name='Recovery',backup_email='recovery@example.com',privacy_accepted=True)
     def test_required_fields_for_every_role(self):
         for role,extras in rules.EXTRA.items():
             for field in (*rules.COMMON,*extras):
@@ -20,6 +20,18 @@ class SignupRules(unittest.TestCase):
         for field,value in [('email','x\r\nBcc:a@b.c'),('phone','0741575022'),('privacy_accepted',False),('username','admin'),('timezone','../secret')]:
             data=self.form();data[field]=value
             with self.subTest(field=field),self.assertRaises(ValueError):rules.details(data)
+    def test_birthday_accepts_real_dates_and_rejects_future_or_impossible_dates(self):
+        from datetime import date, timedelta
+        data=self.form();data['birth_date']='2004-02-29'
+        self.assertEqual(rules.details(data)['birth_date'],'2004-02-29')
+        for value in ('2005-02-29','2001-13-01','01/02/2001','20010101',
+                      (date.today()+timedelta(days=1)).isoformat()):
+            data['birth_date']=value
+            with self.subTest(value=value),self.assertRaises(ValueError):rules.details(data)
+        self.assertNotIn('birth_date',rules.details(self.form('Individual Teacher')))
+    def test_grade_is_no_longer_a_signup_requirement(self):
+        result=rules.details(self.form())
+        self.assertNotIn('grade',result)
     def test_password_confirmation(self):
         for value,confirmation in [('short','short'),('long enough password','different'),('x'*129,'x'*129)]:
             with self.assertRaises(ValueError):rules.password(value,confirmation)

@@ -12,6 +12,10 @@ def registration_details(data, owner_email):
     if role == 'Super Admin' and (not owner_email or email != owner_email.strip().lower()):
         raise PermissionError('This address is not eligible for owner access')
     result = {'kind': role, 'email': email}
+    if role == 'Individual Teacher':
+        path = data.get('teaching_path', 'individual')
+        if path not in ('individual', 'institute'): raise ValueError('Choose individual or institute teaching')
+        result.update(teaching_path=path, flow='provider-application-v1')
     for key in ('full_name','organization','organization_type','country','timezone','language','subject','invite','website','job','phone','backup_name','backup_email','username','qualifications','tagline','privacy_policy_url','privacy_policy_version','consented_at'):
         value = str(data.get(key, '')).strip()
         if len(value)>254 or any(c in value for c in '\x00\r\n'): raise ValueError('Invalid registration field')

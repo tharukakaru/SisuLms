@@ -1,5 +1,5 @@
 app_name = "institute_lms"
-app_title = "Sisu Â· Institute LMS"
+app_title = "Sisu · Institute LMS"
 app_publisher = "Institute LMS contributors"
 app_description = "Institute classrooms, schedules, payments and communication"
 app_email = "admin@example.com"
@@ -94,5 +94,12 @@ scheduler_events['daily'].append('institute_lms.sandbox_notices.expiry')
 scheduler_events['cron'].setdefault('*/1 * * * *', []).append('institute_lms.owner_invitation_delivery.dispatch')
 
 # Presentation only: keep Frappe login handlers and verification intact.
-web_include_css = ["/assets/institute_lms/login-presentation.css?v=sisu-wordmark-20261111"]
-web_include_js = ["/assets/institute_lms/login-presentation.js?v=sisu-wordmark-20261111"]
+web_include_css = ["/assets/institute_lms/login-presentation.css?v=sisu-auth-20261114f"]
+web_include_js = ["/assets/institute_lms/login-presentation.js?v=sisu-auth-20261114f"]
+
+# Shared SISU browser-tab icon for login, website and error pages.
+website_context = {"favicon": "/assets/institute_lms/sisu-icon.png?v=sisu-20261114"}
+
+
+
+update_website_context = "institute_lms.portal_entry.website_context"

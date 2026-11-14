@@ -32,9 +32,25 @@ class InstituteCoverage(unittest.TestCase):
     def test_production_disabled(self):
         self.f.local.site='production';self.assertIsNone(self.m.sponsor('school','teacher'))
     def test_no_independent_or_generic_api_bypass(self):
-        for method in ['institute_lms.api.create_classroom','frappe.client.get_list','institute_lms.teaching.overview']:
+        for method in ['institute_lms.api.create_classroom','frappe.client.get_list','institute_lms.teaching.membership','institute_lms.commercial.metrics','institute_lms.api.invoices']:
             self.assertFalse(self.m.request_allowed(method,'school','teacher'))
         self.assertTrue(self.m.request_allowed('institute_lms.api.classrooms','school','teacher'))
+        self.assertTrue(self.m.request_allowed('institute_lms.teaching.overview','school','teacher'))
+        self.assertTrue(self.m.request_allowed('institute_lms.classroom_handover.institute_plan','school','teacher'))
+        self.f.db.exists.return_value=False
+        self.assertFalse(self.m.request_allowed('institute_lms.teaching.overview','school','teacher'))
+
+    def test_local_coverage_requires_explicit_flag_and_matching_loopback(self):
+        self.f.local.site='sisuacademylk.com'
+        self.f.local.request=types.SimpleNamespace(url='http://127.0.0.1:5400/api/method/example')
+        self.f.conf.update(host_name='http://127.0.0.1:5400',il_local_student_signup_enabled=1)
+        self.assertTrue(self.m.enabled())
+        for url in ['http://127.0.0.1:5401/api','https://www.sisuacademylk.com/api']:
+            self.f.local.request.url=url
+            self.assertFalse(self.m.enabled())
+        self.f.local.request.url=self.f.conf['host_name']
+        self.f.conf['il_institute_teacher_coverage']=0
+        self.assertFalse(self.m.enabled())
     def test_room_scope(self):
         class Room(dict):
             institute='school'

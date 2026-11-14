@@ -1,9 +1,10 @@
 """Public signup fields: never accept privileges, verification flags or passwords here."""
 import re
+from datetime import date
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 COMMON = ('first_name','last_name','email','phone','username','country','timezone')
-EXTRA = {'Student':('grade',),'Individual Teacher':('subject',),
+EXTRA = {'Student':('birth_date',),'Individual Teacher':('subject',),
          'Institute':('organization','job','backup_name','backup_email')}
 OPTIONAL = ('website','qualifications','bio')
 
@@ -40,8 +41,18 @@ def details(data):
     except (ZoneInfoNotFoundError,ValueError):raise ValueError('Choose a valid time zone.') from None
     if result['website'] and not result['website'].startswith('https://'):raise ValueError('Website must use https://.')
     if data.get('privacy_accepted') is not True:raise ValueError('Accept the privacy policy.')
+    if kind=='Student':result['birth_date']=birth_date(result['birth_date'])
     result['privacy_accepted']=True
     return result
+
+
+def birth_date(value):
+    if not isinstance(value,str) or not re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}',value):
+        raise ValueError('Enter a valid date of birth.')
+    try: birthday=date.fromisoformat(value)
+    except ValueError:raise ValueError('Enter a valid date of birth.') from None
+    if birthday>date.today():raise ValueError('Date of birth cannot be in the future.')
+    return birthday.isoformat()
 
 
 def password(value,confirmation,minimum=12):

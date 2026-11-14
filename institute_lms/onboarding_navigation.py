@@ -10,7 +10,7 @@ def teaching_path(rows, user):
             continue
         if not isinstance(details, dict):
             continue
-        if (details.get('flow') == 'public-account-v1'
+        if (details.get('flow') in ('public-account-v1', 'provider-application-v1')
                 and details.get('email') == user
                 and details.get('kind') == 'Individual Teacher'
                 and details.get('teaching_path') in ('individual', 'institute')):

@@ -90,7 +90,7 @@ function chooseRole(role){roleChosen.value=selected.value===role?!roleChosen.val
 
 function goBack(){if(signupPath.value){signupPath.value=false}else if(roleChosen.value){roleChosen.value=false}else if(hasPreviousPage){window.history.back()}}
 
-async function google(signup=false){rememberEntry();try{const r=await request('portal_policy','google_start',{signup:signup===true?1:0});const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
+async function google(signup=false){if(signup===true)sessionStorage.setItem('sisu_signup_role','Student');rememberEntry();try{const r=await request('portal_policy','google_start',{signup:signup===true?1:0});const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
 
 async function connect(){busy.value=true;error.value='';googleSignupError.value=null;try{session.value=await request('portal_session','current',{},'GET');if(!newGoogleSignup)entryPath.value=resolveTeacherPath(sessionStorage,session.value);if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;const signupEntry=await googleSignupEntry(session.value,newGoogleSignup,request);if(signupEntry){policy.value=signupEntry.policy;existingGoogleAccount.value=signupEntry.accountExists;if(existingGoogleAccount.value)return}if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message;if(newGoogleSignup)googleSignupError.value=e}finally{busy.value=false}}
 

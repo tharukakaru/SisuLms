@@ -52,6 +52,26 @@ class PublicAccountCompletion(TestCase):
         profile=next(d for d in self.docs if d['doctype']=='IL Public Profile')
         self.assertNotIn('birth_date',profile)
 
+    def test_google_provider_signup_preserves_path_without_granting_access(self):
+        for kind,path in [('Individual Teacher','individual'),('Individual Teacher','institute'),('Institute','')]:
+            with self.subTest(kind=kind,path=path):
+                self.docs.clear();self.state.pop('consumed',None)
+                self.data.update(kind=kind,teaching_path=path)
+                self.state['google_user']=self.data['email'];self.f.session.user=self.data['email']
+                self.challenges.google_identity.return_value=True
+                existing=Record({'doctype':'User','email':self.data['email']})
+                def doc(*args):
+                    if args[0]=='User':return existing
+                    self.docs.append(args[0]);return Record(args[0])
+                self.f.get_doc=doc
+                with patch.dict('sys.modules',{'frappe.utils.password':NS(update_password=Mock())}):
+                    self.complete('token','a-password-123','a-password-123')
+                profile=next(d for d in self.docs if d['doctype']=='IL Public Profile')
+                self.assertEqual(profile['kind'],'Teacher' if kind=='Individual Teacher' else 'Institute')
+                self.assertEqual(profile['status'],'Pending')
+                self.assertNotIn('roles',existing.data)
+                self.assertFalse(any(d['doctype'] in ('IL Member','IL Subscription') for d in self.docs))
+
     def test_old_or_invalid_birthday_challenge_writes_nothing(self):
         for value in (None,'2005-02-30','2999-01-01'):
             self.data['birth_date']=value

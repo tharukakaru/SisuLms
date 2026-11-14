@@ -51,13 +51,11 @@ def start(data):
     from .signup_environment import student_kind_allowed
     if not student_kind_allowed(frappe.conf, fields['kind']):frappe.throw('Only student signup is enabled on this site.')
     google=google_identity(fields['email'])
-    if google and fields['kind'] != 'Student':
-        frappe.throw('Learner Google signup creates a Student account. Use provider signup for a teaching account.')
     if frappe.session.user!='Guest' and not google:frappe.throw('Use the Google account you just signed in with, or sign out.')
     from .portal_policy import public
     policy=public()
     if not policy['privacy_policy_url'] or data.get('privacy_policy_version')!=policy['privacy_policy_version']:frappe.throw('Review the current privacy policy.')
-    if fields['kind']=='Student' and ((not google and frappe.db.exists('User',fields['email'])) or (google and registered_google_account(fields['email']))):
+    if (fields['kind']=='Student' and not google and frappe.db.exists('User',fields['email'])) or (google and registered_google_account(fields['email'])):
         return {'account_exists': True}
     existing=frappe.db.get_value('IL Public Profile',{'user':fields['email']},['name','kind'],as_dict=True) if google else None
     if existing and existing.kind!='Student':frappe.throw('Your provider profile already exists. Update it through your account settings.')

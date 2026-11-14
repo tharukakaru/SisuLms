@@ -15,7 +15,7 @@ async function login(){
 }
 </script>
 <template><main class="first-login"><BrandLogo/><h1>Let’s make this space yours.</h1><p>Complete these steps once to set up your account.</p>
-<MobileVerification onboarding @verified="verified=$event"/>
+<MobileVerification onboarding hide-heading @verified="verified=$event"/>
 <ProfileEditor v-if="verified&&!saved" :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':'Teacher'}" @completed="saved=true"/>
 <section v-if="verified&&saved" class="success" role="status"><h2>Verification successful</h2><p>Your profile and mobile number are saved.{{session.teaching_path==='institute'?' Choose your institutes below.':' You can return to login now.'}}</p></section>
 <InstituteJoinPicker v-if="verified&&saved&&session.teaching_path==='institute'" purpose="New application" onboarding/>

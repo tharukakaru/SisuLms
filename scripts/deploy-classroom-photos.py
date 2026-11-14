@@ -92,7 +92,7 @@ def main():
     for site in ('sisuacademylk.com', 'teen.sisuacademylk.com', 'platform.sisuacademylk.com', 'staging.sisuacademylk.com'):
         subprocess.run(['/usr/local/bin/bench', '--site', site, 'clear-cache'], cwd=BENCH, check=True)
         subprocess.run(['/usr/local/bin/bench', '--site', site, 'clear-website-cache'], cwd=BENCH, check=True)
-    print('DEPLOYED: Classroom gradebook moved into the Progress tab for shared student, teacher and admin views. Restart web and test classroom Progress.')
+    print('DEPLOYED: Classroom photo editor with explicit Save and gradebook in Progress. Restart web and test photo uploads and Progress.')
     print('No schema or bank-account data changes by deployment. Existing enrollments/payments unchanged. Gateway configuration unchanged. No demo records changed by this installer.')
 
 

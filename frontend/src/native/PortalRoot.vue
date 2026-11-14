@@ -62,6 +62,8 @@ const session=ref(null),error=ref(''),busy=ref(true),selected=ref('Student'),sig
 const roles=[{name:'Student',icon:'GraduationCap',text:'Learn, explore and grow.'},{name:'Teacher',icon:'BookOpen',text:'Your own teaching space.'},{name:'Institute',icon:'Building2',text:'Your teachers and classrooms.'}]
 
 const roleChosen=ref(false)
+const studentEmailSignup=ref(false)
+function openStudentEmailSignup(){sessionStorage.setItem('sisu_signup_role','Student');studentEmailSignup.value=true}
 const signupPath=ref(false)
 const hasPreviousPage=window.history.length>1
 const providerSignupKind=ref('')
@@ -136,6 +138,7 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
     </main>
   </template>
 
+  <VerifiedSignup v-else-if="studentEmailSignup" :policy="policy" student-only @back="studentEmailSignup=false;signupPath=false"/>
   <Signup v-else-if="signup" :initial-provider-kind="providerSignupKind" @back="signup=false" @dashboard="connect"/>
 
   <main v-else class="sisu-entry role-selection" :class="{'entry-dark':dark,'role-selection-expanded':roleChosen&&!signupPath}">
@@ -145,11 +148,11 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
     <div class="entry-layout"><WebWelcomeStory :provider="signupPath&&selected==='Teacher'"/>
 
     <section class="entry-card" :aria-labelledby="signupPath&&selected==='Teacher'?'provider-account-title':signupPath&&selected==='Student'?'learner-signin-title':'role-selection-title'">
-      <LearnerSignIn v-if="signupPath&&selected==='Student'" :google-available="!!policy.google_available" @google="google(true)" @choose-path="signupPath=false"/>
+      <LearnerSignIn v-if="signupPath&&selected==='Student'" :google-available="!!policy.google_available" :email-available="!!policy.self_signup_enabled" @email="openStudentEmailSignup" @google="google(true)" @choose-path="signupPath=false"/>
       <ProviderAccountChoice v-else-if="signupPath&&selected==='Teacher'" @choose="openProviderSignup" @back="signupPath=false"/>
       <template v-else><button v-if="roleChosen||hasPreviousPage" type="button" class="role-back-link" @click="goBack"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back</button><h2 id="role-selection-title">Choose your SISU role</h2><p class="role-selection-subtitle">Your next chapter starts here.</p><div class="entry-roles"><button v-for="r in roles" :key="r.name" type="button" @click="chooseRole(r.name)" :class="{selected:roleChosen&&selected===r.name}" :aria-expanded="roleChosen&&selected===r.name" aria-controls="role-selection-actions"><div><strong>{{roleCopy[r.name].title}}</strong><small>{{roleCopy[r.name].description}}</small></div></button></div>
 
-      <div id="role-selection-actions" v-show="roleChosen"><p class="entry-action-title">{{selected==='Student'?'Learner':selected}} account</p><div class="entry-login-actions"><a class="entry-primary" href="/login?redirect-to=/campus" @click="rememberEntry">Sign in with email and password →</a><button class="entry-primary entry-google" :disabled="!policy.google_available" @click="google">Continue with Google</button></div><p v-if="!policy.google_available" class="entry-subtle">Google sign-in is being set up for this site. Students need Google to sign in.</p><p class="entry-secure"><Icon name="ShieldCheck" :size="15"/>Your account determines your permissions.</p><div class="entry-divider"><span>NEW TO SISU?</span></div><button class="entry-secondary" @click="openSignup">Create a new account <Icon name="Plus" :size="16"/></button><p class="entry-subtle">{{policy.self_signup_enabled?'Verify your email and phone, create your password, then sign in.':'Students use Google. Teachers and institutes apply for review, then set a password through a secure email.'}}</p></div>
+      <div id="role-selection-actions" v-show="roleChosen"><p class="entry-action-title">{{selected==='Student'?'Learner':selected}} account</p><div class="entry-login-actions"><a class="entry-primary" href="/login?redirect-to=/campus" @click="rememberEntry">Sign in with email and password →</a><button class="entry-primary entry-google" :disabled="!policy.google_available" @click="google"><img :src="'/assets/frappe/icons/social/google.svg'" alt="" width="20" height="20" style="display:inline-block;vertical-align:middle;margin-right:8px;flex-shrink:0" />Continue with Google</button></div><p v-if="!policy.google_available" class="entry-subtle">Google sign-in is being set up for this site. You can sign in with your email and password.</p><p class="entry-secure"><Icon name="ShieldCheck" :size="15"/>Your account determines your permissions.</p><div class="entry-divider"><span>NEW TO SISU?</span></div><button class="entry-secondary" @click="openSignup">Create a new account <Icon name="Plus" :size="16"/></button><p class="entry-subtle">{{policy.self_signup_enabled?'Verify your email and phone, create your password, then sign in.':'Students use Google. Teachers and institutes apply for review, then set a password through a secure email.'}}</p></div>
 
       </template>
 

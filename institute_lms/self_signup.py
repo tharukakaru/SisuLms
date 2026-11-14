@@ -162,7 +162,7 @@ def verify(token,channel,code):
 def complete(token,password,confirmation):
     require_ready()
 
-    try:rules.password(password,confirmation)
+    try:rules.password(password,confirmation,minimum=8)
     except ValueError as error:frappe.throw(str(error))
     with frappe.cache.lock(key(token),timeout=60):
         state=read(token)

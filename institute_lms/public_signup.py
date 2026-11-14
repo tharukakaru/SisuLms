@@ -18,7 +18,11 @@ def google_identity(email):
 def ready():
     from frappe.utils import get_url
     from urllib.parse import urlsplit
-    if not enabled() or urlsplit(get_url()).scheme!='https':frappe.throw('Public signup is not available yet.')
+    from .signup_environment import local_signup_allowed
+    request = getattr(frappe.local, 'request', None)
+    origin = getattr(request, 'url', None) or get_url()
+    if not enabled() or (urlsplit(get_url()).scheme!='https' and not local_signup_allowed(frappe.conf, origin)):
+        frappe.throw('Public signup is not available yet.')
     if not frappe.conf.get('encryption_key') or not frappe.db.exists('Email Account',{'enable_outgoing':1}):frappe.throw('Email verification is not ready.')
     if not frappe.conf.get('il_sms_adapter') or (frappe.conf.get('il_notify_live') or {}).get('test_mode'):
         frappe.throw('Public SMS verification is not ready.')
@@ -36,6 +40,8 @@ def start(data):
         data=json.loads(data)
     try:fields=rules.details(data)
     except ValueError as error:frappe.throw(str(error))
+    from .signup_environment import student_kind_allowed
+    if not student_kind_allowed(frappe.conf, fields['kind']):frappe.throw('Only student signup is enabled on this site.')
     google=google_identity(fields['email'])
     if google and fields['kind'] != 'Student':
         frappe.throw('Learner Google signup creates a Student account. Use provider signup for a teaching account.')
@@ -56,11 +62,18 @@ def start(data):
     challenges.issue(token,state,'email')
     return {'challenge':token}
 
-def send_phone(token):
+def send_phone(token,phone=None):
     ready()
     with frappe.cache.lock(challenges.key(token),timeout=60):
         state=read(token)
         if not state['email_verified']:frappe.throw('Verify your email first.')
+        if phone is not None:
+            import re
+            if not isinstance(phone,str) or not re.fullmatch(r'\+[1-9][0-9]{7,14}',phone):
+                frappe.throw('Phone number must include the country code.')
+            if state['details']['phone']!=phone:
+                state['details']['phone']=phone
+                state['phone_verified']=False
         challenges.issue(token,state,'phone')
     return {'sent':True}
 
@@ -83,9 +96,11 @@ def complete(token,password,confirmation):
         state=read(token)
         if not rules.account_creation_ready(state,time.time()):frappe.throw('Complete the required verification before saving.')
         data=state['details'];email=data['email']
+        from .signup_environment import student_kind_allowed
+        if not student_kind_allowed(getattr(frappe,'conf',{}), data['kind']):frappe.throw('Only student signup is enabled on this site.')
         google=state.get('google_user')==email and google_identity(email)
         if state.get('google_user') and not google:frappe.throw('Google session changed. Start again.')
-        try:rules.password(password,confirmation)
+        try:rules.password(password,confirmation,minimum=8)
         except ValueError as error:frappe.throw(str(error))
         if not google and frappe.session.user!='Guest':frappe.throw('Sign out before creating another account.')
         from .portal_policy import public

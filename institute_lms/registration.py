@@ -15,10 +15,12 @@ def self_start(data):
     return start(data)
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
-def self_phone(token):
+def self_phone(token,phone=None):
     from . import public_signup, self_signup
-    send_phone = getattr(public_signup if public_signup.enabled() else self_signup, 'send_phone')
-    return send_phone(token)
+    if public_signup.enabled():return public_signup.send_phone(token,phone=phone)
+    if phone is not None and phone!=self_signup.read(token)['details']['phone']:
+        frappe.throw('Change your signup details to use another sandbox phone number.')
+    return self_signup.send_phone(token)
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
 def self_verify(token,channel,code):

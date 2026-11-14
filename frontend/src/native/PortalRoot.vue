@@ -1,4 +1,6 @@
 <script setup>
+import ExistingAccountDialog from './ExistingAccountDialog.vue'
+import {googleSignupEntry} from './existingAccount'
 import ProviderFirstLogin from './ProviderFirstLogin.vue'
 import PageLoading from '../PageLoading.vue'
 import CampusSwitcher from './CampusSwitcher.vue'
@@ -55,7 +57,7 @@ const Signup=defineAsyncComponent(()=>import('./RegistrationFlow.vue'))
 
 const AccountSubscription=defineAsyncComponent(()=>import('./SubscriptionBilling.vue'))
 
-const subscription=ref(null),policy=ref({})
+const subscription=ref(null),policy=ref({}),existingGoogleAccount=ref(false),googleSignupError=ref(null)
 
 const session=ref(null),error=ref(''),busy=ref(true),selected=ref('Student'),signup=ref(new URLSearchParams(location.search).get('signup')==='1'),dark=ref(false)
 
@@ -90,7 +92,7 @@ function goBack(){if(signupPath.value){signupPath.value=false}else if(roleChosen
 
 async function google(signup=false){rememberEntry();try{const r=await request('portal_policy','google_start',{signup:signup===true?1:0});const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
 
-async function connect(){busy.value=true;error.value='';try{session.value=await request('portal_session','current',{},'GET');if(!newGoogleSignup)entryPath.value=resolveTeacherPath(sessionStorage,session.value);if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message}finally{busy.value=false}}
+async function connect(){busy.value=true;error.value='';googleSignupError.value=null;try{session.value=await request('portal_session','current',{},'GET');if(!newGoogleSignup)entryPath.value=resolveTeacherPath(sessionStorage,session.value);if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;const signupEntry=await googleSignupEntry(session.value,newGoogleSignup,request);if(signupEntry){policy.value=signupEntry.policy;existingGoogleAccount.value=signupEntry.accountExists;if(existingGoogleAccount.value)return}if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message;if(newGoogleSignup)googleSignupError.value=e}finally{busy.value=false}}
 
 onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('portal_policy','public',{},'GET').then(p=>policy.value=p).catch(()=>{})}})
 
@@ -98,7 +100,10 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 
 <template>
 
-<PageLoading v-if="busy&&!session&&!passwordConfirmation&&!firebaseTestPage"/><PasswordConfirmation v-else-if="passwordConfirmation"/><section v-else-if="firebaseTestPage" class="panel" style="max-width:760px;margin:40px auto;padding:24px"><h1>SISU browser notification test</h1><p>This test uses your configured sandbox account.</p><a href="/sandbox_firebase_login">Sign in as sandbox Administrator</a><FirebasePush/></section>
+<PageLoading v-if="busy&&(!session||newGoogleSignup||(session.member&&!subscription))&&!passwordConfirmation&&!firebaseTestPage"/><PasswordConfirmation v-else-if="passwordConfirmation"/><section v-else-if="firebaseTestPage" class="panel" style="max-width:760px;margin:40px auto;padding:24px"><h1>SISU browser notification test</h1><p>This test uses your configured sandbox account.</p><a href="/sandbox_firebase_login">Sign in as sandbox Administrator</a><FirebasePush/></section>
+
+  <PageLoading v-else-if="googleSignupError" :error="googleSignupError"/>
+  <ExistingAccountDialog v-else-if="existingGoogleAccount" authenticated/>
 
   <ControlPlane v-else-if="session?.control_plane&&session.role==='Super Admin'"/>
 

@@ -15,7 +15,7 @@ const metrics=ref(null),showTeam=ref(false)
 const data=ref(null),error=ref(''),busy=ref(false),decision=ref(null)
 const admin=computed(()=>props.member.role==='Admin'),pending=computed(()=>data.value?.memberships.filter(l=>l.status==='Pending')||[])
 const money=n=>new Intl.NumberFormat('en-LK',{maximumFractionDigits:0}).format(n)
-async function load(){error.value='';metricsError.value='';try{data.value=await request('teaching','overview');data.value.memberships.sort((a,b)=>(b.status==='Pending')-(a.status==='Pending'))}catch(e){error.value=e.message;return}try{metrics.value=await request('commercial','metrics')}catch(e){metrics.value=null;metricsError.value='Your teaching overview is ready. Reports could not load. Please try again.'}}
+async function load(){error.value='';metricsError.value='';try{data.value=await request('teaching','overview');data.value.memberships.sort((a,b)=>(b.status==='Pending')-(a.status==='Pending'))}catch(e){error.value=e.message;return}if(instituteTeacher.value){metrics.value=null;return}try{metrics.value=await request('commercial','metrics')}catch(e){metrics.value=null;metricsError.value='Your teaching overview is ready. Reports could not load. Please try again.'}}
 async function act(link,status){busy.value=true;error.value='';try{await request('teaching','membership',{name:link.name,status});decision.value=null;await load()}catch(e){error.value=e.message}finally{busy.value=false}}
 onMounted(load)
 </script>

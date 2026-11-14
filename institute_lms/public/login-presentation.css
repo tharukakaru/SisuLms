@@ -37,3 +37,26 @@ body.sisu-owner-login .sisu-login-forms button[type="submit"]{border-radius:12px
 .sisu-owner-login .sisu-login-forms .es-button{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px}
 .sisu-owner-login .page-content{padding-top:0!important;padding-bottom:0!important}
 .sisu-owner-login .page-card{min-height:0!important}.sisu-owner-login .page-card-head{gap:8px!important}.sisu-owner-login .form-login{gap:20px!important}
+
+/* Share the same presentation across password, recovery and email-link routes. */
+.sisu-login .for-login-with-email-link,.sisu-login .for-reset-password{padding:0;margin:0}
+.sisu-login .page-card{min-height:0!important}
+.sisu-login .page-content{padding-top:0!important;padding-bottom:0!important}
+.sisu-login .page-card-head{gap:8px!important}
+.sisu-login .for-reset-password .sign-up-message{display:none}
+.sisu-login .sisu-login-forms .es-button{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px}
+.sisu-login .sisu-login-forms button:disabled{opacity:.55;cursor:not-allowed}
+.sisu-login .sisu-login-forms .password-field input{padding-right:48px!important}
+/* Server-rendered identity also covers the first paint before decoration. */
+.sisu-login .app-logo{display:none}
+.sisu-login-back{min-height:44px;display:inline-flex;align-items:center}
+
+.sisu-mobile-brand{display:none}
+@media(max-width:850px){.sisu-mobile-brand{display:block;width:116px;margin:0 0 24px}.sisu-login .sisu-login-forms{padding-top:16px}}
+
+/* Keep Show/Hide inside the field with a full-size pointer and keyboard target. */
+body.sisu-login .sisu-login-forms .password-field{position:relative;width:100%}
+body.sisu-login .sisu-login-forms .password-field input{padding-right:88px!important}
+body.sisu-login .sisu-login-forms .sisu-password-toggle{position:absolute;inset:5px 5px 5px auto;display:inline-flex;align-items:center;justify-content:center;min-width:70px;height:44px;min-height:44px;margin:0;padding:0 12px;border:0;border-radius:10px;background:#f0e9f8;color:#592b91;font-family:inherit;font-size:14px;font-weight:600;line-height:1;cursor:pointer;z-index:1}
+body.sisu-login .sisu-login-forms .sisu-password-toggle:hover{background:#e5d8f2}
+body.sisu-login .sisu-login-forms .sisu-password-toggle:focus-visible{outline:2px solid #7952b3!important;outline-offset:2px}

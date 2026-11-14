@@ -27,7 +27,7 @@ async function compile(name,output,realGate=false){
   let code=script.content.replace('export default','const component =')
     .replace(/^import (.+?) from ['"](.+?)['"];?$/gm,(line,binding,path)=>{
       if(path==='vue')return line
-      if(path==='./teacherEntryPath')return line.replace(path,path+'.js')
+      if(['./teacherEntryPath','./existingAccount'].includes(path))return line.replace(path,path+'.js')
       if(path==='./ProviderAccessGate.vue'&&realGate)return `import ProviderAccessGate from './.teacher-gate-flow-test.mjs'`
       if(path==='./PaymentRequired.vue')return `import PaymentRequired from './.payment-required-flow-test.mjs'`
       if(path==='./client')return 'const request=(...args)=>globalThis.__teacherFlowRequest(...args)'
@@ -48,12 +48,13 @@ test('teacher sign-in routes preserve access gates, institute actions and signup
   globalThis.sessionStorage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)}
   globalThis.location={hash:'',search:''}
   globalThis.window={history:{length:1}}
-  let session={authenticated:false},available=true,billingError=false,app
+  let session={authenticated:false},available=true,billingError=false,existingGoogle=true,holdGoogle=false,finishGoogle,holdBilling=false,finishBilling,app
   globalThis.__teacherFlowRequest=async(...args)=>{
     calls.push(args)
     if(args[0]==='portal_session')return session
     if(args[0]==='portal_policy')return {self_signup_enabled:true,google_available:true}
-    if(args[0]==='account_billing'){if(billingError)throw Error('Unable to check billing. Try again.');return {account:{workspace_available:available}}}
+    if(args[0]==='registration'&&args[1]==='self_google_details'){if(holdGoogle)return new Promise(resolve=>finishGoogle=resolve);return {account_exists:existingGoogle}}
+    if(args[0]==='account_billing'){if(holdBilling)return new Promise(resolve=>finishBilling=resolve);if(billingError)throw Error('Unable to check billing. Try again.');return {account:{workspace_available:available}}}
     throw Error('Unexpected API call '+args[0])
   }
   try{
@@ -62,6 +63,16 @@ test('teacher sign-in routes preserve access gates, institute actions and signup
     await compile('PortalRoot',output,true)
     const {default:Portal}=await import(output.href)
     const teacher={authenticated:true,user:'teacher@example.invalid',role:'Teacher',member:{role:'Teacher'}}
+    for(const role of ['Teacher','Admin'])for(const paid of [true,false]){
+      values.clear();session={...teacher,role,member:{role}};holdBilling=true
+      const pendingRoot={children:[]};app=renderer.createApp(Portal);app.mount(pendingRoot);await flush()
+      assert.ok(marker(pendingRoot,'PageLoading'),'Wait for billing before choosing a dashboard or payment gate')
+      assert.equal(button(pendingRoot,'Open billing'),undefined,'Do not flash a false payment warning')
+      assert.equal(marker(pendingRoot,'App'),undefined)
+      finishBilling({account:{workspace_available:paid}});holdBilling=false;await flush()
+      assert.ok(paid?marker(pendingRoot,'App'):button(pendingRoot,'Open billing'))
+      app.unmount();app=null
+    }
     for(const path of ['individual','institute'])for(const paid of [true,false]){
       values.clear();calls.length=0;session={authenticated:false};available=paid
       const root={children:[]};app=renderer.createApp(Portal);const vm=app.mount(root);await flush()
@@ -125,6 +136,20 @@ test('teacher sign-in routes preserve access gates, institute actions and signup
     button(root,'Back').props.onClick();await nextTick()
     billingError=false;available=true;button(root,'Check again').props.onClick();await flush()
     assert.ok(marker(root,'App'))
+    app.unmount();app=null
+    globalThis.location.search='?verified_signup=1'
+    for(const existing of [true,false]){
+      holdGoogle=true;
+      existingGoogle=existing
+      session={authenticated:true,user:'learner@example.invalid',role:'Campus',shared_campus:true,onboarding_kind:'Student',member:existing?{role:'Student'}:null}
+      const signupRoot={children:[]};app=renderer.createApp(Portal);app.mount(signupRoot);await flush()
+      assert.ok(marker(signupRoot,'PageLoading'),'Keep the initial loader until the signup check resolves')
+      assert.equal(marker(signupRoot,'App'),undefined)
+      finishGoogle({account_exists:existing});holdGoogle=false;await flush()
+      assert.ok(marker(signupRoot,existing?'ExistingAccountDialog':'VerifiedSignup'))
+      assert.equal(marker(signupRoot,'App'),undefined,'Google signup never flashes an existing dashboard before the decision')
+      app.unmount();app=null
+    }
   }finally{app?.unmount();Object.assign(globalThis,previous);await Promise.all([unlink(output),unlink(gateOutput),unlink(paymentOutput)])}
 })
 

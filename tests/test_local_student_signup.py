@@ -48,3 +48,20 @@ class LocalStudentSignup(unittest.TestCase):
         ready=function('public_signup','ready',{'frappe':f,'enabled':lambda:True})
         with patch.dict('sys.modules',{'frappe.utils':NS(get_url=lambda:'http://public.example')}):
             with self.assertRaisesRegex(ValueError,'not available'):ready()
+
+    def test_provider_phone_uses_exact_local_signup_origin(self):
+        class ReachedIssue(Exception): pass
+        def fail(message): raise ValueError(message)
+        def lock(*args, **kwargs): raise ReachedIssue()
+        config=dict(self.config,encryption_key='test')
+        request=NS(url=config['host_name']+'/api/method/institute_lms.mobile_verification.request_code',host='127.0.0.1:5400')
+        f=NS(conf=config,local=NS(request=request,site='sisuacademylk.com'),session=NS(user='qa@example.com'),cache=NS(lock=lock),throw=fail)
+        issue=function('otp','issue',{'frappe':f,'signed_in':lambda:None,'get_url':lambda:config['host_name'],'re':__import__('re')})
+        with patch.dict('sys.modules',{'institute_lms.registration':NS(limit=lambda key:None)}):
+            with self.assertRaises(ReachedIssue):issue('+94701234567','SMS',lambda *a:None)
+            for url in ('http://127.0.0.1:5401/api','http://public.example/api'):
+                request.url=url
+                with self.assertRaisesRegex(ValueError,'Secure OTP'):issue('+94701234567','SMS',lambda *a:None)
+            request.url=config['host_name']
+            config['il_control_plane']=1
+            with self.assertRaisesRegex(ValueError,'Secure OTP'):issue('+94701234567','SMS',lambda *a:None)

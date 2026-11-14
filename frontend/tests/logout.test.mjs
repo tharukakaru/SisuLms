@@ -23,3 +23,34 @@ test('already signed-out session needs no POST',async()=>{
   await endSession(async(url,options)=>{calls.push(options);return reply({authenticated:false})})
   assert.ok(calls.every(call=>!call.method))
 })
+
+
+test('sign-out navigation waits for session verification and opens SISU login',async()=>{
+  const {readFileSync}=await import('node:fs')
+  const {runInNewContext}=await import('node:vm')
+  const source=readFileSync(new URL('../src/logout.js',import.meta.url),'utf8')
+  let click
+  const redirects=[],broadcasts=[]
+  const ctx={window:{addEventListener(){},location:{replace:url=>redirects.push(url)}},document:{addEventListener:(_,fn)=>click=fn},BroadcastChannel:class {postMessage(message){broadcasts.push(message)}}}
+  runInNewContext(source.replace(/export /g,'')+'; endSession=()=>{requests++;return new Promise(r=>complete=r)}; installSignOut();',Object.assign(ctx,{requests:0,complete:null}))
+  const link={setAttribute(){}}
+  const event={target:{closest:()=>link},preventDefault(){}}
+  const pending=click(event);await click(event)
+  assert.equal(ctx.requests,1);assert.deepEqual(redirects,[])
+  ctx.complete();await pending
+  assert.deepEqual(redirects,['/login?redirect-to=/campus'])
+  assert.deepEqual(broadcasts,['signed-out'])
+})
+
+test('a sign-out from another tab returns to SISU login',async()=>{
+  const {readFileSync}=await import('node:fs')
+  const {runInNewContext}=await import('node:vm')
+  const source=readFileSync(new URL('../src/logout.js',import.meta.url),'utf8')
+  const redirects=[];let channel
+  runInNewContext(source.replace(/export /g,'')+'; installSignOut();',{
+    window:{addEventListener(){},location:{replace:url=>redirects.push(url)}},document:{addEventListener(){}},
+    BroadcastChannel:class {constructor(){channel=this}}
+  })
+  channel.onmessage({data:'signed-out'})
+  assert.deepEqual(redirects,['/login?redirect-to=/campus'])
+})

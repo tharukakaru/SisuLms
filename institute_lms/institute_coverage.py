@@ -3,9 +3,23 @@ import frappe
 
 # Deliberately no generic REST, standalone course creation or independent business APIs.
 SCOPED_METHODS=frozenset('bootstrap classrooms classroom_detail schedule notifications dashboard_summary news save_session add_material post_announcement post_feedback enrollments'.split())
+SCOPED_SUPPORT_METHODS=frozenset({
+    'institute_lms.full_api.capabilities',
+    'institute_lms.teaching.overview',
+    'institute_lms.classroom_handover.listing',
+    'institute_lms.classroom_handover.institute_plan',
+    'institute_lms.notification_service.inbox',
+    'institute_lms.release.unread',
+})
 
 def enabled():
-    return getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost' and frappe.conf.get('il_institute_teacher_coverage')==1
+    if getattr(frappe,'conf',{}).get('il_institute_teacher_coverage') != 1:
+        return False
+    if getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost':
+        return True
+    from .signup_environment import local_signup_allowed
+    request=getattr(getattr(frappe,'local',None),'request',None)
+    return local_signup_allowed(frappe.conf, getattr(request,'url',None))
 
 def for_account(account):
     """Resolve session coverage without moving the personal billing account."""
@@ -50,4 +64,5 @@ def room_allowed(room,member):
 
 def request_allowed(method,institute,user):
     prefix='institute_lms.api.'
-    return bool(method.startswith(prefix) and method[len(prefix):] in SCOPED_METHODS and sponsor(institute,user))
+    scoped=(method.startswith(prefix) and method[len(prefix):] in SCOPED_METHODS) or method in SCOPED_SUPPORT_METHODS
+    return bool(scoped and sponsor(institute,user))

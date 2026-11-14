@@ -15,6 +15,14 @@ def google_identity(email):
             and bool(frappe.db.get_value('User',email,'enabled')))
 
 
+def registered_google_account(user):
+    """OAuth creates a User before onboarding; only an established SISU account counts."""
+    return bool(
+        frappe.db.exists('IL Public Profile', {'user': user})
+        or frappe.db.exists('IL Member', {'user': user})
+        or frappe.db.exists('IL Registration Request', {'email': user, 'status': 'Approved'})
+    )
+
 def ready():
     from frappe.utils import get_url
     from urllib.parse import urlsplit
@@ -49,6 +57,8 @@ def start(data):
     from .portal_policy import public
     policy=public()
     if not policy['privacy_policy_url'] or data.get('privacy_policy_version')!=policy['privacy_policy_version']:frappe.throw('Review the current privacy policy.')
+    if fields['kind']=='Student' and ((not google and frappe.db.exists('User',fields['email'])) or (google and registered_google_account(fields['email']))):
+        return {'account_exists': True}
     existing=frappe.db.get_value('IL Public Profile',{'user':fields['email']},['name','kind'],as_dict=True) if google else None
     if existing and existing.kind!='Student':frappe.throw('Your provider profile already exists. Update it through your account settings.')
     username_owner=frappe.db.get_value('IL Public Profile',{'username':fields['username']},'user')
@@ -110,6 +120,7 @@ def complete(token,password,confirmation):
         if any(data[k]!=policy[k] for k in ('privacy_policy_url','privacy_policy_version')):frappe.throw('Privacy policy changed. Start again.')
         with frappe.cache.lock('il_signup_account:'+hashlib.sha256(email.encode()).hexdigest(),timeout=60):
             if frappe.db.exists('User',email) and not google:frappe.throw('Account already exists. Please sign in.')
+            if google and registered_google_account(email):frappe.throw('Account already exists. Please sign in.')
             if google:
                 user=frappe.get_doc('User',email);user.first_name=data['first_name'];user.last_name=data['last_name'];user.update(birth_fields);user.save(ignore_permissions=True)
                 from frappe.utils.password import update_password

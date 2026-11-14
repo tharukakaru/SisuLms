@@ -191,12 +191,12 @@ async function refresh(){
     }
     const [,bootstrap]=await Promise.all([refreshCapabilities(),call('bootstrap')]);
     boot.value=bootstrap;role.value=boot.value.member.role;if(page.value==='subscription'&&role.value==='Student')navigate('payments');if(teacherWorkspacePage(page.value,instituteTeacher.value)!==page.value)navigate('dashboard');if(page.value==='study'&&role.value!=='Student')navigate('dashboard');persona.value=boot.value.member.name;if(capabilities.value?.locked_reason){rooms.value=[];sessions.value=[];invoices.value=[];return}if(isDemo){insightsData.value=await call('insights');marketplaceData.value=await call('marketplace')}
-    const results=await Promise.all([call('dashboard_summary'),call('classrooms'),call('schedule',{starts_on:calendar.value[0].key,ends_on:calendar.value.at(-1).key}),call('news'),call('invoices'),call('inbox',{},'notification_service')])
+    const results=await Promise.all([call('dashboard_summary'),call('classrooms'),call('schedule',{starts_on:calendar.value[0].key,ends_on:calendar.value.at(-1).key}),call('news'),instituteTeacher.value?Promise.resolve([]):call('invoices'),call('inbox',{},'notification_service')])
     ;[stats.value,rooms.value,sessions.value,news.value,invoices.value,notices.value]=results
     await loadLearningProviders();unreadCount.value=(await call('unread',{profile:learningProvider.value},'release')).count
     if(admin.value){members.value=await call('members');billingData.value=null}
     else if(manager.value) members.value=isDemo?await call('members'):[boot.value.member]
-    if(manager.value){teacherOptions.value=await call('teachers');publishingOptions.value=await call('publishing_options',{},'catalog')}
+    if(manager.value&&!instituteTeacher.value){teacherOptions.value=await call('teachers');publishingOptions.value=await call('publishing_options',{},'catalog')}
     listPages.value={classrooms:0,people:0,payments:0,news:0,notifications:0};noMore.value={}
     if(selected.value) selected.value=await call('classroom_detail',{name:selected.value.room.name})
   }catch(e){error.value=e.message}finally{loading.value=false}

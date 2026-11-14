@@ -144,6 +144,8 @@ def self_google_details():
     allowed=public_signup.google_identity(frappe.session.user) if public_signup.enabled() else enabled() and google_identity(frappe.session.user)
     if not allowed:
         frappe.throw('Authenticate with Google before completing this form.')
+    if public_signup.enabled() and public_signup.registered_google_account(frappe.session.user):
+        return {'account_exists': True}
     user=frappe.get_doc('User',frappe.session.user)
     details={'first_name':user.first_name or '', 'last_name':user.last_name or '', 'email':user.email}
     profile=frappe.db.get_value('IL Public Profile',{'user':frappe.session.user},['username','country','kind','bio','qualifications'],as_dict=True)

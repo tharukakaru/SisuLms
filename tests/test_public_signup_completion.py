@@ -24,7 +24,8 @@ class PublicAccountCompletion(TestCase):
         def fail(message):raise ValueError(message)
         self.f=NS(session=NS(user='Guest'),cache=NS(lock=lambda *a,**k:nullcontext()),db=NS(exists=Mock(return_value=False),get_value=Mock(return_value=None),commit=Mock()),get_doc=doc,throw=fail)
         self.challenges=NS(key=lambda t:t,store=Mock(),google_identity=Mock(return_value=False))
-        self.complete=function('public_signup','complete',dict(frappe=self.f,ready=lambda:None,rules=signup_rules,read=lambda t:self.state,time=time,hashlib=hashlib,json=json,challenges=self.challenges,google_identity=self.challenges.google_identity))
+        self.registered=Mock(return_value=False)
+        self.complete=function('public_signup','complete',dict(frappe=self.f,ready=lambda:None,rules=signup_rules,read=lambda t:self.state,time=time,hashlib=hashlib,json=json,challenges=self.challenges,google_identity=self.challenges.google_identity,registered_google_account=self.registered))
         self.modules=patch.dict('sys.modules',{'institute_lms.account_confirmations':NS(queue=Mock()),'institute_lms.portal_policy':NS(public=lambda:{'privacy_policy_url':'/privacy','privacy_policy_version':'v1'}),'institute_lms.profiles':NS(write=Mock()),'frappe.utils':NS(now_datetime=lambda:'now')})
         self.modules.start();self.addCleanup(self.modules.stop)
     def test_all_account_types_create_identity_without_workspace_privileges(self):
@@ -94,3 +95,24 @@ class PublicAccountCompletion(TestCase):
         with self.assertRaises(ValueError):
             self.complete('token','a-password-123','a-password-123')
         self.assertEqual(self.docs, [])
+
+    def test_registered_google_account_cannot_have_password_overwritten(self):
+        self.state['google_user']=self.data['email'];self.f.session.user=self.data['email']
+        self.challenges.google_identity.return_value=True;self.registered.return_value=True
+        with self.assertRaisesRegex(ValueError,'Account already exists'):
+            self.complete('token','a-password-123','a-password-123')
+        self.assertEqual(self.docs,[])
+        self.f.db.commit.assert_not_called()
+
+    def test_teacher_paths_are_saved_without_granting_institute_permissions(self):
+        from institute_lms.onboarding_navigation import teaching_path
+        for path in ('individual','institute'):
+            self.docs.clear();self.state.pop('consumed',None)
+            self.data.update(kind='Individual Teacher',teaching_path=path)
+            self.complete('token','a-password-123','a-password-123')
+            profile=next(d for d in self.docs if d['doctype']=='IL Public Profile')
+            registration=next(d for d in self.docs if d['doctype']=='IL Registration Request')
+            self.assertEqual(profile['kind'],'Teacher');self.assertEqual(profile['status'],'Pending')
+            self.assertEqual(teaching_path([registration],self.data['email']),path)
+            self.assertFalse(any(d['doctype']=='IL Member' for d in self.docs))
+            self.assertNotIn('roles',self.docs[0])

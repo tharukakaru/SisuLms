@@ -28,3 +28,11 @@ class NavigationTests(unittest.TestCase):
     def test_legacy_profiles_are_not_reset(self):
         self.assertFalse(profile_pending([self.row()]))
         self.assertFalse(profile_pending([{'details':'bad'}]))
+
+    def test_reviewed_teacher_application_preserves_teaching_path(self):
+        from institute_lms.registration_contract import registration_details
+        for path in ('individual','institute'):
+            details=registration_details(dict(kind='Individual Teacher',email='teacher@example.invalid',full_name='Test Teacher',teaching_path=path),None)
+            self.assertEqual(teaching_path([{'details':json.dumps(details)}],details['email']),path)
+        with self.assertRaises(ValueError):
+            registration_details(dict(kind='Individual Teacher',email='teacher@example.invalid',full_name='Test Teacher',teaching_path='admin'),None)

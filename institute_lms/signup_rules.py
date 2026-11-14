@@ -44,9 +44,9 @@ def details(data):
     return result
 
 
-def password(value,confirmation):
-    if not isinstance(value,str) or len(value)<12 or len(value)>128:
-        raise ValueError('Use a password between 12 and 128 characters.')
+def password(value,confirmation,minimum=12):
+    if not isinstance(value,str) or len(value)<minimum or len(value)>128:
+        raise ValueError(f'Use a password between {minimum} and 128 characters.')
     if value!=confirmation:raise ValueError('Passwords do not match.')
 
 

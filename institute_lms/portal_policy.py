@@ -7,7 +7,7 @@ from .domain import safe_url
 def public():
     from .public_signup import enabled as public_signup_enabled
     d=frappe.get_single('IL Portal Settings')
-    return {'privacy_policy_url':d.privacy_policy_url or '', 'privacy_policy_version':d.privacy_policy_version or '',
+    return {'student_signup_only':bool(getattr(frappe,'conf',{}).get('il_student_signup_only')), 'privacy_policy_url':d.privacy_policy_url or '', 'privacy_policy_version':d.privacy_policy_version or '',
         'provider_applications_enabled':bool(d.provider_applications_enabled and d.privacy_policy_url and d.privacy_policy_version),
         'google_available':bool(frappe.db.exists('Social Login Key',{'name':'google','enable_social_login':1})),
         'self_signup_enabled':public_signup_enabled(getattr(frappe,'conf',{})) or (getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost' and frappe.conf.get('il_self_signup_enabled')==1)}

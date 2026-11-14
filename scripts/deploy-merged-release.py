@@ -1,0 +1,104 @@
+"""Deploy desktop web presentation; retain old assets for open tabs."""
+import hashlib
+import json
+import os
+import shutil
+import subprocess
+import tarfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+BENCH = Path('/home/sisu/frappe-bench')
+APP = BENCH / 'apps/institute_lms'
+ALLOWED = {'institute_lms/registration.py', 'institute_lms/portal_entry.py', 'institute_lms/www/campus.py', 'frontend/src/commerce/ClassProfileHeader.vue', 'frontend/src/native/ProviderFirstLogin.vue', 'frontend/src/native/existingAccount.js', 'frontend/src/logout.js', 'institute_lms/public/login-presentation.css', 'institute_lms/self_signup.py', 'frontend/src/native/ProviderHome.vue', 'institute_lms/public_signup.py', 'institute_lms/registration_contract.py', 'institute_lms/portal_policy.py', 'institute_lms/signup_rules.py', 'institute_lms/www/mobile_payment_return.html', 'frontend/src/commerce/ClassTeacherIdentity.vue', 'frontend/src/native/ProviderProfileSetup.vue', 'institute_lms/public/login-presentation.js', 'frontend/src/native/ExistingAccountDialog.vue', 'institute_lms/www/sisu_password.html', 'institute_lms/programme_courses.py', 'institute_lms/www/sandbox_firebase_login.html', 'frontend/src/shared/OtpCodeInput.vue', 'frontend/src/native/passwordStrength.js', 'institute_lms/institute_coverage.py', 'frontend/src/native/ageToday.js', 'institute_lms/signup_environment.py', 'frontend/src/native/ModulePhotoEditor.vue', 'institute_lms/onboarding_navigation.py', 'frontend/src/native/PortalRoot.vue', 'frontend/src/App.vue', 'institute_lms/templates/web.html', 'frontend/src/native/VerifiedSignup.vue', 'institute_lms/public/sisu-icon.png', 'frontend/index.html', 'frontend/src/native/RegistrationFlow.vue', 'institute_lms/hooks.py', 'frontend/src/PageLoading.vue', 'institute_lms/otp.py', 'frontend/src/native/ModuleProgress.vue'}
+
+
+def digest(data):
+    return hashlib.sha256(data.replace(b'\r\n', b'\n')).hexdigest()
+
+
+def main():
+    if os.name != 'posix' or Path.home() != Path('/home/sisu'):
+        raise RuntimeError('Run as sisu')
+    os.umask(0o022)
+    if not (APP / 'institute_lms/provision_verification.py').is_file():
+        raise RuntimeError('Existing hosting verification module is missing; preserve and restore it before deployment.')
+    with tarfile.open('/tmp/sisu-merged-release.tgz') as archive:
+        manifest = json.load(archive.extractfile('manifest.json'))
+        if set(manifest) != ALLOWED or len(archive.getmembers()) != len(ALLOWED)+1:
+            raise RuntimeError('Unexpected UI payload')
+        payload = {}
+        for name in ALLOWED:
+            entry = archive.getmember(name)
+            if not entry.isfile():
+                raise RuntimeError('Unexpected archive member')
+            payload[name] = archive.extractfile(entry).read()
+            path = APP / name
+            if path.is_symlink() or digest(payload[name]) != manifest[name]['after']:
+                raise RuntimeError('UI payload mismatch')
+            actual = digest(path.read_bytes()) if path.exists() else None
+            if actual not in (manifest[name]['before'], manifest[name]['after'], *manifest[name].get('accepted_before',[])):
+                raise RuntimeError('Source conflict: ' + name)
+    root = Path.home() / '.sisu-secrets'
+    if root.is_symlink() or not root.is_dir() or root.stat().st_mode & 0o077:
+        raise RuntimeError('Private backup directory required')
+    backup = root / ('merged-release-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'))
+    backup.mkdir(mode=0o700)
+    paths = [*ALLOWED, 'institute_lms/www/campus.html', 'institute_lms/public/portal']
+    absent = []
+    for name in paths:
+        src, dst = APP / name, backup / name
+        if not src.exists():
+            absent.append(name)
+            continue
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        if src.is_dir():
+            shutil.copytree(src, dst)
+        else:
+            shutil.copy2(src, dst)
+    try:
+        for name, data in payload.items():
+            (APP / name).parent.mkdir(parents=True, exist_ok=True)
+            (APP / name).write_bytes(data)
+            (APP / name).chmod(0o644)
+        for site in ('sisuacademylk.com', 'teen.sisuacademylk.com', 'platform.sisuacademylk.com', 'staging.sisuacademylk.com'):
+            subprocess.run(['/usr/local/bin/bench', '--site', site, 'clear-cache'], cwd=BENCH, check=True)
+        env = os.environ.copy()
+        env['PATH'] = '/opt/node-v24.15.0-linux-x64/bin:' + env.get('PATH', '')
+        with (backup / 'build.log').open('w') as log:
+            subprocess.run(['npm', 'run', 'build'], cwd=APP / 'frontend', env=env, stdout=log, stderr=log, check=True)
+        portal = APP / 'institute_lms/public/portal'
+        old = backup / 'institute_lms/public/portal'
+        for file in old.rglob('*'):
+            target = portal / file.relative_to(old)
+            if file.is_file() and not target.exists():
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(file, target)
+        for path in [portal, *portal.rglob('*')]:
+            path.chmod(0o755 if path.is_dir() else 0o644)
+        (APP / 'institute_lms/www/campus.html').chmod(0o644)
+    except Exception:
+        for name in paths:
+            src, dst = backup / name, APP / name
+            if name in absent:
+                if dst.is_file():
+                    dst.unlink()
+            elif src.is_dir():
+                shutil.copytree(src, dst, dirs_exist_ok=True)
+            else:
+                shutil.copy2(src, dst)
+        print('Previous sources/UI restored. Private build log:', backup / 'build.log')
+        raise
+    for site in ('sisuacademylk.com', 'teen.sisuacademylk.com', 'platform.sisuacademylk.com', 'staging.sisuacademylk.com'):
+        subprocess.run(['/usr/local/bin/bench', '--site', site, 'clear-cache'], cwd=BENCH, check=True)
+        subprocess.run(['/usr/local/bin/bench', '--site', site, 'clear-website-cache'], cwd=BENCH, check=True)
+    print('DEPLOYED: Combined Dev and pending onboarding/profile/classroom fixes. Restart web/workers and test login, signup, profile setup, photos and Progress.')
+    print('No schema or bank-account data changes by deployment. Existing enrollments/payments unchanged. Gateway configuration unchanged. No demo records changed by this installer.')
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as exc:
+        print('STOPPED [' + type(exc).__name__ + ']. ' + (str(exc) if isinstance(exc, RuntimeError) else 'Check private build log; browser result not confirmed.'))
+        raise SystemExit(1) from None

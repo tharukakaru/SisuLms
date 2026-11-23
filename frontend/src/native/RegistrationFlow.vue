@@ -27,10 +27,10 @@ onMounted(async()=>{await run(async()=>policy.value=await request('portal_policy
   <h2>Tell us your story.</h2><p class="teacher-signup-intro">Apply for your teacher account.</p>
   <label>Your full name<input v-model="form.full_name" required maxlength="120" placeholder="Enter your name" autocomplete="name"></label>
   <label>Email<input v-model="form.email" type="email" required placeholder="teacher@example.com" autocomplete="email"></label>
-  <label>Preferred username<input v-model="form.username" pattern="[a-z][a-z0-9_]{2,29}" maxlength="30" required placeholder="Choose a username" autocomplete="username"></label>
+  <label>Preferred username<input v-model="form.username" pattern="[a-z][a-z0-9_]{2,29}" maxlength="30" required placeholder="Choose a username" autocomplete="username"><small class="teacher-help">Use 3–30 lowercase letters, numbers or underscores. Start with a letter; no spaces.</small></label>
   <label>Phone number<PhoneInput v-model="form.phone" required /></label>
   <label>Subject / expertise<input v-model="form.subject" required maxlength="120" placeholder="e.g. Combined Mathematics"></label>
-  <label>Professional qualifications<input v-model="form.qualifications" maxlength="240" placeholder="Your qualifications"></label>
+  <label>Professional qualifications (optional)<input v-model="form.qualifications" maxlength="240" placeholder="Your qualifications"></label>
   <div class="teacher-field-group" role="group" aria-labelledby="application-location-label"><span id="application-location-label">Country / time zone</span><div class="teacher-paired-fields">
     <label><span class="teacher-sr-only">Country</span><CountrySelect v-model="form.country" required /></label>
     <label><span class="teacher-sr-only">Time zone</span><input v-model="form.timezone" required placeholder="e.g. Asia/Colombo"></label>
@@ -54,7 +54,7 @@ onMounted(async()=>{await run(async()=>policy.value=await request('portal_policy
   <label>Phone number<PhoneInput v-model="form.phone" required /></label>
   <label>Recovery contact name<input v-model="form.backup_name" required placeholder="Enter contact name"></label>
   <label>Recovery contact email<input v-model="form.backup_email" type="email" required placeholder="recovery@example.com"></label>
-  <label>Preferred username<input v-model="form.username" pattern="[a-z][a-z0-9_]{2,29}" maxlength="30" required placeholder="Choose a username" autocomplete="username"></label>
+  <label>Preferred username<input v-model="form.username" pattern="[a-z][a-z0-9_]{2,29}" maxlength="30" required placeholder="Choose a username" autocomplete="username"><small class="teacher-help">Use 3–30 lowercase letters, numbers or underscores. Start with a letter; no spaces.</small></label>
   <div class="teacher-field-group" role="group" aria-labelledby="institute-application-location-label"><span id="institute-application-location-label">Country / time zone</span><div class="teacher-paired-fields">
     <label><span class="teacher-sr-only">Country</span><CountrySelect v-model="form.country" required /></label>
     <label><span class="teacher-sr-only">Time zone</span><input v-model="form.timezone" required placeholder="e.g. Asia/Colombo"></label>

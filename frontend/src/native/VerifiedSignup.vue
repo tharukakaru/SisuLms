@@ -147,10 +147,10 @@ onMounted(()=>{if(!policy.value.privacy_policy_url&&!props.googleSession)reloadP
     <label><span class="teacher-sr-only">Last name</span><input v-model="form.last_name" aria-label="Last name" required maxlength="60" placeholder="Last name" autocomplete="family-name"></label>
   </div></div>
   <label>Email<input v-model="form.email" aria-label="Email" type="email" required maxlength="254" placeholder="teacher@example.com" autocomplete="email"></label>
-  <label>Preferred username<input v-model="form.username" aria-label="Username" required maxlength="60" pattern="[a-zA-Z][a-zA-Z0-9_]{2,29}" title="Use 3–30 letters, digits or underscores; start with a letter. Usernames are saved in lowercase." placeholder="Choose a username" autocomplete="username"></label>
+  <label>Preferred username<input v-model="form.username" aria-label="Username" required maxlength="60" pattern="[a-zA-Z][a-zA-Z0-9_]{2,29}" title="Use 3–30 letters, digits or underscores; start with a letter. Usernames are saved in lowercase." placeholder="Choose a username" autocomplete="username"><small class="teacher-help">Use 3–30 letters, numbers or underscores. Start with a letter; no spaces.</small></label>
   <label>Phone number<PhoneInput v-model="form.phone" aria-label="Phone" required /></label>
   <label>Subject / expertise<input v-model="form.subject" aria-label="Subject / expertise" required maxlength="254" placeholder="e.g. Combined Mathematics"></label>
-  <label>Professional qualifications<input v-model="form.qualifications" aria-label="Qualifications" maxlength="500" placeholder="Your qualifications"></label>
+  <label>Professional qualifications (optional)<input v-model="form.qualifications" aria-label="Qualifications" maxlength="500" placeholder="Your qualifications"></label>
   <div class="teacher-field-group" role="group" aria-labelledby="teacher-location-label"><span id="teacher-location-label">Country / time zone</span><div class="teacher-paired-fields">
     <label><span class="teacher-sr-only">Country</span><CountrySelect v-model="form.country" aria-label="Country" required /></label>
     <label><span class="teacher-sr-only">Timezone</span><input v-model="form.timezone" aria-label="Timezone" required maxlength="254" placeholder="e.g. Asia/Colombo"></label>
@@ -158,7 +158,7 @@ onMounted(()=>{if(!policy.value.privacy_policy_url&&!props.googleSession)reloadP
 
 </template><template v-else-if="instituteSignup">
   <fieldset class="institute-registration-section"><legend>Institute details</legend><p>Choose the name and username for your institute.</p><label>Institute name<input v-model="form.organization" aria-label="Institute name" required maxlength="254" placeholder="Your institute" autocomplete="organization"></label>
-  <label>Preferred username<input v-model="form.username" aria-label="Username" required maxlength="60" pattern="[a-zA-Z][a-zA-Z0-9_]{2,29}" title="Use 3–30 letters, digits or underscores; start with a letter. Usernames are saved in lowercase." placeholder="Choose a username" autocomplete="username"></label>
+  <label>Preferred username<input v-model="form.username" aria-label="Username" required maxlength="60" pattern="[a-zA-Z][a-zA-Z0-9_]{2,29}" title="Use 3–30 letters, digits or underscores; start with a letter. Usernames are saved in lowercase." placeholder="Choose a username" autocomplete="username"><small class="teacher-help">Use 3–30 letters, numbers or underscores. Start with a letter; no spaces.</small></label>
   <div class="teacher-field-group" role="group" aria-labelledby="institute-location-label"><span id="institute-location-label">Country / time zone</span><div class="teacher-paired-fields">
     <label><span class="teacher-sr-only">Country</span><CountrySelect v-model="form.country" aria-label="Country" required /></label>
     <label><span class="teacher-sr-only">Timezone</span><input v-model="form.timezone" aria-label="Timezone" required maxlength="254" placeholder="e.g. Asia/Colombo"></label>

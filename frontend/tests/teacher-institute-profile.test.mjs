@@ -55,7 +55,7 @@ test('institute profiles preserve search, reject stale responses and keep pendin
   assert.equal(state.rows.length,1);assert.equal(state.rows[0].tagline,'');assert.equal(state.rows[0].country,'Sri Lanka')
   const pending=state.view(schools[1]);await flush()
   assert.ok(nodes(root).some(n=>n.text==='Pending approval'))
-  assert.equal(button(root,'Register with institute'),undefined)
+  assert.equal(button(root,'Request to join institute'),undefined)
   assert.equal(button(root,'Open workspace'),undefined)
   await state.back()
   resolveProfile({profile:schools[1],classes:[],teachers:[],class_count:0,teacher_count:0});await pending
@@ -63,12 +63,12 @@ test('institute profiles preserve search, reject stale responses and keep pendin
   assert.equal(state.query,'beta')
   fail=true;await state.view(schools[0]);await flush()
   assert.ok(nodes(root).some(n=>n.text==='Profile unavailable'))
-  assert.equal(button(root,'Register with institute').props.disabled,true,'Cannot request a profile that failed to load')
+  assert.equal(button(root,'Request to join institute').props.disabled,true,'Cannot request a profile that failed to load')
   fail=false;const retry=state.readProfile();await flush()
   resolveProfile({profile:{...schools[0],bio:'Public introduction'},classes:[{name:'c',title:'Public class',fee_mode:'Free'}],teachers:[],class_count:1,teacher_count:0,has_more:false});await retry;await flush()
   assert.ok(nodes(root).some(n=>n.text==='Public introduction'))
   assert.ok(nodes(root).some(n=>n.text==='Public class'))
-  assert.equal(button(root,'Register with institute').props.disabled,false)
+  assert.equal(button(root,'Request to join institute').props.disabled,false)
   assert.equal(calls.filter(c=>['select','request_institutes'].includes(c.method)).length,0,'Viewing profiles must not join or switch workspace')
  }finally{app?.unmount();Object.assign(globalThis,previous)}
 })

@@ -18,6 +18,23 @@
       return pending;
     };
   }
+  function protectResetLinkFromAutofill() {
+    if (location.pathname.replace(/\/$/, '') !== '/update-password' ||
+        !new URLSearchParams(location.search).get('key')) return;
+    const oldPassword = document.getElementById('old_password');
+    if (!oldPassword?.form) return;
+    // A reset link authenticates this flow; an autofilled hidden old password
+    // must not be treated as user input. Server-side reuse checks still apply.
+    oldPassword.disabled = true;
+    oldPassword.autocomplete = 'off';
+    const clearUnusedPassword = () => { oldPassword.value = ''; };
+    clearUnusedPassword();
+    for (const event of ['input', 'change', 'keyup', 'paste', 'submit']) {
+      oldPassword.form.addEventListener(event, clearUnusedPassword, true);
+    }
+    window.addEventListener('pageshow', clearUnusedPassword);
+  }
+
   function decorate() {
     if (!['', '/login', '/update-password'].includes(location.pathname.replace(/\/$/, ''))) return;
     const login = document.querySelector('.for-login, .for-reset-password');
@@ -191,6 +208,7 @@
     }
   }
   // This script is included after the native forms. Layout is already rendered by Jinja.
+  protectResetLinkFromAutofill();
   decorate();
   window.frappe?.ready(installPasswordRecoveryTransport);
 })();

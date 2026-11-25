@@ -47,6 +47,17 @@
       if (options && typeof options === 'object' && methods.has(options.method) &&
           (!options.url || options.url === '/')) {
         options = { ...options, url: '/api/method/' + options.method };
+        const onSuccess = options.statusCode?.[200];
+        if (options.method === 'frappe.core.doctype.user.user.update_password' &&
+            typeof onSuccess === 'function') {
+          options.statusCode = { ...options.statusCode, 200(response, ...args) {
+            // SISU accounts use campus; retain login/2FA and error destinations.
+            if (response?.message === '/desk' && !response.exc && !response.exc_type) {
+              response = { ...response, message: '/campus' };
+            }
+            return onSuccess.call(this, response, ...args);
+          } };
+        }
       }
       return nativeCall.call(this, options, ...rest);
     };

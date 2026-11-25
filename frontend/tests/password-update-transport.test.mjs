@@ -15,11 +15,30 @@ test('reset submission and strength requests use API with original callbacks and
   const options={method:'frappe.core.doctype.user.user.'+method,args:{key:'synthetic'},statusCode:{200(){}}}
   assert.equal(window.frappe.call(options),result)
   const sent=calls.at(-1)[0];assert.equal(sent.url,'/api/method/'+options.method)
-  assert.equal(sent.args,options.args);assert.equal(sent.statusCode,options.statusCode);assert.equal(options.url,undefined)
+  assert.equal(sent.args,options.args);assert.equal(typeof sent.statusCode[200],'function');assert.equal(options.url,undefined)
  }
 })
 test('unrelated calls, explicit URLs and other pages remain unchanged',()=>{
  for(const [path,options] of [['/login',{method:'frappe.core.doctype.user.user.update_password'}],['/update-password',{method:'other'}],['/update-password',{method:'frappe.core.doctype.user.user.update_password',url:'/custom'}]]){
   const {window,calls}=setup(path);window.frappe.call(options);assert.equal(calls[0][0],options)
+ }
+})
+
+
+test('successful desk redirect becomes campus without changing auth redirects or errors',()=>{
+ const {window,calls}=setup(); const received=[]; const context={};
+ const handler=function(...args){received.push([this,...args]);return 'handled'};
+ const denied=()=>{};
+ const options={method:'frappe.core.doctype.user.user.update_password',statusCode:{200:handler,401:denied}};
+ window.frappe.call(options);
+ const statuses=calls[0][0].statusCode;
+ assert.equal(statuses[401],denied);assert.equal(options.statusCode[200],handler);
+ for(const response of [{message:'/desk'},{message:'/login'},{message:'/campus'},{message:'/custom'},{message:'/desk',exc:'error'},{message:'/desk',exc_type:'PermissionError'},{}]){
+  assert.equal(statuses[200].call(context,response,'ok'),'handled');
+  const [receiver,actual,extra]=received.at(-1);
+  assert.equal(receiver,context);assert.equal(extra,'ok');
+  if(response.message==='/desk'&&!response.exc&&!response.exc_type){
+   assert.equal(actual.message,'/campus');assert.equal(response.message,'/desk');
+  }else assert.equal(actual,response);
  }
 })

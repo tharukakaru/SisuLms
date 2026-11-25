@@ -11,6 +11,7 @@ READERS={'lms.lms.utils.get_lesson','lms.lms.utils.get_course_details','lms.lms.
          'lms.lms.utils.get_chapters','lms.lms.utils.get_lessons','lms.lms.utils.get_course_progress'}
 SAFE={'frappe.auth.get_logged_user','frappe.auth.get_roles','frappe.desk.form.load.getdoctype',
       'login','logout','upload_file','frappe.core.doctype.user.user.reset_password',
+      'frappe.core.doctype.user.user.test_password_strength',
       'frappe.core.doctype.user.user.update_password','frappe.integrations.oauth2_logins.login_via_google'}
 
 def require_course(course):

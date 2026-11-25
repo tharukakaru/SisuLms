@@ -1,3 +1,5 @@
+import ast
+from pathlib import Path
 from types import SimpleNamespace as NS
 from urllib.parse import unquote
 from unittest import TestCase
@@ -18,7 +20,7 @@ class SharedNativeGuard(TestCase):
         p=patch.dict('sys.modules',{'institute_lms.campus_context':NS(enabled=lambda:self.shared)})
         p.start();self.addCleanup(p.stop)
         self.guard=function('native_access','guard',{'frappe':self.f,'unquote':unquote,
-            'SAFE':{'login','logout'},'READERS':{'lms.read'},'require_course':self.course})
+            'SAFE':ast.literal_eval(next(n.value for n in ast.parse((Path(__file__).parents[1]/'institute_lms/native_access.py').read_text()).body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SAFE' for t in n.targets))),'READERS':{'lms.read'},'require_course':self.course})
 
     def test_empty_shared_site_still_denies_generic_resource_api(self):
         with self.assertRaises(PermissionError):self.guard()
@@ -49,3 +51,14 @@ class SharedNativeGuard(TestCase):
         self.shared=False
         self.f.get_roles.return_value=['System Manager']
         self.guard()
+
+    def test_password_strength_checker_reaches_framework_validation(self):
+        for user in ('Guest','student'):
+            self.f.session.user=user
+            self.f.form_dict={}
+            self.f.local.request.path='/api/method/frappe.core.doctype.user.user.test_password_strength'
+            self.guard()
+
+    def test_other_user_methods_still_denied(self):
+        self.f.local.request.path='/api/method/frappe.core.doctype.user.user.get_all_roles'
+        with self.assertRaises(PermissionError):self.guard()

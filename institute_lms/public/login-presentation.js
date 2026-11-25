@@ -1,5 +1,23 @@
 // Keep the original Frappe forms, listeners, reset flow and two-factor handling.
 (function () {
+
+  function installPasswordRecoveryTransport() {
+    const nativeCall = window.login?.call;
+    if (!nativeCall) return;
+    window.login.call = function (args, callback, url = '/', errorMessage = null) {
+      if (args?.cmd !== 'frappe.core.doctype.user.user.reset_password') {
+        return nativeCall.call(this, args, callback, url, errorMessage);
+      }
+      // The marketing root is static; password recovery must reach Frappe.
+      const pending = nativeCall.call(this, args, callback,
+        '/api/method/frappe.core.doctype.user.user.reset_password', errorMessage);
+      pending?.fail?.(() => {
+        window.login.show_error_banner('Unable to request a reset link. Please try again shortly.');
+      });
+      pending?.always?.(() => window.login.hide_loading());
+      return pending;
+    };
+  }
   function decorate() {
     if (!['', '/login', '/update-password'].includes(location.pathname.replace(/\/$/, ''))) return;
     const login = document.querySelector('.for-login, .for-reset-password');
@@ -174,4 +192,5 @@
   }
   // This script is included after the native forms. Layout is already rendered by Jinja.
   decorate();
+  window.frappe?.ready(installPasswordRecoveryTransport);
 })();

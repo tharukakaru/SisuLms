@@ -35,6 +35,23 @@
     window.addEventListener('pageshow', clearUnusedPassword);
   }
 
+  function installPasswordUpdateTransport() {
+    if (location.pathname.replace(/\/$/, '') !== '/update-password') return;
+    const nativeCall = window.frappe?.call;
+    if (!nativeCall) return;
+    const methods = new Set([
+      'frappe.core.doctype.user.user.update_password',
+      'frappe.core.doctype.user.user.test_password_strength'
+    ]);
+    window.frappe.call = function (options, ...rest) {
+      if (options && typeof options === 'object' && methods.has(options.method) &&
+          (!options.url || options.url === '/')) {
+        options = { ...options, url: '/api/method/' + options.method };
+      }
+      return nativeCall.call(this, options, ...rest);
+    };
+  }
+
   function decorate() {
     if (!['', '/login', '/update-password'].includes(location.pathname.replace(/\/$/, ''))) return;
     const login = document.querySelector('.for-login, .for-reset-password');
@@ -211,4 +228,5 @@
   protectResetLinkFromAutofill();
   decorate();
   window.frappe?.ready(installPasswordRecoveryTransport);
+  window.frappe?.ready(installPasswordUpdateTransport);
 })();

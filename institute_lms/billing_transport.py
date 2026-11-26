@@ -17,6 +17,8 @@ def call_tenant(tenant,action,data):
     from .platform import owner
     owner();enabled()
     org=frappe.get_doc('IL Organization',tenant)
+    if org.get('retired'):
+        frappe.throw('Organization permanently retired', frappe.PermissionError)
     host=hostname(org.site_hostname)
     if not org.enabled or host not in (frappe.conf.get('il_billing_transport_hosts') or []):
         frappe.throw('Tenant billing host not enabled',frappe.PermissionError)

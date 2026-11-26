@@ -53,7 +53,7 @@ async function load(){
  }
 }
 async function action(method,args){await run(async()=>{const result=await request('platform',method,args);if(method==='register'){form.value=emptyRegistration();page.value=0}manifest.value=null;note.value=method==='register'?'Institute setup request saved. Continue in Provisioning; the institute website is not active yet.':result.queued?'Invitation queued. Inbox delivery has not been confirmed.':result.requires_manifest_delivery?'Saved. Check Site policies for confirmation that the institute website received the update.':'Saved to the control plane.';await load()})}
-async function choose(o){if(busy.value)return;reason.value='';state.value='';grace.value='';days.value=7;manifest.value=null;commercial.value=null;tenant.value=o.name;selectedCommercialPlan.value=['Individual','Silver','Gold','Platinum'].includes(o.plan)?o.plan:'';domain.value=o.custom_domain||'';override.value=JSON.stringify(object(o.subscription?.overrides),null,2);await run(async()=>{commercial.value=await request('premium','summary',{tenant:o.name},'GET');monthlyPrice.value=commercial.value.offer?.amount_minor||0;priceEnabled.value=!!commercial.value.offer?.available});await nextTick();document.getElementById('organization-management')?.scrollIntoView({behavior:'smooth',block:'start'})}
+async function choose(o){if(busy.value)return;resetRemoval();reason.value='';state.value='';grace.value='';days.value=7;manifest.value=null;commercial.value=null;tenant.value=o.name;selectedCommercialPlan.value=['Individual','Silver','Gold','Platinum'].includes(o.plan)?o.plan:'';domain.value=o.custom_domain||'';override.value=JSON.stringify(object(o.subscription?.overrides),null,2);await run(async()=>{commercial.value=await request('premium','summary',{tenant:o.name},'GET');monthlyPrice.value=commercial.value.offer?.amount_minor||0;priceEnabled.value=!!commercial.value.offer?.available});await nextTick();document.getElementById('organization-management')?.scrollIntoView({behavior:'smooth',block:'start'})}
 async function openHostedSite(site){let org;await run(async()=>{org=await request('site_policies','organization_details',{tenant:site.name},'GET');const i=data.value.organizations.findIndex(o=>o.name===org.name);if(i>=0)data.value.organizations[i]=org;else data.value.organizations.unshift(org)});if(org){await selectTab('Organizations');await choose(org)}}
 async function loadAudit(){auditRows.value=await request('owner_operations','audit',{page:auditPage.value},'GET')}
 async function selectTab(name){if(!ownerSections.some(s=>s.name===name&&(!s.managersOnly||ownerAccess.value?.can_manage)))return;tab.value=name;navigationOpen.value=false;window.history.replaceState(null,'','#'+encodeURIComponent(name));if(name==='Audit log')await run(loadAudit);await nextTick();document.getElementById('owner-page-title')?.focus()}
@@ -73,6 +73,60 @@ async function saveOverrides(){await run(async()=>{const values=JSON.parse(overr
 async function saveOffer(){await run(async()=>{await request('premium','configure_offer',{tenant:tenant.value,amount_minor:monthlyPrice.value,enabled:priceEnabled.value,reason:reason.value});commercial.value=await request('premium','summary',{tenant:tenant.value},'GET');note.value='Monthly offer saved. Payments remain subject to the existing pause; no charge or activation occurred.'})}
 async function exportManifest(){await run(async()=>{manifest.value=await request('platform','manifest',{tenant:tenant.value});note.value='Signed policy generated. Download and deliver it using the institute operator workflow; it has not been applied remotely.'})}
 function downloadManifest(){const url=URL.createObjectURL(new Blob([JSON.stringify(manifest.value,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='sisu-policy-'+tenant.value+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+
+const removalPreview=ref(null)
+const removalReason=ref('')
+const removalCode=ref('')
+const removalOpen=ref(false)
+
+function resetRemoval(){
+ removalPreview.value=null
+ removalReason.value=''
+ removalCode.value=''
+ removalOpen.value=false
+}
+
+
+
+async function submitRemoval(){
+ const preview=removalPreview.value
+ if(!preview||preview.tenant_id!==tenant.value)return
+ if(removalCode.value!==preview.code)return
+ if(!window.confirm('Submit removal request for '+preview.title+'?'))return
+
+ await run(async()=>{
+  await request('tenant_retirement','request_removal',{
+   tenant:preview.tenant_id,
+   hostname:preview.hostname,
+   code:removalCode.value,
+   reason:removalReason.value
+  })
+  removalPreview.value.removal_status='Requested'
+  removalPreview.value.removal_available=false
+  note.value='Removal requested. The hosting worker will verify backups before retiring the website and dedicated database.'
+ })
+}
+
+async function refreshRemoval(){
+ if(!removalPreview.value)return
+ await run(async()=>{const result=await request('tenant_retirement','removal_status',{tenant:removalPreview.value.tenant_id},'GET');removalPreview.value.removal_status=result.status;removalPreview.value.progress=result.progress;removalPreview.value.removal_available=result.status==='Failed';if(result.retired){note.value='Removal completed. The website and dedicated database are retired; private backups and audit history are retained.';await load()}})
+}
+
+async function reviewRemoval(){
+ resetRemoval()
+ const target=tenant.value
+ removalOpen.value=true
+ await run(async()=>{
+  const result=await request(
+   'tenant_retirement',
+   'removal_preview',
+   {tenant:target},
+   'GET'
+  )
+  if(tenant.value===target)removalPreview.value=result
+ })
+}
+
 onMounted(()=>{run(async()=>{await load();if(tab.value==='Audit log')await loadAudit()});loadOperator()})
 </script>
 <template><div class="owner-shell">
@@ -115,6 +169,67 @@ onMounted(()=>{run(async()=>{await load();if(tab.value==='Audit log')await loadA
 <section class="manage-section"><h3>Website & account access</h3><p>Save a custom domain or manage access to this institute. Domain setup and policy updates still need to be applied by the hosting operator.</p><label>Custom website domain<input v-model="domain" placeholder="learn.yourinstitute.com"><small>Optional. Enter the domain only, without https://.</small></label><div class="manage-actions"><button class="button primary" :disabled="busy||!reason.trim()" @click="action('update_organization',{tenant,enabled:!!selectedOrganization?.enabled,custom_domain:domain,reason})">Save domain</button><button v-if="!selectedOrganization?.enabled" class="button subtle" :disabled="busy||!reason.trim()" @click="action('update_organization',{tenant,enabled:true,reason})">Enable institute</button><button v-else class="button subtle" :disabled="busy||!reason.trim()" @click="action('update_organization',{tenant,enabled:false,reason})">Suspend institute</button></div><p>Billing contact: <strong>{{selectedOrganization?.admin_contact}}</strong></p><button class="button subtle" :disabled="busy" @click="action('invite_billing_contact',{tenant})">Send billing sign-in email</button></section>
 <section class="manage-section"><h3>Subscription & trial</h3><p>Choose a status change, restore an eligible paid subscription, or grant a one-time trial. Paid activation still requires a verified payment.</p><label>Change subscription status<select v-model="state"><option disabled value="">Choose a new status</option><option v-for="s in ['grace','past_due','suspended','cancelled','expired']" :value="s">{{statusLabel(s)}}</option></select></label><label v-if="state==='grace'">Grace period ends<input v-model="grace" type="datetime-local"></label><div class="manage-actions"><button class="button primary" :disabled="busy||!reason.trim()||!state||(state==='grace'&&!grace)" @click="action('subscription_state',{tenant,state,reason,grace_until:grace||null})">Save status</button><button class="button subtle" :disabled="busy||!reason.trim()" @click="action('reactivate',{tenant,reason})">Restore paid subscription</button></div><label>Trial length (days)<input type="number" min="1" max="30" v-model.number="days"></label><small>1–30 days. The system checks whether this institute is eligible.</small><button class="button subtle" :disabled="busy||!reason.trim()||days<1||days>30" @click="action('trial',{tenant,days,reason})">Grant trial</button></section>
 <section class="manage-section" v-if="commercial"><h3>Hosted-site monthly offer</h3><p>This is a separate hosted-site contract. Current Individual, Silver, Gold and Platinum packages are managed in Plans.</p><p>{{commercial.offer.available?'A monthly offer is configured for this institute.':commercial.offer.message}}</p><form @submit.prevent="saveOffer"><label>Monthly price (LKR)<input type="number" min="0.01" step="0.01" v-model.number="monthlyLkr" required></label><label class="check"><input type="checkbox" v-model="priceEnabled"> Make this offer available</label><button class="button primary" :disabled="busy||reason.trim().length<3">Save monthly offer</button></form><p>Saving an offer does not charge the institute or activate a subscription.</p><h4>Payment receipts</h4><p v-if="!commercial.receipts.length">No completed payments yet.</p><p v-for="receipt in commercial.receipts" :key="receipt.name">{{receipt.currency}} {{(receipt.amount_minor/100).toFixed(2)}} · {{receipt.paid_at}}<small>Receipt {{receipt.name}}</small></p></section>
+
+<section v-if="ownerAccess?.can_manage" class="manage-section removal-section">
+ <h3>Remove institute</h3>
+ <p>Review institute removal, financial dependencies and hosting requirements. Shared accounts and financial history must be preserved.</p>
+
+ <button type="button" class="button removal-button"
+  :disabled="busy||!selectedOrganization"
+  @click="reviewRemoval">
+  Review institute removal
+ </button>
+
+ <div v-if="removalOpen" class="removal-review">
+  <template v-if="removalPreview">
+   <h3>{{removalPreview.title}}</h3>
+   <p><strong>Institute code:</strong> {{removalPreview.code}}</p>
+   <p><strong>Website:</strong> {{removalPreview.hostname}}</p>
+   <p><strong>Billing contact:</strong> {{removalPreview.admin_contact}}</p>
+
+   <h4>Removal checks</h4>
+   <p v-if="removalPreview.removal_status">
+    <strong>Removal status:</strong> {{removalPreview.removal_status}} <span v-if="removalPreview.progress">· {{removalPreview.progress}}</span>
+    <button type="button" class="button subtle" :disabled="busy" @click="refreshRemoval">Refresh removal status</button>
+   </p>
+   <p>Pending payments: {{removalPreview.pending_payments}}</p>
+   <p>Financial records to retain: {{removalPreview.financial_records}}</p>
+
+   <div v-if="removalPreview.blockers.length" class="error">
+    <strong>Removal requirements</strong>
+    <ul>
+     <li v-for="item in removalPreview.blockers" :key="item">{{item}}</li>
+    </ul>
+   </div>
+
+   <p v-else>Control-plane preliminary checks passed.</p>
+   <p>Website identity, dependencies and backups require hosting verification.</p>
+
+   <label>Reason for removal
+    <textarea v-model="removalReason" rows="3" maxlength="500"
+     placeholder="Explain why this institute is being removed"/>
+   </label>
+
+   <label>Type {{removalPreview.code}} to confirm
+    <input v-model="removalCode" autocomplete="off"/>
+   </label>
+
+   <div class="manage-actions">
+    <button type="button" class="button removal-button"
+    :disabled="busy||!removalPreview.removal_available||removalCode!==removalPreview.code||removalReason.trim().length<10"
+    @click="submitRemoval">
+     {{removalPreview.removal_status==='Failed'?'Retry removal':'Request institute removal'}}
+    </button>
+    <button type="button" class="button subtle" @click="resetRemoval">
+     Cancel
+    </button>
+   </div>
+
+   <small>Removal is completed only after hosting and backup verification.</small>
+  </template>
+  <p v-else>Review information is not available yet.</p>
+ </div>
+</section>
 <details class="manage-section"><summary>Advanced settings & website updates</summary><p>These settings are for the hosting operator. Changes saved here must be delivered to the institute website before they take effect.</p><p>Institute reference: {{tenant}}</p><h4>Custom subscription settings</h4><p>Use features, limits and support_tier. Empty objects use the subscription defaults.</p><label>Settings JSON<textarea v-model="override" rows="8" spellcheck="false"/></label><button class="button subtle" :disabled="busy||!reason.trim()" @click="saveOverrides">Save custom settings</button><h4>Website policy update</h4><p>Delivery status: {{commercial?.policy_delivery?.status||'No delivery recorded'}} · revision {{commercial?.policy_delivery?.revision||'—'}}</p><p>A signing key must be configured by the operator. Downloading an update does not apply it to the website.</p><div class="manage-actions"><button class="button subtle" :disabled="busy" @click="exportManifest">Prepare website policy update</button><button v-if="manifest" class="button subtle" @click="downloadManifest">Download signed update</button></div></details></article></template>
 <template v-else-if="tab==='Plans'"><h2>Provider packages</h2><p>Individual, Silver, Gold and Platinum. Publish one shared catalogue for the main website and provider dashboards.</p><PlanEditor/></template><template v-else-if="tab==='Site policies'"><SitePolicies @plans="selectTab('Plans')" @manage="openHostedSite"/></template>
 <template v-else-if="tab==='Provisioning'"><OwnerProvisioning :jobs="data.jobs" @updated="run(load)"/></template>
@@ -142,4 +257,25 @@ onMounted(()=>{run(async()=>{await load();if(tab.value==='Audit log')await loadA
 
 <style scoped>
 .owner-sidebar{overflow:hidden}.owner-brand{flex-shrink:0}.owner-navigation{min-height:0;overflow-y:auto;flex:1;padding-right:4px;scrollbar-width:thin;scrollbar-color:#d0c6dc transparent}.owner-account{flex-shrink:0;border-top:1px solid var(--line);padding-top:16px;margin-top:12px;background:#fff}.owner-account-person{display:flex;align-items:center;gap:10px;padding:0 4px 14px}.owner-account-person>div{min-width:0}.owner-account-person strong{display:block;font-size:13px;line-height:1.45;overflow-wrap:anywhere}.owner-account-person>div>span{display:block;font-size:11px;color:var(--muted);margin-top:3px}.owner-account-avatar{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;background:#eee6f7;color:#54258a;font-size:12px;font-weight:700;flex-shrink:0}.owner-account-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.owner-account-actions button{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:8px;min-height:42px;padding:8px 4px;font:inherit;font-size:12px;color:#51465f;cursor:pointer}.owner-account-actions button:hover,.owner-account-actions button.selected{background:#eee6f7;color:#54258a}.owner-account-actions button:focus-visible{outline:2px solid #592c91;outline-offset:2px}.owner-account-actions button:disabled{opacity:.6;cursor:wait}@media(max-width:760px){.owner-sidebar{overflow:visible}.owner-navigation{overflow:visible}.owner-account{display:flex;align-items:center;justify-content:space-between;gap:16px}.owner-account-person{padding:0;flex:1;min-width:0}.owner-account-actions{flex-shrink:0}.owner-account-actions button{padding:9px}.owner-account-avatar{display:none}}@media(max-width:380px){.owner-account{align-items:flex-start;flex-direction:column;gap:12px}.owner-account-actions{width:100%}}
+</style>
+
+
+<style scoped>
+.removal-section h3{color:#8b2537}
+.removal-section .removal-button{
+ color:#8b2537;
+ background:#fff;
+ border:1px solid #d8a6ae;
+}
+.removal-section .removal-button:hover:not(:disabled){
+ background:#fff3f5;
+}
+.removal-review{
+ margin-top:18px;
+ padding:20px;
+ background:var(--surface-alt,#f6f3fa);
+ border:1px solid var(--line,#e6e0ed);
+ border-radius:12px;
+ overflow-wrap:anywhere;
+}
 </style>

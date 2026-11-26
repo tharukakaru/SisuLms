@@ -13,10 +13,10 @@ function harness(session,fail=false,unifiedTeacher=false){
  c.state.confirmation.value=dialog
  return {...c.state,mounted,events,calls,redirects,dialog}
 }
-test('saving keeps the wizard and opens the success dialog without logout',async()=>{
+test('newly approved institute reconnects immediately without logout or pending popup',async()=>{
  const h=harness({onboarding_kind:'Institute'});h.verified.value=true
- await h.completed();assert.equal(h.dialog.open,true);assert.equal(h.redirects.length,0)
- await h.dashboard();assert.deepEqual(h.events,['continue']);assert.equal(h.calls[0][0],'provider_onboarding')
+ await h.completed();assert.equal(h.dialog.open,false);assert.equal(h.redirects.length,0)
+ assert.deepEqual(h.events,['completed']);assert.equal(h.calls.length,0)
 })
 test('returning completed providers resume workspace; institute teachers resume selection',async()=>{
  for(const kind of ['Teacher','Institute']){

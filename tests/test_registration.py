@@ -77,4 +77,17 @@ class VerificationBoundary(unittest.TestCase):
         self.f.session.user='other@example.com'
         with self.assertRaises(PermissionError):self.api.require_owner()
 
+    def test_invalid_institute_challenge_cannot_create_account(self):
+        from unittest.mock import patch
+        with patch.object(self.api, '_new_verified_institute') as approve:
+            for age, attempts, supplied in ((601, 0, '123456'), (0, 5, '123456'), (0, 0, '999999')):
+                self.f.cache.get_value.return_value = {
+                    'details': {'kind': 'Institute', 'email': 'academy@example.invalid'},
+                    'created': time.time() - age, 'attempts': attempts,
+                    'digest': self.api.digest('challenge', '123456')}
+                with self.assertRaises(ValueError):
+                    self.api.verify_code('challenge', supplied)
+            approve.assert_not_called()
+            self.f.get_doc.assert_not_called()
+
 if __name__=='__main__':unittest.main()

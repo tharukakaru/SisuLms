@@ -276,7 +276,7 @@ h3 { line-height: 1.25; }
   .social-features p { font-size: 13px; }
   .social-features li:last-child { max-width: 300px; }
 }
-.hero-photo { background: #719df0; min-height: min(900px, 100svh); }
+.hero-photo { background: #2f75b4; min-height: min(900px, 100svh); }
 .hero-photo .hero-media { animation: none; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; overflow: hidden; }
 .hero-photo .hero-image { display: block; width: 100%; height: 100%; object-fit: cover; object-position: right center; -webkit-mask-image: none; mask-image: none; }
 .hero-photo .hero-media::after { content: none; }
@@ -777,16 +777,26 @@ h3 { line-height: 1.25; }
 /* Mobile menu: Contact lines up with the other links */
 @media(max-width:900px){#navigation .nav-contact{padding-inline:12px}}
 
-/* Stacked hero (phones and tablets): the photo sits below the text. Fill the space above it with the photo's own
-   top-edge colours (they shift left to right) and fade the photo's top edge in, so the section reads as one background. */
+/* Phones and tablets: the photo covers the whole hero behind the text (no overlay), cropped toward the student. */
 @media(max-width:1100px){
- .hero-photo{background:linear-gradient(90deg,#6d9df1 0%,#76a0f2 25%,#6f9cef 50%,#7fa2f3 75%,#7c9beb 100%)}
- .hero-photo .hero-media{aspect-ratio:1376/768}
- .hero-photo .hero-image{object-fit:cover;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 22%);mask-image:linear-gradient(to bottom,transparent 0,#000 22%)}
+ .hero-photo{min-height:100svh}
+ .hero-photo .hero-content{flex:1}
+ .hero-photo .hero-media{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;margin:0;overflow:hidden;-webkit-mask-image:none;mask-image:none}
+ .hero-photo .hero-image{position:static;width:100%;height:100%;max-width:none;object-fit:cover;object-position:80% center;-webkit-mask-image:none;mask-image:none}
+ .hero-photo .hero-content,.hero-photo .marquee-set span{text-shadow:0 1px 14px #0b3a6699}
 }
-/* Stacked hero: crop the wide photo to the student and laptop instead of shrinking all of it, so she reads at phone size */
-@media(max-width:1100px){.hero-photo .hero-media{aspect-ratio:3/2}.hero-photo .hero-image{object-position:92% bottom}}
-@media(max-width:600px){.hero-photo .hero-media{aspect-ratio:1/1}}
+/* Landscape tablets: keep the paragraph left of the laptop screen. */
+@media(min-width:901px) and (max-width:1100px) and (orientation:landscape){
+ .hero-photo .hero-image{object-position:70% center}
+ .hero-photo .hero-row p{max-width:250px}
+}
+/* Portrait phones/tablets load the portrait photo (hero-mobile): copy in its open sky, student anchored at the bottom. */
+@media(max-width:1100px) and (orientation:portrait){
+ .hero-photo .hero-image{object-position:75% bottom}
+ .hero-photo .hero-content{justify-content:flex-start}
+}
+/* Phones: the copy ends near 500px; her face is at 50-63% of the photo's height, so a 1020px hero keeps it clear of the copy. */
+@media(max-width:600px) and (orientation:portrait){.hero-photo{min-height:max(100svh,1020px)}}
 
 /* Responsive sources share the original image layout without an extra box. */
 .responsive-picture{display:contents}

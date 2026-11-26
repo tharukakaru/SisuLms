@@ -8,15 +8,15 @@ const source=fs.readFileSync(new URL('../src/native/VerifiedSignup.vue',import.m
 const setup=source.match(/<script setup>([\s\S]*?)<\/script>/)[1].replace(/^import .*$/gm,'')
 const settle=()=>new Promise(resolve=>setImmediate(resolve))
 function harness(request=async()=>({challenge:'test-challenge'}),props={},storedRole=null){
- const redirects=[],calls=[],dialog={open:false,showModal(){this.open=true},close(){this.open=false}}
+ const mounted=[];const redirects=[],calls=[],dialog={open:false,showModal(){this.open=true},close(){this.open=false}}
  let focused=0
- const c={location:{assign:url=>redirects.push(url)},passwordStrength,ref:value=>({value}),computed:fn=>({get value(){return fn()}}),nextTick:async fn=>fn?.(),onMounted:()=>{},onUnmounted:()=>{},setInterval:()=>0,clearInterval:()=>{},sessionStorage:{getItem:()=>storedRole,setItem:()=>{}},defineProps:()=>({googleSession:true,policy:{privacy_policy_version:'test'},...props}),defineEmits:()=>()=>{},request:async(...args)=>{calls.push(args);return request(...args)},csrf:()=>'',fetch:async()=>({ok:true}),Intl,Date}
+ const c={location:{assign:url=>redirects.push(url)},passwordStrength,ref:value=>({value}),computed:fn=>({get value(){return fn()}}),nextTick:async fn=>fn?.(),onMounted:fn=>mounted.push(fn),onUnmounted:()=>{},setInterval:()=>0,clearInterval:()=>{},sessionStorage:{getItem:()=>storedRole,setItem:()=>{}},defineProps:()=>({googleSession:true,policy:{privacy_policy_version:'test'},...props}),defineEmits:()=>()=>{},request:async(...args)=>{calls.push(args);return request(...args)},csrf:()=>'',fetch:async()=>({ok:true}),Intl,Date}
  vm.createContext(c)
- vm.runInContext(setup+'\nglobalThis.state={accountExists,verificationDialog,verificationOpen,resumeVerification,token,emailCode,phoneCode,emailOK,phoneOK,password,confirmation,busy,error,done,form,verificationStep,phoneDraft,phoneSent,primaryDisabled,primaryLabel,strength,passwordLength,successDialog,leavingSuccess,successError};',c)
+ vm.runInContext(setup+'\nglobalThis.state={accountExists,verificationDialog,verificationOpen,resumeVerification,token,emailCode,phoneCode,emailOK,phoneOK,password,confirmation,busy,error,done,form,required,verificationStep,phoneDraft,phoneSent,primaryDisabled,primaryLabel,strength,passwordLength,successDialog,leavingSuccess,successError};',c)
  c.state.verificationDialog.value=dialog
  c.state.successDialog.value={open:false,showModal(){this.open=true},close(){this.open=false}}
  c.state.resumeVerification.value={focus(){focused++}}
- return {c,calls,redirects,dialog,state:c.state,focused:()=>focused}
+ return {c,calls,redirects,dialog,state:c.state,mount:async()=>{mounted.forEach(fn=>fn());await settle()},focused:()=>focused}
 }
 test('successful Google email request opens verification popup',async()=>{
  const h=harness();h.c.start();await settle()
@@ -179,4 +179,18 @@ test('student entry cannot inherit a previous teacher or institute selection',()
   const h=harness(undefined,{googleSession:false,studentOnly:true},stored)
   assert.equal(h.state.form.value.kind,'Student')
  }
+})
+
+for(const kind of ['Student','Individual Teacher','Institute'])test(`Google ${kind} prefills identity and retains role-specific signup fields`,async()=>{
+ const identity={first_name:'Google',last_name:'Person',email:'google@example.invalid'}
+ const h=harness(async()=>identity,{initialKind:kind,studentOnly:kind==='Student'},kind==='Student'?'Individual Teacher':'Student')
+ await h.mount()
+ assert.equal(h.state.form.value.kind,kind)
+ for(const [key,value] of Object.entries(identity))assert.equal(h.state.form.value[key],value)
+ const fields=Array.from(h.state.required.value)
+ assert.equal(fields.includes('birth_date'),kind==='Student')
+ assert.equal(fields.includes('subject'),kind==='Individual Teacher')
+ assert.equal(fields.includes('organization'),kind==='Institute')
+ assert.equal(fields.includes('backup_email'),kind==='Institute')
+ assert.equal(h.calls[0][1],'self_google_details')
 })

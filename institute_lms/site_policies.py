@@ -27,7 +27,7 @@ def listing(page=0):
     owner()
     from .pricing_rules import integer
     page=integer(page,'Page',10000)
-    rows=frappe.get_all('IL Organization',fields=['name','title','site_hostname','provisioning_state','enabled'],order_by='creation desc',limit_start=page*30,limit_page_length=31)
+    rows=frappe.get_all('IL Organization',filters={'retired':0},fields=['name','title','site_hostname','provisioning_state','enabled'],order_by='creation desc',limit_start=page*30,limit_page_length=31)
     result=[]
     for org in rows[:30]:
         delivery=frappe.db.get_value('IL Policy Delivery',{'organization':org.name},['status','revision','acknowledged_at','next_attempt'],as_dict=True)
@@ -40,12 +40,19 @@ def listing(page=0):
 @frappe.whitelist(methods=['POST'])
 def retry(tenant,reason):
     from .platform import owner,organization
-    owner();org=organization(tenant)
+    owner()
     if not isinstance(reason,str) or not 10<=len(reason.strip())<=1000:frappe.throw('Enter a reason of at least 10 characters.')
+
+    # Lock the organization before checking retirement or queuing delivery.
+    org=frappe.get_doc('IL Organization',tenant,for_update=True)
+
+    if org.get('retired'):
+        frappe.throw('Organization permanently retired',frappe.PermissionError)
+
+    organization(org.name)
+
     missing=blockers(org)
     if missing:frappe.throw(' '.join(missing))
-    # Lock the organization to serialize a first delivery row and repeat clicks.
-    frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(org.name,))
     name=frappe.db.get_value('IL Policy Delivery',{'organization':org.name},'name')
     doc=frappe.get_doc('IL Policy Delivery',name,for_update=True) if name else frappe.get_doc(dict(doctype='IL Policy Delivery',organization=org.name))
     if name and doc.status=='Pending':return dict(queued=True,message='An update is already waiting for delivery. Refresh to check confirmation.')

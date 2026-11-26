@@ -1,4 +1,4 @@
-"""Bounded email verification for pending registrations; no automatic role grant."""
+"""Verified registration; institute account approval never grants workspace access."""
 import hashlib
 import hmac
 import json
@@ -104,12 +104,15 @@ def verify_code(challenge, code):
             policy=public()
             if not policy['provider_applications_enabled'] or details['privacy_policy_version']!=policy['privacy_policy_version'] or details['privacy_policy_url']!=policy['privacy_policy_url']:
                 frappe.throw('The signup policy changed. Please review it and start a new application.')
-        doc=frappe.get_doc({'doctype':'IL Registration Request','email':details['email'],'account_type':details['kind'],'status':'Pending review','details':json.dumps(details),'email_verified':1}).insert(ignore_permissions=True)
+        if details['kind'] == 'Institute':
+            doc = _new_verified_institute(details)
+        else:
+            doc=frappe.get_doc({'doctype':'IL Registration Request','email':details['email'],'account_type':details['kind'],'status':'Pending review','details':json.dumps(details),'email_verified':1}).insert(ignore_permissions=True)
         email=frappe.conf.get('il_owner_email')
-        if email and frappe.db.exists('User',email):
+        if details['kind'] != 'Institute' and email and frappe.db.exists('User',email):
             frappe.get_doc({'doctype':'Notification Log','subject':'Provider application ready for review','for_user':email,'type':'Alert','document_type':'IL Registration Request','document_name':doc.name}).insert(ignore_permissions=True)
         frappe.cache.delete_value(key)
-    return {'verified':True,'status':'Pending review','reference':doc.name}
+    return {'verified':True,'status':doc.status if details['kind']=='Institute' else 'Pending review','reference':doc.name}
 
 def require_owner():
     """Require authenticated primary or explicitly delegated platform ownership."""
@@ -129,13 +132,45 @@ def review_application(name,decision,reason):
     frappe.db.sql('SELECT name FROM `tabIL Registration Request` WHERE name=%s FOR UPDATE',(name,))
     d=frappe.get_doc('IL Registration Request',name)
     if d.status!='Pending review' or not d.email_verified or d.account_type not in ('Institute','Individual Teacher'):frappe.throw('No provider application pending')
+    return _apply_application_review(d, decision, reason, frappe.session.user)
+
+
+def _apply_application_review(d, decision, reason, actor):
+    # Shared by authenticated owner review and fresh verified institute registration.
     if decision=='Approved':
         details=json.loads(d.details)
         if not frappe.db.exists('User',d.email):
             user=frappe.get_doc({'doctype':'User','email':d.email,'first_name':details['full_name'],'enabled':1,'user_type':'Website User','send_welcome_email':0}).insert(ignore_permissions=True)
             user.reset_password(send_email=True)
-    d.status=decision;d.reviewed_by=frappe.session.user;d.review_reason=str(reason)[:1000];d.save(ignore_permissions=True)
+    d.status=decision;d.reviewed_by=actor;d.review_reason=str(reason)[:1000];d.save(ignore_permissions=True)
     return {'status':decision}
+
+
+def _new_verified_institute(details):
+    """Internal only: called after successful email challenge and policy recheck.
+
+    Existing pending requests are never promoted by this path. Deterministic
+    request naming provides a database uniqueness boundary across challenges.
+    Profile/phone/workspace/payment checks remain in their existing services.
+    """
+    if details.get('kind') != 'Institute':
+        frappe.throw('Institute registration required', frappe.PermissionError)
+    email = details['email']
+    if frappe.db.exists('User', email) or frappe.db.exists('IL Registration Request', {'email': email}):
+        frappe.throw('An account or application already exists. Sign in or contact support.')
+    if frappe.db.exists('IL Public Profile', {'username': details['username']}):
+        frappe.throw('This username is already in use')
+    # Use the existing verified onboarding navigation, without endorsing a profile.
+    details = {**details, 'flow': 'public-account-v1', 'onboarding_version': 2,
+               'onboarding_profile_completed': False}
+    doc = frappe.get_doc({'doctype': 'IL Registration Request', 'email': email,
+        'account_type': 'Institute', 'status': 'Pending review',
+        'details': json.dumps(details), 'email_verified': 1})
+    doc.insert(ignore_permissions=True, set_name='institute-' + hashlib.sha256(email.encode()).hexdigest())
+    _apply_application_review(doc, 'Approved',
+        'Automatically approved after registration validation and email verification. '
+        'Phone/profile verification and subscription payment remain required.', None)
+    return doc
 
 
 @frappe.whitelist(methods=['GET'])

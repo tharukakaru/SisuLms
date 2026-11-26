@@ -43,7 +43,7 @@ def current():
             return {'authenticated':True,'role':'Campus','shared_campus':True,'member':None,
                     'provider_profile_required':profile_pending(rows) or not frappe.db.exists('IL Public Profile',{'user':frappe.session.user}),
                     'provider_onboarding_required':kind in ('Teacher','Institute') and (profile_pending(rows) or not frappe.db.exists('IL Public Profile',{'user':frappe.session.user}) or not frappe.db.exists('IL Verified Phone',{'user':frappe.session.user})),
-                    'provider_workspace_pending':kind in ('Teacher','Institute') and not profile_pending(rows) and bool(frappe.db.exists('IL Public Profile',{'user':frappe.session.user})) and bool(frappe.db.exists('IL Verified Phone',{'user':frappe.session.user})),
+                    'provider_workspace_pending':kind in ('Teacher','Institute') and (kind!='Institute' or bool(frappe.db.exists('IL Public Profile',{'user':frappe.session.user,'kind':'Institute','status':'Verified'}))) and not profile_pending(rows) and bool(frappe.db.exists('IL Public Profile',{'user':frappe.session.user})) and bool(frappe.db.exists('IL Verified Phone',{'user':frappe.session.user})),
                     'onboarding_kind':kind,'teaching_path':path,'workspace_choices_required':len(admins)>1,'user':frappe.session.user,'csrf_token':csrf}
     from .api import institute
     inst=institute()

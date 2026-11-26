@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "enabled": false,
+  "bench": "/home/sisu/frappe-bench",
+  "control_site": "platform.sisuacademylk.com",
+  "backup_root": "/var/lib/sisu-removal",
+  "nginx_directory": "/etc/nginx/conf.d",
+  "tenants": {}
+}

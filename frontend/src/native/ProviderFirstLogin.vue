@@ -12,7 +12,7 @@ const emit=defineEmits(['continue','completed'])
 const confirmation=ref(null),showInstitutes=ref(false)
 function chooseInstitutes(){confirmation.value?.close();showInstitutes.value=true}
 function verifiedPhone(value){verified.value=value;if(value&&props.unifiedTeacher&&props.session.onboarding_kind==='Teacher'&&props.session.provider_profile_required===false)emit('completed')}
-async function completed(){saved.value=true;if(props.unifiedTeacher&&props.session.onboarding_kind==='Teacher'){emit('completed');return}await nextTick();confirmation.value?.showModal()}
+async function completed(){saved.value=true;if(props.session.onboarding_kind==='Institute'){emit('completed');return}if(props.unifiedTeacher&&props.session.onboarding_kind==='Teacher'){emit('completed');return}await nextTick();confirmation.value?.showModal()}
 const verified=ref(!!props.session.provider_workspace_pending),saved=ref(!!props.session.provider_workspace_pending),busy=ref(false),error=ref('')
 onMounted(async()=>{if(saved.value){if(!props.unifiedTeacher&&props.session.teaching_path==='institute')showInstitutes.value=true;else await dashboard()}})
 async function dashboard(){

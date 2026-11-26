@@ -27,11 +27,18 @@ def save(privacy_policy_url='',privacy_policy_version='',provider_applications_e
     return public()
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
-def google_start(signup=0):
+def google_start(signup=0,kind='Student'):
     from frappe.utils.oauth import get_oauth2_authorize_url
     from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
     if not public()['google_available']:frappe.throw('Google sign-in is not configured yet')
-    url = urlsplit(get_oauth2_authorize_url('google','/campus?verified_signup=1' if str(signup)=='1' else '/campus'))
+    # Form intent only. Existing account roles still come from the server.
+    if kind in ('Teacher','Institute Teacher'):kind='Individual Teacher'
+    if kind not in ('Student','Individual Teacher','Institute'):
+        frappe.throw('Choose Student, Teacher or Institute to continue.')
+    redirect='/campus'
+    if str(signup)=='1':
+        redirect+='?'+urlencode({'verified_signup':1,'signup_role':kind})
+    url = urlsplit(get_oauth2_authorize_url('google',redirect))
     query = dict(parse_qsl(url.query, keep_blank_values=True))
     query['prompt'] = 'select_account'
     return {'url':urlunsplit(url._replace(query=urlencode(query)))}

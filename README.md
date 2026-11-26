@@ -1,3 +1,5 @@
+**27 November handover candidate:** [Current developer guide](docs/CLIENT_DEVELOPER_GUIDE.md) · [Implementation and test report](docs/HANDOVER_PROGRESS_20261127.md). Not deployed; the older production manifest below is historical.
+
 # SISU production source handover
 
 **Start with [the current production handover](docs/PRODUCTION_HANDOVER.md).** Branch `mergetharukaa-prod` includes the exported LMS backend, frontend, compiled assets and the main website in `marketing/`. File hashes and runtime versions are in `deployment/`.

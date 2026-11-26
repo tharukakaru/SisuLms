@@ -23,6 +23,8 @@ def continue_to_workspace():
     if (not workspace_registration(rows, user, profile.kind) or profile.status not in ('Pending', 'Verified')
             or not phone or not phone.phone or not phone.verified_at):
         frappe.throw('Complete your verified profile first.', frappe.PermissionError)
+    if profile.kind == 'Institute' and profile.status != 'Verified':
+        frappe.throw('This existing institute profile still requires review.', frappe.PermissionError)
     role = 'Admin' if profile.kind == 'Institute' else 'Teacher'
     if profile.workspace:
         inst = frappe.get_doc('IL Institute', profile.workspace)

@@ -1,0 +1,16 @@
+[Unit]
+Description=SISU restricted institute removal worker
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/sisu-hosting-worker
+ExecStart=/usr/bin/python3 /opt/sisu-hosting-worker/hosting-removal-worker.py --config /etc/sisu/removal-worker.json
+UMask=0077
+PrivateTmp=true
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths=/home/sisu/frappe-bench/sites /etc/nginx/conf.d /var/lib/sisu-removal /var/log/nginx /run
+ReadOnlyPaths=/opt/sisu-hosting-worker /home/sisu/frappe-bench/apps
+TimeoutStartSec=3600

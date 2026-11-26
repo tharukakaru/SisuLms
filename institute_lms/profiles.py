@@ -43,6 +43,8 @@ def me():
 @frappe.whitelist(methods=['POST'])
 def save_profile(data):
     signed_in()
+    # Serialize first-profile creation and automatic approval for this identity.
+    frappe.db.sql('SELECT name FROM `tabUser` WHERE name=%s FOR UPDATE', (frappe.session.user,))
     if not frappe.db.exists('IL Verified Phone',{'user':frappe.session.user}):frappe.throw('Verify your mobile number first')
     if isinstance(data,str):data=json.loads(data)
     username=str(data.get('username','')).strip().lower()
@@ -59,6 +61,7 @@ def save_profile(data):
     elif not p and not frappe.db.exists('IL Registration Request',{'email':frappe.session.user,'account_type':'Institute' if kind=='Institute' else 'Individual Teacher','status':'Approved'}):
         frappe.throw('Your provider application must be approved first')
     p=mine()
+    first_submission = p is None
     identity_changed=not p or p.display_name!=str(data.get('display_name','')).strip() or p.country!=str(data.get('country','')).strip() or bool(p.is_school)!=bool(data.get('is_school'))
     if p and (p.username!=username or p.kind!=kind):frappe.throw('Username and account type are permanent. Contact support for a reviewed change.')
     if not p:
@@ -78,7 +81,14 @@ def save_profile(data):
         if not enabled():
             from .onboarding import activate
             activate(p)
+    if kind=='Institute' and first_submission:
+        from .provider_review import approve_new_institute
+        approve_new_institute(p)
     if kind!='Student' and p.status=='Pending':owner_notice('Provider profile awaits verification: @'+username,p.name)
+    if kind=='Institute' and p.status=='Pending' and identity_changed:
+        # Only on first submission or a re-review, not on every save.
+        from .provider_review import institute_submitted
+        institute_submitted(p)
     if kind in ('Teacher','Institute'):
         rows=frappe.get_all('IL Registration Request',filters={'email':frappe.session.user,'status':'Approved','email_verified':1},fields=['name','details'],order_by='creation desc',limit_page_length=10)
         for row in rows:

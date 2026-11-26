@@ -7,8 +7,11 @@ class SitePolicies(unittest.TestCase):
         f=types.ModuleType('frappe');f.whitelist=lambda **kw:lambda fn:fn
         utils=types.ModuleType('frappe.utils');utils.now_datetime=lambda:self.now;utils.get_datetime=lambda x:x if isinstance(x,datetime) else datetime.fromisoformat(x)
         with patch.dict(sys.modules,{'frappe':f,'frappe.utils':utils}):self.m=importlib.import_module('institute_lms.site_policies')
-        self.fake=types.SimpleNamespace(conf={},db=types.SimpleNamespace(sql=Mock(),get_value=Mock(return_value='delivery')),get_doc=Mock(),throw=lambda msg:(_ for _ in ()).throw(ValueError(msg)))
-        self.org=types.SimpleNamespace(name='test-org',site_hostname='test.example.com',provisioning_state='ready')
+        self.fake=types.SimpleNamespace(conf={},db=types.SimpleNamespace(sql=Mock(),get_value=Mock(return_value='delivery')),get_doc=Mock(),throw=lambda msg, kind=ValueError:(_ for _ in ()).throw(kind(msg)))
+        self.org=types.SimpleNamespace(retired=0,name='test-org',site_hostname='test.example.com',provisioning_state='ready')
+        self.org.get=lambda key, default=None:getattr(self.org,key,default)
+        self.fake.PermissionError=PermissionError
+        self.fake.get_doc.return_value=self.org
         self.platform=types.ModuleType('institute_lms.platform');self.platform.owner=Mock();self.platform.organization=Mock(return_value=self.org)
         self.saas=types.ModuleType('institute_lms.saas');self.saas.managed=Mock();self.saas.audit=Mock()
         self.addCleanup(patch.stopall);patch.object(self.m,'frappe',self.fake).start();patch.object(self.m,'now_datetime',return_value=self.now).start();patch.object(self.m,'get_datetime',side_effect=utils.get_datetime).start();patch.dict(sys.modules,{'institute_lms.platform':self.platform,'institute_lms.saas':self.saas}).start()
@@ -27,7 +30,7 @@ class SitePolicies(unittest.TestCase):
             with self.assertRaises(PermissionError):call()
         self.platform.organization.assert_not_called()
     def test_ready_retry_queues_only_and_audits(self):
-        self.configure();doc=types.SimpleNamespace(status='Failed');self.fake.get_doc.return_value=doc
+        self.configure();doc=types.SimpleNamespace(status='Failed');self.fake.get_doc.side_effect=lambda doctype, *args, **kwargs:self.org if doctype=='IL Organization' else doc
         result=self.m.retry('test-org','Retry corrected hosting')
         self.assertTrue(result['queued']);self.assertEqual(doc.status,'Pending');self.assertEqual(doc.next_attempt,self.now)
         self.saas.managed.assert_called_once_with(doc);self.saas.audit.assert_called_once()

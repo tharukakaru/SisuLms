@@ -47,12 +47,13 @@ test('teacher sign-in routes preserve access gates, institute actions and signup
   const previous={window:globalThis.window,location:globalThis.location,sessionStorage:globalThis.sessionStorage,__teacherFlowRequest:globalThis.__teacherFlowRequest}
   const values=new Map(),calls=[]
   globalThis.sessionStorage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)}
-  globalThis.location={hash:'',search:''}
+  globalThis.location={hash:'',search:'',assign:()=>{}}
   globalThis.window={history:{length:1}}
   let unified=false,session={authenticated:false},available=true,billingError=false,existingGoogle=true,holdGoogle=false,finishGoogle,holdBilling=false,finishBilling,app
   globalThis.__teacherFlowRequest=async(...args)=>{
     calls.push(args)
     if(args[0]==='portal_session')return session
+    if(args[0]==='portal_policy'&&args[1]==='google_start')return {url:'https://accounts.google.com/o/oauth2/auth?state=fixture'}
     if(args[0]==='portal_policy')return {self_signup_enabled:true,google_available:true,unified_teacher_signup:unified}
     if(args[0]==='teacher_workspace'){session={...session,role:'Teacher',member:{role:'Teacher'}};return {selected:'personal'}}
     if(args[0]==='registration'&&args[1]==='self_google_details'){if(holdGoogle)return new Promise(resolve=>finishGoogle=resolve);return {account_exists:existingGoogle}}
@@ -65,6 +66,15 @@ test('teacher sign-in routes preserve access gates, institute actions and signup
     await compile('PortalRoot',output,true)
     const {default:Portal}=await import(output.href)
     const teacher={authenticated:true,user:'teacher@example.invalid',role:'Teacher',member:{role:'Teacher'}}
+    for(const [choice,kind] of [['Student','Student'],['Teacher','Individual Teacher'],['Institute','Institute']]){
+      session={authenticated:false};calls.length=0
+      const entryRoot={children:[]};app=renderer.createApp(Portal);const entryVm=app.mount(entryRoot);await flush()
+      entryVm.$.setupState.chooseRole(choice);await nextTick()
+      await button(entryRoot,'Continue with Google').props.onClick();await flush()
+      assert.deepEqual(calls.find(c=>c[1]==='google_start'),['portal_policy','google_start',{signup:1,kind}])
+      app.unmount();app=null
+    }
+
     for(const role of ['Teacher','Admin'])for(const paid of [true,false]){
       values.clear();session={...teacher,role,member:{role}};holdBilling=true
       const pendingRoot={children:[]};app=renderer.createApp(Portal);app.mount(pendingRoot);await flush()
@@ -188,19 +198,45 @@ test('teacher sign-in routes preserve access gates, institute actions and signup
     assert.equal(marker(checkoutRoot,'CheckoutEntry').props.invoice,'institute-draft')
     assert.equal(marker(checkoutRoot,'App'),undefined,'An existing teacher session cannot flash the teacher dashboard for an institute checkout')
     app.unmount();app=null
-    globalThis.location.search='?verified_signup=1'
-    for(const existing of [true,false]){
-      holdGoogle=true;
-      existingGoogle=existing
-      session={authenticated:true,user:'learner@example.invalid',role:'Campus',shared_campus:true,onboarding_kind:'Student',member:existing?{role:'Student'}:null}
+    for(const kind of ['Student','Individual Teacher','Institute'])for(const existing of [true,false]){
+      globalThis.location.search='?verified_signup=1&signup_role='+encodeURIComponent(kind)
+      values.set('sisu_signup_role',kind==='Student'?'Institute':'Student')
+      holdGoogle=true;existingGoogle=existing;calls.length=0
+      const role=kind==='Institute'?'Admin':kind==='Student'?'Student':'Teacher'
+      session={authenticated:true,user:'google@example.invalid',role:existing?role:'Campus',shared_campus:true,onboarding_kind:existing?kind:'Student',member:existing?{role}:null}
       const signupRoot={children:[]};app=renderer.createApp(Portal);app.mount(signupRoot);await flush()
-      assert.ok(marker(signupRoot,'PageLoading'),'Keep the initial loader until the signup check resolves')
+      assert.ok(marker(signupRoot,'PageLoading'),'Wait for the server to classify this Google account')
       assert.equal(marker(signupRoot,'App'),undefined)
+      assert.equal(marker(signupRoot,'VerifiedSignup'),undefined)
       finishGoogle({account_exists:existing});holdGoogle=false;await flush()
-      assert.ok(marker(signupRoot,existing?'ExistingAccountDialog':'VerifiedSignup'))
-      assert.equal(marker(signupRoot,'App'),undefined,'Google signup never flashes an existing dashboard before the decision')
+      assert.equal(marker(signupRoot,'ExistingAccountDialog'),undefined)
+      if(existing){
+        assert.ok(marker(signupRoot,'App'),kind+' existing account opens its dashboard')
+        assert.equal(marker(signupRoot,'VerifiedSignup'),undefined)
+      }else{
+        const form=marker(signupRoot,'VerifiedSignup')
+        assert.ok(form,kind+' new account opens the original full signup page')
+        assert.equal(form.props['initial-kind'],kind)
+        assert.equal(form.props['student-only'],kind==='Student')
+        assert.equal(marker(signupRoot,'App'),undefined,'No dashboard or inline signup popup for new accounts')
+        assert.equal(calls.filter(c=>c[0]==='teacher_workspace'||c[0]==='account_billing').length,0)
+      }
       app.unmount();app=null
     }
+    // A selected signup tile cannot change an existing account's permissions.
+    globalThis.location.search='?verified_signup=1&signup_role=Institute'
+    existingGoogle=true;session={...teacher};available=true
+    const existingRoot={children:[]};app=renderer.createApp(Portal);app.mount(existingRoot);await flush()
+    assert.ok(marker(existingRoot,'App'));assert.equal(marker(existingRoot,'VerifiedSignup'),undefined)
+    assert.equal(session.role,'Teacher')
+    app.unmount();app=null
+    // A failed classification must never reveal the dashboard or a guessed form.
+    holdGoogle=true
+    const failedRoot={children:[]};app=renderer.createApp(Portal);app.mount(failedRoot);await flush()
+    finishGoogle(Promise.reject(Error('Could not check Google account')));holdGoogle=false;await flush()
+    assert.ok(marker(failedRoot,'PageLoading').props.error)
+    assert.equal(marker(failedRoot,'App'),undefined);assert.equal(marker(failedRoot,'VerifiedSignup'),undefined)
+    app.unmount();app=null
   }finally{app?.unmount();Object.assign(globalThis,previous);await Promise.all([unlink(output),unlink(gateOutput),unlink(paymentOutput)])}
 })
 

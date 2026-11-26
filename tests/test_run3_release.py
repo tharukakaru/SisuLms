@@ -26,7 +26,7 @@ class ReleaseContracts(unittest.TestCase):
         for v in ['http://host','https://user:pass@host','https://host/path','https://host?token=x','javascript:x',None]:self.assertIsNone(r.https_origin(v))
     def test_billing_scoped_to_current_contact(self):
         self.fake('platform',control=lambda:None,organization=MagicMock());self.fake('wallet',signed_in=lambda:None,admin_actor=lambda:False)
-        r=self.load('release');r.billing();self.assertEqual(self.f.get_all.call_args_list[0].kwargs['filters'],{'admin_contact':'billing@example.invalid'})
+        r=self.load('release');r.billing();self.assertEqual(self.f.get_all.call_args_list[0].kwargs['filters'],{'retired':0,'admin_contact':'billing@example.invalid'})
     def test_control_room_requires_owner(self):
         owner=MagicMock(side_effect=PermissionError());self.fake('platform',owner=owner,organizations=MagicMock())
         with self.assertRaises(PermissionError):self.load('release').control_room()
@@ -72,7 +72,7 @@ class ReleaseContracts(unittest.TestCase):
         self.f.db.sql.assert_not_called()
     def test_custom_contract_scoped_to_registry_tenant_without_local_institute(self):
         from institute_lms.pricing_rules import integer
-        self.fake('platform',owner=lambda:None,organization=lambda tenant:R(name=tenant,admin_contact='payer'))
+        self.fake('platform',owner=lambda:None,organization=lambda tenant, **kwargs:R(name=tenant,admin_contact='payer'))
         saved=[]
         self.fake('owner_pricing',save=lambda d:saved.append(d) or d)
         self.fake('saas',audit=MagicMock())
@@ -82,7 +82,7 @@ class ReleaseContracts(unittest.TestCase):
         self.assertEqual(saved[-1].customer,'payer');self.assertIsNone(saved[-1].get('institute'))
         self.assertEqual(self.f.get_all.call_args.kwargs['filters']['tenant_id'],'org-A')
     def test_custom_contract_zero_price_rejected(self):
-        self.fake('platform',owner=lambda:None,organization=lambda tenant:R(admin_contact='payer'))
+        self.fake('platform',owner=lambda:None,organization=lambda tenant, **kwargs:R(admin_contact='payer'))
         self.fake('owner_pricing',save=MagicMock());self.fake('saas',audit=MagicMock())
         with self.assertRaises(ValueError):self.load('release').custom_price('org-A',0,'Monthly','Review')
         self.f.db.sql.assert_not_called()

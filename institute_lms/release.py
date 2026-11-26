@@ -38,7 +38,9 @@ def billing():
     from .platform import control,organization
     from .wallet import signed_in,admin_actor
     control();signed_in()
-    filters={} if admin_actor() else {'admin_contact':frappe.session.user}
+    filters={'retired':0}
+    if not admin_actor():
+        filters['admin_contact']=frappe.session.user
     rows=frappe.get_all('IL Organization',filters=filters,fields=['name','title','site_hostname','enabled'],limit_page_length=100)
     for row in rows:
         organization(row.name,administrator=True)
@@ -74,7 +76,7 @@ def custom_price(tenant,amount_minor,period,reason):
     from .owner_pricing import save
     from .saas import audit
     from .pricing_rules import integer
-    owner();d=organization(tenant)
+    owner();d=organization(tenant,for_update=True)
     amount=integer(amount_minor,'Price')
     if not amount or period not in ('Monthly','Yearly') or not str(reason).strip():frappe.throw('Positive price, period and audit reason required')
     frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(tenant,))

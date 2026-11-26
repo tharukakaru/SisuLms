@@ -6,7 +6,6 @@ const workspaceAccessChanged=ref(false)
 function accessChanged(){workspaceAccessChanged.value=true}
 onMounted(()=>window.addEventListener?.('sisu-workspace-access-changed',accessChanged))
 onBeforeUnmount(()=>window.removeEventListener?.('sisu-workspace-access-changed',accessChanged))
-import ExistingAccountDialog from './ExistingAccountDialog.vue'
 const CheckoutEntry=defineAsyncComponent(()=>import('./CheckoutEntry.vue'))
 const checkoutInvoice=new URLSearchParams(location.search).get('checkout_invoice')
 import {googleSignupEntry} from './existingAccount'
@@ -27,6 +26,10 @@ const VerifiedSignup=defineAsyncComponent(()=>import('./VerifiedSignup.vue'))
 const FirebasePush=defineAsyncComponent(()=>import('./FirebasePush.vue'))
 
 const newGoogleSignup=new URLSearchParams(location.search).get('verified_signup')==='1'
+// The OAuth return carries the selected form; stale browser storage cannot pick it.
+const requestedGoogleKind=new URLSearchParams(location.search).get('signup_role')
+const googleSignupKind=['Student','Individual Teacher','Institute'].includes(requestedGoogleKind)?requestedGoogleKind:'Student'
+const googleRegistration=ref(false)
 
 const firebaseTestPage=new URLSearchParams(location.search).get('firebase_test')==='1'
 
@@ -67,7 +70,7 @@ const Signup=defineAsyncComponent(()=>import('./RegistrationFlow.vue'))
 
 const AccountSubscription=defineAsyncComponent(()=>import('./SubscriptionBilling.vue'))
 
-const subscription=ref(null),policy=ref({}),existingGoogleAccount=ref(false),googleSignupError=ref(null)
+const subscription=ref(null),policy=ref({}),googleSignupError=ref(null)
 
 const session=ref(null),error=ref(''),busy=ref(true),selected=ref('Student'),signup=ref(new URLSearchParams(location.search).get('signup')==='1'),dark=ref(false)
 
@@ -83,7 +86,7 @@ const profileOpen=ref(false),profileStarted=ref(false),profileHeading=ref(null),
 const onboardingPhoneVerified=ref(false)
 function showProfile(open){profileOpen.value=open;if(open)profileStarted.value=true;nextTick(()=>(open?profileHeading.value:profileContinue.value)?.focus())}
 const teacherPath=ref('individual'),entryPath=ref('')
-const teacherView=computed(()=>teacherEntryView(session.value,entryPath.value,newGoogleSignup))
+const teacherView=computed(()=>teacherEntryView(session.value,entryPath.value,googleRegistration.value))
 function rememberEntry(){rememberTeacherPath(sessionStorage,'')}
 function continueIndividually(){entryPath.value='individual';rememberTeacherPath(sessionStorage,'individual');resolveTeacherPath(sessionStorage,session.value)}
 const roleCopy={
@@ -100,9 +103,32 @@ function chooseRole(role){roleChosen.value=selected.value===role?!roleChosen.val
 
 function goBack(){if(signupPath.value){signupPath.value=false}else if(roleChosen.value){roleChosen.value=false}else if(hasPreviousPage){window.history.back()}}
 
-async function google(signup=false){if(signup===true)sessionStorage.setItem('sisu_signup_role','Student');rememberEntry();try{const r=await request('portal_policy','google_start',{signup:signup===true?1:0});const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
+async function google(){rememberEntry();try{const kind=selected.value==='Teacher'?'Individual Teacher':selected.value;const r=await request('portal_policy','google_start',{signup:1,kind});const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
 
-async function connect(){busy.value=true;error.value='';googleSignupError.value=null;try{[session.value,policy.value]=await Promise.all([request('portal_session','current',{},'GET'),request('portal_policy','public',{},'GET')]);if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;if(policy.value.unified_teacher_signup&&session.value.onboarding_kind==='Teacher'&&!session.value.member&&session.value.provider_onboarding_required===false&&!newGoogleSignup){await request('teacher_workspace','open_workspace');session.value=await request('portal_session','current',{},'GET')}if(!newGoogleSignup)entryPath.value=resolveTeacherPath(sessionStorage,session.value);if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;const signupEntry=await googleSignupEntry(session.value,newGoogleSignup,request);if(signupEntry){policy.value=signupEntry.policy;existingGoogleAccount.value=signupEntry.accountExists;if(existingGoogleAccount.value)return}if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message;if(newGoogleSignup)googleSignupError.value=e}finally{busy.value=false}}
+async function connect(){
+ busy.value=true;error.value='';googleSignupError.value=null;googleRegistration.value=false
+ try{
+  [session.value,policy.value]=await Promise.all([request('portal_session','current',{},'GET'),request('portal_policy','public',{},'GET')])
+  if(session.value.csrf_token)window.csrf_token=session.value.csrf_token
+  const signupEntry=await googleSignupEntry(session.value,newGoogleSignup,request)
+  if(signupEntry){
+   policy.value=signupEntry.policy
+   googleRegistration.value=!signupEntry.accountExists
+   if(googleRegistration.value){
+    if(!policy.value.self_signup_enabled)throw Error('Signup is currently unavailable. Please contact SISU.')
+    return
+   }
+  }
+  if(policy.value.unified_teacher_signup&&session.value.onboarding_kind==='Teacher'&&!session.value.member&&session.value.provider_onboarding_required===false){
+   await request('teacher_workspace','open_workspace')
+   session.value=await request('portal_session','current',{},'GET')
+  }
+  entryPath.value=resolveTeacherPath(sessionStorage,session.value)
+  if(session.value.csrf_token)window.csrf_token=session.value.csrf_token
+  if(session.value.member)subscription.value=(await request('account_billing','status')).account
+ }catch(e){error.value=e.message;if(newGoogleSignup)googleSignupError.value=e}
+ finally{busy.value=false}
+}
 
 onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('portal_policy','public',{},'GET').then(p=>policy.value=p).catch(()=>{})}})
 
@@ -113,7 +139,7 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 <WorkspaceAccessChanged v-if="workspaceAccessChanged" :teacher="session?.role==='Teacher'"/><PageLoading v-else-if="busy&&(!session||newGoogleSignup||(session.member&&!subscription)||(policy.unified_teacher_signup&&session.onboarding_kind==='Teacher'&&!session.member))&&!passwordConfirmation&&!firebaseTestPage"/><PasswordConfirmation v-else-if="passwordConfirmation"/><section v-else-if="firebaseTestPage" class="panel" style="max-width:760px;margin:40px auto;padding:24px"><h1>SISU browser notification test</h1><p>This test uses your configured sandbox account.</p><a href="/sandbox_firebase_login">Sign in as sandbox Administrator</a><FirebasePush/></section>
 
   <PageLoading v-else-if="googleSignupError" :error="googleSignupError"/>
-  <ExistingAccountDialog v-else-if="existingGoogleAccount" authenticated/>
+  <VerifiedSignup v-else-if="googleRegistration" :policy="policy" google-session :initial-kind="googleSignupKind" :student-only="googleSignupKind==='Student'" @back="connect"/>
 
   <CheckoutEntry v-else-if="checkoutInvoice&&session?.authenticated" :invoice="checkoutInvoice" :user="session.user"/>
 
@@ -121,7 +147,7 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 
   <Subscription v-else-if="session?.control_plane&&session.authenticated" control-plane/>
 
-  <ProviderFirstLogin v-else-if="session?.provider_onboarding_required||session?.provider_workspace_pending" :session="session" :unified-teacher="!!policy.unified_teacher_signup" @continue="connect" @completed="connect"/>
+  <ProviderFirstLogin :unified-teacher="!!policy.unified_teacher_signup" @completed="connect" v-else-if="session?.provider_onboarding_required" :session="session"/>
   <ProviderAccessGate v-else-if="!policy.unified_teacher_signup&&teacherView==='institute'" key="institute-entry" role="Teacher" selection-only @continue="continueIndividually" @changed="connect">
     <details v-if="session.shared_campus" class="teacher-approved-workspaces"><summary>Open an approved teaching workspace</summary><CampusSwitcher provider @opening="continueIndividually"/></details>
     <button v-else-if="session.member" type="button" class="entry-secondary" @click="continueIndividually">Open my current workspace</button>
@@ -135,12 +161,11 @@ onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('p
 
   <Owner v-else-if="session?.role==='Super Admin'" :session="session"/>
 
-  <Campus v-else-if="session?.shared_campus&&!session.member&&session.onboarding_kind==='Student'&&!newGoogleSignup" shared-campus :general-session="session"/><GeneralCampus v-else-if="teacherView!=='setup'&&session?.shared_campus&&!session.member&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)&&!(policy.self_signup_enabled&&newGoogleSignup)" :session="session"/>
+  <Campus v-else-if="session?.shared_campus&&!session.member&&session.onboarding_kind==='Student'" shared-campus :general-session="session"/><GeneralCampus v-else-if="teacherView!=='setup'&&session?.shared_campus&&!session.member&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)" :session="session"/>
   <OperatorWorkspace v-else-if="session?.role==='Operator'" standalone/>
 
   <Campus v-else-if="session?.member" :shared-campus="session.shared_campus"/>
 
-  <VerifiedSignup v-else-if="session?.authenticated && policy.self_signup_enabled && newGoogleSignup" :policy="policy" google-session @back="connect"/>
   <template v-else-if="session?.authenticated">
     <VerificationLayout v-show="!profileOpen" @back="goBack">
       <MobileVerification onboarding @verified="onboardingPhoneVerified=$event"/>

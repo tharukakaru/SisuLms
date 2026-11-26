@@ -1,0 +1,10 @@
+[Unit]
+Description=Check authorized SISU institute removal requests
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=1min
+Unit=hosting-removal-worker.service
+
+[Install]
+WantedBy=timers.target

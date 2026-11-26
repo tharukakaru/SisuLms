@@ -154,16 +154,16 @@ class Services(unittest.TestCase):
     def test_verified_webhook_replay_does_not_settle_twice(self):
         self.fake('saas',managed=lambda d:d,audit=MagicMock());m=self.load('subscription_payments')
         m.config=lambda:('key','secret','test');m.verify_signature=lambda *a:True;m.valid_payment=lambda *a:True;m.settle=MagicMock()
-        a=Record(name='A',amount_minor=100,currency='LKR',checkout_id='C',mode='test',status='succeeded',payment_id='P')
-        self.f.get_doc.return_value=a;self.f.db.sql.return_value=[('A',)];self.f.db.exists.return_value=True
+        a=Record(name='A',tenant_id='org-test',amount_minor=100,currency='LKR',checkout_id='C',mode='test',status='succeeded',payment_id='P')
+        self.f.get_doc.return_value=a;self.f.db.get_value.return_value='org-test';self.f.db.sql.return_value=[('A',)];self.f.db.exists.return_value=True
         raw=json.dumps(dict(mode='test',type='payment.succeeded',data=dict(reference='A',id='P'))).encode()
         self.f.request=Record(get_data=lambda **kw:raw,headers={})
         self.assertTrue(m.notify()['duplicate']);m.settle.assert_not_called()
     def test_signed_wrong_amount_never_activates_subscription(self):
         self.fake('saas',managed=lambda d:d,audit=MagicMock());m=self.load('subscription_payments')
         m.config=lambda:('key','secret','test');m.verify_signature=lambda *a:True;m.settle=MagicMock()
-        self.f.get_doc.return_value=Record(name='A',amount_minor=2000,currency='LKR',checkout_id='C',mode='test',status='pending')
-        self.f.db.sql.return_value=[('A',)]
+        self.f.get_doc.return_value=Record(name='A',tenant_id='org-test',amount_minor=2000,currency='LKR',checkout_id='C',mode='test',status='pending')
+        self.f.db.get_value.return_value='org-test';self.f.db.sql.return_value=[('A',)]
         payment=dict(reference='A',id='pay_'+'x'*24,mode='test',object='payment',status='succeeded',currency='LKR',amountCents=1000,checkoutId='C')
         self.f.request=Record(get_data=lambda **kw:json.dumps(dict(mode='test',type='payment.succeeded',data=payment)).encode(),headers={})
         with self.assertRaises(PermissionError):m.notify()
@@ -171,9 +171,9 @@ class Services(unittest.TestCase):
     def test_verified_success_is_only_webhook_activation_branch(self):
         self.fake('saas',managed=lambda d:d,audit=MagicMock());m=self.load('subscription_payments')
         m.config=lambda:('key','secret','test');m.verify_signature=lambda *a:True;m.settle=MagicMock()
-        a=Record(name='A',amount_minor=2000,currency='LKR',checkout_id='C',mode='test',status='pending')
+        a=Record(name='A',tenant_id='org-test',amount_minor=2000,currency='LKR',checkout_id='C',mode='test',status='pending')
         self.f.get_doc.side_effect=lambda *args,**kw:a if isinstance(args[0],str) else Record(args[0])
-        self.f.db.sql.return_value=[('A',)];self.f.db.exists.return_value=False
+        self.f.db.get_value.return_value='org-test';self.f.db.sql.return_value=[('A',)];self.f.db.exists.return_value=False
         payment=dict(reference='A',id='pay_'+'x'*24,mode='test',object='payment',status='succeeded',currency='LKR',amountCents=2000,checkoutId='C')
         self.f.request=Record(get_data=lambda **kw:json.dumps(dict(mode='test',type='payment.succeeded',data=payment)).encode(),headers={})
         self.assertTrue(m.notify()['settled']);m.settle.assert_called_once();self.assertEqual(a.status,'succeeded')

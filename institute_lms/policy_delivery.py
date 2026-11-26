@@ -11,6 +11,9 @@ def changed(doc, method=None):
     keys=('enabled','plan','state','ends_at','grace_until','features','limits','overrides','base_features','base_limits','site_hostname')
     if before and all(before.get(k)==doc.get(k) for k in keys):return
     tenant=doc.name if doc.doctype=='IL Organization' else doc.tenant_id
+    if frappe.db.get_value('IL Organization', tenant, 'retired'):
+        return
+
     # Registration inserts organization before its subscription; scheduler resolves later.
     name=frappe.db.get_value('IL Policy Delivery',{'organization':tenant},'name')
     d=frappe.get_doc('IL Policy Delivery',name) if name else frappe.get_doc({'doctype':'IL Policy Delivery','organization':tenant})
@@ -21,10 +24,38 @@ def dispatch():
     rows=frappe.get_all('IL Policy Delivery',filters={'next_attempt':['<=',now_datetime()]},pluck='name',limit_page_length=50)
     for name in rows:
         with frappe.cache.lock('il_policy_delivery:'+name,timeout=120,blocking_timeout=1):
-            d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
-            sent_modified=str(d.modified)
+            tenant=frappe.db.get_value('IL Policy Delivery',name,'organization')
+
+            if not tenant:
+                frappe.db.rollback()
+                continue
+
             try:
-                org=frappe.get_doc('IL Organization',d.organization)
+                # Always lock the organization before its dependent records.
+                org=frappe.get_doc('IL Organization',tenant,for_update=True)
+                d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
+                sent_modified=str(d.modified)
+
+                if d.status=='Retired' or not d.next_attempt:
+                    frappe.db.commit()
+                    continue
+
+                from frappe.utils import get_datetime
+                if get_datetime(d.next_attempt)>now_datetime():
+                    frappe.db.commit()
+                    continue
+
+                if org.get('removal_status') and not org.get('retired'):
+                    frappe.db.commit()
+                    continue
+
+                if org.get('retired'):
+                    d.status='Retired'
+                    d.next_attempt=None
+                    managed(d)
+                    frappe.db.commit()
+                    continue
+
                 from .site_policies import blockers
                 if not org.enabled or blockers(org):
                     d.next_attempt=now_datetime()+timedelta(minutes=5)
@@ -41,6 +72,17 @@ def dispatch():
                 import json
                 revision=json.loads(payload['payload'])['revision']
                 if body.get('applied') is not True or body.get('revision')!=revision:raise ValueError('policy_acknowledgement_invalid')
+                # Reacquire organization lock after the network request.
+                org=frappe.get_doc('IL Organization',tenant,for_update=True)
+                d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
+
+                if org.get('retired') or d.status=='Retired':
+                    d.status='Retired'
+                    d.next_attempt=None
+                    managed(d)
+                    frappe.db.commit()
+                    continue
+
                 for notice in json.loads(payload['payload']).get('notices',[]):
                     n=frappe.get_doc('IL Subscription Notice',notice['name'],for_update=True);n.acknowledged=1;managed(n)
                 d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
@@ -51,7 +93,18 @@ def dispatch():
             except Exception:
                 # Never persist provider response/configuration/keys in an error record.
                 frappe.db.rollback()
+
+                # Preserve the same lock order during failure recovery.
+                org=frappe.get_doc('IL Organization',tenant,for_update=True)
                 d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
+
+                if org.get('retired') or d.status=='Retired':
+                    d.status='Retired'
+                    d.next_attempt=None
+                    managed(d)
+                    frappe.db.commit()
+                    continue
+
                 d.status='Failed';d.attempts=int(d.attempts or 0)+1;d.error_code='delivery_failed_check_configuration_or_connectivity'
                 d.next_attempt=now_datetime()+timedelta(minutes=min(60,2**min(d.attempts,6)))
             managed(d);frappe.db.commit()

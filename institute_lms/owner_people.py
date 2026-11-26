@@ -1,4 +1,4 @@
-"""Administrator-only, read-only campus directory and relationship reports."""
+"""Administrator-only campus directory and relationship reports, plus provider profile review."""
 from contextlib import contextmanager
 import frappe
 from .owner_operations import sources, connect
@@ -154,3 +154,37 @@ def detail(site, user, section='connections', page=0):
               FROM `tabIL Account Subscription` WHERE user=%s OR (institute=%s AND role='Institute') ORDER BY creation DESC,name"""
             result=window(c,sql,(user,inst),page)
     return dict(result,person=person,section=section,site=site)
+
+
+@frappe.whitelist(methods=['POST'])
+def review(site, user, decision, reason):
+    """Approve or reject a pending teacher/institute profile on a reporting campus."""
+    import time
+    from frappe.utils.background_jobs import get_queue
+    authorize()
+    if decision not in ('Verified', 'Rejected'):
+        frappe.throw('Choose approve or reject.')
+    reason = str(reason or '').strip()
+    if not reason or len(reason) > 500:
+        frappe.throw('Give a short reason of up to 500 characters.')
+    with campus(site) as c:
+        rows = fetch(c, "SELECT name,kind,status FROM `tabIL Public Profile` WHERE user=%s AND kind IN ('Teacher','Institute') ORDER BY creation DESC LIMIT 1", (user,))
+    if not rows or rows[0]['status'] != 'Pending':
+        frappe.throw('This account has no profile waiting for review. Refresh to see its status.')
+    job = get_queue('short').enqueue_call('frappe.utils.background_jobs.execute_job', timeout=120,
+        kwargs={'site': site, 'user': 'Administrator', 'method': 'institute_lms.provider_review.apply',
+                'event': None, 'job_name': 'provider_review', 'is_async': True,
+                'kwargs': {'profile': rows[0]['name'], 'decision': decision, 'reason': reason,
+                           'reviewer': frappe.session.user}})
+    deadline = time.monotonic() + 25
+    while time.monotonic() < deadline:
+        status = job.get_status(refresh=True)
+        if status == 'finished':
+            result = job.return_value() or {}
+            if not result.get('ok'):
+                frappe.throw(result.get('message') or 'The campus refused this review.')
+            return result
+        if status in ('failed', 'stopped', 'canceled'):
+            frappe.throw('The campus could not save this review. Check its error log and try again.')
+        time.sleep(0.4)
+    frappe.throw('The campus is taking longer than expected. Refresh in a minute to see whether the review was saved.')

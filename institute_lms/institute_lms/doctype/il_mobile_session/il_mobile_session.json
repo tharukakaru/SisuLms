@@ -41,10 +41,9 @@
     },
     {
       "fieldname": "institute",
-      "label": "Selected Institute",
+      "label": "Institute",
       "fieldtype": "Link",
-      "options": "IL Institute",
-      "read_only": 1
+      "options": "IL Institute"
     },
     {
       "fieldname": "expires_at",

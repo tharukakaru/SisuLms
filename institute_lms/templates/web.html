@@ -1,0 +1,32 @@
+{% extends "frappe/templates/web.html" %}
+
+{% block page_container %}
+{% if sisu_auth_page %}
+<div class="sisu-login-layout">
+  <aside class="sisu-login-story">
+    <a href="/campus" class="sisu-login-brand" aria-label="SISU home"><img src="/assets/institute_lms/login-sisu-logo.png" alt="SISU"></a>
+    <div class="sisu-login-copy"><small>GOOD PEOPLE. BRIGHT FUTURES.</small><h1>Learning is better.<br>Together.</h1><p>Meet your people. Share what you know.<br>Build something brighter together.</p></div>
+    <img class="sisu-login-art" src="/assets/institute_lms/login-community.png" alt="A learning community">
+    <footer><strong>More than lessons. A place to belong.</strong><p>Learn · Connect · Grow</p></footer>
+  </aside>
+  <section class="sisu-login-forms" aria-label="SISU account">
+    {% if sisu_owner_entry %}
+    <a href="/login?redirect-to=/campus" class="sisu-login-brand" aria-label="SISU platform owner sign in"><img src="/assets/institute_lms/login-sisu-logo.png" alt="SISU"></a>
+    {% else %}
+    <a href="/campus" class="sisu-login-brand sisu-mobile-brand" aria-label="SISU home"><img src="/assets/institute_lms/login-sisu-logo.png" alt="SISU"></a>
+    {% endif %}
+    {% if sisu_password_reset %}
+    <a href="/login?redirect-to=/campus" class="sisu-login-back">← Back to sign in</a>
+    {% elif not sisu_owner_entry %}
+    <a href="/campus" class="sisu-login-back">← Back to campus</a>
+    {% endif %}
+    {{ super() }}
+    {% if sisu_owner_entry and sisu_student_campus %}
+    <div class="sisu-owner-campus"><p>Here to learn?</p><a class="sisu-owner-campus-link" href="{{ sisu_student_campus | e }}">Go to student campus</a></div>
+    {% endif %}
+  </section>
+</div>
+{% else %}
+{{ super() }}
+{% endif %}
+{% endblock %}

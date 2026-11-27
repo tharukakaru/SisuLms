@@ -1,0 +1,92 @@
+{
+  "doctype": "DocType",
+  "name": "IL Session Reminder",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "reminder_key",
+    "session",
+    "classroom",
+    "institute",
+    "student",
+    "starts_at",
+    "phone",
+    "body",
+    "status",
+    "provider_id",
+    "sent_at",
+    "last_error"
+  ],
+  "fields": [
+    {
+      "fieldname": "reminder_key",
+      "label": "Reminder key",
+      "fieldtype": "Data",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "session",
+      "label": "Session",
+      "fieldtype": "Link",
+      "options": "IL Session"
+    },
+    {
+      "fieldname": "classroom",
+      "label": "Classroom",
+      "fieldtype": "Link",
+      "options": "IL Classroom"
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "student",
+      "label": "Student",
+      "fieldtype": "Link",
+      "options": "IL Member"
+    },
+    {
+      "fieldname": "starts_at",
+      "label": "Starts At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "phone",
+      "label": "Phone",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "body",
+      "label": "Body",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Queued\nReview\nAccepted\nSkipped"
+    },
+    {
+      "fieldname": "provider_id",
+      "label": "Provider Id",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "sent_at",
+      "label": "Sent At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "last_error",
+      "label": "Last Error",
+      "fieldtype": "Small Text"
+    }
+  ],
+  "permissions": []
+}

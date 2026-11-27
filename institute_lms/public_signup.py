@@ -15,10 +15,22 @@ def google_identity(email):
             and bool(frappe.db.get_value('User',email,'enabled')))
 
 
+def registered_google_account(user):
+    """OAuth creates a User before onboarding; only an established SISU account counts."""
+    return bool(
+        frappe.db.exists('IL Public Profile', {'user': user})
+        or frappe.db.exists('IL Member', {'user': user})
+        or frappe.db.exists('IL Registration Request', {'email': user, 'status': 'Approved'})
+    )
+
 def ready():
     from frappe.utils import get_url
     from urllib.parse import urlsplit
-    if not enabled() or urlsplit(get_url()).scheme!='https':frappe.throw('Public signup is not available yet.')
+    from .signup_environment import local_signup_allowed
+    request = getattr(frappe.local, 'request', None)
+    origin = getattr(request, 'url', None) or get_url()
+    if not enabled() or (urlsplit(get_url()).scheme!='https' and not local_signup_allowed(frappe.conf, origin)):
+        frappe.throw('Public signup is not available yet.')
     if not frappe.conf.get('encryption_key') or not frappe.db.exists('Email Account',{'enable_outgoing':1}):frappe.throw('Email verification is not ready.')
     if not frappe.conf.get('il_sms_adapter') or (frappe.conf.get('il_notify_live') or {}).get('test_mode'):
         frappe.throw('Public SMS verification is not ready.')
@@ -36,11 +48,15 @@ def start(data):
         data=json.loads(data)
     try:fields=rules.details(data)
     except ValueError as error:frappe.throw(str(error))
+    from .signup_environment import student_kind_allowed
+    if not student_kind_allowed(frappe.conf, fields['kind']):frappe.throw('Only student signup is enabled on this site.')
     google=google_identity(fields['email'])
     if frappe.session.user!='Guest' and not google:frappe.throw('Use the Google account you just signed in with, or sign out.')
     from .portal_policy import public
     policy=public()
     if not policy['privacy_policy_url'] or data.get('privacy_policy_version')!=policy['privacy_policy_version']:frappe.throw('Review the current privacy policy.')
+    if (fields['kind']=='Student' and not google and frappe.db.exists('User',fields['email'])) or (google and registered_google_account(fields['email'])):
+        return {'account_exists': True}
     existing=frappe.db.get_value('IL Public Profile',{'user':fields['email']},['name','kind'],as_dict=True) if google else None
     if existing and existing.kind!='Student':frappe.throw('Your provider profile already exists. Update it through your account settings.')
     username_owner=frappe.db.get_value('IL Public Profile',{'username':fields['username']},'user')
@@ -54,11 +70,18 @@ def start(data):
     challenges.issue(token,state,'email')
     return {'challenge':token}
 
-def send_phone(token):
+def send_phone(token,phone=None):
     ready()
     with frappe.cache.lock(challenges.key(token),timeout=60):
         state=read(token)
         if not state['email_verified']:frappe.throw('Verify your email first.')
+        if phone is not None:
+            import re
+            if not isinstance(phone,str) or not re.fullmatch(r'\+[1-9][0-9]{7,14}',phone):
+                frappe.throw('Phone number must include the country code.')
+            if state['details']['phone']!=phone:
+                state['details']['phone']=phone
+                state['phone_verified']=False
         challenges.issue(token,state,'phone')
     return {'sent':True}
 
@@ -79,11 +102,15 @@ def complete(token,password,confirmation):
     ready()
     with frappe.cache.lock(challenges.key(token),timeout=60):
         state=read(token)
-        if not rules.verified(state,time.time()):frappe.throw('Verify email and phone before saving.')
+        if not rules.account_creation_ready(state,time.time()):frappe.throw('Complete the required verification before saving.')
         data=state['details'];email=data['email']
+        try:birth_fields={'birth_date':rules.birth_date(data.get('birth_date'))} if data['kind']=='Student' else {}
+        except ValueError as error:frappe.throw(str(error))
+        from .signup_environment import student_kind_allowed
+        if not student_kind_allowed(getattr(frappe,'conf',{}), data['kind']):frappe.throw('Only student signup is enabled on this site.')
         google=state.get('google_user')==email and google_identity(email)
         if state.get('google_user') and not google:frappe.throw('Google session changed. Start again.')
-        try:rules.password(password,confirmation)
+        try:rules.password(password,confirmation,minimum=8)
         except ValueError as error:frappe.throw(str(error))
         if not google and frappe.session.user!='Guest':frappe.throw('Sign out before creating another account.')
         from .portal_policy import public
@@ -91,18 +118,20 @@ def complete(token,password,confirmation):
         if any(data[k]!=policy[k] for k in ('privacy_policy_url','privacy_policy_version')):frappe.throw('Privacy policy changed. Start again.')
         with frappe.cache.lock('il_signup_account:'+hashlib.sha256(email.encode()).hexdigest(),timeout=60):
             if frappe.db.exists('User',email) and not google:frappe.throw('Account already exists. Please sign in.')
+            if google and registered_google_account(email):frappe.throw('Account already exists. Please sign in.')
             if google:
-                user=frappe.get_doc('User',email);user.first_name=data['first_name'];user.last_name=data['last_name'];user.save(ignore_permissions=True)
+                user=frappe.get_doc('User',email);user.first_name=data['first_name'];user.last_name=data['last_name'];user.update(birth_fields);user.save(ignore_permissions=True)
                 from frappe.utils.password import update_password
                 update_password(email,password,logout_all_sessions=False)
             else:
                 frappe.get_doc({'doctype':'User','email':email,'first_name':data['first_name'],'last_name':data['last_name'],
-                    'enabled':1,'user_type':'Website User','send_welcome_email':0,'new_password':password}).insert(ignore_permissions=True)
+                    'enabled':1,'user_type':'Website User','send_welcome_email':0,'new_password':password,**birth_fields}).insert(ignore_permissions=True)
             from .profiles import write
             from frappe.utils import now_datetime
-            phone_name=frappe.db.get_value('IL Verified Phone',{'user':email},'name')
-            phone_doc=frappe.get_doc('IL Verified Phone',phone_name) if phone_name else frappe.get_doc({'doctype':'IL Verified Phone','user':email})
-            phone_doc.phone=data['phone'];phone_doc.verified_at=now_datetime();write(phone_doc)
+            if state.get('phone_verified') is True:
+                phone_name=frappe.db.get_value('IL Verified Phone',{'user':email},'name')
+                phone_doc=frappe.get_doc('IL Verified Phone',phone_name) if phone_name else frappe.get_doc({'doctype':'IL Verified Phone','user':email})
+                phone_doc.phone=data['phone'];phone_doc.verified_at=now_datetime();write(phone_doc)
             kind={'Individual Teacher':'Teacher','Institute':'Institute','Student':'Student'}[data['kind']]
             profile_name=frappe.db.get_value('IL Public Profile',{'user':email},'name')
             profile=frappe.get_doc('IL Public Profile',profile_name) if profile_name else frappe.get_doc({'doctype':'IL Public Profile','user':email,'kind':kind})
@@ -110,16 +139,17 @@ def complete(token,password,confirmation):
             profile.update({'username':data['username'],
                 'display_name':data.get('organization') or data['first_name']+' '+data['last_name'],
                 'country':data['country'],'bio':data['bio'],'qualifications':data['qualifications']})
-            if kind=='Student':profile.grades=data.get('grade','')
             if not profile_name or kind=='Student':profile.status='Verified' if kind=='Student' else 'Pending'
             write(profile)
             # No membership, global role, subscription, paid grant or institute
             # ownership is created by this identity-verification transaction.
+            from .teacher_workspace import enabled as unified_teacher_enabled
+            teacher_profile_complete = kind == 'Teacher' and unified_teacher_enabled()
             frappe.get_doc({'doctype':'IL Registration Request','email':email,'account_type':data['kind'],
-                'status':'Approved','email_verified':1,'details':json.dumps({**data,'flow':'public-account-v1'}),
-                'review_reason':'Email and phone verified; no workspace permissions or provider endorsement granted.'}).insert(ignore_permissions=True)
+                'status':'Approved','email_verified':1,'details':json.dumps({**data,'flow':'public-account-v1','onboarding_version':2,**({'onboarding_profile_completed':True} if teacher_profile_complete else {})}),
+                'review_reason':'Email verified; phone verification '+('complete' if state.get('phone_verified') is True else 'required on first login')+'; no workspace permissions or provider endorsement granted.'}).insert(ignore_permissions=True)
             from .account_confirmations import queue
-            queue(email,'account-verified','Account verified','Your SISU account has been successfully verified. You can now follow teachers and register with providers.')
+            queue(email,'account-verified','Account created','Your SISU account has been created. Sign in to complete any remaining profile and mobile verification steps.')
             frappe.db.commit()
             state['consumed']=True;challenges.store(token,state)
     return {'created':True,'message':'Your account is ready. Sign in to your SISU space.'}

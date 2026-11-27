@@ -2,6 +2,7 @@
 import json
 from html import escape
 import frappe
+from .message_templates import sendmail
 from frappe.utils import now_datetime
 
 def document_html(bill,account,kind='invoice'):
@@ -27,6 +28,6 @@ def queue_document(bill,kind):
     if kind=='receipt' and bill.receipt_queued_at:return
     account=frappe.get_doc('IL Provider Account',bill.provider_account)
     html=document_html(bill,account,kind)
-    frappe.sendmail(recipients=[account.billing_email],subject='SISU '+kind+' '+bill.name,
-        message=html,attachments=[{'fname':'SISU-'+kind+'-'+bill.name+'.html','fcontent':html}],delayed=True)
+    sendmail(frappe, recipients=[account.billing_email],subject='SISU '+kind+' '+bill.name,
+        message='<p>Your SISU '+escape(kind)+' is ready. Open the attached billing document for the calculation and payment details.</p>',attachments=[{'fname':'SISU-'+kind+'-'+bill.name+'.html','fcontent':html}],delayed=True)
     if kind=='receipt':bill.receipt_queued_at=now_datetime();save(bill)

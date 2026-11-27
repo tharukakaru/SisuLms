@@ -1,0 +1,26 @@
+{
+  "doctype": "DocType",
+  "name": "IL Student Count Policy",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "prompt",
+  "field_order": [
+    "payload",
+    "revision"
+  ],
+  "fields": [
+    {
+      "fieldname": "payload",
+      "label": "Payload",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "revision",
+      "label": "Revision",
+      "fieldtype": "Int"
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

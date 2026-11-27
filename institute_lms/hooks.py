@@ -1,5 +1,5 @@
 app_name = "institute_lms"
-app_title = "Sisu Â· Institute LMS"
+app_title = "Sisu · Institute LMS"
 app_publisher = "Institute LMS contributors"
 app_description = "Institute classrooms, schedules, payments and communication"
 app_email = "admin@example.com"
@@ -8,7 +8,7 @@ required_apps = ["lms"]
 role_home_page = {"Institute Student": "campus", "Institute Teacher": "campus", "Institute Admin": "campus"}
 after_install = "institute_lms.setup.after_install"
 after_migrate = "institute_lms.setup.add_indexes"
-website_route_rules = [{"from_route": "/campus", "to_route": "campus"}, {"from_route": "/super-admin", "to_route": "super_admin"}]
+website_route_rules = [{"from_route": "/campus", "to_route": "campus"}, {"from_route": "/super-admin", "to_route": "super_admin"}, {"from_route": "/admin-invite", "to_route": "admin_invite"}]
 scheduler_events = {"cron": {"*/5 * * * *": ["institute_lms.notifications.dispatch", "institute_lms.notifications.dispatch_email", "institute_lms.calendar_sync.dispatch"]},
                     "daily": ["institute_lms.billing.daily", "institute_lms.retention.purge_expired_promotions", "institute_lms.profiles.purge_updates"]}
 doc_events = {"IL Institute": {"validate": "institute_lms.validation.validate_institute"},
@@ -18,7 +18,14 @@ add_to_apps_screen = [{"name": "institute_lms", "title": "Sisu", "route": "/camp
                        "logo": "/assets/institute_lms/brand.svg"}]
 
 on_session_creation = "institute_lms.portal_policy.stamp_session"
-on_login = "institute_lms.portal_policy.validate_login"
+on_login = ["institute_lms.portal_policy.validate_login", "institute_lms.admin_mfa.validate_login"]
+before_login = ["institute_lms.request_security.before_login", "institute_lms.admin_mfa.before_login"]
+before_request = "institute_lms.request_security.guard"
+after_request = "institute_lms.request_security.response_headers"
+send_token_via_sms = "institute_lms.admin_mfa.send_token"
+# Native OTP login clears the site cache when its second request has no usr.
+# Authentication proofs and rate limits must survive that cache refresh.
+persistent_cache_keys = ['il_admin_mfa:', 'il_admin_invite_rl_v2:mfa-', 'il_request_budget:', 'il_signup_limit:', 'il_verification_5m:']
 
 # Authentication hook order matters: establish mobile identity before authorization.
 auth_hooks = ["institute_lms.mobile_auth.authenticate", "institute_lms.account_billing.guard_request", "institute_lms.saas.guard_request", "institute_lms.native_access.guard"]
@@ -37,6 +44,7 @@ doc_events['IL Enrollment']['validate']='institute_lms.commercial.enforce_enroll
 scheduler_events["cron"]["*/5 * * * *"].append("institute_lms.notification_service.dispatch_adapters")
 scheduler_events["daily"].append("institute_lms.retention.sweep")
 scheduler_events["daily"].append("institute_lms.storage.backfill")
+scheduler_events.setdefault('hourly', []).append('institute_lms.renewal_notices.dispatch')
 doc_events["IL Paper"]={"on_update":"institute_lms.notification_events.paper_changed"}
 doc_events["IL Paper Attempt"]={"on_update":"institute_lms.notification_events.attempt_changed"}
 doc_events["LMS Certificate"]={"after_insert":"institute_lms.notification_events.certificate_issued"}
@@ -89,3 +97,25 @@ scheduler_events["cron"]["*/5 * * * *"].append("institute_lms.whatsapp_webhook.r
 for _dt in ('IL Account Invoice','IL Usage Invoice','IL Profile Relationship'):
     _ai_hook(_dt,'on_update','institute_lms.sandbox_notices.observe')
 scheduler_events['daily'].append('institute_lms.sandbox_notices.expiry')
+
+# Scoped owner invitations; dispatcher is a no-op on campus sites.
+scheduler_events['cron'].setdefault('*/1 * * * *', []).append('institute_lms.owner_invitation_delivery.dispatch')
+scheduler_events['cron'].setdefault('*/1 * * * *', []).append('institute_lms.subscription_sms.dispatch')
+scheduler_events['cron'].setdefault('*/1 * * * *', []).append('institute_lms.subscription_documents.dispatch')
+
+# Presentation only: keep Frappe login handlers and verification intact.
+web_include_css = ["/assets/institute_lms/login-presentation.css?v=sisu-auth-20261115-signup"]
+web_include_js = ["/assets/institute_lms/login-presentation.js?v=sisu-auth-20261115-signup"]
+
+# Shared SISU browser-tab icon for login, website and error pages.
+website_context = {"favicon": "/assets/institute_lms/sisu-icon.png?v=sisu-20261114"}
+
+
+
+update_website_context = "institute_lms.portal_entry.website_context"
+
+_ai_hook('IL Owner Access', 'on_update', 'institute_lms.admin_mfa.sync_access')
+
+scheduler_events['cron'].setdefault('* * * * *', []).append('institute_lms.session_reminders.dispatch')
+scheduler_events['cron'].setdefault('*/5 * * * *', []).append('institute_lms.student_renewals.dispatch')
+scheduler_events['daily'].append('institute_lms.student_count.daily')

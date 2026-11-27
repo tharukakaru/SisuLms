@@ -1,0 +1,78 @@
+/* Institute dialogs share the provider panel theme. Hosted card fields keep their own styling. */
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal-backdrop {background:#24172f66;backdrop-filter:blur(5px);padding:24px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal,
+.institute-programme-dialog {--dialog-accent:#572b91;--dialog-soft:#f3edf9;--dialog-ink:#282032;--dialog-muted:#6b6078;--dialog-line:#e5ddec;background:#fff;color:var(--dialog-ink);border:1px solid #ede6f3;border-radius:22px;box-shadow:0 24px 90px #26123930;max-height:calc(100dvh - 48px);scrollbar-width:thin;scrollbar-color:#bda7d1 #faf8fc;overscroll-behavior:contain}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal:where(:not(.wide):not(.bank-review):not(.classroom-editor):not([data-dialog-kind=session])) {width:min(680px,calc(100vw - 48px));max-width:680px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal:is(.classroom-editor,[data-dialog-kind=session]) {width:min(780px,calc(100vw - 48px));max-width:780px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal.wide {width:min(1100px,calc(100vw - 48px));max-width:1100px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal :is(p,.field-help,.form-note) {font-size:14px;line-height:1.65;color:var(--dialog-muted)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal h2 {font-size:24px;line-height:1.3;letter-spacing:-.6px;color:var(--dialog-ink)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal h3 {font-size:16px;line-height:1.5;color:var(--dialog-ink)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal .button,
+.institute-programme-dialog .button {min-height:44px;padding:11px 18px;font-size:14px;font-weight:650;line-height:1.5;border-radius:10px;gap:9px;box-shadow:none;white-space:normal}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal .button.primary,
+.institute-programme-dialog .button.primary {background:var(--dialog-accent)!important;border:1px solid var(--dialog-accent);color:white!important}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal .button.subtle,
+.institute-programme-dialog .button.subtle {border:1px solid #cfc0df;background:white;color:var(--dialog-accent)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal :is(button,a,input,select,textarea,summary):focus-visible,
+.institute-programme-dialog :is(button,a,input,select,textarea,summary):focus-visible {outline:3px solid #9872c7;outline-offset:3px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal :is(.icon-button,.review-close) {width:42px;height:42px;min-width:42px;min-height:42px;border:1px solid var(--dialog-line);border-radius:11px;background:white;color:var(--dialog-accent)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog>.modal-close {position:sticky;top:16px;right:auto;float:right;margin:16px 16px -60px 0;z-index:6;box-shadow:0 2px 8px #26123908}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog>.form-content {padding:0 28px 0}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog-header {display:flex;align-items:flex-start;gap:16px;padding:30px 72px 26px 28px;margin:0 -28px 26px;background:var(--dialog-soft);border-bottom:1px solid var(--dialog-line)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog-symbol {display:grid;place-items:center;width:48px;height:48px;flex:0 0 48px;background:white;border:1px solid #e5d6f0;border-radius:13px;color:var(--dialog-accent)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog-header h2 {margin:0 0 8px;font-size:25px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog-header p {margin:0;font-size:13px;line-height:1.7}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content label {display:flex;flex-direction:column;gap:9px;font-size:13px;font-weight:600;line-height:1.5;color:#493954;margin:0 0 22px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content label>span {position:static;float:none;margin:0;font-size:12px;font-weight:400;color:var(--dialog-muted)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content :is(input:not([type=checkbox]):not([type=radio]):not([type=color]),select,textarea) {width:100%;min-height:48px;padding:12px 14px;border:1px solid #c6b7d5;border-radius:10px;background:#fff;color:var(--dialog-ink);font-size:14px;font-weight:400;line-height:1.5;box-sizing:border-box}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content :is(input,textarea)::placeholder {color:#82758e;opacity:1}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content :is(input,select):disabled {background:#f6f3f9;color:#74677f;opacity:1}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content textarea {min-height:112px;resize:vertical}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content input[type=color] {min-height:48px;width:100%;max-width:180px;padding:6px;background:#fff;border:1px solid #c6b7d5;border-radius:10px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content input[type=file] {font-size:13px;background:#faf8fc;border-style:dashed;padding:14px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog input[type=file]::file-selector-button {padding:9px 12px;border:0;border-radius:7px;background:var(--dialog-soft);color:var(--dialog-accent);margin-right:12px;cursor:pointer}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content :is(.checkbox-label,label:has(>input[type=checkbox])) {flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;line-height:1.6}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content input:is([type=checkbox],[type=radio]) {width:18px;height:18px;min-height:18px;flex:0 0 18px;margin:2px 0 0;accent-color:var(--dialog-accent)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-row {grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px;margin:0}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-note {display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border:1px solid var(--dialog-line);background:#faf8fc;border-radius:11px;margin:0 0 24px;font-size:13px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-footer {position:sticky;bottom:0;z-index:4;display:flex;justify-content:flex-end;align-items:center;gap:12px;background:#fff;border-top:1px solid var(--dialog-line);margin:28px -28px 0;padding:18px 28px;box-shadow:0 -6px 18px #28133304}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-footer button {margin:0;min-width:112px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .error {font-size:13px;line-height:1.6;color:#9b2536;background:#fff4f5;padding:14px 16px;border:1px solid #efc7cc;border-radius:10px;overflow-wrap:anywhere;margin:0 0 22px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .classroom-section-title {padding-top:22px;margin:24px 0 18px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .institute-dialog-header+.classroom-section-title {padding-top:0;border-top:0}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .duration-options .button {font-size:12px;padding:10px 8px;min-height:46px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .duration-options button[aria-pressed=true] {background:var(--dialog-accent)!important;color:#fff!important}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content>.eyebrow {display:none}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content:has(>.institute-dialog-header) {padding-top:0}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content:not(:has(>.institute-dialog-header)) {padding:30px 28px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content:not(:has(>.institute-dialog-header))>h2 {padding-right:42px;margin-bottom:20px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content:not(:has(>.institute-dialog-header))>p {margin:16px 0}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .detail-content {padding:26px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .detail-actions {gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .detail-tabs {display:flex;flex-direction:row;gap:6px;flex-wrap:wrap;padding:6px;background:#f8f5fb;border:1px solid var(--dialog-line);border-radius:12px;margin:20px 0}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .detail-tabs button {min-height:42px;padding:10px 13px;font-size:13px;border-radius:8px;color:var(--dialog-muted)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .detail-tabs button.selected {background:var(--dialog-accent);color:white}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .whatsapp-composer>header {padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--dialog-line)}
+.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .bank-review .review-header {background:var(--dialog-soft)}
+.institute-programme-dialog {padding:28px;max-width:900px}
+.institute-programme-dialog h2 {font-size:25px;line-height:1.4;padding-right:40px;margin-bottom:12px}
+.institute-programme-dialog p {font-size:14px;line-height:1.7;color:var(--dialog-muted)}
+@media(max-width:600px){
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal-backdrop {padding:10px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal:is(.institute-dialog,.whatsapp-composer,.bank-review),.institute-programme-dialog {width:calc(100vw - 20px);max-width:calc(100vw - 20px);max-height:calc(100dvh - 20px);border-radius:18px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog>.form-content {padding:0 20px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog-header {padding:25px 58px 22px 20px;margin:0 -20px 24px;gap:12px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog-symbol {width:38px;height:38px;flex-basis:38px;border-radius:10px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog-header h2 {font-size:22px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog-header p {font-size:13px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog>.modal-close {top:12px;margin:12px 12px -56px 0;width:38px;height:38px;min-width:38px;min-height:38px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-row {grid-template-columns:1fr;gap:0}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content :is(input,select,textarea) {font-size:16px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-footer {margin-left:-20px;margin-right:-20px;padding:14px 20px;gap:10px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-footer button {flex:1;min-width:0;padding:11px 10px;font-size:13px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .form-content:not(:has(>.institute-dialog-header)) {padding:26px 20px}
+ .app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .institute-dialog .detail-content {padding:18px}
+ .institute-programme-dialog {padding:22px}
+}
+@media(prefers-reduced-motion:reduce){.app-shell:is([data-workspace-role=Admin],[data-workspace-role=Student]) .modal * {scroll-behavior:auto;transition:none!important}}

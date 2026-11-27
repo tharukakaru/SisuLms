@@ -16,15 +16,29 @@ def changed(doc,method=None):
     else:return
     tenant=doc.get('tenant_id')
     if not tenant:return
+
+    # Serialize notice creation against permanent tenant retirement.
+    org=frappe.get_doc('IL Organization',tenant,for_update=True)
+
+    if org.get('retired'):
+        return
+
     key=notification_key(doc.doctype+':'+doc.name+':'+str(doc.get('status')),event)
     if not frappe.db.exists('IL Subscription Notice',{'event_key':key}):
         managed(frappe.get_doc({'doctype':'IL Subscription Notice','event_key':key,'tenant_id':tenant,'event_type':event,'body':body,'acknowledged':0}))
-    # Serialize against issuance. Do not clear newer pending updates after delivery.
-    frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(tenant,))
+    # Organization lock is already held before notice creation.
+    # Do not clear newer pending updates after delivery.
     name=frappe.db.get_value('IL Policy Delivery',{'organization':tenant},'name')
     if name:
         from frappe.utils import now_datetime
-        d=frappe.get_doc('IL Policy Delivery',name,for_update=True);d.status='Pending';d.next_attempt=now_datetime();managed(d)
+        d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
+
+        if d.status=='Retired':
+            return
+
+        d.status='Pending'
+        d.next_attempt=now_datetime()
+        managed(d)
 
 def apply(institute,notices):
     from .notification_service import emit,EVENTS

@@ -8,7 +8,7 @@ function harness({intent='course-invoice',bills=[],shared=true,selectedClass=nul
  const props={member:{role:'Student'},sharedCampus:shared,general:false,invoices:[],rooms:[],selectedClass}
  const context=vm.createContext({ref:value=>({value}),computed:fn=>({get value(){return fn()}}),watch(){},onMounted(){},defineExpose(){},defineProps:()=>props,defineEmits:()=>()=>{},sessionStorage:{getItem:()=>intent},
  directRequest:async(module,method,args)=>{calls.push({module,method,args});if(method==='billing')return {invoices:bills,slips:[]};if(method==='invoices')return bills;if(method==='slips')return [];return {instructions:'Shared institute account',recipient:'Institute'}}})
- vm.runInContext(source.match(/<script setup>([\s\S]*?)<\/script>/)[1].replace(/^import .*$/gm,'')+'\nglobalThis.ui={load,form,bank,invoices};',context)
+ vm.runInContext(source.match(/<script setup>([\s\S]*?)<\/script>/)[1].replace(/^import .*$/gm,'')+'\nglobalThis.ui={load,form,bank,invoices,selectFile,clearFile,file,fileInput,error};',context)
  return {ui:context.ui,calls}
 }
 test('programme invoice loads despite empty parent list and stale class selection',async()=>{
@@ -25,4 +25,25 @@ test('class selects its unpaid invoice with multiple balances',async()=>{
 })
 test('no accessible invoice leaves payment selection empty',async()=>{
  const h=harness();await h.ui.load();assert.equal(h.ui.form.value.invoice,'');assert.equal(h.ui.form.value.amount,'');assert.equal(h.ui.bank.value,null)
+})
+
+
+test('bank slip selection validates size and type and clears the native field',()=>{
+ const {ui}=harness()
+ ui.fileInput.value={value:'receipt.pdf'}
+ const receipt={name:'receipt.pdf',size:1024}
+ ui.selectFile({target:{files:[receipt]}})
+ assert.equal(ui.file.value,receipt)
+ ui.clearFile()
+ assert.equal(ui.file.value,null)
+ assert.equal(ui.fileInput.value.value,'')
+ ui.selectFile({target:{files:[{name:'receipt.pdf',size:5*1024*1024+1}]}})
+ assert.equal(ui.file.value,null)
+ assert.match(ui.error.value,/too large/)
+ ui.selectFile({target:{files:[{name:'receipt.exe',size:1024}]}})
+ assert.equal(ui.file.value,null)
+ assert.match(ui.error.value,/Choose a PDF/)
+ ui.selectFile({target:{files:[{name:'receipt.PNG',size:5*1024*1024}]}})
+ assert.equal(ui.file.value.name,'receipt.PNG')
+ assert.equal(ui.error.value,'')
 })

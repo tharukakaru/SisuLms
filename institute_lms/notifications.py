@@ -3,6 +3,7 @@ from hashlib import sha256
 from datetime import timedelta
 import requests
 import frappe
+from .message_templates import sendmail
 from frappe.utils import now_datetime
 
 
@@ -114,5 +115,5 @@ def dispatch_email():
             if not delivery_allowed(doc,member,'EMAIL') or not member.active or not member.get('contact_email_verified') or not member.get('email_opt_in') or not member.get('contact_email'):
                 doc.db_set('status','Skipped');frappe.db.commit();continue
             # Email Queue creation and outbox acceptance share the DB transaction.
-            frappe.sendmail(recipients=[member.contact_email],subject='Your Sisu class update',message='<p>'+escape(doc.body).replace('\n','<br>')+'</p><p>Open your institute LMS for the current schedule and class access.</p>',delayed=True,reference_doctype='IL Notification',reference_name=doc.name)
+            sendmail(frappe, recipients=[member.contact_email],subject='Your Sisu class update',message='<p>'+escape(doc.body).replace('\n','<br>')+'</p><p>Open your institute LMS for the current schedule and class access.</p>',delayed=True,reference_doctype='IL Notification',reference_name=doc.name)
             doc.status='Accepted';doc.attempts+=1;doc.save(ignore_permissions=True);frappe.db.commit()

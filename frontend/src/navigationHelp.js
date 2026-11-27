@@ -1,4 +1,5 @@
 export const navigationHelp = {
+  'join-institute':'Search institutes, request to join and check membership approval.',
   dashboard:'Your learning overview: daily encouragement, classrooms and upcoming lessons.',
   classrooms:'Each subject’s home: sessions, materials, announcements and enrolled students.',
   programmes:'A complete course that bundles several classrooms or modules under one enrolment.',

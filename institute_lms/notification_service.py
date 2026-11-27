@@ -5,10 +5,11 @@ from frappe.utils import now_datetime
 from .saas import managed
 from .saas_rules import notification_key
 
-EVENTS=('whatsapp.payment_approved','whatsapp.enrolment_reminder','whatsapp.class_scheduled','delivery.submitted','delivery.reviewed','delivery.dispatched','payment.slip','payment.review','announcement','session.changed','material.created','assignment.created','assignment.due',
+EVENTS=('enrollment.requested','enrollment.completed','whatsapp.payment_approved','whatsapp.enrolment_reminder','whatsapp.class_scheduled','delivery.submitted','delivery.reviewed','delivery.dispatched','payment.slip','payment.review','announcement','session.changed','material.created','assignment.created','assignment.due',
         'quiz.available','quiz.result','payment.successful','payment.failed','subscription.renewed',
         'subscription.expiry','course.expiry','certificate.issued','lesson.refunded','lesson.payment',
         'live.changed','recording.ready','recording.published','paper.ready','ai.low','premium.offer','premium.receipt','programme.assigned')
+EVENTS=(*EVENTS,'teacher.membership.requested','teacher.invitation.responded','class.renewal')
 CHANNELS=('IN_APP','EMAIL','SMS','WHATSAPP','PUSH')
 LABELS={'IN_APP':'IN_APP','EMAIL':'Email','SMS':'SMS','WHATSAPP':'WhatsApp','PUSH':'PUSH'}
 
@@ -95,18 +96,36 @@ def delivery_timestamps(doc,method=None):
     if doc.status in ('Accepted','Delivered','Read') and not doc.sent_at:doc.sent_at=now_datetime()
     if doc.status=='Failed' and not doc.failed_at:doc.failed_at=now_datetime()
 
+def recipient_channel_allowed(member, channel):
+    """Workers have no campus session; resolve the recipient's own subscription."""
+    from .account_billing import policy
+    inst=frappe.get_doc('IL Institute',member.institute)
+    result=policy(inst,member)
+    return bool(result['available'] and result['features'].get('integrations.'+channel.lower()))
+
 def dispatch_adapters():
     from .providers import sms,push
-    from .saas import require
     with frappe.cache.lock('il_channel_dispatch',timeout=300,blocking_timeout=1):
         for name in frappe.get_all('IL Notification',filters={'channel':['in',['SMS','PUSH']],'status':'Queued'},pluck='name',limit_page_length=20):
+            event=frappe.db.get_value('IL Notification',name,'event')
+            if frappe.db.get_value('IL Notification Event',event,'event_type')=='class.renewal':
+                from .student_renewals import deliver_sms
+                deliver_sms(name)
+                continue
+            if frappe.db.get_value('IL Notification Event',event,'event_type')=='teacher.invitation.responded':
+                from .invitation_notifications import deliver_sms
+                deliver_sms(name)
+                continue
             frappe.db.sql('SELECT name FROM `tabIL Notification` WHERE name=%s FOR UPDATE',(name,))
             d=frappe.get_doc('IL Notification',name,for_update=True);m=frappe.get_doc('IL Member',d.recipient)
             if d.status!='Queued':continue
             e=frappe.get_doc('IL Notification Event',d.event)
             if not m.active or not preference(m.user,e.event_type).get(d.channel):
                 d.status='Skipped';d.save(ignore_permissions=True);frappe.db.commit();continue
-            try:require('integrations.'+d.channel.lower())
+            if d.institute!=m.institute or e.institute!=m.institute or e.user!=m.user:
+                d.status='Skipped';d.save(ignore_permissions=True);frappe.db.commit();continue
+            try:
+                if not recipient_channel_allowed(m,d.channel):continue
             except frappe.PermissionError:continue
             if not frappe.conf.get('il_sms_adapter' if d.channel=='SMS' else 'il_push_adapter'):continue
             # Commit uncertain state BEFORE sending; worker crashes never blindly resend.

@@ -24,7 +24,7 @@ export function installSignOut() {
   let busy = false
   const channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel('sisu-session') : null
   if (channel) channel.onmessage = event => {
-    if (event.data === 'signed-out') window.location.replace('/campus')
+    if (event.data === 'signed-out') window.location.replace('/login?redirect-to=/campus')
   }
   window.addEventListener('pageshow', event => {
     if (event.persisted) window.location.reload()
@@ -39,7 +39,7 @@ export function installSignOut() {
     try {
       await endSession()
       channel?.postMessage('signed-out')
-      window.location.replace('/campus')
+      window.location.replace('/login?redirect-to=/campus')
     } catch (error) {
       let notice = document.getElementById('sisu-signout-error')
       if (!notice) {

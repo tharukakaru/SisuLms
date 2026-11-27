@@ -10,3 +10,4 @@ institute_lms.patches.release_v2
 institute_lms.patches.commercial_plans
 institute_lms.patches.learning_ids
 institute_lms.patches.account_subscriptions
+institute_lms.patches.admin_mfa_levels

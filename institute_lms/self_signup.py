@@ -1,10 +1,12 @@
 """Opt-in sandbox self signup; immutable contact proofs, no client-selected roles."""
+from .message_templates import verification_sms
 import hashlib
 import hmac
 import json
 import secrets
 import time
 import frappe
+from .message_templates import add_email_design
 from . import signup_rules as rules
 
 
@@ -76,6 +78,8 @@ def send_email(address,code):
     message=EmailMessage();message['From']='SISU Academy <noreply@sisuacademylk.com>'
     message['To']=address;message['Subject']='Your SISU signup verification code';message['Message-ID']=make_msgid(domain='sisuacademylk.com')
     message.set_content('Your SISU verification code is '+code+'. It expires in 10 minutes. Ignore this email if you did not request it.')
+    from .message_templates import verification_body
+    add_email_design(message, verification_body(code), title='Verify your email', label='VERIFY YOUR EMAIL')
     queue=frappe.get_doc({'doctype':'Email Queue','sender':message['From'],'email_account':account.name,
         'message':message.as_string(),'message_id':message['Message-ID'],'status':'Not Sent',
         'recipients':[{'recipient':address,'status':'Not Sent'}]}).insert(ignore_permissions=True)
@@ -100,7 +104,7 @@ def issue(token,state,channel):
     else:
         from .providers import sms
         channel_name=frappe.conf.get('il_self_signup_phone_channel')
-        if channel_name=='SMS':sms(state['details']['phone'],'Your SISU code is '+code+'. Expires in 10 minutes.')
+        if channel_name=='SMS':sms(state['details']['phone'],verification_sms(code))
         else:frappe.throw('Phone OTP delivery is not configured. No account can be created yet.')
 
 
@@ -162,12 +166,14 @@ def verify(token,channel,code):
 def complete(token,password,confirmation):
     require_ready()
 
-    try:rules.password(password,confirmation)
+    try:rules.password(password,confirmation,minimum=8)
     except ValueError as error:frappe.throw(str(error))
     with frappe.cache.lock(key(token),timeout=60):
         state=read(token)
         if not rules.verified(state,time.time()):frappe.throw('Verify both email and phone before saving.')
         data=state['details'];email=data['email']
+        try:birth_fields={'birth_date':rules.birth_date(data.get('birth_date'))} if data['kind']=='Student' else {}
+        except ValueError as error:frappe.throw(str(error))
         is_google=state.get('google_user')==email and google_identity(email)
         if state.get('google_user') and not is_google:frappe.throw('Google session changed. Start again.')
         if not is_google and frappe.session.user!='Guest':frappe.throw('Sign out before creating another account.')
@@ -187,10 +193,10 @@ def complete(token,password,confirmation):
                     frappe.throw('Institute workspace assignment requires review.')
             # User.new_password follows Frappe strength checks and password hashing.
             if is_google:
-                user=frappe.get_doc('User',email);user.first_name=data['first_name'];user.last_name=data['last_name'];user.new_password=password;user.save(ignore_permissions=True)
+                user=frappe.get_doc('User',email);user.first_name=data['first_name'];user.last_name=data['last_name'];user.update(birth_fields);user.new_password=password;user.save(ignore_permissions=True)
             else:
                 user=frappe.get_doc({'doctype':'User','email':email,'first_name':data['first_name'],'last_name':data['last_name'],
-                    'enabled':1,'user_type':'Website User','send_welcome_email':0,'new_password':password}).insert(ignore_permissions=True)
+                    'enabled':1,'user_type':'Website User','send_welcome_email':0,'new_password':password,**birth_fields}).insert(ignore_permissions=True)
             from .profiles import write
             from frappe.utils import now_datetime
             write(frappe.get_doc({'doctype':'IL Verified Phone','user':email,'phone':data['phone'],'verified_at':now_datetime()}))

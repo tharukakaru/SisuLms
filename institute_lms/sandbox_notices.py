@@ -1,6 +1,7 @@
 """Durable, manually dispatched transactional notices for allowlisted sandbox users."""
 import hashlib
 import frappe
+from .message_templates import add_email_design
 
 def enabled():
     return getattr(frappe.local,'site',None)=='hnb-checkout.localhost' and frappe.conf.get('il_signup_notices_enabled')==1
@@ -80,6 +81,7 @@ def deliver(limit=10,notice_name=None):
                 d.email_status='Review';d.save(ignore_permissions=True);frappe.db.commit()
                 try:
                     m=EmailMessage();m['From']='SISU Academy <noreply@sisuacademylk.com>';m['To']=d.user;m['Subject']=d.subject;m['Message-ID']=make_msgid(domain='sisuacademylk.com');m.set_content(d.body)
+                    add_email_design(m)
                     q=frappe.get_doc(dict(doctype='Email Queue',email_account='SISU Academy',sender=m['From'],message=m.as_string(),message_id=m['Message-ID'],status='Not Sent',recipients=[dict(recipient=d.user,status='Not Sent')])).insert(ignore_permissions=True)
                     frappe.db.commit();q.send(force_send=True);q.reload()
                     if q.status=='Sent':d.email_status='Accepted'

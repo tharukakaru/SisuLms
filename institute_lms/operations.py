@@ -47,8 +47,11 @@ def attendance_rows(classroom,session=None,page=0):
     filters={'institute':inst.name,'classroom':room.name}
     if member.role=='Student':filters['student']=member.name
     if session:filters['session']=session
-    return frappe.get_all('IL Attendance',filters=filters,fields=['name','session','student','channel','status','recorded_at','note'],
+    rows=frappe.get_all('IL Attendance',filters=filters,fields=['name','session','student','channel','status','recorded_at','note'],
         order_by='recorded_at desc',start=max(0,min(int(page),10000))*100,limit_page_length=100)
+    for row in rows:
+        row['student_name']=frappe.db.get_value('IL Member',{'name':row.student,'institute':inst.name},'full_name') or row.student
+    return rows
 
 @frappe.whitelist()
 def attendance(classroom,session=None,page=0):return attendance_rows(classroom,session,page)

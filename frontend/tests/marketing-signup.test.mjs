@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-test('marketing signup stays on the LMS host and opens the role-selection entry',()=>{
+test('marketing signup stays on the LMS host and opens provider signup',()=>{
  const app=readFileSync(new URL('../../marketing-site/app.js',import.meta.url),'utf8');
  const portal=readFileSync(new URL('../src/native/PortalRoot.vue',import.meta.url),'utf8');
  assert.ok(app.includes("const base='';"));
- assert.ok(app.includes('/campus`'));
+ assert.ok(app.includes('/campus?signup=1&start_trial=1`'));
  assert.ok(!app.includes('https://staging.sisuacademylk.com'));
  assert.ok(portal.includes("signup=ref(new URLSearchParams(location.search).get('signup')==='1')"));
 });

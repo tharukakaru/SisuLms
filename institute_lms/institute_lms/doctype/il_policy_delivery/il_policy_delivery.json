@@ -26,7 +26,7 @@
       "fieldname": "status",
       "label": "Status",
       "fieldtype": "Select",
-      "options": "Pending\nDelivered\nFailed"
+      "options": "Pending\nDelivered\nFailed\nRetired"
     },
     {
       "fieldname": "revision",

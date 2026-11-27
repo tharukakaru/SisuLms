@@ -23,10 +23,24 @@ def class_filters(p,inst):
 @frappe.whitelist()
 def detail(profile,page=0):
     inst,member=identity();p=provider(profile)
+    return public_catalogue(p,inst,member,page)
+
+
+@frappe.whitelist(methods=['GET'])
+def institute_profile(profile,page=0):
+    # Read published information from the institute being viewed, never switch membership.
+    inst,member=identity();require_role(member,'Teacher')
+    p=provider(profile)
+    if p.kind!='Institute' or not p.workspace:
+        frappe.throw('Institute unavailable',frappe.PermissionError)
+    return public_catalogue(p,frappe._dict(name=p.workspace),None,page)
+
+
+def public_catalogue(p,inst,member,page=0):
     classes=frappe.get_all('IL Classroom',filters=class_filters(p,inst),fields=['name','title','subject','grade','teaching_medium','cover_image','teacher','fee_mode','schedule_label','public_provider','billing_type','programme','owner_type','batch_year','class_kind','fee'],order_by='title asc',limit_start=paginate(page),limit_page_length=24)
     teacher_members=frappe.get_all('IL Member',filters={'name':['in',list({c.teacher for c in classes}) or ['__none__']]},fields=['name','full_name'])
     names={t.name:t.full_name for t in teacher_members}
-    enrolled=set(frappe.get_all('IL Enrollment',filters={'student':member.name,'active':1,'classroom':['in',[c.name for c in classes] or ['__none__']]},pluck='classroom')) if member.role=='Student' else set()
+    enrolled=set(frappe.get_all('IL Enrollment',filters={'student':member.name,'active':1,'classroom':['in',[c.name for c in classes] or ['__none__']]},pluck='classroom')) if member and member.role=='Student' else set()
     for classroom in classes:
         classroom.teacher_name=names.get(classroom.teacher,'')
         classroom.enrolled=classroom.name in enrolled
@@ -83,4 +97,7 @@ def join_class(classroom):
     from .api import create_enrollment
     fee=0 if room.fee_mode=='Free' else room.fee
     name=create_enrollment(inst,room,member,[{'amount':fee,'due_date':today()}] if fee else [])
+    from .commercial import notify_people
+    notify_people(room,'enrollment.requested','enrollment-request:'+name,
+        member.full_name+' joined '+room.title+'. '+('Payment is pending; review their slip when submitted.' if fee else 'This class is free.'))
     return {'enrollment':name,'existing':False}

@@ -1,0 +1,17 @@
+{
+ "doctype":"DocType","name":"IL Renewal Notice","module":"Institute LMS","custom":0,
+ "engine":"InnoDB","autoname":"hash","track_changes":0,
+ "fields":[
+  {"fieldname":"notice_key","fieldtype":"Data","label":"Notice key","unique":1,"reqd":1},
+  {"fieldname":"subscription","fieldtype":"Link","options":"IL Account Subscription","label":"Subscription","reqd":1},
+  {"fieldname":"user","fieldtype":"Link","options":"User","label":"Recipient","reqd":1},
+  {"fieldname":"expires_at","fieldtype":"Datetime","label":"Access ends","reqd":1},
+  {"fieldname":"email","fieldtype":"Data","label":"Email"},
+  {"fieldname":"phone","fieldtype":"Data","label":"Verified phone"},
+  {"fieldname":"body","fieldtype":"Small Text","label":"Message","reqd":1},
+  {"fieldname":"email_status","fieldtype":"Select","options":"Pending\nQueued\nSkipped","label":"Email status"},
+  {"fieldname":"sms_status","fieldtype":"Select","options":"Pending\nReview\nAccepted\nSkipped","label":"SMS status"},
+  {"fieldname":"last_error","fieldtype":"Small Text","label":"Last error"}
+ ],
+ "permissions":[{"role":"System Manager","read":1}]
+}

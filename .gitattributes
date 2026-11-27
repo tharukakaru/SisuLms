@@ -1,0 +1,4 @@
+local-docker/scripts/*.sh text eol=lf
+
+*.pdf binary
+deployment/targeted-handover/*.patch text eol=lf

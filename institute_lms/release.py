@@ -38,7 +38,9 @@ def billing():
     from .platform import control,organization
     from .wallet import signed_in,admin_actor
     control();signed_in()
-    filters={} if admin_actor() else {'admin_contact':frappe.session.user}
+    filters={'retired':0}
+    if not admin_actor():
+        filters['admin_contact']=frappe.session.user
     rows=frappe.get_all('IL Organization',filters=filters,fields=['name','title','site_hostname','enabled'],limit_page_length=100)
     for row in rows:
         organization(row.name,administrator=True)
@@ -57,6 +59,10 @@ def control_room(page=0):
     owner();data={'plans':frappe.get_all('IL SaaS Plan',fields=['name','features','limits','price_minor','period_days','version'],limit_page_length=3),'usage_available':False}
     data['organizations']=organizations(page=page)
     data['jobs']=frappe.get_all('IL Provisioning Job',fields=['name','organization','status','detail','modified'],order_by='modified desc',limit_page_length=100)
+    for job in data['jobs']:
+        org=frappe.db.get_value('IL Organization',job.organization,['title','site_hostname'],as_dict=True) or {}
+        job['organization_title']=org.get('title') or 'Institute'
+        job['site_hostname']=org.get('site_hostname') or ''
     data['counts']={k:frappe.db.count('IL Organization',f) for k,f in [('registered',{}),('enabled',{'enabled':1}),('disabled',{'enabled':0})]}
     from .saas_rules import FEATURES,LIMITS
     data.update(feature_keys=FEATURES,limit_keys=LIMITS)
@@ -70,7 +76,7 @@ def custom_price(tenant,amount_minor,period,reason):
     from .owner_pricing import save
     from .saas import audit
     from .pricing_rules import integer
-    owner();d=organization(tenant)
+    owner();d=organization(tenant,for_update=True)
     amount=integer(amount_minor,'Price')
     if not amount or period not in ('Monthly','Yearly') or not str(reason).strip():frappe.throw('Positive price, period and audit reason required')
     frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(tenant,))

@@ -39,6 +39,8 @@ def receive(payload,signature):
     value=json.loads(payload);tenant=value.get('tenant_id');key=(frappe.conf.get('il_tenant_signing_keys') or {}).get(tenant)
     if not key or not hmac.compare_digest(sign(value,key),str(signature)):frappe.throw('Invalid request',frappe.PermissionError)
     org=frappe.get_doc('IL Organization',tenant)
+    if org.get('retired'):
+        frappe.throw('Organization permanently retired', frappe.PermissionError)
     if not org.enabled or value.get('site_hostname')!=org.site_hostname or abs(time.time()-int(value.get('issued_at',0)))>60:
         frappe.throw('Invalid request scope',frappe.PermissionError)
     action=value.get('action');args=value.get('args') or {};nonce=value.get('nonce')

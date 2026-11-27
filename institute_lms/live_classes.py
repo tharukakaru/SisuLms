@@ -85,6 +85,22 @@ def join(name):
             'name':d.name,'host_identity':room.teacher,'can_control':teacher,'recording_status':d.recording_status}
 
 @frappe.whitelist(methods=['POST'])
+def confirm_connection(name):
+    """Record attendance only after LiveKit confirms this authenticated member joined."""
+    d,member,room=checked(name)
+    if d.status!='Live':frappe.throw('This live lesson is not active')
+    from .live_provider import operation
+    person=operation('participant',d.provider_room,identity=member.name)
+    if person.identity!=member.name:frappe.throw('Live connection could not be confirmed',frappe.PermissionError)
+    if member.role!='Student':return {'connected':True,'attendance_recorded':False}
+    meeting=frappe.get_doc('IL Session',d.session)
+    if meeting.institute!=d.institute or meeting.classroom!=room.name or meeting.status=='Cancelled':
+        frappe.throw('Session unavailable',frappe.PermissionError)
+    from .operations import record
+    result=record(room,meeting,member.name,'Present','Online','LiveKit confirmed connection; not proof of viewing duration')
+    return {'connected':True,'attendance_recorded':True,'status':result['status']}
+
+@frappe.whitelist(methods=['POST'])
 def recording(name):
     d,member,_=checked(name)
     if d.recording_status!='Ready':frappe.throw('Recording is not ready')

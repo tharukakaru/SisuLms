@@ -41,3 +41,19 @@ test('scheduling outside a classroom keeps the existing page behavior',async()=>
  const c=harness();c.modal.value=null;c.edit('session',c.room);await c.submit()
  assert.equal(c.modal.value,null);assert.equal(c.refreshCount,1)
 })
+
+
+for(const name of [undefined,'existing-room']){
+ test(`bank settings ${name?'keeps the existing classroom scope':'omits an absent classroom ID instead of sending null'}`,async()=>{
+  const target=name?{name}:{};let sent
+  const context={form:{value:target},classroomBank:{value:{}},error:{value:''},request:async(module,method,args,verb)=>{
+   sent={module,method,args,verb};return {editable:false,owner_type:'Teacher',instructions:''}
+  }}
+  vm.createContext(context)
+  vm.runInContext(source.slice(source.indexOf('async function loadClassroomBank('),source.indexOf('function edit(')),context)
+  await context.loadClassroomBank(target)
+  assert.equal(sent.method,'classroom_bank_settings');assert.equal(sent.verb,'GET')
+  assert.equal(new URLSearchParams(sent.args).toString(),name?'classroom=existing-room':'')
+  assert.equal(context.error.value,'');assert.equal(context.classroomBank.value.loading,false)
+ })
+}

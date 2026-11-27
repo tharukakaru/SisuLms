@@ -15,6 +15,7 @@ def issue(phone, channel, sender):
     signed_in()
     if channel not in ('SMS','WHATSAPP') or not re.fullmatch(r'\+[1-9][0-9]{7,14}',str(phone)):frappe.throw('Invalid phone or channel')
     from urllib.parse import urlsplit
+    from .signup_environment import local_signup_allowed
     origin=urlsplit(get_url())
     request=getattr(frappe.local,'request',None)
     request_host=str(getattr(request,'host','')).split(':')[0].lower()
@@ -22,6 +23,9 @@ def issue(phone, channel, sender):
                and getattr(frappe.local,'site',None)=='localhost'
                and origin.scheme=='http' and origin.hostname=='localhost'
                and request_host=='localhost')
+    # Provider first-login verification uses the same explicitly enabled,
+    # exact loopback origin as local signup (including the configured port).
+    local_dev = local_dev or local_signup_allowed(frappe.conf, getattr(request, 'url', None))
     if (origin.scheme!='https' and not local_dev) or not frappe.conf.get('encryption_key'):
         frappe.throw('Secure OTP configuration required')
     from .registration import limit

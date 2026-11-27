@@ -2,6 +2,7 @@
 import frappe
 from frappe.model.naming import make_autoname
 from .campus_context import enabled
+from .membership_write import authorized_insert
 
 
 def sync(relationship, institute, status):
@@ -16,7 +17,8 @@ def sync(relationship, institute, status):
             frappe.throw('This account has a different role in the institute. Ask an administrator to review it.', frappe.PermissionError)
         member = frappe.get_doc('IL Member', row.name)
         member.active = int(status == 'Active')
-        member.save(ignore_permissions=True)
+        with authorized_insert(member):
+            member.save(ignore_permissions=True)
         return
     if status != 'Active':
         return
@@ -34,6 +36,7 @@ def sync(relationship, institute, status):
     member = frappe.get_doc({'doctype': 'IL Member', 'institute': institute,
         'user': relationship.user, 'role': 'Teacher', 'full_name': profile,
         'active': 1, 'language': 'en', 'email_opt_in': 0, 'whatsapp_opt_in': 0})
-    member.insert(ignore_permissions=True, set_name=make_autoname('TC-' + code + '-.####'))
+    with authorized_insert(member):
+        member.insert(ignore_permissions=True, set_name=make_autoname('TC-' + code + '-.####'))
     # Same request transaction as the relationship. Never changes global User roles,
     # password, subscription, other memberships or previously revoked assignments.

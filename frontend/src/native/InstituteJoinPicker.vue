@@ -1,182 +1,20 @@
 <script setup>
-import {ref,onMounted} from 'vue'
-import {request} from './client'
-const props=defineProps({purpose:String});const emit=defineEmits(['back'])
-const data=ref({institutes:[],requests:[]}),selected=ref([]),busy=ref(false),message=ref(''),error=ref('')
-async function load(){data.value=await request('profiles','institute_join_options',{},'GET')}
-async function submit(){busy.value=true;error.value='';try{const r=await request('profiles','request_institutes',{profiles:selected.value,purpose:props.purpose});message.value=r.message;selected.value=[];await load()}catch(e){error.value=e.message}finally{busy.value=false}}
-onMounted(async()=>{try{await load()}catch(e){error.value=e.message}})
+import {ref,computed,onMounted,watch} from 'vue'
+import {request,csrf,decode} from './client'
+const props=defineProps({purpose:String,onboarding:Boolean});const emit=defineEmits(['back'])
+const data=ref({institutes:[],requests:[]}),selected=ref([]),busy=ref(false),loading=ref(true),message=ref(''),error=ref(''),query=ref(''),submitted=ref(false)
+const current=computed(()=>new Set(data.value.requests.filter(r=>['Pending','Active'].includes(r.status)).map(r=>r.profile)))
+const remaining=computed(()=>Math.max(0,5-current.value.size))
+const options=computed(()=>data.value.institutes.filter(p=>!current.value.has(p.name)&&p.display_name.toLowerCase().includes(query.value.trim().toLowerCase())))
+const label=r=>data.value.institutes.find(p=>p.name===r.profile)?.display_name||'Institute'
+async function load(){loading.value=true;error.value='';try{data.value=await request('profiles','institute_join_options',{},'GET');if(props.onboarding&&data.value.requests.some(r=>['Pending','Active'].includes(r.status)))submitted.value=true}catch(e){error.value=e.message}finally{loading.value=false}}
+async function submit(){if(busy.value||!selected.value.length)return;busy.value=true;error.value='';try{const r=await request('profiles','request_institutes',{profiles:selected.value,purpose:props.purpose});message.value=r.message;selected.value=[];submitted.value=true;await load()}catch(e){error.value=e.message}finally{busy.value=false}}
+async function backToLogin(){if(busy.value)return;busy.value=true;error.value='';try{await decode(await fetch('/api/method/logout',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':csrf()}}));window.location.assign('/login?redirect-to=/campus')}catch(e){error.value=e.message;busy.value=false}}
+function another(){submitted.value=false;message.value='';emit('back')}
+watch(()=>props.purpose,()=>{selected.value=[];query.value='';message.value='';submitted.value=false})
+onMounted(load)
 </script>
-<template>
-  <section class="join-picker">
-    <button type="button" class="sisu-back-link" @click="emit('back')">← Back to teaching options</button>
-    <h2>{{purpose==='Existing teacher confirmation'?'Confirm your existing institute registration':'Apply to an institute'}}</h2>
-    <p class="join-picker-lead">Choose up to five institutes. Each institute must review your request before granting access.</p>
-    <p v-if="error" class="join-picker-error" role="alert">{{error}}</p>
-    <p v-if="message" class="join-picker-notice" role="status">{{message}}</p>
-    <form class="join-picker-form" @submit.prevent="submit">
-      <div class="join-picker-list">
-        <label v-for="p in data.institutes" :key="p.name" class="join-picker-item">
-          <input type="checkbox" :value="p.name" v-model="selected" :disabled="busy||(!selected.includes(p.name)&&selected.length>=5)"/>
-          <span><strong>{{p.display_name}}</strong> · @{{p.username}}</span>
-        </label>
-      </div>
-      <p v-if="!data.institutes.length" class="join-picker-empty">No verified institutes are available in this workspace directory yet.</p>
-      <button type="submit" class="join-submit-pill" :disabled="busy||!selected.length">
-        <span>Submit request</span>
-        <span aria-hidden="true">→</span>
-      </button>
-    </form>
-    <div v-if="data.requests.length" class="join-requests-box">
-      <h3>Your requests</h3>
-      <p v-for="r in data.requests" :key="r.name">
-        <strong>{{data.institutes.find(p=>p.name===r.profile)?.display_name||'Institute'}}</strong> · {{r.request_purpose}} · {{r.status==='Pending'?'Waiting for institute confirmation':r.status}}
-      </p>
-    </div>
-  </section>
-</template>
+<template><section class="join-picker" :aria-busy="busy||loading"><p v-if="loading" role="status">Loading your institute requests…</p><div v-if="error" class="join-error" role="alert">{{error}} <button :disabled="busy||loading" @click="load">Refresh requests</button></div><div v-if="message" class="join-success" role="status"><strong>Request sent</strong><p>{{message}}</p></div><template v-if="purpose&&purpose!=='Review requests'&&!submitted"><button v-if="!onboarding" class="join-back" :disabled="busy" @click="emit('back')">← Back to teaching options</button><h2>{{purpose==='Existing teacher confirmation'?'Choose your institute':'Where would you like to teach?'}}</h2><p>Choose up to {{remaining}} {{remaining===1?'institute':'institutes'}}. Access starts after the institute approves your request.</p><template v-if="!loading&&remaining"><label class="join-search">Find an institute<input v-model="query" type="search" placeholder="Search institute name" :disabled="busy"></label><form @submit.prevent="submit"><div class="join-options"><label v-for="p in options" :key="p.name" :class="{chosen:selected.includes(p.name)}"><input type="checkbox" :value="p.name" v-model="selected" :disabled="busy||(!selected.includes(p.name)&&selected.length>=remaining)"/><span><strong>{{p.display_name}}</strong><small>@{{p.username}}</small></span></label></div><p v-if="!options.length" class="join-empty">{{query?'No institutes match this search.':'No other verified institutes are available right now.'}}</p><div class="join-submit"><span>{{selected.length}} selected · {{remaining}} available</span><button class="join-primary" :disabled="busy||!selected.length">{{busy?'Sending request…':'Request access'}}</button></div></form></template><p v-else-if="!loading">You have reached the five-institute limit.</p></template><section v-if="data.requests.length" class="request-list"><header><h2>Your institute requests</h2><button :disabled="busy||loading" @click="load">{{loading?'Checking…':'Refresh status'}}</button></header><article v-for="r in data.requests" :key="r.name"><div><strong>{{label(r)}}</strong><small>{{r.request_purpose==='Existing teacher confirmation'?'Teaching access confirmation':'Teaching application'}}</small></div><span :class="['request-status',{approved:r.status==='Active'}]">{{r.status==='Pending'?'Waiting for confirmation':r.status==='Active'?'Approved':r.status}}</span></article></section><p v-if="current.size" class="join-success" role="status">Your institute requests are saved. You can sign in again to check their status. Teaching access starts after approval.</p><button class="join-primary" :disabled="busy||loading" @click="backToLogin">Back to sign in</button><button v-if="(submitted||purpose==='Review requests')&&remaining" class="join-primary" @click="another">Apply to another institute</button></section></template>
 <style scoped>
-.join-picker {
-  padding: 24px;
-  border-radius: 22px;
-  background: #fcfcfe;
-  border: 1px solid #e9e8ef;
-  font-family: 'Manrope', Inter, system-ui, sans-serif;
-}
-
-.sisu-back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 14px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: #56288d;
-  font: 500 13px 'Manrope', sans-serif;
-  cursor: pointer;
-}
-
-.sisu-back-link:hover {
-  text-decoration: underline;
-}
-
-.join-picker h2 {
-  margin: 0 0 8px;
-  font-size: 22px;
-  font-weight: 800;
-  color: #19182e;
-}
-
-.join-picker-lead {
-  margin: 0 0 16px;
-  font-size: 14px;
-  color: #787788;
-  line-height: 1.5;
-}
-
-.join-picker-list {
-  display: grid;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.join-picker-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: #ffffff;
-  border: 1px solid #e9e8ef;
-  font-size: 14px;
-  color: #19182e;
-  cursor: pointer;
-}
-
-.join-picker-item input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  accent-color: #56288d;
-}
-
-.join-submit-pill {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  min-height: 54px;
-  padding: 12px 22px;
-  border: 1px solid #56288d;
-  border-radius: 27px;
-  background: #56288d;
-  color: #ffffff;
-  font: 700 14px 'Manrope', sans-serif;
-  cursor: pointer;
-}
-
-.join-submit-pill:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.join-picker-error {
-  padding: 12px 16px;
-  border-radius: 13px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-  font-size: 13px;
-}
-
-.join-picker-notice {
-  padding: 12px 16px;
-  border-radius: 13px;
-  background: #eff8f2;
-  border: 1px solid #cddfd4;
-  color: #24543b;
-  font-size: 13px;
-}
-
-.join-requests-box {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid #e9e8ef;
-}
-
-.join-requests-box h3 {
-  margin: 0 0 8px;
-  font-size: 15px;
-  font-weight: 800;
-  color: #19182e;
-}
-
-.join-requests-box p {
-  margin: 6px 0;
-  font-size: 13px;
-  color: #787788;
-}
-
-@media (max-width: 640px) {
-  .join-picker {
-    padding: 18px 16px;
-    border-radius: 20px;
-  }
-
-  .join-picker h2 {
-    font-size: 20px;
-  }
-
-  .join-picker-item {
-    padding: 12px 14px;
-    border-radius: 13px;
-  }
-
-  .join-submit-pill {
-    min-height: 48px;
-    padding: 12px 18px;
-    border-radius: 27px;
-  }
-}
+.join-picker{margin-top:24px;color:#392b48;font-family:inherit}.join-picker h2{font-size:20px;line-height:1.4}.join-picker p{font-size:14px;line-height:1.8;color:#786b83}.join-picker button{padding:11px 16px;border:1px solid #ded3eb;border-radius:10px;background:#fff;color:#60328c;font:inherit;font-size:13px;cursor:pointer}.join-picker button:disabled{opacity:.5;cursor:not-allowed}.join-picker .join-back{border:0;background:transparent;padding-left:0}.join-search{display:grid;gap:10px;font-size:13px;margin:24px 0 16px}.join-search input{width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid #ded3eb;border-radius:11px;font:inherit;background:#fff;color:inherit}.join-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.join-options label{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid #e4dcee;border-radius:12px;background:#fff;cursor:pointer}.join-options label.chosen{border-color:#8054aa;background:#f8f3fe}.join-options input{width:18px;height:18px;accent-color:#60328c;flex-shrink:0}.join-options strong{font-size:14px}.join-options small,.request-list small{display:block;margin-top:6px;color:#8a7b96;font-size:12px}.join-submit{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:20px 0}.join-submit>span{font-size:12px;color:#84768e}.join-picker .join-primary{background:#60328c;border-color:#60328c;color:white}.join-success,.join-error{padding:18px 20px;border-radius:12px;line-height:1.7;margin-bottom:20px}.join-success{background:#f0f8f2;border:1px solid #d5e9da;color:#306443}.join-success p{margin-bottom:0}.join-error{background:#fff3f3;border:1px solid #efd1d1;color:#923d3d}.request-list{margin:30px 0}.request-list header{display:flex;align-items:center;justify-content:space-between;gap:12px}.request-list article{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px 0;border-bottom:1px solid #eee7f4}.request-status{font-size:12px;padding:7px 11px;border-radius:20px;background:#fff5df;color:#856421}.request-status.approved{background:#edf7f0;color:#306443}.join-picker :is(button,input):focus-visible{outline:3px solid #bda6dc;outline-offset:3px}@media(max-width:650px){.join-options{grid-template-columns:1fr}.request-list article{align-items:flex-start;flex-direction:column}.join-submit{flex-wrap:wrap}}
 </style>

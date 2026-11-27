@@ -30,7 +30,7 @@ def config():
 def quote(tenant, plan):
     from .platform import organization
     from .registration import limit
-    d=organization(tenant,administrator=True);limit('subscription-quote:'+frappe.session.user)
+    d=organization(tenant,administrator=True,for_update=True);limit('subscription-quote:'+frappe.session.user)
     if not d.enabled or plan != 'PREMIUM AI':frappe.throw('Only the monthly Premium offer requires checkout')
     from .premium import offer_for
     offer=offer_for(tenant)
@@ -54,8 +54,25 @@ def checkout(quote,mobile=False):
     from .platform import organization
     from .payments_lk import provider_request
     key,_,mode=config()
-    frappe.db.sql('SELECT name FROM `tabIL Checkout Quote` WHERE name=%s FOR UPDATE',(quote,))
-    q=frappe.get_doc('IL Checkout Quote',quote,for_update=True);organization(q.tenant_id,administrator=True)
+
+    tenant=frappe.db.get_value('IL Checkout Quote',quote,'tenant_id')
+    if not tenant:
+        frappe.throw('Subscription quote unavailable')
+
+    organization(tenant,administrator=True)
+
+    # Serialize checkout against permanent organization retirement.
+    org=frappe.get_doc('IL Organization',tenant,for_update=True)
+
+    if org.get('retired') or not org.enabled:
+        frappe.throw('Organization unavailable for checkout',frappe.PermissionError)
+
+    organization(tenant,administrator=True)
+
+    q=frappe.get_doc('IL Checkout Quote',quote,for_update=True)
+
+    if q.tenant_id!=tenant:
+        frappe.throw('Subscription quote identity changed',frappe.PermissionError)
     if q.product!='Platform' or not q.plan_snapshot or q.status!='Open':frappe.throw('Subscription quote unavailable')
     name=frappe.db.get_value('IL Payment Attempt',{'quote':quote},'name')
     if name:a=frappe.get_doc('IL Payment Attempt',name,for_update=True)
@@ -91,6 +108,34 @@ def settle(a, payment):
     frappe.db.sql('SELECT name FROM `tabIL Subscription` WHERE name=%s FOR UPDATE',(name,))
     s=frappe.get_doc('IL Subscription',name,for_update=True)
     if frappe.db.exists('IL Payment Transaction',{'attempt':a.name}):return
+    if organization.get('retired'):
+        managed(frappe.get_doc({
+            'doctype': 'IL Payment Transaction',
+            'attempt': a.name,
+            'payment_id': payment['id'],
+            'tenant_id': a.tenant_id,
+            'amount_minor': a.amount_minor,
+            'currency': a.currency,
+            'settled_at': datetime.utcnow()
+        }))
+
+        # Record financial settlement without granting subscription access.
+        q=frappe.get_doc('IL Checkout Quote',a.quote,for_update=True)
+
+        if q.tenant_id!=a.tenant_id:
+            frappe.throw('Payment quote tenant mismatch',frappe.PermissionError)
+
+        q.status='Settled'
+        q.flags.pricing_service=True
+        q.save(ignore_permissions=True)
+
+        audit(
+            'Retired tenant payment requires reconciliation',
+            a.tenant_id,
+            a.name
+        )
+        return
+
     snapshot=json.loads(a.snapshot);now=datetime.utcnow()
     base=max(now,get_datetime(s.ends_at)) if s.ends_at and s.plan==snapshot['plan'] else now
     from .full_rules import month_end
@@ -121,9 +166,27 @@ def notify(**kwargs):
     if not incoming:return {'accepted':True,'settled':False}
     p=event.get('data')
     if not isinstance(p,dict) or not isinstance(p.get('reference'),str):frappe.throw('Invalid payment identity')
-    rows=frappe.db.sql('SELECT name FROM `tabIL Payment Attempt` WHERE name=%s FOR UPDATE',(p['reference'],))
-    if not rows:frappe.throw('Unknown subscription attempt')
-    a=frappe.get_doc('IL Payment Attempt',p['reference'])
+    tenant=frappe.db.get_value(
+        'IL Payment Attempt',
+        p['reference'],
+        'tenant_id'
+    )
+
+    if not tenant:
+        frappe.throw('Unknown subscription attempt')
+
+    # Lock the organization before its payment attempt.
+    # Retired organizations must still accept verified financial events.
+    org=frappe.get_doc('IL Organization',tenant,for_update=True)
+
+    a=frappe.get_doc(
+        'IL Payment Attempt',
+        p['reference'],
+        for_update=True
+    )
+
+    if a.tenant_id!=tenant:
+        frappe.throw('Payment tenant identity changed',frappe.PermissionError)
     binding={'name':a.name,'amount':a.amount_minor/100,'gateway_checkout_id':a.checkout_id}
     if incoming=='succeeded':valid=valid_payment(p,binding,mode)
     else:

@@ -1,0 +1,141 @@
+{
+  "doctype": "DocType",
+  "name": "IL Student Count Bill",
+  "module": "Institute LMS",
+  "custom": 0,
+  "engine": "InnoDB",
+  "autoname": "hash",
+  "field_order": [
+    "period_key",
+    "subscription",
+    "institute",
+    "provider_name",
+    "provider_role",
+    "month",
+    "quantity",
+    "unit_minor",
+    "amount_minor",
+    "student_snapshot",
+    "status",
+    "proof_file",
+    "proof_hash",
+    "reference",
+    "submitted_at",
+    "review_note",
+    "reviewed_by",
+    "reviewed_at",
+    "paid_at",
+    "payment_key"
+  ],
+  "fields": [
+    {
+      "fieldname": "period_key",
+      "label": "Period Key",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "subscription",
+      "label": "Subscription",
+      "fieldtype": "Link",
+      "options": "IL Account Subscription"
+    },
+    {
+      "fieldname": "institute",
+      "label": "Institute",
+      "fieldtype": "Link",
+      "options": "IL Institute"
+    },
+    {
+      "fieldname": "provider_name",
+      "label": "Provider Name",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "provider_role",
+      "label": "Provider Role",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "month",
+      "label": "Month",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "quantity",
+      "label": "Quantity",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "unit_minor",
+      "label": "Unit Minor",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "amount_minor",
+      "label": "Amount Minor",
+      "fieldtype": "Int"
+    },
+    {
+      "fieldname": "student_snapshot",
+      "label": "Student Snapshot",
+      "fieldtype": "Long Text"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Unpaid\nPending\nPaid\nRejected"
+    },
+    {
+      "fieldname": "proof_file",
+      "label": "Proof File",
+      "fieldtype": "Link",
+      "options": "File"
+    },
+    {
+      "fieldname": "proof_hash",
+      "label": "Proof Hash",
+      "fieldtype": "Data",
+      "unique": 1
+    },
+    {
+      "fieldname": "reference",
+      "label": "Reference",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "submitted_at",
+      "label": "Submitted At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "review_note",
+      "label": "Review Note",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "reviewed_by",
+      "label": "Reviewed By",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "reviewed_at",
+      "label": "Reviewed At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "paid_at",
+      "label": "Paid At",
+      "fieldtype": "Datetime"
+    },
+    {
+      "fieldname": "payment_key",
+      "label": "Payment Key",
+      "fieldtype": "Data",
+      "unique": 1
+    }
+  ],
+  "permissions": [],
+  "track_changes": 1
+}

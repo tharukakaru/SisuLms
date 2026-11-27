@@ -5,6 +5,7 @@ import json
 import secrets
 import time
 import frappe
+from .message_templates import sendmail, verification_body
 from frappe.utils import get_url
 from .registration_contract import registration_details
 
@@ -15,10 +16,12 @@ def self_start(data):
     return start(data)
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
-def self_phone(token):
+def self_phone(token,phone=None):
     from . import public_signup, self_signup
-    send_phone = getattr(public_signup if public_signup.enabled() else self_signup, 'send_phone')
-    return send_phone(token)
+    if public_signup.enabled():return public_signup.send_phone(token,phone=phone)
+    if phone is not None and phone!=self_signup.read(token)['details']['phone']:
+        frappe.throw('Change your signup details to use another sandbox phone number.')
+    return self_signup.send_phone(token)
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
 def self_verify(token,channel,code):
@@ -80,7 +83,7 @@ def request_code(data):
     limit('ip:'+str(frappe.local.request_ip));limit('email:'+details['email'])
     challenge=secrets.token_urlsafe(32);code=f'{secrets.randbelow(1000000):06d}'
     frappe.cache.set_value('il_signup:'+challenge,{'details':details,'digest':digest(challenge,code),'created':int(time.time()),'attempts':0},expires_in_sec=600)
-    frappe.sendmail(recipients=[details['email']],subject='Your Sisu registration code',message=f'<p>Your code is <strong>{code}</strong>.</p><p>It expires in ten minutes. If you did not request it, ignore this email.</p>',delayed=True)
+    sendmail(frappe, recipients=[details['email']],subject='Your Sisu registration code',message=verification_body(code),delayed=True)
     return {'challenge':challenge,'expires_in_seconds':600}
 
 @frappe.whitelist(allow_guest=True, methods=['POST'])
@@ -142,6 +145,8 @@ def self_google_details():
     allowed=public_signup.google_identity(frappe.session.user) if public_signup.enabled() else enabled() and google_identity(frappe.session.user)
     if not allowed:
         frappe.throw('Authenticate with Google before completing this form.')
+    if public_signup.enabled() and public_signup.registered_google_account(frappe.session.user):
+        return {'account_exists': True}
     user=frappe.get_doc('User',frappe.session.user)
     details={'first_name':user.first_name or '', 'last_name':user.last_name or '', 'email':user.email}
     profile=frappe.db.get_value('IL Public Profile',{'user':frappe.session.user},['username','country','kind','bio','qualifications'],as_dict=True)

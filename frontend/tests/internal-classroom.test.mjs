@@ -13,7 +13,7 @@ test('one classroom creation control preserves the scoped internal classroom opt
 test('shared form hides public controls and uses the separate internal endpoint',()=>{
   assert.match(source,/internalCreation.value\?'create_internal_classroom':methods\[modal.value\]/)
   assert.match(source,/<label v-if="!internalCreation">Provider<select/)
-  assert.match(source,/<label v-if="!internalCreation">Public timetable/)
+  assert.match(source,/<label v-if="!internalCreation"[^>]*>Public timetable/)
   assert.match(source,/<label v-if="!internalCreation" class="checkbox-label"><input v-model="form.published"/)
   assert.match(source,/Create an internal institute classroom\. Public provider publishing is configured separately\./)
 })

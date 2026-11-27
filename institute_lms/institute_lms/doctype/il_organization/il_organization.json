@@ -15,7 +15,19 @@
     "plan",
     "enabled",
     "provisioning_state",
-    "revision"
+    "revision",
+    "retired",
+    "retired_at",
+    "retired_by",
+    "retirement_reason",
+    "original_site_hostname",
+    "original_institute_code",
+    "removal_status",
+    "removal_requested_at",
+    "removal_requested_by",
+    "removal_request_reason",
+    "removal_request_id",
+    "removal_progress"
   ],
   "fields": [
     {
@@ -79,6 +91,80 @@
       "label": "Revision",
       "fieldtype": "Int",
       "default": 0
+    },
+    {
+      "fieldname": "retired",
+      "label": "Retired",
+      "fieldtype": "Check",
+      "default": "0",
+      "read_only": 1
+    },
+    {
+      "fieldname": "retired_at",
+      "label": "Retired At",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "retired_by",
+      "label": "Retired By",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "retirement_reason",
+      "label": "Retirement Reason",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "original_site_hostname",
+      "label": "Original Site Hostname",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "original_institute_code",
+      "label": "Original Institute Code",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "removal_status",
+      "label": "Removal Status",
+      "fieldtype": "Select",
+      "options": "\nRequested\nRunning\nFailed\nCompleted",
+      "read_only": 1
+    },
+    {
+      "fieldname": "removal_requested_at",
+      "label": "Removal Requested At",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "removal_requested_by",
+      "label": "Removal Requested By",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "removal_request_reason",
+      "label": "Removal Request Reason",
+      "fieldtype": "Small Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "removal_request_id",
+      "label": "Removal Request ID",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "removal_progress",
+      "label": "Removal Progress",
+      "fieldtype": "Data",
+      "read_only": 1
     }
   ],
   "permissions": [],

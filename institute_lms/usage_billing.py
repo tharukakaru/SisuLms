@@ -4,6 +4,7 @@ import html
 import json
 from datetime import timedelta
 import frappe
+from .message_templates import sendmail
 from frappe.utils import get_datetime, now_datetime
 from .provider_usage_rules import usage_quote
 DT='IL Usage Invoice'
@@ -59,7 +60,12 @@ def daily():
         if final:doc.issued_at=now;doc.suspended=int(bool(q['amount']) and now>=q['due_at'])
         else:doc.estimated_at=now
         save(doc)
-        if a.billing_email:frappe.sendmail(recipients=[a.billing_email],subject='SISU usage '+doc.status+' '+doc.name,message=document_html(doc),delayed=True)
+        if a.billing_email:
+            from .message_templates import paragraph, details
+            sendmail(frappe, recipients=[a.billing_email],subject='SISU usage '+doc.status+' '+doc.name,
+                message=paragraph('Your student-usage billing update is ready.')+details([
+                    ('Reference', doc.name), ('Status', doc.status), ('Amount (LKR)', doc.amount_lkr),
+                    ('Due date', doc.due_at)])+paragraph('Open Billing in SISU to review the complete calculation and payment details. An estimate is not a final invoice.'),delayed=True)
 
 def blocked(subscription):
     if not enabled():return False

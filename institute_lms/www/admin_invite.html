@@ -1,0 +1,62 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="csrf-token" content="{{ csrf_token | e }}"><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex"><title>SISU admin invitation</title><link rel="icon" type="image/png" href="/assets/institute_lms/sisu-icon.png?v=sisu-20261114">
+<link rel="preload" href="/assets/institute_lms/manrope-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/assets/institute_lms/admin-invite.css?v=7"><script defer src="/assets/institute_lms/admin-invite.js?v=8"></script></head>
+<body data-signed-in="{{ '1' if signed_in_user else '0' }}">
+<svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><symbol id="icon-arrow" viewBox="0 0 24 24"><path d="m9 18-6-6 6-6M3 12h18"/></symbol><symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6l-8-3Z"/><path d="m8 12 3 3 5-6"/></symbol><symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol><symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol></defs></svg>
+<main class="stage">
+  <aside class="brand" aria-labelledby="brand-title"><div class="brand-content">
+    <img class="brand-logo" src="/assets/institute_lms/admin-invite-logo.png" alt="SISU" width="900" height="279">
+    <h2 id="brand-title">A little care.<br>A brighter campus.</h2>
+    <p>Join the team that manages SISU campuses, plans and billing.</p>
+    <img class="brand-art" src="/assets/institute_lms/admin-invite-community-hq.webp" alt="SISU’s purple mascot and two students learning with their teacher" width="1254" height="1254" fetchpriority="high" decoding="async">
+    <div class="brand-footer"><strong>More than lessons. A place to belong.</strong><span>Learn · Connect · Grow</span></div>
+  </div></aside>
+  <div class="form-panel">
+    <a class="back-link" href="{{ '/campus' if signed_in_user else '/login?redirect-to=/campus' }}"><svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg>{{ 'Back to your account' if signed_in_user else 'Back to sign in' }}</a>
+    <section class="card" aria-labelledby="title">
+      <header class="form-header">
+        <div class="invite-mark" aria-hidden="true"><svg class="icon"><use href="#icon-shield"/></svg></div>
+        <h1 id="title">Your SISU invitation</h1>
+        <p id="intro" class="intro">{% if signed_in_user %}Sign out of your current account to accept this invitation.{% else %}Checking your invitation…{% endif %}</p>
+        {% if signed_in_user %}<div class="session-notice"><p>You’re currently signed in as <strong>{{ signed_in_user | e }}</strong>.</p><p>This session belongs to that account. The invitation does not sign you in as the new admin.</p><button id="sign-out-continue" type="button" class="btn wide">Sign out and continue invitation</button><p id="session-status" role="alert" hidden></p></div>{% endif %}
+      </header>
+      <form id="invite-form" hidden novalidate>
+        <fieldset><legend>Your contact details</legend>
+          <div class="field"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" aria-describedby="email-hint" required><small id="email-hint"></small></div>
+          <div class="field"><label for="phone">Mobile number</label><div class="row"><input id="phone" type="tel" autocomplete="tel" placeholder="e.g. 077 123 4567" aria-describedby="phone-hint" required><button id="send-code" type="button" class="btn ghost">Send code</button></div><small id="phone-hint">We’ll send a six-digit verification code by SMS.</small></div>
+          <div class="field code-field"><label for="code">SMS verification code</label><input id="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" aria-describedby="code-hint" required><small id="code-hint">Enter the six digits sent to your mobile.</small></div>
+        </fieldset>
+        <div id="status" role="status" aria-live="polite" hidden></div>
+        <button id="verify-code" type="submit" class="btn wide">Verify code</button>
+      </form>
+      <p class="foot"><svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg>This invitation is personal to you and can be used once.</p>
+    </section>
+  </div>
+</main>
+<dialog id="password-dialog" class="password-modal" aria-labelledby="password-title" aria-describedby="password-description">
+  <button id="password-close" class="close" type="button" aria-label="Close password setup"><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button>
+  <div class="invite-mark" aria-hidden="true"><svg class="icon"><use href="#icon-shield"/></svg></div>
+  <h2 id="password-title">Set your password</h2>
+  <p id="password-description">Your mobile number is verified. Choose a password to finish setting up your admin account.</p>
+  <form id="password-form" novalidate>
+        <fieldset class="password-section"><legend class="visually-hidden">Secure your account</legend>
+          <p class="section-hint" id="password-hint">Use at least 12 characters. Avoid names and common words.</p>
+          <div class="password-grid">
+            <div class="field"><label for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" aria-describedby="password-hint" required><button class="password-toggle" type="button" data-password="password" aria-label="Show password" aria-pressed="false">Show</button></div></div>
+            <div class="field"><label for="confirm">Confirm password</label><div class="password-wrap"><input id="confirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" aria-describedby="password-feedback" required><button class="password-toggle" type="button" data-password="confirm" aria-label="Show confirm password" aria-pressed="false">Show</button></div></div>
+          </div>
+          <small id="password-feedback" class="password-feedback" aria-live="polite"></small>
+        </fieldset>
+
+    <div id="password-status" role="status" aria-live="polite" hidden></div>
+    <button id="submit" type="submit" class="btn wide">Create my admin account</button>
+  </form>
+</dialog>
+<div id="welcome" class="modal-back" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+  <button id="welcome-close" class="close" type="button" aria-label="Close and go to sign in"><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button>
+  <div class="tick" aria-hidden="true"><svg class="icon"><use href="#icon-check"/></svg></div>
+  <h2 id="welcome-title">Welcome!</h2>
+  <p id="welcome-text">Your admin account is ready.</p>
+  <p>Sign in to the platform with your email and new password.</p>
+  <button id="welcome-ok" class="btn wide" type="button">Sign in to SISU</button>
+</div></div>
+</body></html>

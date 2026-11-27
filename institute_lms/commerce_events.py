@@ -52,6 +52,8 @@ def receive(payload,signature):
     key=(frappe.conf.get('il_tenant_signing_keys') or {}).get(e.get('tenant_id'))
     if not key or not hmac.compare_digest(sign(value,key),str(signature)):frappe.throw('Invalid report signature',frappe.PermissionError)
     org=frappe.get_doc('IL Organization',e['tenant_id'],for_update=True)
+    if org.get('retired'):
+        frappe.throw('Organization permanently retired', frappe.PermissionError)
     if value.get('site_hostname')!=org.site_hostname or abs(time.time()-int(value.get('issued_at',0)))>120:frappe.throw('Invalid report scope',frappe.PermissionError)
     import re
     if (e['purpose'] not in ('lesson','class') or e['status'] not in ('paid','succeeded','failed','cancelled','refunded')

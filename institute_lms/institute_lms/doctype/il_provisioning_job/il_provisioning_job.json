@@ -23,7 +23,7 @@
       "label": "Status",
       "fieldtype": "Select",
       "default": "pending",
-      "options": "pending\nrunning\nready\nfailed"
+      "options": "pending\nrunning\nready\nfailed\nretired"
     },
     {
       "fieldname": "detail",

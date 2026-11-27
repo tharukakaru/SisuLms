@@ -43,6 +43,8 @@ def me():
 @frappe.whitelist(methods=['POST'])
 def save_profile(data):
     signed_in()
+    # Serialize first-profile creation and automatic approval for this identity.
+    frappe.db.sql('SELECT name FROM `tabUser` WHERE name=%s FOR UPDATE', (frappe.session.user,))
     if not frappe.db.exists('IL Verified Phone',{'user':frappe.session.user}):frappe.throw('Verify your mobile number first')
     if isinstance(data,str):data=json.loads(data)
     username=str(data.get('username','')).strip().lower()
@@ -59,6 +61,7 @@ def save_profile(data):
     elif not p and not frappe.db.exists('IL Registration Request',{'email':frappe.session.user,'account_type':'Institute' if kind=='Institute' else 'Individual Teacher','status':'Approved'}):
         frappe.throw('Your provider application must be approved first')
     p=mine()
+    first_submission = p is None
     identity_changed=not p or p.display_name!=str(data.get('display_name','')).strip() or p.country!=str(data.get('country','')).strip() or bool(p.is_school)!=bool(data.get('is_school'))
     if p and (p.username!=username or p.kind!=kind):frappe.throw('Username and account type are permanent. Contact support for a reviewed change.')
     if not p:
@@ -78,7 +81,23 @@ def save_profile(data):
         if not enabled():
             from .onboarding import activate
             activate(p)
+    if kind=='Institute' and first_submission:
+        from .provider_review import approve_new_institute
+        approve_new_institute(p)
     if kind!='Student' and p.status=='Pending':owner_notice('Provider profile awaits verification: @'+username,p.name)
+    if kind=='Institute' and p.status=='Pending' and identity_changed:
+        # Only on first submission or a re-review, not on every save.
+        from .provider_review import institute_submitted
+        institute_submitted(p)
+    if kind in ('Teacher','Institute'):
+        rows=frappe.get_all('IL Registration Request',filters={'email':frappe.session.user,'status':'Approved','email_verified':1},fields=['name','details'],order_by='creation desc',limit_page_length=10)
+        for row in rows:
+            try: details=json.loads(row.details or '{}')
+            except (ValueError,TypeError): continue
+            if isinstance(details,dict) and details.get('flow')=='public-account-v1' and details.get('onboarding_version')==2:
+                details['onboarding_profile_completed']=True
+                frappe.db.set_value('IL Registration Request',row.name,'details',json.dumps(details))
+                break
     return {'name':p.name,'username':username,'status':p.status,'code':p.code,'lms_id':p.lms_id}
 
 @frappe.whitelist()
@@ -100,7 +119,10 @@ def review(profile,decision,reason,workspace=None):
         p.code=make_autoname(prefix+'.#######')
     if decision=='Verified':
         from .onboarding import activate
-        activate(p,workspace)
+        from .teacher_workspace import enabled as unified_teacher_enabled
+        if not (unified_teacher_enabled() and p.kind=='Teacher' and p.workspace and
+                frappe.db.exists('IL Member',{'institute':p.workspace,'user':p.user,'role':'Teacher','active':1})):
+            activate(p,workspace)
         if p.kind=='Institute':p.workspace=workspace
     p.status=decision;p.review_reason=str(reason)[:1000];p.reviewed_by=frappe.session.user;write(p)
     return {'code':p.code,'status':p.status}
@@ -226,7 +248,7 @@ def followed_updates(page=0):
     values.append(max(0,min(int(page),10000))*25)
     # Join on verified providers and the current user's follows, then paginate in
     # SQL so one popular provider cannot expose someone else's private records.
-    return frappe.db.sql('''SELECT u.name,u.headline,u.body,u.url,u.expires_at,p.display_name,p.username
+    return frappe.db.sql('''SELECT u.name,u.headline,u.body,u.url,u.expires_at,p.display_name,p.username,p.cover_image,p.profile_image
         FROM `tabIL Provider Update` u JOIN `tabIL Public Profile` p ON p.name=u.profile
         WHERE u.expires_at>%s AND p.status='Verified' AND EXISTS
         (SELECT 1 FROM `tabIL Profile Relationship` r WHERE r.profile=p.name AND r.user=%s
@@ -273,7 +295,7 @@ def institute_join_options():
     from .teacher_identity import eligible
     if not (frappe.db.exists('IL Member',{'user':frappe.session.user,'role':'Teacher','active':1}) or eligible(frappe.session.user)):
         frappe.throw('Teacher account required',frappe.PermissionError)
-    return {'institutes':frappe.get_all('IL Public Profile',filters={'kind':'Institute','status':'Verified'},fields=['name','display_name','username'],limit_page_length=100),
+    return {'institutes':frappe.get_all('IL Public Profile',filters={'kind':'Institute','status':'Verified'},fields=['name','display_name','username','workspace','profile_image','tagline','country','curriculum','languages'],order_by='display_name asc',limit_page_length=100),
         'requests':frappe.get_all('IL Profile Relationship',filters={'user':frappe.session.user,'kind':'Teacher membership'},fields=['name','profile','status','request_purpose'],limit_page_length=100)}
 
 @frappe.whitelist(methods=['POST'])
@@ -295,6 +317,14 @@ def request_institutes(profiles,purpose):
         doc=frappe.get_doc('IL Profile Relationship',existing) if existing else frappe.get_doc({'doctype':'IL Profile Relationship','relationship_key':key,'profile':name,'user':frappe.session.user,'kind':'Teacher membership'})
         if existing and doc.status in ('Pending','Active'):continue
         doc.status='Pending';doc.request_purpose=purpose;write(doc)
+        from .teacher_workspace import enabled as unified_teacher_enabled
+        if unified_teacher_enabled():
+            p=frappe.get_doc('IL Public Profile',name)
+            teacher=mine()
+            from .notification_service import emit
+            for admin in frappe.get_all('IL Member',filters={'institute':p.workspace,'role':'Admin','active':1},pluck='name'):
+                emit(p.workspace,admin,'teacher.membership.requested','teacher-request:'+doc.name+':'+str(doc.modified),
+                     teacher.display_name+' (@'+teacher.username+') requested to join '+p.display_name+'. Open Teacher requests to review.',channels=['IN_APP'])
     return {'submitted':True,'message':'Request submitted. Wait for confirmation from your institute. No access has been granted yet.'}
 
 @frappe.whitelist(methods=['GET'])

@@ -6,8 +6,9 @@ from .domain import safe_url
 @frappe.whitelist(allow_guest=True)
 def public():
     from .public_signup import enabled as public_signup_enabled
+    from .teacher_workspace import enabled as unified_teacher_enabled
     d=frappe.get_single('IL Portal Settings')
-    return {'privacy_policy_url':d.privacy_policy_url or '', 'privacy_policy_version':d.privacy_policy_version or '',
+    return {'unified_teacher_signup':unified_teacher_enabled(), 'student_signup_only':bool(getattr(frappe,'conf',{}).get('il_student_signup_only')), 'privacy_policy_url':d.privacy_policy_url or '', 'privacy_policy_version':d.privacy_policy_version or '',
         'provider_applications_enabled':bool(d.provider_applications_enabled and d.privacy_policy_url and d.privacy_policy_version),
         'google_available':bool(frappe.db.exists('Social Login Key',{'name':'google','enable_social_login':1})),
         'self_signup_enabled':public_signup_enabled(getattr(frappe,'conf',{})) or (getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost' and frappe.conf.get('il_self_signup_enabled')==1)}
@@ -26,11 +27,18 @@ def save(privacy_policy_url='',privacy_policy_version='',provider_applications_e
     return public()
 
 @frappe.whitelist(allow_guest=True,methods=['POST'])
-def google_start(signup=0):
+def google_start(signup=0,kind='Student'):
     from frappe.utils.oauth import get_oauth2_authorize_url
     from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
     if not public()['google_available']:frappe.throw('Google sign-in is not configured yet')
-    url = urlsplit(get_oauth2_authorize_url('google','/campus?verified_signup=1' if str(signup)=='1' else '/campus'))
+    # Form intent only. Existing account roles still come from the server.
+    if kind in ('Teacher','Institute Teacher'):kind='Individual Teacher'
+    if kind not in ('Student','Individual Teacher','Institute'):
+        frappe.throw('Choose Student, Teacher or Institute to continue.')
+    redirect='/campus'
+    if str(signup)=='1':
+        redirect+='?'+urlencode({'verified_signup':1,'signup_role':kind})
+    url = urlsplit(get_oauth2_authorize_url('google',redirect))
     query = dict(parse_qsl(url.query, keep_blank_values=True))
     query['prompt'] = 'select_account'
     return {'url':urlunsplit(url._replace(query=urlencode(query)))}
@@ -42,6 +50,13 @@ def stamp_session(login_manager=None):
     frappe.session.data['il_google_session']=int(path=='/api/method/'+callback and frappe.session.user!='Guest')
     frappe.local.session_obj.update(force=True)
 
+def student_password_account(user):
+    """Opt-in normal Frappe password authentication for enabled learner accounts."""
+    if user in ('Guest','Administrator') or not getattr(frappe,'conf',{}).get('il_student_password_login_enabled'):return False
+    return bool(frappe.db.get_value('User',user,'enabled') and (
+        frappe.db.exists('IL Public Profile',{'user':user,'kind':'Student'}) or
+        frappe.db.exists('IL Member',{'user':user,'role':'Student','active':1})))
+
 def verified_public_password_account(user):
     from .public_signup import enabled
     if not enabled(getattr(frappe,'conf',{})) or user in ('Guest','Administrator'):return False
@@ -52,7 +67,7 @@ def verified_public_password_account(user):
 
 
 def require_google_student():
-    if verified_public_password_account(frappe.session.user):return
+    if student_password_account(frappe.session.user) or verified_public_password_account(frappe.session.user):return
     if getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost':
         from .self_signup import marker
         if marker(frappe.session.user):return
@@ -61,7 +76,7 @@ def require_google_student():
 
 def validate_login(login_manager):
     user=login_manager.user
-    if verified_public_password_account(user):return
+    if student_password_account(user) or verified_public_password_account(user):return
     if getattr(getattr(frappe,'local',None),'site',None)=='hnb-checkout.localhost':
         from .self_signup import marker
         if marker(user):return

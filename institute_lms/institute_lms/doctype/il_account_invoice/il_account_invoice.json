@@ -68,7 +68,7 @@
       "label": "Status",
       "fieldtype": "Select",
       "read_only": 1,
-      "options": "Unpaid\nPaid\nVoid"
+      "options": "Draft\nUnpaid\nPaid\nVoid"
     },
     {
       "fieldname": "paid_at",
@@ -91,9 +91,10 @@
     },
     {
       "fieldname": "receipt_number",
-      "label": "Receipt Number",
+      "label": "Invoice Number",
       "fieldtype": "Data",
-      "read_only": 1
+      "read_only": 1,
+      "unique": 1
     },
     {
       "fieldname": "billed_to",
@@ -125,6 +126,13 @@
       "label": "Version",
       "fieldtype": "Data",
       "read_only": 1
+    },
+    {
+      "fieldname": "receipt_email_status",
+      "label": "Invoice email",
+      "fieldtype": "Select",
+      "options": "\nPending\nQueued",
+      "read_only": 1
     }
   ],
   "field_order": [
@@ -146,7 +154,8 @@
     "billing_email",
     "reviewed_by",
     "review_note",
-    "version"
+    "version",
+    "receipt_email_status"
   ],
   "permissions": [
     {

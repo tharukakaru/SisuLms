@@ -99,15 +99,11 @@ def authenticate():
     d=frappe.get_doc('IL Mobile Session',name) if name else None
     if not d or d.revoked or get_datetime(d.expires_at)<=now_datetime() or not frappe.db.get_value('User',d.user,'enabled'):
         frappe.throw('Mobile session expired or revoked',frappe.AuthenticationError)
-    # set_user resets form_dict along with user-specific request state.
-    # Preserve the already-parsed RPC arguments through that identity change.
     request_args = frappe.local.form_dict.copy()
     frappe.set_user(d.user)
     frappe.local.form_dict.update(request_args)
     frappe.local.il_mobile_session=d.name
     frappe.local.il_mobile_google=bool(d.google_authenticated)
-    # Token scope is independent of the browser/Guest session data. Membership
-    # is revalidated by campus_context before every scoped operation.
     frappe.local.il_mobile_institute=d.get('institute')
 
 @frappe.whitelist(methods=['POST'])

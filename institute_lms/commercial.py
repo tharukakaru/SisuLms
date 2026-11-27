@@ -69,14 +69,26 @@ def enforce_enrollment_limit(doc, method=None):
         if reason:
             frappe.throw(reason, frappe.PermissionError)
 
-def grant(invoice,room,start,end,channel,enrollment_key_hash=None):
+def grant(invoice,room,start,end,channel,enrollment_key_hash=None,access_kind=None):
     """No wallet credit: money is already paid directly to the provider."""
     account=account_for(room)
-    if frappe.db.exists('IL Paid Access',{'invoice':invoice.name}):return
-    enrollment=frappe.get_doc('IL Enrollment',invoice.enrollment)
+    # Serialize different invoices for this enrollment as well as callback replays.
+    enrollment=locked('IL Enrollment',invoice.enrollment)
+    existing=frappe.db.get_value('IL Paid Access',{'invoice':invoice.name},'name')
+    if existing:return frappe.get_doc('IL Paid Access',existing)
+    if invoice.status!='Paid' or enrollment.student!=invoice.student or enrollment.classroom!=room.name or enrollment.institute!=room.institute:
+        frappe.throw('A paid invoice for this enrollment is required',frappe.PermissionError)
     programme=enrollment.get('programme_enrollment')
     product='Programme:'+programme if programme else 'Class:'+room.name
-    save(frappe.get_doc({'doctype':'IL Paid Access','grant_key':'invoice:'+invoice.name,'invoice':invoice.name,'institute':room.institute,
+    if room.get('billing_type')=='Monthly' and not programme:
+        from .student_renewals import coverage_end
+        anchor=coverage_end(room,invoice.student,max(get_datetime(start),now_datetime()))
+        if anchor>get_datetime(start):
+            if room.get('access_duration_days'):
+                start,end=configured_access(room,anchor)
+            elif (access_kind or room.get('paid_access_kind') or 'Month') in ('Day','Week','Month','Year'):
+                start,end=access_window(access_kind or room.get('paid_access_kind') or 'Month',anchor)
+    return save(frappe.get_doc({'doctype':'IL Paid Access','grant_key':'invoice:'+invoice.name,'invoice':invoice.name,'institute':room.institute,
         'provider_account':account.name,'student':invoice.student,'classroom':room.name,'teacher':room.teacher,
         'product_key':product,'title':room.title,'starts_at':start,'ends_at':end,'status':'Awaiting key' if enrollment_key_hash else 'Active',
         **({'enrollment_key_hash':enrollment_key_hash} if enrollment_key_hash else {}),
@@ -195,7 +207,8 @@ def submit_slip(invoice,proof,reference,amount,transfer_date):
         'provider_account':account.name,'proof_file':file.name,'proof_hash':digest,'reference':str(reference).strip(),
         'claimed_minor':money_minor(amount),'transfer_date':transfer_date,'status':'Pending'}))
     file.attached_to_doctype='IL Bank Slip';file.attached_to_name=slip.name;file.save(ignore_permissions=True)
-    notify_people(room,'payment.slip','slip:'+slip.name,'A bank payment slip is awaiting review for '+room.title)
+    notify_people(room,'payment.slip','slip:'+slip.name,
+        'Bank payment slip for '+room.title+' (reference '+slip.reference+') is awaiting teacher or institute approval.',m.name)
     return {'name':slip.name,'status':'Pending'}
 
 def reviewer(slip):
@@ -233,8 +246,9 @@ def review_slip(name,decision,note='',access_kind=None,starts_at=None,ends_at=No
         from .campus_context import enabled
         if enabled() or getattr(frappe.local,'site',None)=='staging.sisuacademylk.com':
             from .class_keys import issue
-            issue(doc,room,start,end)
-        else:grant(doc,room,start,end,'Bank transfer')
+            granted=issue(doc,room,start,end,access_kind=access_kind)
+        else:granted=grant(doc,room,start,end,'Bank transfer',access_kind=access_kind)
+        start,end=granted.starts_at,granted.ends_at
         slip.update(dict(access_kind=access_kind or room.get('paid_access_kind') or 'Month',starts_at=start,ends_at=end))
     slip.rejection_reason=rejection_reason if decision=='Rejected' else ''
     slip.update(dict(status=decision,reviewed_by=frappe.session.user,reviewed_at=now_datetime(),review_note=str(note)[:1000]));save(slip)

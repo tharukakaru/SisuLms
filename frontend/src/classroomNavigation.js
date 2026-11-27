@@ -1,11 +1,14 @@
-export function classroomNavigation(role, {instituteTeacher=false}={}) {
+export function classroomNavigation(role, {instituteTeacher=false,unifiedTeacher=false}={}) {
   return [
     {id:'dashboard',icon:'LayoutDashboard'},
     {id:'classrooms',icon:'BookOpen'},
     {id:'schedule',icon:'CalendarDays'},
     ...(role==='Student'?[{id:'study',icon:'Coffee'}]:[]),
     ...(role==='Admin'?[{id:'team',icon:'Users'},{id:'people',icon:'Users'}]:[]),
+    ...(['Admin','Teacher'].includes(role)?[{id:'students',icon:'GraduationCap'}]:[]),
     {id:'connections',icon:'Search'},
+    ...(role==='Teacher'?[{id:'invitations',icon:'Mail'}]:[]),
+    ...(role==='Teacher'&&unifiedTeacher?[{id:'join-institute',icon:'Building2'}]:[]),
     ...(!instituteTeacher?[{id:'payments',icon:'CreditCard'}]:[]),
     ...(role!=='Student'?[{id:'subscription',icon:'Receipt'}]:[]),
     ...(role!=='Student'&&!instituteTeacher?[{id:'workspace',icon:'Settings2'},{id:'wallet',icon:'Wallet'}]:[]),

@@ -34,33 +34,27 @@ def membership(institute):
 
 
 def selected_institute():
+    # Mobile tokens retain their own validated institute context.
+    override = getattr(frappe.local, 'student_request_institute', None)
+    if override:
+        return override
     if getattr(frappe.local, 'il_mobile_session', None):
         return getattr(frappe.local, 'il_mobile_institute', None)
     return frappe.session.data.get(SESSION_KEY)
 
 
-def save_selection(institute):
-    mobile = getattr(frappe.local, 'il_mobile_session', None)
-    if mobile:
-        doc = frappe.get_doc('IL Mobile Session', mobile)
-        if doc.user != frappe.session.user or doc.revoked:
-            frappe.throw('Mobile session unavailable.', frappe.PermissionError)
-        frappe.db.set_value('IL Mobile Session', mobile, 'institute', institute)
-        frappe.local.il_mobile_institute = institute
-    else:
-        if institute:
-            frappe.session.data[SESSION_KEY] = institute
-        else:
-            frappe.session.data.pop(SESSION_KEY, None)
-        frappe.local.session_obj.update(force=True)
-
-
 def current_institute():
     require_user()
-    selected = getattr(frappe.local,'student_request_institute',None) or selected_institute()
+    selected = selected_institute()
     if not selected:
         frappe.throw('Choose an institute to continue.', frappe.PermissionError)
-    membership(selected)
+    try:
+        membership(selected)
+    except frappe.PermissionError:
+        # A stable UI signal, only for loss of the selected workspace membership.
+        # Ordinary classroom permission failures must not trigger a workspace switch.
+        frappe.local.response['workspace_access_changed'] = True
+        raise
     return frappe.get_doc('IL Institute', selected)
 
 
@@ -83,12 +77,39 @@ def choices():
 @frappe.whitelist(methods=['POST'])
 def clear():
     require_user()
-    save_selection(None)
+    _set_selection(None)
     return {'selected': None, 'reload_required': True}
 
 
 @frappe.whitelist(methods=['POST'])
 def select(institute):
     member = membership(institute)
-    save_selection(member.institute)
+    from institute_lms.signup_environment import unified_teacher_enabled
+    if member.role == 'Teacher' and unified_teacher_enabled(getattr(frappe,'conf',{})):
+        profile = frappe.db.get_value('IL Public Profile', {'workspace': institute, 'kind': 'Institute'}, ['name','status'], as_dict=True)
+        if profile and (profile.status != 'Verified' or not frappe.db.exists('IL Profile Relationship',
+            {'profile':profile.name,'user':frappe.session.user,'kind':'Teacher membership','status':'Active'})):
+            frappe.throw('This institute must approve your membership first.', frappe.PermissionError)
+    _set_selection(member.institute)
     return {'selected': member.institute, 'role': member.role, 'reload_required': True}
+
+
+def _set_selection(institute):
+    mobile_session = getattr(frappe.local, 'il_mobile_session', None)
+    if mobile_session:
+        from frappe.utils import get_datetime, now_datetime
+        from .saas import managed
+        # Lock the authenticated device session; never accept a client session ID.
+        doc = frappe.get_doc('IL Mobile Session', mobile_session, for_update=True)
+        if (doc.user != frappe.session.user or doc.revoked
+                or get_datetime(doc.expires_at) <= now_datetime()):
+            frappe.throw('Mobile session expired or revoked.', frappe.PermissionError)
+        doc.institute = institute
+        managed(doc)
+        frappe.local.il_mobile_institute = institute
+        return
+    if institute is None:
+        frappe.session.data.pop(SESSION_KEY, None)
+    else:
+        frappe.session.data[SESSION_KEY] = institute
+    frappe.local.session_obj.update(force=True)

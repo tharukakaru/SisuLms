@@ -1,4 +1,5 @@
 """Phone ownership verification. Provider hook must be configured server-side."""
+from .message_templates import verification_sms
 import hashlib,hmac,re,secrets,time
 import frappe
 from frappe.utils import now_datetime,get_url
@@ -10,7 +11,7 @@ from .registration import limit
 def request_code(phone):
     from .otp import issue
     from .providers import sms
-    return issue(phone,'SMS',lambda phone,code: sms(phone,'Your Sisu verification code is '+code+'. It expires in 10 minutes.'))
+    return issue(phone,'SMS',lambda phone,code: sms(phone,verification_sms(code)))
 
 @frappe.whitelist(methods=['POST'])
 def verify(code,channel='SMS',challenge=None):

@@ -1,0 +1,100 @@
+/* Student-only refinements on the shared campus panel system. */
+#main-content.student-panels {min-width:0;--panel-accent:var(--student-accent,#572b91);--panel-accent-soft:var(--student-soft,#f1ebf8)}
+#main-content.student-panels :is(.hero-label,.eyebrow,.greeting-spark,.hero-caption) {display:none}
+#main-content.student-panels .hero {min-height:260px;border-radius:18px;background:#f3edf9;margin-bottom:24px}
+#main-content.student-panels .hero-copy {padding:30px;max-width:65%}
+#main-content.student-panels .hero h2 {font-size:clamp(24px,2.4vw,32px);line-height:1.3;letter-spacing:-.7px;margin:0 0 18px}
+#main-content.student-panels .daily-learning-thought {margin:0 0 22px;max-width:440px}
+#main-content.student-panels .daily-learning-thought>span {font-size:12px;letter-spacing:0;text-transform:none;font-weight:600}
+#main-content.student-panels .daily-learning-thought p {font-size:15px;line-height:1.7}
+#main-content.student-panels .hero .button.dark {background:var(--panel-accent);color:white}
+#main-content.student-panels .dashboard-columns {grid-template-columns:minmax(0,1fr) 300px;gap:24px}
+#main-content.student-panels .stats-row {gap:14px;margin-block:24px}
+#main-content.student-panels .stat-card {border:1px solid var(--panel-line);border-radius:14px;padding:20px;gap:14px;box-shadow:none}
+#main-content.student-panels .stat-card strong {font-size:27px;color:var(--panel-ink)}
+#main-content.student-panels .stat-card span {font-size:13px}
+#main-content.student-panels :is(.calendar-panel,.today-section) {padding:20px;border:1px solid var(--panel-line);border-radius:16px;background:white;margin-bottom:20px}
+#main-content.student-panels .mini-calendar button {min-height:38px;font-size:13px}
+#main-content.student-panels .mini-calendar .weekday {font-size:12px;color:var(--panel-muted)}
+#main-content.student-panels :is(.learning-goals,.goal-editor) {border-radius:16px;box-shadow:none}
+#main-content.student-panels .goal-motto {padding:24px}
+#main-content.student-panels .goal-motto>p {font-size:18px}
+#main-content.student-panels .goal-editor {padding:24px;border:1px solid var(--panel-line);background:#faf8fc}
+#main-content.student-panels .goal-editor label {font-size:13px;gap:8px}
+#main-content.student-panels .goal-editor .form-row {gap:16px}
+#main-content.student-panels .dashboard-rooms .empty-state {grid-column:1/-1;margin-top:0}
+#main-content.student-panels .learning-provider-select {display:flex;align-items:center;flex-wrap:wrap;gap:12px 18px;padding:18px 20px;margin-bottom:28px;border:1px solid var(--panel-line);background:var(--panel-surface);border-radius:14px;font-size:13px;font-weight:600}
+#main-content.student-panels .learning-provider-select select {flex:1;min-width:200px;padding:11px 14px;background:white}
+#main-content.student-panels .learning-provider-select small {font-weight:400;color:var(--panel-muted)}
+#main-content.student-panels .class-filter-toolbar {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;padding:18px 18px 0;border:1px solid var(--panel-line);border-bottom:0;border-radius:14px 14px 0 0;background:var(--panel-surface)}
+#main-content.student-panels .class-filter-toolbar .tabs {margin:0;border:0;background:#eee8f5}
+#main-content.student-panels .class-filter-toolbar .tabs button[aria-pressed=true] {background:var(--panel-accent);color:#fff}
+#main-content.student-panels .class-filter-toolbar .search {width:320px;max-width:100%}
+#main-content.student-panels .class-filters {display:flex;align-items:flex-end;flex-wrap:wrap;gap:16px;padding:18px;margin-bottom:26px;border:1px solid var(--panel-line);border-top:0;border-radius:0 0 14px 14px;background:var(--panel-surface)}
+#main-content.student-panels .class-filters label {display:grid;gap:7px;min-width:140px;font-size:13px;font-weight:600}
+#main-content.student-panels .class-filters select {padding:10px 12px;background:#fff}
+#main-content.student-panels .class-filters>small {margin-left:auto;padding-bottom:12px;color:var(--panel-muted)}
+#main-content.student-panels .learning-class-grid {grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:22px}
+#main-content.student-panels .learning-class-grid article.panel {border-radius:16px;box-shadow:none;transform:none}
+#main-content.student-panels .class-copy {padding:22px;gap:14px}
+#main-content.student-panels .class-copy>small {display:none}
+#main-content.student-panels .class-copy h2 {font-size:20px}
+#main-content.student-panels .class-teacher :is(strong,small) {font-size:13px}
+#main-content.student-panels .class-teacher .teacher-photo {width:40px;height:40px;flex:0 0 40px;border-radius:50%;object-fit:cover}
+#main-content.student-panels .class-tags {display:flex;flex-wrap:wrap;gap:6px}
+#main-content.student-panels .class-tags span {font-size:12px;background:var(--panel-surface);border:1px solid var(--panel-line);border-radius:6px;padding:4px 8px}
+#main-content.student-panels .class-status {font-size:12px;line-height:1.5;white-space:normal}
+#main-content.student-panels .student-account-summary {padding:28px;margin-bottom:24px}
+#main-content.student-panels .student-account-summary>h1 {font-size:32px;margin-bottom:12px}
+#main-content.student-panels .student-account-summary>.button {margin-top:18px}
+#main-content.student-panels .settings-grid {gap:22px;margin-bottom:24px}
+#main-content.student-panels :is(.settings-grid>.panel,.contact-settings,.student-billing-panel) {padding:24px}
+#main-content.student-panels .settings-grid label {display:grid;gap:8px;font-size:13px;margin-bottom:18px}
+#main-content.student-panels .settings-grid .checkbox-label {display:flex;align-items:flex-start;gap:10px}
+#main-content.student-panels :is(.settings-grid,.goal-editor) input[type=checkbox] {width:18px;height:18px;flex:0 0 18px;accent-color:var(--panel-accent)}
+/* The public student directory uses its own component, with the same campus hierarchy. */
+#main-content.student-panels .general-campus :is(.page-heading h1,.public-profile h1) {font-size:clamp(26px,2.6vw,34px);margin:0 0 12px}
+#main-content.student-panels .general-campus .directory-search {max-width:none;margin:0 0 20px}
+#main-content.student-panels .general-campus .directory-search .search {padding:5px 6px 5px 14px;flex-wrap:nowrap}
+#main-content.student-panels .general-campus .directory-search input {padding:10px 0;min-width:0;font-size:14px}
+#main-content.student-panels .general-campus .directory-search button {min-height:42px;background:var(--panel-accent);color:#fff;border:0;padding:10px 18px;font-size:13px;border-radius:8px}
+#main-content.student-panels .general-campus .directory-filters {margin-top:20px}
+#main-content.student-panels .general-campus .directory-filters button[aria-pressed=true] {background:var(--panel-accent);color:#fff}
+#main-content.student-panels .general-campus .cards {grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:22px}
+#main-content.student-panels .general-campus .cards>article {margin:0;padding:22px;gap:12px;border:1px solid var(--panel-line);border-radius:16px;overflow:hidden;min-width:0}
+#main-content.student-panels .general-campus .cards .provider-card-photo {margin:0;width:64px;height:64px;border:0}
+#main-content.student-panels .general-campus .cards .provider-card-cover+.provider-card-photo {margin-top:-38px;border:4px solid white}
+#main-content.student-panels .student-provider-placeholder {display:grid;place-items:center;width:56px;height:56px;background:var(--panel-accent-soft);color:var(--panel-accent);border-radius:14px}
+#main-content.student-panels .general-campus .cards h2 {font-size:19px;margin:0;overflow-wrap:anywhere}
+#main-content.student-panels .general-campus .cards p {margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#main-content.student-panels .general-campus .cards .actions {display:flex;flex-wrap:wrap;gap:8px;padding-top:14px}
+#main-content.student-panels .general-campus .actions button {min-height:44px;font-size:13px;line-height:1.4;padding:11px 14px;border-radius:10px;flex:1 1 auto}
+#main-content.student-panels .general-campus .actions button:first-child {background:var(--panel-accent);color:#fff;border-color:var(--panel-accent)}
+#main-content.student-panels .general-campus .profile-badge {font-size:12px;width:fit-content;line-height:1.5;padding:6px 10px;border-radius:8px;background:#edf7f1;color:#246343;margin:0}
+#main-content.student-panels .general-campus .friendly-empty {border-radius:16px;background:var(--panel-surface);gap:14px}
+#main-content.student-panels .general-campus .friendly-empty>svg {color:var(--panel-accent)}
+#main-content.student-panels .general-campus .student-news-card {margin:0;border-radius:16px}
+#main-content.student-panels .general-campus .student-news-card>div {padding:22px}
+#main-content.student-panels .general-campus .public-profile {padding:24px;border:1px solid var(--panel-line);border-radius:16px;background:white}
+#main-content.student-panels .general-campus .public-profile-cover:empty {height:100px;background:var(--panel-accent-soft)}
+/* Native dialogs stay in the top layer; these rules only apply in a student workspace. */
+.app-shell[data-workspace-role=Student] :is(.institute-registration,.demo-lesson) {width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 32px);padding:28px;border:0;border-radius:20px;box-shadow:0 24px 80px #24172f33;scrollbar-width:thin;scrollbar-color:#bda7d1 #faf8fc;overscroll-behavior:contain;color:#282032}
+.app-shell[data-workspace-role=Student] :is(.institute-registration,.demo-lesson)::backdrop {background:#24172f80}
+.app-shell[data-workspace-role=Student] :is(.institute-registration,.demo-lesson) .eyebrow {display:none}
+.app-shell[data-workspace-role=Student] :is(.institute-registration,.demo-lesson) :is(h2,h3) {padding-right:40px;line-height:1.4;overflow-wrap:anywhere}
+.app-shell[data-workspace-role=Student] :is(.registration-close,.demo-lesson>.close) {position:sticky;top:0;float:right;display:grid;place-items:center;width:44px;height:44px;margin:0 0 -44px;background:#f3edf9;border:1px solid #d8cce5;border-radius:10px;color:#572b91;z-index:3}
+.app-shell[data-workspace-role=Student] :is(.institute-registration,.demo-lesson) :is(input:not([type=checkbox]),select) {width:100%;box-sizing:border-box;min-height:48px;padding:12px 14px;border:1px solid #bfb0d0;border-radius:10px;font:inherit}
+.app-shell[data-workspace-role=Student] :is(.institute-registration,.demo-lesson) button {min-height:44px}
+.app-shell[data-workspace-role=Student] :is(.institute-registration,.demo-lesson) :is(input,select,button):focus-visible {outline:3px solid #9872c7;outline-offset:3px}
+@media(max-width:1100px){#main-content.student-panels .dashboard-columns{grid-template-columns:minmax(0,1fr)}#main-content.student-panels .right-column{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}}
+@media(max-width:600px){
+ #main-content.student-panels .hero-copy{max-width:100%;padding:24px}#main-content.student-panels .student-hero-motion{display:none}#main-content.student-panels .hero{min-height:0}
+ #main-content.student-panels .stats-row{grid-template-columns:1fr;gap:10px}#main-content.student-panels .stat-card{padding:16px}#main-content.student-panels .right-column{grid-template-columns:1fr}
+ #main-content.student-panels .learning-provider-select{display:grid;padding:16px;gap:10px}#main-content.student-panels .learning-provider-select select{width:100%;min-width:0}
+ #main-content.student-panels .class-filter-toolbar{padding:14px 14px 0;flex-direction:column;align-items:stretch}#main-content.student-panels .class-filter-toolbar .search{width:100%}
+ #main-content.student-panels .class-filters{display:grid;grid-template-columns:1fr 1fr;padding:14px;gap:14px}#main-content.student-panels .class-filters label{min-width:0}#main-content.student-panels .class-filters>small{margin:0;padding:0;align-self:center}
+ #main-content.student-panels :is(.goal-editor,.student-account-summary,.settings-grid>.panel,.contact-settings,.general-campus .public-profile){padding:20px 16px}
+ #main-content.student-panels .goal-editor .form-row{grid-template-columns:1fr}#main-content.student-panels .goal-actions{flex-wrap:wrap}
+ #main-content.student-panels :is(input:not([type=checkbox]),select,textarea){font-size:16px}
+ .app-shell[data-workspace-role=Student] :is(.institute-registration,.demo-lesson){padding:22px 18px;max-height:calc(100dvh - 20px)}
+}

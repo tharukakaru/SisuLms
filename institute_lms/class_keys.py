@@ -28,12 +28,13 @@ def send_key(user,reference,room,key):
           'Payment accepted for '+room.title[:100]+'. Your personal enrollment key: '+key+
           '. Expires in 15 minutes. Only your account can use it, once. Open My classrooms to enroll. If expired, choose Resend enrollment key; no second payment is needed.')
 
-def issue(invoice,room,start,end):
+def issue(invoice,room,start,end,access_kind=None):
     from .commercial import grant
     key=new_key()
-    grant(invoice,room,start,end,'Bank transfer',enrollment_key_hash=digest(key))
+    access=grant(invoice,room,start,end,'Bank transfer',enrollment_key_hash=digest(key),access_kind=access_kind)
     user=frappe.db.get_value('IL Member',invoice.student,'user')
     send_key(user,invoice.name,room,key)
+    return access
 
 
 @frappe.whitelist(methods=['POST'])
@@ -58,6 +59,9 @@ def redeem(classroom,key):
         access.status='Active';access.enrollment_key_hash=None;save(access)
         queue(frappe.session.user,'enrollment-complete:'+access.name,'Enrollment successful',
               'You are enrolled in '+room.title+'. Open My classrooms to view your classroom.')
+        from .commercial import notify_people
+        notify_people(room,'enrollment.completed','enrollment-complete:'+access.name,
+            (frappe.db.get_value('IL Member',member.name,'full_name') or member.name)+' has joined '+room.title+' after payment approval. Class access is now active.')
         return {'enrolled':True}
     frappe.throw('This key is invalid, already used, or belongs to another student.')
 

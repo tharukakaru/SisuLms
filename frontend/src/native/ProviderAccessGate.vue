@@ -1,307 +1,84 @@
 <script setup>
 import {ref,onMounted} from 'vue'
-import OnboardingWelcomePanel from './OnboardingWelcomePanel.vue'
 import InstituteJoinPicker from './InstituteJoinPicker.vue'
+import TeacherInstitutes from './TeacherInstitutes.vue'
+import MobileVerification from './MobileVerification.vue'
+import {request,csrf,decode} from './client'
 import SubscriptionBilling from './SubscriptionBilling.vue'
+import TeacherSignupLayout from './TeacherSignupLayout.vue'
+import PaymentRequired from './PaymentRequired.vue'
+import InstituteSetupLayout from './InstituteSetupLayout.vue'
+import {ArrowLeft,ArrowRight} from 'lucide-vue-next'
 const joinMode=ref('')
-const props=defineProps({role:String});const emit=defineEmits(['changed']);const panel=ref(null)
-onMounted(()=>panel.value?.focus())
+const phoneVerified=ref(false)
+const requestsPending=ref(false)
+async function verifiedPhone(value){
+  phoneVerified.value=value
+  if(!value)return
+  try{
+    const data=await request('profiles','institute_join_options',{},'GET')
+    requestsPending.value=data.requests.some(row=>row.status==='Pending')
+    if(requestsPending.value)joinMode.value='Review requests'
+  }catch{/* The request picker displays actionable errors when opened. */}
+}
+const logoutError=ref(''),loggingOut=ref(false)
+async function signIn(){if(loggingOut.value)return;loggingOut.value=true;logoutError.value='';try{await decode(await fetch('/api/method/logout',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':csrf()}}));window.location.assign('/login?redirect-to=/campus')}catch(e){logoutError.value=e.message;loggingOut.value=false}}
+function back(){if(billingOpen.value){billingOpen.value=false}else if(joinMode.value){joinMode.value=''}else if(individual.value){individual.value=false}else if(window.history.length>1){window.history.back()}}
+const props=defineProps({role:String,unifiedTeacher:Boolean,selectionOnly:Boolean,initialIndividual:Boolean,checking:Boolean,error:String});const emit=defineEmits(['changed','continue']);const panel=ref(null)
+const billingOpen=ref(false)
+const individual=ref(props.initialIndividual)
+function continueIndividual(){if(props.selectionOnly)emit('continue');else individual.value=true}
+onMounted(async()=>{panel.value?.focus();if(props.selectionOnly){try{const data=await request('profiles','me',{},'GET');await verifiedPhone(data.phone_verified)}catch{}}})
 </script>
 <template>
-  <main class="provider-gate">
-    <div class="provider-gate-split">
-      <OnboardingWelcomePanel variant="connect" />
-
-      <section ref="panel" class="subscription-overlay" tabindex="-1" aria-labelledby="gate-title">
-        <a class="sisu-back-link" href="/api/method/logout">‚Üê Back to sign in</a>
-        <h1 id="gate-title">Welcome to your {{role==='Teacher'?'teacher':'institute'}} workspace</h1>
-        <p class="provider-gate-lead">{{role==='Teacher'?'Choose how you want to begin. Manage your own classes with an individual plan, or request access to an institute‚Äôs teaching workspace.':'Choose a plan for your institute to continue.'}}</p>
-
-        <nav v-if="role==='Teacher'" class="join-links" aria-label="Teacher workspace options">
-          <button
-            type="button"
-            class="join-pill join-pill-primary"
-            :aria-pressed="!joinMode"
-            @click="joinMode=''"
-          >
-            <div>
-              <strong>Continue as individual teacher</strong>
-              <span>Teach independently ‚Äî your classes, students and personal subscription.</span>
-            </div>
-            <i aria-hidden="true">‚Üí</i>
-          </button>
-
-          <button
-            type="button"
-            class="join-pill join-pill-secondary"
-            :aria-pressed="joinMode==='Existing teacher confirmation'"
-            @click="joinMode='Existing teacher confirmation'"
-          >
-            <div>
-              <strong>Join your registered institute</strong>
-              <span>I teach at an institute ‚Äî ask your institute to confirm your teaching access.</span>
-            </div>
-            <i aria-hidden="true">‚Üí</i>
-          </button>
-
-          <button
-            type="button"
-            class="join-pill join-pill-quiet"
-            :aria-pressed="joinMode==='New application'"
-            @click="joinMode='New application'"
-          >
-            <div>
-              <strong>Apply to an institute</strong>
-              <span>Find an institute and apply to join a new teaching community.</span>
-            </div>
-            <i aria-hidden="true">‚Üí</i>
-          </button>
+<main v-if="unifiedTeacher&&role==='Teacher'" class="unified-recovery"><h1>Your teacher subscription</h1><p>Your trial has ended. Choose a personal plan or open an approved institute workspace with active coverage.</p><TeacherInstitutes @navigate="billingOpen=true"/><SubscriptionBilling standalone @changed="emit('changed')"/><button class="workspace-back" :disabled="loggingOut" @click="signIn">Back to sign in</button><p v-if="logoutError" role="alert">{{logoutError}}</p></main>
+<InstituteSetupLayout v-else-if="role!=='Teacher'" title="Choose a plan for your institute" description="Review your subscription and complete payment to open your institute workspace." :step="2"><div v-if="error" class="institute-access-error" role="alert"><p>{{error}}</p><button type="button" :disabled="checking" @click="emit('changed')">{{checking?'Checking accessÖ':'Try again'}}</button></div><SubscriptionBilling standalone onboarding @changed="emit('changed')"/></InstituteSetupLayout>
+<main v-else-if="!selectionOnly" class="provider-gate"><div class="workspace-preview" inert aria-hidden="true"><header>SISU ∑ {{role==='Teacher'?'Teacher':'Institute'}} dashboard</header><nav>Overview ∑ Classes ∑ Students ∑ Assignments</nav><div class="workspace-panels"><section v-for="title in ['Your classes','Learning activity','Upcoming sessions']" :key="title"><h2>{{title}}</h2><div class="preview-line"/><div class="preview-line"/></section></div></div><section class="subscription-overlay" aria-labelledby="subscription-title"><h1 id="subscription-title">Choose a plan to open your dashboard</h1><p>Your profile is saved. Your workspace stays locked until your subscription is activated.</p><SubscriptionBilling standalone @changed="emit('changed')"/><button :disabled="checking" @click="emit('changed')">Check again</button><button class="workspace-back" :disabled="loggingOut" @click="signIn">Back to sign in</button><p v-if="logoutError" role="alert">{{logoutError}}</p><p v-if="error" role="alert">{{error}}</p></section></main>
+<TeacherSignupLayout v-else-if="role==='Teacher'" active class="teacher-workspace-layout">
+  <main class="teacher-workspace-content">
+    <section ref="panel" class="teacher-workspace-panel" tabindex="-1" aria-labelledby="teacher-workspace-title">
+      <button type="button" class="workspace-back" @click="back"><ArrowLeft :size="13" aria-hidden="true"/>Back</button>
+      <h1 id="teacher-workspace-title">{{requestsPending?'Your institute requests are under review':'Welcome to your teacher workspace'}}</h1>
+      <MobileVerification v-if="selectionOnly&&!phoneVerified" onboarding @verified="verifiedPhone"/>
+      <template v-if="(!selectionOnly||phoneVerified)&&!joinMode&&!individual">
+        <p class="workspace-intro">Choose how you want to begin.</p>
+        <nav class="workspace-options" aria-label="Teaching options">
+          <button type="button" class="workspace-primary" @click="continueIndividual">Continue as individual teacher<ArrowRight :size="16" aria-hidden="true"/></button>
+          <button type="button" class="workspace-secondary" @click="joinMode='Existing teacher confirmation'">Join your registered institute<ArrowRight :size="16" aria-hidden="true"/></button>
+          <button type="button" class="workspace-apply" @click="joinMode='New application'">Apply to an institute<ArrowRight :size="16" aria-hidden="true"/></button>
         </nav>
-
-        <div class="provider-gate-content">
-          <InstituteJoinPicker v-if="joinMode" :key="joinMode" :purpose="joinMode" @back="joinMode=''"/>
-          <SubscriptionBilling v-else standalone @changed="emit('changed')"/>
-        </div>
-      </section>
-    </div>
+        <slot/>
+      </template>
+      <InstituteJoinPicker v-else-if="(!selectionOnly||phoneVerified)&&joinMode" :key="joinMode" :purpose="joinMode" @back="joinMode=''"/>
+      <SubscriptionBilling v-else-if="!selectionOnly||phoneVerified" standalone @changed="emit('changed')"/>
+    </section>
   </main>
+</TeacherSignupLayout>
 </template>
 <style scoped>
-.provider-gate {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: #ffffff;
-  color: #19182e;
-  padding: clamp(16px, 2vw, 24px);
-  font-family: 'Manrope', Inter, system-ui, sans-serif;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.provider-gate-split {
-  display: grid;
-  grid-template-columns: minmax(360px, 500px) minmax(0, 620px);
-  gap: clamp(20px, 2.8vw, 40px);
-  max-width: 1180px;
-  width: 100%;
-  margin: 0 auto;
-  align-items: center;
-}
-
-.subscription-overlay {
-  position: relative;
-  width: 100%;
-  max-width: 620px;
-  background: #ffffff;
-  border-radius: 24px;
-  padding: clamp(14px, 2.2vh, 28px) clamp(20px, 3vw, 36px);
-  box-sizing: border-box;
-}
-
-.subscription-overlay:focus {
-  outline: none;
-}
-
-.sisu-back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: clamp(8px, 1.2vh, 12px);
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #56288d;
-  text-decoration: none;
-}
-
-.sisu-back-link:hover {
-  text-decoration: underline;
-}
-
-.subscription-overlay > h1 {
-  margin: 0 0 clamp(4px, 0.7vh, 8px);
-  font: 800 clamp(22px, 3vh, 30px)/1.15 'Manrope', sans-serif;
-  letter-spacing: -0.03em;
-  color: #19182e;
-}
-
-.provider-gate-lead {
-  margin: 0 0 clamp(12px, 1.8vh, 18px);
-  font-size: 13.5px;
-  color: #787788;
-  line-height: 1.45;
-}
-
-.join-links {
-  display: grid;
-  gap: clamp(8px, 1.2vh, 12px);
-  margin: clamp(10px, 1.6vh, 16px) 0;
-}
-
-.join-links button.join-pill {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  width: 100%;
-  min-height: clamp(44px, 5.8vh, 52px);
-  padding: clamp(10px, 1.5vh, 14px) 20px;
-  border-radius: 24px;
-  text-align: left;
-  text-decoration: none;
-  font: inherit;
-  cursor: pointer;
-  box-sizing: border-box;
-  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-}
-
-.join-links button.join-pill > div {
-  display: grid;
-  gap: 4px;
-}
-
-.join-links strong {
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.join-links span {
-  font-size: 12px;
-  line-height: 1.4;
-  opacity: 0.88;
-}
-
-.join-links i {
-  font-style: normal;
-  font-size: 16px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.join-pill-primary {
-  background: #56288d;
-  border: 1px solid #56288d;
-  color: #ffffff;
-}
-
-.join-pill-primary span {
-  color: rgba(255, 255, 255, 0.84);
-}
-
-.join-pill-secondary {
-  background: #f2f0fc;
-  border: 1px solid #f2f0fc;
-  color: #19182e;
-}
-
-.join-pill-secondary span {
-  color: #787788;
-}
-
-.join-pill-secondary i {
-  color: #56288d;
-}
-
-.join-pill-quiet {
-  background: #ffffff;
-  border: 1px solid #e9e8ef;
-  color: #19182e;
-}
-
-.join-pill-quiet span {
-  color: #787788;
-}
-
-.join-pill-quiet i {
-  color: #56288d;
-}
-
-.join-links button[aria-pressed='true'] {
-  box-shadow: 0 0 0 2px #6c6aee;
-}
-
-.join-links button:focus-visible {
-  outline: 3px solid #b9b5fa;
-  outline-offset: 3px;
-}
-
-.provider-gate-content {
-  margin-top: 16px;
-}
-
-.subscription-overlay :deep(.billing-standalone) {
-  min-height: 0;
-  padding: 0;
-}
-
-.subscription-overlay :deep(.billing-page) {
-  max-width: 100%;
-}
-
-@media (max-width: 1040px) {
-  .provider-gate-split {
-    grid-template-columns: minmax(0, 1fr);
-    max-width: 680px;
-    gap: 20px;
-  }
-
-  .subscription-overlay {
-    padding: 24px 20px;
-  }
-}
-
-@media (max-width: 640px) {
-  .provider-gate {
-    justify-content: flex-start;
-    padding: 12px 12px 24px;
-  }
-
-  .provider-gate-split {
-    gap: 12px;
-  }
-
-  .subscription-overlay {
-    padding: 20px;
-    border-radius: 24px;
-  }
-
-  .sisu-back-link {
-    margin-bottom: 12px;
-  }
-
-  .subscription-overlay > h1 {
-    font-size: 28px;
-    line-height: 1.18;
-    margin: 0 0 8px;
-  }
-
-  .provider-gate-lead {
-    font-size: 15px;
-    margin: 0 0 14px;
-  }
-
-  .join-links {
-    gap: 10px;
-    margin: 14px 0 18px;
-  }
-
-  .join-links button.join-pill {
-    min-height: 48px;
-    padding: 12px 18px;
-    border-radius: 27px;
-    gap: 10px;
-  }
-}
-
-@media (max-width: 380px) {
-  .subscription-overlay {
-    padding: 16px;
-  }
-
-  .subscription-overlay > h1 {
-    font-size: 24px;
-  }
-}
+.teacher-workspace-content{display:flex;align-items:center;min-width:0;padding:48px 48px 48px 0;color:#19182e;font-family:'Manrope Variable',sans-serif}
+.teacher-workspace-panel{width:100%;min-width:0;outline:none}
+.workspace-back{display:flex;align-items:center;gap:4px;min-height:24px;width:fit-content;padding:0;border:0;background:none;color:#56288d;font:400 13px/24px 'Manrope Variable',sans-serif;cursor:pointer}
+.workspace-back:hover{text-decoration:underline}
+.teacher-workspace-panel h1{font:800 36px/1.2 'Manrope Variable',sans-serif;letter-spacing:-1.2px;margin:24px 0 20px;color:#19182e}
+.workspace-intro{font-size:14px;line-height:24px;color:#78758b;margin:0 0 20px}
+.workspace-options{display:grid;gap:20px}
+.workspace-options button{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:54px;padding:14px 20px;border:0;border-radius:999px;font:700 14px/24px 'Manrope Variable',sans-serif;cursor:pointer}
+.workspace-primary{background:#56288d;color:#fff}
+.workspace-primary:hover{background:#462073}
+.workspace-secondary{background:#f3effc;color:#19182e}
+.workspace-secondary:hover{background:#eae2f8}
+.workspace-options .workspace-apply{background:transparent;color:#19182e}
+.workspace-options .workspace-apply:hover{color:#56288d;background:#fcfbfe}
+.workspace-apply svg{color:#56288d}
+.teacher-workspace-panel :is(button,a):focus-visible{outline:3px solid #8b61bb;outline-offset:4px}
+.teacher-workspace-panel :deep(.billing-standalone){min-height:0;padding:0}
+.teacher-workspace-panel :deep(.billing-page){max-width:100%}
+@media(min-width:1000px) and (max-width:1250px){.teacher-workspace-content{padding-right:24px}.teacher-workspace-panel h1{font-size:32px}}
+@media(max-width:999px){.teacher-workspace-content{padding:0;min-height:calc(100dvh - 210px)}}
+@media(max-width:480px){.teacher-workspace-panel h1{font-size:30px;letter-spacing:-1px}.workspace-options button{font-size:13px}}
 </style>
+
+<style scoped>.unified-recovery{max-width:1100px;margin:40px auto;padding:24px}.unified-recovery>p{line-height:1.7;margin-bottom:24px}</style>
+
+<style scoped>.institute-access-error{padding:16px 20px;margin-bottom:24px;border:1px solid #efc4cd;border-radius:12px;background:#fff4f6;color:#942b42}.institute-access-error p{margin:0 0 12px;line-height:1.6}.institute-access-error button{min-height:44px;padding:10px 18px;border:1px solid #c78698;border-radius:8px;background:white;color:#942b42;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}</style>

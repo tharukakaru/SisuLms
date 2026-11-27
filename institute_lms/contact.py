@@ -5,6 +5,7 @@ import secrets
 import time
 import re
 import frappe
+from .message_templates import sendmail, verification_body
 from frappe.utils import get_url
 from .api import identity
 
@@ -50,7 +51,7 @@ def request_verification(email):
         frappe.cache.set_value(bucket,(frappe.cache.get_value(bucket) or 0)+1,expires_in_sec=7200)
         code=f'{secrets.randbelow(1000000):06d}'
         frappe.cache.set_value(key,{'email':email,'digest':code_digest(member.name,email,code,frappe.conf.encryption_key),'created':now,'attempts':0},expires_in_sec=600)
-        frappe.sendmail(recipients=[email],subject='Verify your Sisu schedule email',message=f'<p>Your verification code is <strong>{code}</strong>.</p><p>It expires in 10 minutes. If you did not request this, ignore this email.</p>',delayed=True)
+        sendmail(frappe, recipients=[email],subject='Verify your Sisu schedule email',message=verification_body(code),delayed=True)
     return {'sent':True,'expires_in_seconds':600}
 
 

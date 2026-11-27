@@ -9,9 +9,7 @@ import frappe
 
 READERS={'lms.lms.utils.get_lesson','lms.lms.utils.get_course_details','lms.lms.utils.get_course_outline',
          'lms.lms.utils.get_chapters','lms.lms.utils.get_lessons','lms.lms.utils.get_course_progress'}
-SAFE={'frappe.auth.get_logged_user','frappe.auth.get_roles','frappe.desk.form.load.getdoctype',
-      'login','logout','upload_file','frappe.core.doctype.user.user.reset_password',
-      'frappe.core.doctype.user.user.update_password','frappe.integrations.oauth2_logins.login_via_google'}
+SAFE={'login', 'frappe.core.doctype.user.user.update_password', 'frappe.integrations.oauth2_logins.login_via_google', 'frappe.core.doctype.user.user.reset_password', 'upload_file', 'frappe.core.doctype.user.user.test_password_strength', 'frappe.auth.get_roles', 'frappe.auth.get_logged_user', 'frappe.desk.form.load.getdoctype', 'logout'}
 
 def require_course(course):
     from .campus_context import enabled as shared_enabled

@@ -1,0 +1,133 @@
+/* Institute-specific layouts built on the shared provider panel tokens. */
+#main-content.institute-panels {width:100%;min-width:0;box-sizing:border-box}
+#main-content.institute-panels > * {min-width:0}
+#main-content.institute-panels .page-heading h1 {overflow-wrap:anywhere;max-width:950px}
+#main-content.institute-panels .page-heading p {max-width:750px}
+#main-content.institute-panels .section-heading {gap:16px;flex-wrap:wrap}
+#main-content.institute-panels .badge {font-size:12px;line-height:1.4;padding:6px 10px;border-radius:7px;width:fit-content}
+#main-content.institute-panels .badge.green {background:#eaf5ef;color:#216747}
+#main-content.institute-panels .badge.amber {background:#fff3dc;color:#88520b}
+#main-content.institute-panels .table-wrap {max-width:100%;overflow-x:auto;border-radius:12px}
+#main-content.institute-panels table {width:100%;border-collapse:collapse}
+#main-content.institute-panels td {border-bottom:1px solid var(--panel-line);line-height:1.6}
+#main-content.institute-panels tbody tr:last-child td {border-bottom:0}
+#main-content.institute-panels tbody tr:hover {background:#faf8fd}
+#main-content.institute-panels .text-button {min-height:40px;line-height:1.5}
+/* Overview: clearer figures, readable reports and balanced action cards. */
+#main-content.institute-panels .overview-kpis {gap:18px;margin-bottom:24px}
+#main-content.institute-panels .overview-kpi {border-color:var(--panel-line);padding:24px;border-radius:16px}
+#main-content.institute-panels .overview-kpi>span:not(.kpi-symbol) {font-size:13px;line-height:1.5}
+#main-content.institute-panels .overview-kpi strong {font-size:34px;color:var(--panel-ink)}
+#main-content.institute-panels .kpi-symbol {background:var(--panel-accent-soft);color:var(--panel-accent)}
+#main-content.institute-panels .overview-main-grid {gap:22px}
+#main-content.institute-panels .teaching-hero {background:var(--panel-accent-soft);border-color:var(--panel-line);border-radius:18px}
+#main-content.institute-panels .teaching-hero h2 {font-size:28px;letter-spacing:-.7px;line-height:1.3}
+#main-content.institute-panels .attention-card {border-color:var(--panel-line);padding:26px}
+#main-content.institute-panels .attention-card strong {font-size:14px}
+#main-content.institute-panels .attention-card button {min-height:76px}
+#main-content.institute-panels .attention-card button>span:nth-child(2) {min-width:0}
+#main-content.institute-panels .attention-icon {color:var(--panel-accent);background:var(--panel-accent-soft)}
+#main-content.institute-panels .schedule-switch button {min-height:44px;font-size:13px;padding:10px 14px}
+#main-content.institute-panels .schedule-switch button.active {background:var(--panel-accent);color:white;box-shadow:none}
+#main-content.institute-panels :is(.schedule-card,.class-pulse) {padding:26px}
+#main-content.institute-panels .collection-overview {margin-top:30px}
+#main-content.institute-panels .collection-overview>details {padding:22px 26px}
+#main-content.institute-panels .collection-overview>details summary {font-size:15px;min-height:30px;line-height:1.6}
+#main-content.institute-panels .provider-revenue-chart header>strong {font-size:24px}
+#main-content.institute-panels .payment-mix-body {flex-wrap:wrap}
+/* Teaching team: invitation, request filters and individual member cards. */
+#main-content.institute-panels .membership-mail {padding:26px;margin:0 0 30px;background:var(--panel-surface)}
+#main-content.institute-panels .membership-mail form {max-width:850px;align-items:end}
+#main-content.institute-panels .membership-mail label {font-size:13px;min-width:0}
+#main-content.institute-panels .membership-mail input {background:white}
+#main-content.institute-panels .membership-mail .invitation-row {overflow-wrap:anywhere}
+#main-content.institute-panels .team-toolbar {display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin:22px 0}
+#main-content.institute-panels .team-toolbar .tabs {margin:0}
+#main-content.institute-panels .team-toolbar .search {width:320px;max-width:100%;box-sizing:border-box}
+#main-content.institute-panels .team-count {font-size:12px;min-width:22px;min-height:22px;display:inline-grid;place-items:center;background:#eee8f5;border-radius:5px;color:var(--panel-accent)}
+#main-content.institute-panels .selected .team-count {background:#ffffff26;color:white}
+#main-content.institute-panels .provider-team {grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:20px}
+#main-content.institute-panels .team-card {display:flex;flex-direction:column;min-width:0;border-radius:16px;padding:0}
+#main-content.institute-panels .team-content {padding:24px;display:flex;flex-direction:column;align-items:flex-start;flex:1;gap:8px}
+#main-content.institute-panels .team-placeholder {width:54px;height:54px;display:grid;place-items:center;background:var(--panel-accent-soft);color:var(--panel-accent);border-radius:14px;margin-bottom:6px}
+#main-content.institute-panels .team-content .team-face {width:60px;height:60px;margin:0 0 8px}
+#main-content.institute-panels .team-content h3 {font-size:18px;margin:6px 0 0;overflow-wrap:anywhere}
+#main-content.institute-panels .team-content p {font-size:13px;margin:0}
+#main-content.institute-panels .team-content small {overflow-wrap:anywhere}
+#main-content.institute-panels .team-content .team-request-note {color:#88520b;font-size:12px}
+#main-content.institute-panels .team-actions {width:100%;border-top:1px solid var(--panel-line);padding-top:16px;margin-top:auto;gap:16px}
+#main-content.institute-panels .team-content>:has(+.team-actions) {margin-bottom:18px}
+#main-content.institute-panels .team-empty {grid-column:1/-1;margin:0}
+#main-content.institute-panels .membership-confirm {border:1px solid #dfbac8;background:#fff8fa;z-index:2}
+#main-content.institute-panels .handovers {padding:26px;margin-bottom:26px}
+/* Community: one searchable, accessible member table. */
+#main-content.institute-panels .institute-community {overflow:hidden;padding:0}
+#main-content.institute-panels .community-toolbar {padding:24px;display:flex;align-items:end;gap:18px;flex-wrap:wrap;background:var(--panel-surface);border-bottom:1px solid var(--panel-line)}
+#main-content.institute-panels :is(.community-search-label,.community-role-label) {display:grid;gap:9px;font-size:13px;font-weight:600}
+#main-content.institute-panels .community-search-label {flex:1;min-width:220px;max-width:640px}
+#main-content.institute-panels .community-role-label {min-width:150px}
+#main-content.institute-panels .community-role-label select {background:white;padding:10px 12px}
+#main-content.institute-panels .community-result-count {margin-left:auto;padding-bottom:14px;font-size:13px;color:var(--panel-muted)}
+#main-content.institute-panels .institute-community .table-wrap {border-radius:0}
+#main-content.institute-panels .institute-community th {white-space:nowrap;padding-block:18px}
+#main-content.institute-panels .institute-community td {padding-block:20px}
+#main-content.institute-panels .institute-community td:first-child {min-width:190px}
+#main-content.institute-panels .institute-community td button {min-height:44px;white-space:nowrap}
+#main-content.institute-panels .community-empty {text-align:center;padding:40px!important;background:white}
+#main-content.institute-panels .community-empty>svg {color:var(--panel-accent);margin-bottom:12px}
+#main-content.institute-panels .community-empty p {margin:12px 0 20px}
+/* Storage and account controls follow the same page rhythm. */
+#main-content.institute-panels .release {max-width:none;padding:0;margin:0}
+#main-content.institute-panels .release>h1 {font-size:32px;letter-spacing:-.8px;margin:0 0 20px}
+#main-content.institute-panels .storage-summary {padding:28px}
+#main-content.institute-panels .storage-figures {gap:16px}
+#main-content.institute-panels .storage-figures>div {padding:20px;background:var(--panel-surface);border:1px solid var(--panel-line);border-radius:12px}
+#main-content.institute-panels .storage-figures strong {color:var(--panel-accent)}
+#main-content.institute-panels .storage-summary progress {accent-color:var(--panel-accent);height:12px}
+#main-content.institute-panels .settings-grid {gap:24px;align-items:start;grid-template-columns:repeat(2,minmax(0,1fr))}
+#main-content.institute-panels .settings-grid>.panel {padding:26px;min-width:0}
+#main-content.institute-panels .settings-grid form {display:grid;gap:18px;margin-top:22px}
+#main-content.institute-panels .settings-grid form>label:not(.checkbox-label) {display:grid;gap:8px;font-size:13px}
+#main-content.institute-panels .settings-grid .checkbox-label {display:flex;align-items:flex-start;gap:10px;line-height:1.6;font-size:13px;margin:0}
+#main-content.institute-panels[data-panel=settings]>.release.panel {padding:26px;margin:24px 0}
+#main-content.institute-panels .settings-grid form>label {margin:0}
+#main-content.institute-panels .settings-grid input[type=checkbox] {flex-shrink:0;width:18px;height:18px;margin-top:3px;accent-color:var(--panel-accent)}
+#main-content.institute-panels .settings-grid .integration-block {border-top:1px solid var(--panel-line);margin-top:24px;padding-top:24px}
+@media(max-width:900px){
+ #main-content.institute-panels .settings-grid {grid-template-columns:1fr}
+ #main-content.institute-panels .team-toolbar .search {width:100%}
+}
+@media(max-width:680px){
+ #main-content.institute-panels .overview-kpi {padding:16px}
+ #main-content.institute-panels .overview-kpi strong {font-size:28px}
+ #main-content.institute-panels .overview-kpi small {font-size:11px}
+ #main-content.institute-panels .teaching-hero {grid-template-columns:1fr;padding:22px}
+ #main-content.institute-panels .teaching-hero h2 {font-size:25px}
+ #main-content.institute-panels :is(.attention-card,.schedule-card,.class-pulse,.membership-mail,.handovers,.settings-grid>.panel) {padding:20px}
+ #main-content.institute-panels .membership-mail form {flex-direction:column;align-items:stretch}
+ #main-content.institute-panels .membership-mail label {width:100%}
+ #main-content.institute-panels .team-toolbar .tabs {width:100%;box-sizing:border-box;gap:3px}
+ #main-content.institute-panels .team-toolbar .tabs button {flex:1;min-width:0;font-size:12px;gap:5px;padding:10px 5px}
+ #main-content.institute-panels .team-count {min-width:19px;font-size:11px}
+ #main-content.institute-panels .community-toolbar {padding:16px;display:grid;grid-template-columns:1fr}
+ #main-content.institute-panels .community-search-label {min-width:0}
+ #main-content.institute-panels .community-result-count {margin:0;padding:0}
+ #main-content.institute-panels .institute-community .table-wrap {overflow:visible}
+ #main-content.institute-panels .institute-community table {display:block}
+ #main-content.institute-panels .institute-community thead {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ #main-content.institute-panels .institute-community tbody {display:block;padding:0 16px}
+ #main-content.institute-panels .institute-community tr {display:grid;padding:18px 0;border-bottom:1px solid var(--panel-line)}
+ #main-content.institute-panels .institute-community tr:last-child {border-bottom:0}
+ #main-content.institute-panels .institute-community td {display:flex;align-items:center;justify-content:space-between;gap:14px;border:0;padding:8px 0;min-width:0;overflow-wrap:anywhere;white-space:normal;font-size:13px}
+ #main-content.institute-panels .institute-community td[data-label=Email]>span {min-width:0;overflow-wrap:anywhere;text-align:right}
+ #main-content.institute-panels .institute-community td[data-label]:not(:first-child)::before {content:attr(data-label);color:var(--panel-muted);font-size:12px;flex:0 0 54px}
+ #main-content.institute-panels .institute-community td:first-child {min-width:0;font-size:15px;padding-bottom:14px}
+ #main-content.institute-panels .institute-community td .inline {min-width:0}
+ #main-content.institute-panels .institute-community td .inline strong {font-size:14px;line-height:1.5}
+ #main-content.institute-panels .institute-community td .teacher-avatar {flex-shrink:0}
+ #main-content.institute-panels .institute-community .community-empty {display:block;padding:28px 0!important}
+ #main-content.institute-panels .storage-summary {padding:20px}
+ #main-content.institute-panels .storage-figures {grid-template-columns:1fr}
+ #main-content.institute-panels .collection-overview>details {padding:18px}
+ #main-content.institute-panels .release>h1 {font-size:27px}
+}

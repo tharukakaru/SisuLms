@@ -8,7 +8,14 @@ import uuid
 from decimal import Decimal, InvalidOperation
 from urllib.parse import urlsplit
 
-HOST = 'apitest.cybersource.com'  # Deliberately no production endpoint in this release.
+HOST = 'apitest.cybersource.com'  # Kept for sandbox callers.
+HOSTS = {'sandbox': HOST, 'live': 'api.cybersource.com'}
+
+
+def host_for(mode):
+    if mode not in HOSTS:
+        raise ValueError('Unsupported CyberSource environment')
+    return HOSTS[mode]
 METHODS = {'PANENTRY', 'GOOGLEPAY', 'APPLEPAY', 'CLICKTOPAY'}
 
 
@@ -40,6 +47,31 @@ def session_request(reference, amount_minor, currency, checkout_origin, methods)
         'targetOrigins': [origin(checkout_origin)], 'clientVersion': '1.0',
         'country': 'LK', 'locale': 'en_GB', 'allowedCardNetworks': ['VISA', 'MASTERCARD'],
         'allowedPaymentTypes': methods, 'buttonType': 'CHECKOUT',
+        # Per-session styling; never changes the merchant's published experience.
+        # fontFamily must be a provider font name, not a CSS fallback stack.
+        'appearance': {'theme': 'LIGHT', 'variables': {
+            'backgroundColor': '#FBF9FE', 'textColor': '#282132',
+            'headerBackground': '#EEE6F7', 'headerForeground': '#452074',
+            'fontFamily': 'Raleway', 'borderRadius': '12px',
+            'paymentSelectionBackground': '#FFFFFF',
+            'inputBackground': '#FCFAFF', 'inputColor': '#282132',
+            'inputPlaceholderColor': '#6B5F75', 'inputBorderColor': '#9380AA',
+            'inputBorderStyle': 'solid', 'inputBorderRadius': '10px',
+            'inputHoverBorderColor': '#7544A8',
+            'inputFocusedBackground': '#FFFFFF', 'inputFocusedColor': '#282132',
+            'inputFocusedBorderColor': '#572B91', 'inputFocusedBorderStyle': 'solid',
+            'inputErrorBackground': '#FFF7F7', 'inputErrorColor': '#9D2438',
+            'inputErrorBorderColor': '#B52D43',
+            'buttonBackground': '#572B91', 'buttonForeground': '#FFFFFF',
+            'buttonShape': 'rect', 'buttonBorderColor': '#572B91',
+            'buttonBorderStyle': 'solid', 'buttonBorderRadius': '10px',
+            'buttonHoverBackground': '#452074', 'buttonHoverForeground': '#FFFFFF',
+            'buttonHoverBorderColor': '#452074',
+            'buttonFocusBackground': '#452074', 'buttonFocusForeground': '#FFFFFF',
+            'buttonFocusBorderColor': '#7544A8',
+            'buttonDisabledBackground': '#EEE7F5', 'buttonDisabledForeground': '#665475',
+            'buttonDisabledBorderColor': '#EEE7F5',
+        }},
         'captureMandate': {'billingType': 'FULL', 'requestEmail': True,
                            'requestShipping': False, 'requestSaveCredentials': False},
         'completeMandate': {'type': 'CAPTURE', 'consumerAuthentication': '3DS',
@@ -58,13 +90,15 @@ def unb64(value):
     return base64.urlsafe_b64decode(value + '=' * (-len(value) % 4))
 
 
-def request_jwt(method, path, body, merchant, key_id, private_key, now=None):
+def request_jwt(method, path, body, merchant, key_id, private_key, now=None, host=HOST):
     """P12-key JWT v2 authentication, implemented directly (no provider SDK)."""
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.asymmetric import padding
     now = int(time.time()) if now is None else now
+    if host not in HOSTS.values():
+        raise ValueError('Unsupported CyberSource API host')
     claims = {'iat': now, 'exp': now + 120, 'iss': merchant, 'jti': str(uuid.uuid4()),
-              'request-host': HOST, 'request-method': method.lower(),
+              'request-host': host, 'request-method': method.lower(),
               'request-resource-path': path, 'v-c-jwt-version': '2', 'v-c-merchant-id': merchant}
     if body:
         claims.update(digest=base64.b64encode(hashlib.sha256(body).digest()).decode(),
@@ -76,7 +110,7 @@ def request_jwt(method, path, body, merchant, key_id, private_key, now=None):
 
 
 def verify_session(token, fetch_key, now=None):
-    """Trust only RSA keys fetched from the fixed CyberSource sandbox origin."""
+    """Trust only signature keys fetched by the caller from its fixed provider environment."""
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.asymmetric import padding, rsa
     if not isinstance(token, str) or len(token) > 64000:
@@ -100,6 +134,22 @@ def verify_session(token, fetch_key, now=None):
     return claims
 
 
+def authentication_only(data):
+    """Recognize non-financial 3DS setup/challenge records in authenticated TSS data."""
+    info = data.get('applicationInformation', {})
+    apps = info.get('applications', [])
+    if not isinstance(apps, list) or not apps or any(not isinstance(a, dict) for a in apps):
+        return False
+    codes = {a.get('name'): str(a.get('reasonCode', '')) for a in apps}
+    if len(codes) != len(apps):
+        return False
+    if codes == {'ics_pa_setup': '100'}:
+        return True
+    return (str(info.get('reasonCode')) == '475' and codes.get('ics_pa_enroll') == '475'
+            and set(codes) <= {'ics_pa_enroll', 'ics_arc', 'ics_auth', 'ics_bill', 'ics_decision_early'}
+            and all(not code for name, code in codes.items() if name != 'ics_pa_enroll'))
+
+
 def verify_transaction(data, attempt):
     """Input MUST be an authenticated Transaction Details response, never browser data.
 
@@ -109,16 +159,28 @@ def verify_transaction(data, attempt):
     if (data.get('merchantId') != attempt['merchant_id']
             or data.get('clientReferenceInformation', {}).get('code') != attempt['reference']):
         raise ValueError('Merchant or reference mismatch')
-    amounts = data.get('orderInformation', {}).get('amountDetails', {})
-    if amounts.get('currency') != attempt['currency'] or minor(amounts.get('totalAmount')) != attempt['amount_minor']:
-        raise ValueError('Amount or currency mismatch')
     if not re.fullmatch(r'[0-9]{10,40}', str(data.get('id', ''))):
         raise ValueError('Invalid transaction ID')
     apps = data.get('applicationInformation', {}).get('applications', [])
-    by_name = {a.get('name'): str(a.get('reasonCode')) for a in apps if isinstance(a, dict)}
+    by_name = {a.get('name'): str(a.get('reasonCode', '')) for a in apps if isinstance(a, dict)}
     # Conflicting or reversal/refund records cannot be treated as a new payment.
     if len(by_name) != len(apps) or any(n in by_name for n in ('ics_credit', 'ics_auth_reversal', 'ics_auto_auth_reversal')):
         return 'review'
+    # An authenticated, reference-bound acquirer rejection may omit amounts
+    # because authorization/capture never ran. Only recognise this exact shape;
+    # any financial result or unknown application must stay guarded.
+    rejected_before_auth = (
+        str(data.get('applicationInformation', {}).get('reasonCode')) == '491'
+        and by_name.get('ics_arc') == '491'
+        and set(by_name) <= {'ics_arc', 'ics_auth', 'ics_bill', 'ics_decision', 'ics_decision_early'}
+        and all(by_name.get(name, '') == '' for name in ('ics_auth', 'ics_bill'))
+        and any(a.get('name') == 'ics_arc' and a.get('rFlag') == 'DAGGREJECTED' for a in apps))
+    amounts = data.get('orderInformation', {}).get('amountDetails', {})
+    if amounts or not rejected_before_auth:
+        if amounts.get('currency') != attempt['currency'] or minor(amounts.get('totalAmount')) != attempt['amount_minor']:
+            raise ValueError('Amount or currency mismatch')
+    if rejected_before_auth:
+        return 'failed'
     if by_name.get('ics_auth') == '100' and by_name.get('ics_bill') == '100':
         return 'succeeded'
     if by_name.get('ics_auth') in ('200', '201', '202', '203', '204', '205', '207', '208', '210', '211', '231') and 'ics_bill' not in by_name:

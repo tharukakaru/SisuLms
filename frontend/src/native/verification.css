@@ -1,0 +1,24 @@
+div.teacher-signup-layout.verification-layout .teacher-signup-form{align-self:center;min-height:0;padding-top:24px;padding-bottom:24px}
+div.teacher-signup-layout.verification-layout .teacher-signup-form .teacher-submit{box-shadow:none}
+div.teacher-signup-layout.verification-layout .web-welcome-story footer{background-image:url('../assets/figma/verification-story-footer.svg');color:#fff}
+div.teacher-signup-layout.verification-layout .teacher-signup-form label{gap:8px;margin:0 0 20px}
+div.teacher-signup-layout.verification-layout .teacher-signup-form input:not([type=checkbox]){height:50px;padding-block:12px}
+div.teacher-signup-layout.verification-layout .teacher-signup-form .verification-intro{font-size:14px;line-height:24px;color:#78758b;margin:0 0 20px}
+div.teacher-signup-layout.verification-layout .teacher-signup-form .verification-secondary{background:#f4effc;color:#19182e;margin-top:0}
+div.teacher-signup-layout.verification-layout .teacher-signup-form .verification-secondary:hover:not(:disabled){background:#ebe2f8;color:#19182e}
+div.teacher-signup-layout.verification-layout .verification-secondary svg{color:#56288d}
+div.teacher-signup-layout.verification-layout .verification-phone-form{margin-top:24px}
+div.teacher-signup-layout.verification-layout .verification-actions{display:flex;flex-wrap:wrap;gap:20px;margin-top:20px}
+div.teacher-signup-layout.verification-layout .verification-actions button{border:0;background:none;padding:0;color:#56288d;font:400 12px/1.6 'Manrope Variable',sans-serif;cursor:pointer}
+div.teacher-signup-layout.verification-layout .verification-feedback{font-size:13px;line-height:1.6;color:#56288d;margin:16px 0}
+div.teacher-signup-layout.verification-layout .verification-feedback:empty{display:none}
+div.teacher-signup-layout.verification-layout .verification-feedback:focus{outline:2px solid #8b61bb;outline-offset:4px}
+div.teacher-signup-layout.verification-layout .verification-feedback p{margin:0}
+div.teacher-signup-layout.verification-layout .verification-feedback .error{color:#a52a46}
+div.teacher-signup-layout.verification-layout .verification-channel{margin-top:20px;font-size:12px;color:#56288d}
+div.teacher-signup-layout.verification-layout .verification-channel summary{cursor:pointer;margin-bottom:12px}
+div.teacher-signup-layout.verification-layout .verification-content .panel{box-shadow:none;border:0;background:none;padding:0;margin:0}
+div.teacher-signup-layout.verification-layout .application-review-status{padding:24px;margin:0 0 20px;border:1px solid #e7e3ef;border-radius:20px;background:#fcfbfe}
+div.teacher-signup-layout.verification-layout .application-review-status strong{display:block;font-size:20px;line-height:28px;font-weight:800;color:#19182e}
+div.teacher-signup-layout.verification-layout .application-review-status p{margin:6px 0 0;font-size:14px;line-height:24px;color:#78758b}
+@media(max-width:999px){div.teacher-signup-layout.verification-layout .teacher-signup-form{padding:0}}

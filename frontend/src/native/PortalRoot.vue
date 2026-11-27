@@ -1,36 +1,58 @@
 <script setup>
+import WorkspaceAccessChanged from './WorkspaceAccessChanged.vue'
+import InvitationEntry from './InvitationEntry.vue'
+const invitationEntry=location.hash==='#invitations'
+const workspaceAccessChanged=ref(false)
+function accessChanged(){workspaceAccessChanged.value=true}
+onMounted(()=>window.addEventListener?.('sisu-workspace-access-changed',accessChanged))
+onBeforeUnmount(()=>window.removeEventListener?.('sisu-workspace-access-changed',accessChanged))
+const CheckoutEntry=defineAsyncComponent(()=>import('./CheckoutEntry.vue'))
+const checkoutInvoice=new URLSearchParams(location.search).get('checkout_invoice')
+import {googleSignupEntry} from './existingAccount'
+const ProviderFirstLogin=defineAsyncComponent(()=>import('./ProviderFirstLogin.vue'))
+const ProviderOnboardingStatus=defineAsyncComponent(()=>import('./ProviderOnboardingStatus.vue'))
+import PageLoading from '../PageLoading.vue'
 import CampusSwitcher from './CampusSwitcher.vue'
 import PasswordConfirmation from './PasswordConfirmation.vue'
 const passwordConfirmation=location.hash.startsWith('#password-confirm=')
-import GeneralCampus from './GeneralCampus.vue'
+const GeneralCampus=defineAsyncComponent(()=>import('./GeneralCampus.vue'))
 
 import {asyncPage as defineAsyncComponent} from '../asyncPage'
 
-import ProviderAccessGate from './ProviderAccessGate.vue'
+const ProviderAccessGate=defineAsyncComponent(()=>import('./ProviderAccessGate.vue'))
 
-import VerifiedSignup from './VerifiedSignup.vue'
+const VerifiedSignup=defineAsyncComponent(()=>import('./VerifiedSignup.vue'))
 
-import FirebasePush from './FirebasePush.vue'
+const FirebasePush=defineAsyncComponent(()=>import('./FirebasePush.vue'))
 
 const newGoogleSignup=new URLSearchParams(location.search).get('verified_signup')==='1'
+// The OAuth return carries the selected form; stale browser storage cannot pick it.
+const requestedGoogleKind=new URLSearchParams(location.search).get('signup_role')
+const googleSignupKind=['Student','Individual Teacher','Institute'].includes(requestedGoogleKind)?requestedGoogleKind:'Student'
+const googleRegistration=ref(false)
 
 const firebaseTestPage=new URLSearchParams(location.search).get('firebase_test')==='1'
 
 import BrandLogo from '../BrandLogo.vue'
 
-import OnboardingWelcomePanel from './OnboardingWelcomePanel.vue'
+import WebWelcomeStory from '../learning/WebWelcomeStory.vue'
+import LearnerSignIn from './LearnerSignIn.vue'
+import ProviderAccountChoice from './ProviderAccountChoice.vue'
 
 import '@fontsource-variable/manrope'
 
-import {ref,onMounted} from 'vue'
+import {ref,onMounted,onBeforeUnmount,computed,nextTick} from 'vue'
+import {rememberTeacherPath,resolveTeacherPath,teacherEntryView} from './teacherEntryPath'
 
 import Icon from '../Icon.vue'
+import {ArrowLeft} from 'lucide-vue-next'
 
 import '../brand.css'
 
 import MobileVerification from './MobileVerification.vue'
+import VerificationLayout from './VerificationLayout.vue'
 
-import {request,csrf} from './client'
+import {request} from './client'
 
 const OperatorWorkspace=defineAsyncComponent(()=>import('./AdvancedWorkspace.vue'))
 
@@ -48,901 +70,238 @@ const Signup=defineAsyncComponent(()=>import('./RegistrationFlow.vue'))
 
 const AccountSubscription=defineAsyncComponent(()=>import('./SubscriptionBilling.vue'))
 
-const subscription=ref(null),policy=ref({})
+const subscription=ref(null),policy=ref({}),googleSignupError=ref(null)
 
 const session=ref(null),error=ref(''),busy=ref(true),selected=ref('Student'),signup=ref(new URLSearchParams(location.search).get('signup')==='1'),dark=ref(false)
 
-const emailLogin=ref(location.pathname.startsWith('/login')||new URLSearchParams(location.search).get('login')==='1')
-const loginEmail=ref(''),loginPassword=ref(''),loginBusy=ref(false),forgotNotice=ref('')
-
 const roles=[{name:'Student',icon:'GraduationCap',text:'Learn, explore and grow.'},{name:'Teacher',icon:'BookOpen',text:'Your own teaching space.'},{name:'Institute',icon:'Building2',text:'Your teachers and classrooms.'}]
 
-function openSignup(){sessionStorage.setItem('sisu_signup_role',selected.value==='Teacher'?'Individual Teacher':selected.value);signup.value=true}
-
-function openEmailLogin(){
-  error.value=''
-  forgotNotice.value=''
-  emailLogin.value=true
+const roleChosen=ref(false)
+const studentEmailSignup=ref(false)
+function openStudentEmailSignup(){sessionStorage.setItem('sisu_signup_role','Student');studentEmailSignup.value=true}
+const signupPath=ref(false)
+const hasPreviousPage=window.history.length>1
+const providerSignupKind=ref('')
+const profileOpen=ref(false),profileStarted=ref(false),profileHeading=ref(null),profileContinue=ref(null)
+const onboardingPhoneVerified=ref(false)
+function showProfile(open){profileOpen.value=open;if(open)profileStarted.value=true;nextTick(()=>(open?profileHeading.value:profileContinue.value)?.focus())}
+const teacherPath=ref('individual'),entryPath=ref('')
+const teacherView=computed(()=>teacherEntryView(session.value,entryPath.value,googleRegistration.value))
+function rememberEntry(){rememberTeacherPath(sessionStorage,'')}
+function continueIndividually(){entryPath.value='individual';rememberTeacherPath(sessionStorage,'individual');resolveTeacherPath(sessionStorage,session.value)}
+const roleCopy={
+  Student:{title:'I’m a learner',description:'Find teachers, join classes and make room to grow.'},
+  Teacher:{title:'I’m a teacher',description:'Teach your classes and manage your memberships.'},
+  Institute:{title:'We’re an institute',description:'Manage your team, programmes and classrooms.'},
 }
 
-function closeEmailLogin(){
-  error.value=''
-  forgotNotice.value=''
-  emailLogin.value=false
-  if(location.pathname.startsWith('/login')){
-    history.replaceState(null,'','/')
-  }
-}
+function openSignup(){if(selected.value==='Teacher'&&policy.value.unified_teacher_signup){openProviderSignup('Individual Teacher','individual');return}if(selected.value==='Institute'){openProviderSignup('Institute');return}signupPath.value=true}
 
-async function submitEmailLogin(){
-  if(loginBusy.value)return
-  loginBusy.value=true
-  error.value=''
-  forgotNotice.value=''
-  try{
-    const rawToken=csrf()
-    const token=rawToken&&!rawToken.includes('{{')?rawToken:''
-    const res=await fetch('/api/method/login',{
-      method:'POST',
-      credentials:'same-origin',
-      headers:{
-        'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
-        'Accept':'application/json',
-        ...(token?{'X-Frappe-CSRF-Token':token}:{})
-      },
-      body:new URLSearchParams({usr:loginEmail.value,pwd:loginPassword.value})
-    })
-    const contentType=res.headers.get('content-type')||''
-    if(!contentType.includes('application/json')){
-      throw Error('The Frappe service returned an unexpected response. Check your connection or sign in again.')
-    }
-    const data=await res.json()
-    if(!res.ok||data.exc||data.exc_type){
-      let msg=data.message||'Invalid login credentials.'
-      try{msg=JSON.parse(JSON.parse(data._server_messages)[0]).message.replace(/<[^>]*>/g,'')}catch{}
-      throw Error(msg)
-    }
-    loginPassword.value=''
-    const redirectTo=new URLSearchParams(location.search).get('redirect-to')
-    if(redirectTo&&redirectTo.startsWith('/')&&!redirectTo.startsWith('//')&&redirectTo!=='/campus'&&redirectTo!=='/'){
-      location.assign(redirectTo)
-      return
-    }
-    emailLogin.value=false
-    if(location.pathname.startsWith('/login')){
-      history.replaceState(null,'','/campus')
-    }
-    await connect()
-  }catch(e){
-    error.value=e.message
-  }finally{
-    loginBusy.value=false
-  }
-}
+function openProviderSignup(kind,path){if(policy.value.unified_teacher_signup&&['Individual Teacher','Institute Teacher'].includes(kind)){kind='Individual Teacher';path='individual'}if(kind==='Individual Teacher'){teacherPath.value=path||teacherPath.value;rememberTeacherPath(sessionStorage,teacherPath.value)}else{rememberTeacherPath(sessionStorage,'')}if(kind==='Individual Teacher'&&teacherPath.value==='institute')kind='Institute Teacher';providerSignupKind.value=kind;sessionStorage.setItem('sisu_signup_role',kind);signup.value=true}
 
-async function requestForgotReset(){
-  error.value=''
-  forgotNotice.value=''
-  if(!loginEmail.value){
-    error.value='Enter your account email address above first to request a password reset email.'
+function chooseRole(role){roleChosen.value=selected.value===role?!roleChosen.value:true;selected.value=role;signupPath.value=false;providerSignupKind.value=''}
+
+function goBack(){if(signupPath.value){signupPath.value=false}else if(roleChosen.value){roleChosen.value=false}else if(hasPreviousPage){window.history.back()}}
+
+async function google(){rememberEntry();try{const kind=selected.value==='Teacher'?'Individual Teacher':selected.value;const r=await request('portal_policy','google_start',{signup:1,kind});const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
+
+async function connect(){
+ busy.value=true;error.value='';googleSignupError.value=null;googleRegistration.value=false
+ try{
+  [session.value,policy.value]=await Promise.all([request('portal_session','current',{},'GET'),request('portal_policy','public',{},'GET')])
+  if(session.value.csrf_token)window.csrf_token=session.value.csrf_token
+  const signupEntry=await googleSignupEntry(session.value,newGoogleSignup,request)
+  if(signupEntry){
+   policy.value=signupEntry.policy
+   googleRegistration.value=!signupEntry.accountExists
+   if(googleRegistration.value){
+    if(!policy.value.self_signup_enabled)throw Error('Signup is currently unavailable. Please contact SISU.')
     return
+   }
   }
-  loginBusy.value=true
-  try{
-    const rawToken=csrf()
-    const token=rawToken&&!rawToken.includes('{{')?rawToken:''
-    const res=await fetch('/api/method/frappe.core.doctype.user.user.reset_password',{
-      method:'POST',
-      credentials:'same-origin',
-      headers:{
-        'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
-        'Accept':'application/json',
-        ...(token?{'X-Frappe-CSRF-Token':token}:{})
-      },
-      body:new URLSearchParams({user:loginEmail.value})
-    })
-    if(res.ok){
-      forgotNotice.value=`If an account exists for ${loginEmail.value}, a password reset link has been sent.`
-    }else{
-      forgotNotice.value='Password reset links are sent to verified accounts. Contact support if you need help accessing your workspace.'
-    }
-  }catch{
-    forgotNotice.value='Unable to reach the password reset service right now. Please check your connection.'
-  }finally{
-    loginBusy.value=false
+  if(policy.value.unified_teacher_signup&&session.value.onboarding_kind==='Teacher'&&!session.value.member&&session.value.provider_onboarding_required===false){
+   await request('teacher_workspace','open_workspace')
+   session.value=await request('portal_session','current',{},'GET')
   }
+  entryPath.value=resolveTeacherPath(sessionStorage,session.value)
+  if(session.value.csrf_token)window.csrf_token=session.value.csrf_token
+  if(session.value.member)subscription.value=(await request('account_billing','status')).account
+ }catch(e){error.value=e.message;if(newGoogleSignup)googleSignupError.value=e}
+ finally{busy.value=false}
 }
-
-async function google(){try{const r=await request('portal_policy','google_start');const u=new URL(r.url);if(u.protocol!=='https:'||u.hostname!=='accounts.google.com')throw Error('Google sign-in is unavailable');location.assign(u.href)}catch(e){error.value=e.message}}
-
-async function connect(){busy.value=true;error.value='';try{session.value=await request('portal_session','current',{},'GET');if(session.value.csrf_token)window.csrf_token=session.value.csrf_token;if(session.value.member)subscription.value=(await request('account_billing','status')).account}catch(e){error.value=e.message}finally{busy.value=false}}
 
 onMounted(()=>{if(!firebaseTestPage&&!passwordConfirmation){connect();request('portal_policy','public',{},'GET').then(p=>policy.value=p).catch(()=>{})}})
 
 </script>
 
 <template>
-<CampusSwitcher provider v-if="session?.shared_campus&&session.authenticated&&!session.member&&session.role!=='Student'&&session.onboarding_kind!=='Student'&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)"/>
 
-<PasswordConfirmation v-else-if="passwordConfirmation"/><section v-else-if="firebaseTestPage" class="panel" style="max-width:760px;margin:40px auto;padding:24px"><h1>SISU browser notification test</h1><p>This test uses your configured sandbox account.</p><a href="/sandbox_firebase_login">Sign in as sandbox Administrator</a><FirebasePush/></section>
+<WorkspaceAccessChanged v-if="workspaceAccessChanged" :teacher="session?.role==='Teacher'"/><PageLoading v-else-if="busy&&(!session||newGoogleSignup||(session.member&&!subscription)||(policy.unified_teacher_signup&&session.onboarding_kind==='Teacher'&&!session.member))&&!passwordConfirmation&&!firebaseTestPage"/><PasswordConfirmation v-else-if="passwordConfirmation"/><section v-else-if="firebaseTestPage" class="panel" style="max-width:760px;margin:40px auto;padding:24px"><h1>SISU browser notification test</h1><p>This test uses your configured sandbox account.</p><a href="/sandbox_firebase_login">Sign in as sandbox Administrator</a><FirebasePush/></section>
+
+  <PageLoading v-else-if="googleSignupError" :error="googleSignupError"/>
+  <VerifiedSignup v-else-if="googleRegistration" :policy="policy" google-session :initial-kind="googleSignupKind" :student-only="googleSignupKind==='Student'" @back="connect"/>
+
+  <CheckoutEntry v-else-if="checkoutInvoice&&session?.authenticated" :invoice="checkoutInvoice" :user="session.user"/>
 
   <ControlPlane v-else-if="session?.control_plane&&session.role==='Super Admin'"/>
 
   <Subscription v-else-if="session?.control_plane&&session.authenticated" control-plane/>
 
-  <ProviderAccessGate v-else-if="session?.member&&session.role!=='Student'&&(!subscription||(subscription.workspace_available??subscription.available)===false)" :role="session.role" @changed="connect"/><AccountSubscription v-else-if="session?.member&&session.role!=='Student'&&(!subscription||(subscription.workspace_available??subscription.available)===false)" standalone @changed="connect"/>
+  <ProviderFirstLogin :unified-teacher="!!policy.unified_teacher_signup" @completed="connect" v-else-if="session?.provider_onboarding_required" :session="session"/>
+  <ProviderAccessGate v-else-if="!policy.unified_teacher_signup&&teacherView==='institute'" key="institute-entry" role="Teacher" selection-only @continue="continueIndividually" @changed="connect">
+    <details v-if="session.shared_campus" class="teacher-approved-workspaces"><summary>Open an approved teaching workspace</summary><CampusSwitcher provider @opening="continueIndividually"/></details>
+    <button v-else-if="session.member" type="button" class="entry-secondary" @click="continueIndividually">Open my current workspace</button>
+  </ProviderAccessGate>
+
+  <main v-else-if="policy.unified_teacher_signup&&session?.onboarding_kind==='Teacher'&&!session.member&&session.provider_onboarding_required===false" class="entry-onboarding" role="alert"><h1>We couldn’t open your teaching space</h1><p>{{error||'Please try again. Your account details are saved.'}}</p><button class="button primary" :disabled="busy" @click="connect">Try again</button><a href="/api/method/logout">Sign out</a></main>
+  <ProviderOnboardingStatus v-else-if="session?.shared_campus&&!session.member&&session.provider_onboarding_required===false&&['Teacher','Institute'].includes(session.onboarding_kind)" :session="session" @changed="connect"/>
+
+  <Campus v-else-if="policy.unified_teacher_signup&&session?.member&&session.role==='Teacher'" :shared-campus="session.shared_campus"/>
+  <ProviderAccessGate v-else-if="session?.member&&session.role!=='Student'&&(!subscription||(subscription.workspace_available??subscription.available)===false)" key="workspace-access" :unified-teacher="!!policy.unified_teacher_signup" :role="session.role" :initial-individual="session.role==='Teacher'" :checking="busy" :error="error" @changed="connect"/><AccountSubscription v-else-if="session?.member&&session.role!=='Student'&&(!subscription||(subscription.workspace_available??subscription.available)===false)" standalone @changed="connect"/>
 
   <Owner v-else-if="session?.role==='Super Admin'" :session="session"/>
 
-  <Campus v-else-if="session?.shared_campus&&!session.member&&session.onboarding_kind==='Student'&&!newGoogleSignup" shared-campus :general-session="session"/><GeneralCampus v-else-if="session?.shared_campus&&!session.member&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)&&!(policy.self_signup_enabled&&newGoogleSignup)" :session="session"/>
+  <Campus v-else-if="session?.shared_campus&&!session.member&&session.onboarding_kind==='Student'" shared-campus :general-session="session"/><GeneralCampus v-else-if="teacherView!=='setup'&&session?.shared_campus&&!session.member&&(session.onboarding_kind!=='Institute'||session.workspace_choices_required)" :session="session"/>
   <OperatorWorkspace v-else-if="session?.role==='Operator'" standalone/>
 
   <Campus v-else-if="session?.member" :shared-campus="session.shared_campus"/>
 
-  <VerifiedSignup v-else-if="session?.authenticated && policy.self_signup_enabled && newGoogleSignup" :policy="policy" google-session @back="connect"/>
+  <template v-else-if="session?.authenticated">
+    <VerificationLayout v-show="!profileOpen" @back="goBack">
+      <MobileVerification onboarding @verified="onboardingPhoneVerified=$event"/>
+      <section class="onboarding-profile-next" aria-label="Profile completion">
+        <p>Complete your profile and mobile verification before your workspace is activated.</p>
+        <button ref="profileContinue" type="button" class="teacher-submit" :disabled="!onboardingPhoneVerified" @click="showProfile(true)">Complete your profile <Icon name="ArrowRight" :size="16"/></button>
+        <p><a href="/me">Account settings</a> · <a href="/api/method/logout">Sign out</a></p>
+      </section>
+    </VerificationLayout>
+    <main v-if="profileStarted" v-show="profileOpen" class="onboarding-profile-page" aria-labelledby="onboarding-profile-title">
+      <header class="onboarding-profile-header"><a href="/campus" aria-label="SISU home"><BrandLogo/></a><nav aria-label="Account"><a href="/me">Account settings</a><a href="/api/method/logout">Sign out</a></nav></header>
+      <button type="button" class="onboarding-profile-back" @click="showProfile(false)"><ArrowLeft :size="16" aria-hidden="true"/>Back to verification</button>
+      <h1 id="onboarding-profile-title" ref="profileHeading" tabindex="-1">Complete your profile</h1>
+      <p class="onboarding-profile-intro">Complete your profile and mobile verification before your workspace is activated. Account type: {{session.onboarding_kind}}.</p>
+      <Profile :key="session.onboarding_kind" :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':session.onboarding_kind}" @saved="connect"/>
+    </main>
+  </template>
 
-  <div v-else-if="session?.authenticated" class="sisu-onboarding-shell" :class="{'entry-dark':dark}">
-    <div class="sisu-onboarding-split">
-      <OnboardingWelcomePanel variant="grow" />
-      <div class="entry-onboarding">
-        <a class="sisu-back-link" href="/api/method/logout">← Back to sign in</a>
-        <h1>Let’s make this space yours.</h1>
-        <p class="entry-onboarding-lead">Verify your mobile number and complete your profile before your workspace is activated.</p>
-        <p class="entry-onboarding-meta">Account type: <strong>{{session.onboarding_kind}}</strong></p>
-        <MobileVerification/>
-        <Profile :key="session.onboarding_kind" :member="{user:session.user,full_name:session.user,role:session.onboarding_kind==='Institute'?'Admin':session.onboarding_kind}" @saved="connect"/>
-        <div class="entry-onboarding-links">
-          <a href="/me">Account settings</a>
-          <a href="/api/method/logout">Sign out</a>
-        </div>
-      </div>
-    </div>
-  </div>
+  <VerifiedSignup v-else-if="studentEmailSignup" :policy="policy" student-only @back="studentEmailSignup=false;signupPath=false"/>
+  <Signup v-else-if="signup" :initial-provider-kind="providerSignupKind" @back="signup=false" @dashboard="connect"/>
 
-  <Signup v-else-if="signup" @back="signup=false" @dashboard="connect"/>
+  <main v-else class="sisu-entry role-selection" :class="{'entry-dark':dark,'role-selection-expanded':roleChosen&&!signupPath}">
 
-  <main v-else class="sisu-entry" :class="{'entry-dark':dark}">
-    <div class="entry-layout">
-      <OnboardingWelcomePanel :variant="emailLogin ? 'connect' : (selected==='Student'?'discover':'connect')" />
+    <header class="role-selection-header"><a href="#" class="entry-brand" aria-label="SISU home"><BrandLogo/></a></header>
 
-      <div class="entry-card-wrap">
-        <section v-if="emailLogin" class="entry-card entry-signin-form-card">
-          <div class="entry-card-top">
-            <button type="button" class="sisu-back-link entry-back-inline" @click="closeEmailLogin">← Back to sign in</button>
-            <button class="entry-icon" type="button" @click="dark=!dark" :aria-label="dark?'Light mode':'Dark mode'">
-              <Icon :name="dark?'Sun':'Moon'" :size="18"/>
-            </button>
-          </div>
+    <div class="entry-layout"><WebWelcomeStory :provider="signupPath&&selected==='Teacher'"/>
 
-          <h2>Welcome back.</h2>
-          <p class="entry-signin-lead">Sign in to your teaching or institute workspace.</p>
+    <section class="entry-card" :aria-labelledby="invitationEntry?'invitation-entry-title':signupPath&&selected==='Teacher'?'provider-account-title':signupPath&&selected==='Student'?'learner-signin-title':'role-selection-title'">
+      <InvitationEntry v-if="invitationEntry" :signup-available="!!policy.self_signup_enabled" @signup="selected='Teacher';openProviderSignup('Individual Teacher','individual')"/><LearnerSignIn v-else-if="signupPath&&selected==='Student'" :google-available="!!policy.google_available" :email-available="!!policy.self_signup_enabled" @email="openStudentEmailSignup" @google="google(true)" @choose-path="signupPath=false"/>
+      <ProviderAccountChoice v-else-if="signupPath&&selected==='Teacher'" @choose="openProviderSignup" @back="signupPath=false"/>
+      <template v-else><button v-if="roleChosen||hasPreviousPage" type="button" class="role-back-link" @click="goBack"><ArrowLeft :size="13" :stroke-width="1.7" aria-hidden="true"/>Back</button><h2 id="role-selection-title">Choose your SISU role</h2><p class="role-selection-subtitle">Your next chapter starts here.</p><div class="entry-roles"><button v-for="r in roles" :key="r.name" type="button" @click="chooseRole(r.name)" :class="{selected:roleChosen&&selected===r.name}" :aria-expanded="roleChosen&&selected===r.name" aria-controls="role-selection-actions"><div><strong>{{roleCopy[r.name].title}}</strong><small>{{roleCopy[r.name].description}}</small></div></button></div>
 
-          <form class="entry-email-form" @submit.prevent="submitEmailLogin">
-            <label class="entry-field-label">
-              <span>Email</span>
-              <input
-                v-model.trim="loginEmail"
-                type="email"
-                autocomplete="username"
-                required
-                placeholder="teacher@example.invalid"
-              />
-            </label>
+      <div id="role-selection-actions" v-show="roleChosen"><p class="entry-action-title">{{selected==='Student'?'Learner':selected}} account</p><div class="entry-login-actions"><a class="entry-primary" href="/login?redirect-to=/campus" @click="rememberEntry">Sign in with email and password →</a><button class="entry-primary entry-google" :disabled="!policy.google_available" @click="google"><img :src="'/assets/frappe/icons/social/google.svg'" alt="" width="20" height="20" style="display:inline-block;vertical-align:middle;margin-right:8px;flex-shrink:0" />Continue with Google</button></div><p v-if="!policy.google_available" class="entry-subtle">Google sign-in is being set up for this site. You can sign in with your email and password.</p><p class="entry-secure"><Icon name="ShieldCheck" :size="15"/>Your account determines your permissions.</p><div class="entry-divider"><span>NEW TO SISU?</span></div><button class="entry-secondary" @click="openSignup">Create a new account <Icon name="Plus" :size="16"/></button><p class="entry-subtle">{{policy.self_signup_enabled?'Verify your email and phone, create your password, then sign in.':'Students use Google. Teachers and institutes apply for review, then set a password through a secure email.'}}</p></div>
 
-            <label class="entry-field-label">
-              <span>Password</span>
-              <input
-                v-model="loginPassword"
-                type="password"
-                autocomplete="current-password"
-                required
-                placeholder="••••••••••••"
-              />
-            </label>
+      </template>
 
-            <p class="entry-forgot-row">
-              <button type="button" class="entry-forgot-btn" :disabled="loginBusy" @click="requestForgotReset">
-                Forgot password? Request a secure reset email.
-              </button>
-            </p>
+      <div v-if="error" class="entry-status" role="status"><span class="status-dot"></span><div><strong>Connection or account issue</strong><p>{{error}}</p><button @click="connect" :disabled="busy">Check connection again</button></div></div><p v-else-if="busy" role="status">Checking your session…</p>
 
-            <p v-if="forgotNotice" class="entry-forgot-notice" role="status">{{forgotNotice}}</p>
+    </section></div><footer v-if="roleChosen&&selected==='Institute'" class="entry-bottom">{{policy.self_signup_enabled?'Teachers and institutes select and pay for a plan before workspace access.':'One 14-day trial per new account. Then a monthly subscription.'}}<span>Secure access · No sample accounts</span></footer>
 
-            <button type="submit" class="entry-primary entry-signin-submit" :disabled="loginBusy">
-              <span>{{loginBusy ? 'Signing in…' : 'Sign in'}}</span>
-              <span class="entry-arrow" aria-hidden="true">→</span>
-            </button>
-          </form>
-
-          <div v-if="error" class="entry-status" role="alert">
-            <span class="status-dot"></span>
-            <div>
-              <strong>Sign-in or connection issue</strong>
-              <p>{{error}}</p>
-              <button type="button" @click="connect" :disabled="busy">Check connection again</button>
-            </div>
-          </div>
-        </section>
-
-        <section v-else class="entry-card">
-          <div class="entry-card-top">
-            <span class="entry-kicker">COME ON IN</span>
-            <button class="entry-icon" type="button" @click="dark=!dark" :aria-label="dark?'Light mode':'Dark mode'">
-              <Icon :name="dark?'Sun':'Moon'" :size="18"/>
-            </button>
-          </div>
-          <h2>Good to see you.</h2>
-          <p>Choose your account type.</p>
-
-          <div class="entry-roles">
-            <button
-              v-for="r in roles"
-              :key="r.name"
-              type="button"
-              @click="selected=r.name"
-              :class="{selected:selected===r.name}"
-              :aria-pressed="selected===r.name"
-            >
-              <span><Icon :name="r.icon" :size="21"/></span>
-              <div>
-                <strong>{{r.name}}</strong>
-                <small>{{r.text}}</small>
-              </div>
-              <i>{{selected===r.name?'✓':'›'}}</i>
-            </button>
-          </div>
-
-          <div class="entry-login-actions">
-            <a class="entry-primary" href="/login?redirect-to=/campus" @click.prevent="openEmailLogin">
-              <span>Sign in with email and password</span>
-              <span class="entry-arrow" aria-hidden="true">→</span>
-            </a>
-            <button class="entry-primary entry-google" type="button" :disabled="!policy.google_available" @click="google">
-              <img :src="'/assets/frappe/icons/social/google.svg'" alt="" width="20" height="20"/>
-              <span>Continue with Google</span>
-            </button>
-          </div>
-
-          <div class="entry-divider"><span>NEW TO SISU?</span></div>
-
-          <button class="entry-secondary" type="button" @click="openSignup">
-            <span>Create your account</span>
-            <Icon name="Plus" :size="16"/>
-          </button>
-
-          <p class="entry-subtle">{{policy.self_signup_enabled?'Verify your email and phone, create your password, then sign in.':'Students use Google. Teachers and institutes apply for review, then set a password through a secure email.'}}</p>
-
-          <p class="entry-bottom">{{policy.self_signup_enabled?'Teachers and institutes select and pay for a plan before workspace access.':'One 14-day trial per new account. Then a monthly subscription.'}}</p>
-
-          <div v-if="error" class="entry-status" role="status">
-            <span class="status-dot"></span>
-            <div>
-              <strong>Connection or account issue</strong>
-              <p>{{error}}</p>
-              <button type="button" @click="connect" :disabled="busy">Check connection again</button>
-            </div>
-          </div>
-          <p v-else-if="busy" class="entry-checking" role="status">Checking your session…</p>
-        </section>
-      </div>
-    </div>
   </main>
 
 </template>
 
 <style>
-.sisu-entry,
-.sisu-onboarding-shell {
-  --entry-bg: #ffffff;
-  --entry-card: #ffffff;
-  --entry-ink: #19182e;
-  --entry-muted: #787788;
-  --entry-border: rgba(108, 106, 238, 0.12);
-  --entry-brand-purple: #56288d;
-  --entry-accent: #6c6aee;
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: var(--entry-bg);
-  color: var(--entry-ink);
-  font-family: 'Manrope', Inter, system-ui, sans-serif;
-  box-sizing: border-box;
-  padding: clamp(10px, 1.8vh, 20px) clamp(16px, 2.5vw, 28px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.sisu-entry.entry-dark,
-.sisu-onboarding-shell.entry-dark {
-  --entry-bg: #121020;
-  --entry-card: #1b182e;
-  --entry-ink: #f3f1fb;
-  --entry-muted: #a69bb8;
-  --entry-border: rgba(164, 132, 233, 0.2);
-}
-
-.entry-layout,
-.sisu-onboarding-split {
-  display: grid;
-  grid-template-columns: minmax(360px, 500px) minmax(0, 620px);
-  gap: clamp(20px, 2.8vw, 40px);
-  max-width: 1180px;
-  width: 100%;
-  margin: 0 auto;
-  align-items: center;
-}
-
-.entry-card-wrap {
-  min-width: 0;
-  width: 100%;
-}
-
-.entry-card,
-.entry-onboarding {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 620px;
-  padding: clamp(14px, 2.2vh, 28px) clamp(20px, 3vw, 36px);
-  border-radius: 24px;
-  background: var(--entry-card);
-}
-
-.entry-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: clamp(4px, 0.8vh, 8px);
-}
-
-.entry-kicker {
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  font-weight: 500;
-  color: var(--entry-muted);
-  text-transform: uppercase;
-}
-
-.entry-icon {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  background: var(--entry-card);
-  border: 1px solid var(--entry-border);
-  border-radius: 50%;
-  color: var(--entry-ink);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-
-.entry-icon:hover {
-  border-color: var(--entry-accent);
-}
-
-.entry-card h2,
-.entry-onboarding h1 {
-  color: var(--entry-ink);
-  font-family: 'Manrope', sans-serif;
-  font-size: clamp(22px, 3vh, 30px);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  margin: 0 0 clamp(2px, 0.5vh, 6px);
-}
-
-.entry-card > p {
-  margin: 0;
-  font-size: 12.5px;
-  color: var(--entry-muted);
-  line-height: 1.4;
-}
-
-.entry-signin-lead {
-  font-size: 14px !important;
-  margin-bottom: clamp(12px, 1.8vh, 18px) !important;
-}
-
-.entry-back-inline {
-  margin-bottom: 0 !important;
-}
-
-.entry-email-form {
-  display: grid;
-  gap: clamp(10px, 1.6vh, 16px);
-  margin-top: clamp(10px, 1.6vh, 16px);
-}
-
-.entry-field-label {
-  display: grid;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--entry-ink);
-}
-
-.entry-field-label input {
-  box-sizing: border-box;
-  width: 100%;
-  min-height: clamp(42px, 5.4vh, 46px);
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid #e9e8ef;
-  background: #fcfcfe;
-  color: #19182e;
-  font: 400 13.5px 'Manrope', sans-serif;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.entry-dark .entry-field-label input {
-  background: #25203b;
-  border-color: rgba(196, 187, 213, 0.25);
-  color: #f3f1fb;
-}
-
-.entry-field-label input::placeholder {
-  color: #787788;
-}
-
-.entry-field-label input:focus {
-  outline: none;
-  border-color: #56288d;
-  box-shadow: 0 0 0 3px rgba(86, 40, 141, 0.12);
-}
-
-.entry-forgot-row {
-  margin: -4px 0 0;
-}
-
-.entry-forgot-btn {
-  padding: 0;
-  border: 0;
-  background: none;
-  font: 400 12px 'Manrope', sans-serif;
-  color: var(--entry-muted);
-  cursor: pointer;
-  text-align: left;
-}
-
-.entry-forgot-btn:hover {
-  color: #56288d;
-  text-decoration: underline;
-}
-
-.entry-forgot-notice {
-  margin: 0;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: #f2f0fc;
-  color: #56288d;
-  font-size: 12.5px;
-  line-height: 1.45;
-}
-
-.entry-roles {
-  display: grid;
-  gap: clamp(6px, 1vh, 9px);
-  margin: clamp(8px, 1.4vh, 14px) 0;
-}
-
-.entry-roles button {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  width: 100%;
-  min-height: clamp(48px, 6.4vh, 60px);
-  padding: clamp(7px, 1vh, 10px) 14px;
-  border: 1px solid var(--entry-border);
-  border-radius: 15px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-
-.entry-roles button:hover {
-  border-color: rgba(108, 106, 238, 0.36);
-}
-
-.entry-roles button.selected {
-  background: rgba(108, 106, 238, 0.1);
-  border-color: #6c6aee;
-}
-
-.entry-roles button > span {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-  background: rgba(108, 106, 238, 0.1);
-  border-radius: 10px;
-  color: #6c6aee;
-}
-
-.entry-roles button div {
-  display: grid;
-  gap: 2px;
-  flex: 1;
-}
-
-.entry-roles strong {
-  font-size: clamp(13.5px, 1.8vh, 15px);
-  font-weight: 800;
-  color: var(--entry-ink);
-  line-height: 1.2;
-}
-
-.entry-roles small {
-  font-size: 11.5px;
-  font-weight: 400;
-  color: var(--entry-muted);
-  line-height: 1.3;
-}
-
-.entry-roles i {
-  font-style: normal;
-  font-size: 15px;
-  font-weight: 700;
-  color: #6c6aee;
-}
-
-.entry-login-actions {
-  display: grid;
-  gap: clamp(8px, 1.1vh, 11px);
-  margin-top: clamp(8px, 1.4vh, 14px);
-}
-
-.entry-primary,
-.entry-secondary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-sizing: border-box;
-  width: 100%;
-  font-family: 'Manrope', sans-serif;
-  font-size: 13.5px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.12s ease, opacity 0.15s ease, box-shadow 0.15s ease;
-}
-
-.entry-primary {
-  min-height: clamp(40px, 5.2vh, 46px);
-  padding: clamp(8px, 1.1vh, 10px) 18px;
-  border-radius: 24px;
-  border: 1px solid #56288d;
-  background: #56288d;
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(86, 40, 141, 0.18);
-}
-
-.entry-primary:hover:not(:disabled) {
-  background: #492079;
-}
-
-.entry-arrow {
-  font-size: 15px;
-  line-height: 1;
-}
-
-.entry-google {
-  min-height: clamp(40px, 5.2vh, 44px);
-  border-radius: 12px;
-  background: #ffffff;
-  color: #19182e;
-  border: 1px solid #c4bbd5;
-  box-shadow: none;
-}
-
-.entry-dark .entry-google {
-  background: #25203b;
-  color: #f3f1fb;
-  border-color: rgba(196, 187, 213, 0.28);
-}
-
-.entry-google:hover:not(:disabled) {
-  background: #fcfcfe;
-  border-color: #56288d;
-}
-
-.entry-google:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.entry-google img {
-  flex: none;
-}
-
-.entry-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: clamp(8px, 1.4vh, 14px) 0 clamp(6px, 1vh, 10px);
-  color: var(--entry-muted);
-}
-
-.entry-divider::before,
-.entry-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--entry-border);
-}
-
-.entry-divider span {
-  font-size: 10.5px;
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  color: var(--entry-muted);
-  text-transform: uppercase;
-}
-
-.entry-secondary {
-  min-height: clamp(40px, 5.2vh, 44px);
-  padding: clamp(8px, 1.1vh, 10px) 18px;
-  border-radius: 12px;
-  border: 1px solid var(--entry-border);
-  background: transparent;
-  color: var(--entry-ink);
-  font-size: 12.5px;
-  font-weight: 700;
-}
-
-.entry-secondary:hover {
-  border-color: #6c6aee;
-  background: rgba(108, 106, 238, 0.04);
-}
-
-.entry-primary:focus-visible,
-.entry-secondary:focus-visible,
-.entry-roles button:focus-visible {
-  outline: 3px solid #ad99d3;
-  outline-offset: 2px;
-}
-
-.entry-subtle {
-  margin: clamp(6px, 1vh, 10px) 0 0;
-  font-size: 11px !important;
-  color: var(--entry-muted);
-  line-height: 1.35;
-}
-
-.entry-bottom {
-  margin: clamp(3px, 0.6vh, 6px) 0 0;
-  font-size: 10.5px;
-  color: var(--entry-muted);
-  line-height: 1.35;
-}
-
-.entry-status {
-  margin-top: 18px;
-  padding: 14px 16px;
-  display: flex;
-  gap: 10px;
-  border: 1px solid var(--entry-border);
-  border-radius: 14px;
-  font-size: 12px;
-  color: var(--entry-muted);
-  line-height: 1.5;
-  background: #fcfcfe;
-}
-
-.entry-dark .entry-status {
-  background: #231e38;
-}
-
-.entry-status p {
-  margin: 4px 0;
-}
-
-.entry-status button {
-  border: 0;
-  background: none;
-  padding: 0;
-  text-decoration: underline;
-  color: #56288d;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.status-dot {
-  background: #c7a478;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-top: 6px;
-  flex-shrink: 0;
-}
-
-.entry-checking {
-  margin-top: 14px;
-  font-size: 12px;
-  color: var(--entry-muted);
-}
 
-.sisu-back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 18px;
-  font-family: 'Manrope', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: #56288d;
-  text-decoration: none;
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-}
-
-.sisu-back-link:hover {
-  text-decoration: underline;
-}
-
-.entry-onboarding-lead {
-  margin: 0 0 12px;
-  font-size: 15px;
-  color: var(--entry-muted);
-  line-height: 1.5;
-}
-
-.entry-onboarding-meta {
-  margin: 0 0 20px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: #f2f0fc;
-  color: #56288d;
-  font-size: 13px;
-  display: inline-block;
-}
-
-.entry-onboarding-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin-top: 24px;
-  padding-top: 18px;
-  border-top: 1px solid var(--entry-border);
-}
-
-.entry-onboarding-links a {
-  font-size: 13px;
-  font-weight: 700;
-  color: #56288d;
-  text-decoration: none;
-}
-
-.entry-onboarding-links a:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 1040px) {
-  .entry-layout,
-  .sisu-onboarding-split {
-    grid-template-columns: minmax(0, 1fr);
-    max-width: 680px;
-    gap: 20px;
-  }
-
-  .entry-card,
-  .entry-onboarding {
-    padding: 24px 20px;
-  }
-}
-
-@media (max-width: 640px) {
-  .sisu-entry,
-  .sisu-onboarding-shell {
-    justify-content: flex-start;
-    padding: 12px 12px 24px;
-  }
-
-  .entry-layout,
-  .sisu-onboarding-split {
-    gap: 12px;
-  }
-
-  .entry-card,
-  .entry-onboarding {
-    padding: 20px;
-    border-radius: 24px;
-  }
-
-  .entry-card h2,
-  .entry-onboarding h1 {
-    font-size: 28px;
-    line-height: 1.18;
-    margin: 0 0 8px;
-  }
-
-  .entry-signin-lead,
-  .entry-onboarding-lead {
-    font-size: 15px !important;
-    line-height: 1.5;
-    margin-bottom: 14px !important;
-  }
-
-  .entry-email-form {
-    gap: 12px;
-    margin-top: 12px;
-  }
-
-  .entry-field-label input {
-    min-height: 48px;
-    padding: 13px 14px;
-    border-radius: 13px;
-    font-size: 14px;
-  }
-
-  .entry-roles {
-    gap: 10px;
-    margin: 14px 0;
-  }
-
-  .entry-roles button {
-    min-height: 68px;
-    padding: 14px 16px;
-    border-radius: 18px;
-  }
-
-  .entry-roles strong {
-    font-size: 16px;
-  }
-
-  .entry-roles small {
-    font-size: 13px;
-  }
-
-  .entry-login-actions {
-    gap: 10px;
-    margin-top: 14px;
-  }
-
-  .entry-primary,
-  .entry-google,
-  .entry-secondary {
-    min-height: 48px;
-    padding: 12px 18px;
-  }
-
-  .entry-primary {
-    border-radius: 27px;
-  }
-
-  .entry-divider {
-    margin: 16px 0 8px;
-  }
-
-  .sisu-back-link {
-    margin-bottom: 12px;
-  }
-}
-
-@media (max-width: 380px) {
-  .entry-card,
-  .entry-onboarding {
-    padding: 16px;
-  }
-
-  .entry-card h2,
-  .entry-onboarding h1 {
-    font-size: 24px;
-  }
-
-  .entry-primary,
-  .entry-google,
-  .entry-secondary {
-    font-size: 13px;
-    padding: 10px 14px;
-  }
-}
+.sisu-entry{--entry-bg:rgb(108 106 238 / 6%);--entry-card:#fffcff;--entry-ink:#3b3050;--entry-muted:#7b708b;--entry-border:rgb(108 106 238 / 12%);min-height:100vh;background:var(--entry-bg);color:var(--entry-ink);padding:34px max(28px,6vw);font-family:Inter,system-ui,sans-serif}.sisu-entry.entry-dark{--entry-bg:#201a2d;--entry-card:#2c243b;--entry-ink:rgb(108 106 238 / 6%);--entry-muted:#b3a5c5;--entry-border:#453854}.sisu-entry header,.sisu-entry header>div,.entry-bottom,.entry-story footer{display:flex;align-items:center;justify-content:space-between;gap:25px}.entry-brand{font-size:39px;font-weight:800;letter-spacing:-3px;color:inherit;text-decoration:none}.entry-brand span{color:#6C6AEE;font-size:22px;margin-left:8px}.entry-note{font-size:12px;color:var(--entry-muted)}.entry-icon{background:var(--entry-card);border:1px solid var(--entry-border);border-radius:50%;padding:12px;color:inherit;cursor:pointer}.entry-layout{display:grid;grid-template-columns:1.1fr 1fr;gap:9%;max-width:1240px;margin:70px auto 50px;align-items:center}.entry-kicker{font-size:10px;letter-spacing:2.7px;font-weight:600;color:var(--entry-muted)}.entry-story h1{font-size:clamp(44px,5vw,74px);line-height:1.12;letter-spacing:-3px;margin:27px 0}.entry-story h1 em{color:#6C6AEE;font-style:normal}.entry-story>p{max-width:365px;color:var(--entry-muted);font-size:15px;line-height:1.9}.entry-garden{position:relative;height:210px;margin:20px 0;display:grid;place-items:center;max-width:370px}.entry-book{width:150px;height:166px;background:linear-gradient(150deg,rgb(108 106 238 / 8%),#6C6AEE);border:5px solid #fff8;border-radius:26px 38px 28px 12px;box-shadow:15px 16px 0 #6C6AEE3a,20px 24px 35px #6C6AEE1c;transform:rotate(-10deg);display:flex;align-items:center;justify-content:center;gap:13px;flex-direction:column;color:#755398}.entry-book span{font-size:12px;font-weight:600}.entry-orbit{position:absolute;width:310px;height:145px;border:1px solid #6C6AEE60;border-radius:50%;transform:rotate(-20deg)}.garden-spark{position:absolute;right:25px;top:15px;color:#6C6AEE;font-size:62px}.garden-leaf{position:absolute;left:0;bottom:0;color:#88a797;font-size:120px;transform:rotate(-30deg)}.garden-dot{width:22px;height:22px;background:#e7c59d;border-radius:50%;position:absolute;bottom:30px;right:38px}.entry-story footer{justify-content:flex-start;font-size:11px;color:var(--entry-muted)}.entry-card{padding:38px;border:1px solid var(--entry-border);border-radius:30px;background:var(--entry-card);box-shadow:0 25px 70px #6a43860b}.entry-card h2{font-size:30px;letter-spacing:-1px;margin:14px 0}.entry-card>p{font-size:13px;color:var(--entry-muted);line-height:1.7}.entry-roles{display:grid;gap:10px;margin:26px 0}.entry-roles button{display:flex;align-items:center;gap:14px;width:100%;padding:15px;border:1px solid var(--entry-border);border-radius:15px;background:transparent;color:inherit;cursor:pointer;text-align:left}.entry-roles button.selected{background:#6C6AEE1a;border-color:#6C6AEE}.entry-roles button>span{background:#6C6AEE19;padding:10px;border-radius:12px;color:#6C6AEE}.entry-roles button div{display:grid;gap:5px;flex:1}.entry-roles strong{font-size:13px}.entry-roles small{font-size:11px;color:var(--entry-muted)}.entry-roles i{font-style:normal;color:#6C6AEE}.entry-primary,.entry-google{margin-top:14px;background:#fff;color:#443153;border:1px solid #c4bbd5;box-shadow:none}.entry-google:disabled{opacity:.55;cursor:not-allowed}.entry-primary,.entry-secondary{display:flex;align-items:center;justify-content:center;gap:15px;box-sizing:border-box;min-height:52px;font-family:inherit;border-radius:13px;padding:16px;font-size:13px;font-weight:600;width:100%;text-decoration:none;cursor:pointer}.entry-primary{background:#6C6AEE;color:#fff;box-shadow:0 7px 16px #6C6AEE20}.entry-google{margin-top:14px;background:#fff;color:#443153;border:1px solid #c4bbd5;box-shadow:none}.entry-google:disabled{opacity:.55;cursor:not-allowed}.entry-secondary{border:1px solid var(--entry-border);color:inherit;background:transparent}.entry-secure{display:flex;align-items:center;justify-content:center;gap:7px;font-size:10px!important;margin:13px 0}.entry-divider{border-top:1px solid var(--entry-border);text-align:center;margin:26px 0 20px;height:0}.entry-divider span{position:relative;top:-8px;padding:0 14px;background:var(--entry-card);font-size:9px;letter-spacing:1px;color:var(--entry-muted)}.entry-subtle{font-size:10px!important;text-align:center;margin:14px 8px}.entry-owner{font-size:11px;margin-top:24px;color:var(--entry-muted);line-height:1.7}.entry-owner summary{cursor:pointer}.entry-owner a{display:block;margin-top:12px;color:#6C6AEE}.entry-status{margin-top:18px;padding:13px;display:flex;gap:10px;border:1px solid var(--entry-border);border-radius:12px;font-size:10px;color:var(--entry-muted);line-height:1.6}.entry-status p{margin:4px 0}.entry-status button{border:0;background:none;padding:0;text-decoration:underline;color:inherit;font-size:10px;cursor:pointer}.status-dot{background:#c7a478;width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}.entry-bottom{font-size:11px;color:var(--entry-muted);max-width:1240px;margin:auto}.entry-onboarding{max-width:780px;margin:70px auto;padding:25px}.entry-onboarding>a{margin-right:20px}@media(max-width:850px){.entry-layout{gap:35px;margin-top:40px}.entry-card{padding:25px}.entry-story h1{font-size:46px}.entry-note{display:none}.entry-garden{transform:scale(.85);transform-origin:left}}@media(max-width:640px){.entry-layout{grid-template-columns:1fr;margin-top:35px}.entry-story h1{font-size:44px}.entry-story>p{font-size:13px}.entry-garden,.entry-story footer{display:none}.entry-bottom{flex-direction:column;gap:10px;text-align:center}.entry-card h2{font-size:26px}}
+
+</style>
+
+
+<style scoped>.entry-card .entry-primary{width:100%;border-radius:13px;padding:16px;font-size:14px;font-weight:600;text-decoration:none;line-height:1.4}.entry-card .entry-google{margin-top:14px;background:#fff;color:#443153;border:1px solid #c4bbd5;box-shadow:none}.entry-primary:focus-visible,.entry-secondary:focus-visible{outline:3px solid #ad99d3;outline-offset:3px}.entry-google img{flex:none}</style>
+
+
+<style scoped>.entry-login-actions{display:grid;gap:16px;margin-top:18px}.entry-card .entry-login-actions .entry-primary{margin:0;min-height:52px}</style>
+
+<style scoped>
+.sisu-entry.role-selection{--entry-bg:#fff;--entry-card:#fff;--entry-ink:#19182e;--entry-muted:#78758b;--entry-border:#e7e3ef;position:relative;min-height:100vh;padding:24px;background:var(--entry-bg);font-family:'Manrope Variable',sans-serif}
+.sisu-entry.role-selection.entry-dark{--entry-bg:#201a2d;--entry-card:#2c243b;--entry-ink:#f5f1fb;--entry-muted:#b3a5c5;--entry-border:#584965}
+.role-selection .role-selection-header{position:absolute;top:64px;left:max(72px,calc((100% - 1392px)/2 + 48px));right:72px;z-index:1}
+.role-selection .entry-brand{display:flex;line-height:1}
+.role-selection .entry-layout{max-width:1392px;min-height:calc(100vh - 48px);grid-template-columns:minmax(0,600px) minmax(0,1fr);gap:96px;margin:0 auto;align-items:center}
+.role-selection :deep(.web-welcome-story){display:flex;flex-direction:column;align-self:stretch;min-height:1052px;padding:142px 0 0;border-radius:0 0 32px 32px;background:#fff;color:#56288d}
+.role-selection :deep(.web-story-copy){padding:0 48px}
+.role-selection :deep(.web-story-copy>span){font-size:10px;letter-spacing:1.3px}
+.role-selection :deep(.web-story-copy h1){font-size:55px!important;line-height:1.08!important;letter-spacing:-1.8px;margin:22px 0}
+.role-selection :deep(.web-story-copy p){font-size:16px;line-height:1.4;font-weight:700}
+.role-selection :deep(.web-story-art){width:calc(100% - 140px);height:auto;aspect-ratio:1;object-fit:contain;margin:46px 68px 10px}
+.role-selection :deep(.web-welcome-story footer){min-height:166px;padding:44px 48px 72px;gap:10px;margin-top:auto}
+.role-selection .entry-card{min-width:0;padding:0 48px 0 0;border:0;border-radius:0;box-shadow:none;background:transparent}
+.role-back-link{padding:0;border:0;background:none;font-family:inherit;cursor:pointer;display:flex;width:fit-content;align-items:center;gap:3px;min-height:24px;color:#56288d;font-size:13px;text-decoration:none}
+.role-back-link:hover{text-decoration:underline}
+.role-selection .entry-card>h2{font-family:'Manrope Variable',sans-serif;font-size:36px;font-weight:800;line-height:1.2;letter-spacing:-1.2px;margin:24px 0 20px;color:var(--entry-ink)}
+.role-selection .entry-card>.role-selection-subtitle{font-size:14px;line-height:24px;margin:0;color:var(--entry-muted)}
+.role-selection .entry-roles{gap:20px;margin:20px 0 0}
+.role-selection .entry-card .entry-roles button{min-height:102px;padding:22px 24px;border:1px solid var(--entry-border);border-radius:20px;background:#fcfbfe;font-family:inherit;color:var(--entry-ink);transition:background .15s,border-color .15s}
+.role-selection .entry-roles button div{gap:6px}
+.role-selection .entry-roles strong{font-size:20px;font-weight:800;line-height:1.4}
+.role-selection .entry-roles small{font-size:14px;line-height:1.5;color:var(--entry-muted)}
+.role-selection .entry-card .entry-roles button:hover,.role-selection .entry-card .entry-roles button.selected{background:#f4effb;border-color:#9574bd}
+.role-selection :is(.entry-roles button,.role-back-link,.entry-icon):focus-visible{outline:3px solid #8b61bb;outline-offset:4px}
+.role-selection.entry-dark .entry-roles button{background:var(--entry-card)}
+.role-selection.entry-dark .entry-roles button:is(:hover,.selected){background:#40314f}
+.role-selection.entry-dark .role-back-link{color:#ceb4ef}
+.role-selection-expanded .entry-card{padding-top:48px;padding-bottom:40px}
+.role-selection #role-selection-actions{margin-top:20px;padding:20px 24px;border:1px solid var(--entry-border);border-radius:20px;background:#fcfbfe}
+.role-selection.entry-dark #role-selection-actions{background:var(--entry-card)}
+.role-selection .entry-action-title{margin:0;color:var(--entry-ink);font-size:16px;font-weight:800}
+.role-selection #role-selection-actions .entry-primary{background:#56288d;border-color:#56288d;box-shadow:none}
+.role-selection #role-selection-actions .entry-google{background:#fff;color:#56288d;border-color:var(--entry-border)}
+.role-selection .entry-bottom{padding:24px 48px 0}
+@media(min-width:1000px) and (max-width:1250px){
+  .role-selection .entry-layout{grid-template-columns:minmax(0,45%) minmax(0,1fr);gap:48px}
+  .role-selection .entry-card{padding-right:24px}
+  .role-selection :deep(.web-story-copy){padding-inline:32px}
+  .role-selection :deep(.web-story-copy h1){font-size:48px!important}
+  .role-selection :deep(.web-story-art){width:calc(100% - 64px);margin-inline:32px}
+}
+@media(max-width:999px){
+  .sisu-entry.role-selection{padding:32px 24px}
+  .role-selection .role-selection-header{position:static;max-width:648px;margin:0 auto 60px}
+  .role-selection .entry-layout{display:block;min-height:0;max-width:648px;margin:0 auto}
+  .role-selection :deep(.web-welcome-story){display:none}
+  .role-selection .entry-card{padding:0}
+  .role-selection .entry-bottom{padding:32px 0 0}
+}
+@media(max-width:480px){
+  .role-selection .entry-card>h2{font-size:30px;letter-spacing:-1px}
+  .role-selection .entry-card .entry-roles button{padding:20px;min-height:112px}
+  .role-selection .entry-roles strong{font-size:19px}
+  .role-selection .entry-roles small{font-size:13px}
+}
+</style>
+
+<style scoped>
+.teacher-entry-path{display:flex;flex-wrap:wrap;gap:12px 24px;border:0;padding:0;margin:16px 0 0;color:var(--entry-ink)}
+.teacher-entry-path legend{font-size:12px;margin-bottom:10px;color:var(--entry-muted)}
+.teacher-entry-path label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.teacher-entry-path input{accent-color:#56288d}
+.teacher-approved-workspaces{margin-top:24px;font-size:13px;color:#56288d}
+.teacher-approved-workspaces summary{cursor:pointer;padding:8px 0}
+</style>
+
+<style scoped>
+.onboarding-profile-next{margin-top:28px;border-top:1px solid #e7e3ef;padding-top:20px}
+.onboarding-profile-next p{font:400 13px/1.7 'Manrope Variable',sans-serif;color:#78758b;margin:0 0 16px}
+.onboarding-profile-next p:last-child{margin:18px 0 0}
+.onboarding-profile-next a{color:#56288d}
+.onboarding-profile-page{max-width:1056px;min-height:100vh;margin:0 auto;padding:40px 48px 64px;background:#fff;color:#19182e;font-family:'Manrope Variable',sans-serif}
+.onboarding-profile-header{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:40px}
+.onboarding-profile-header nav{display:flex;gap:24px;font-size:13px}
+.onboarding-profile-header a{color:#56288d}
+.onboarding-profile-back{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:6px 0;font:400 13px/24px 'Manrope Variable',sans-serif;color:#56288d;cursor:pointer}
+.onboarding-profile-page>h1{font-size:32px;line-height:1.25;letter-spacing:-1px;margin:20px 0 12px}
+.onboarding-profile-page>h1:focus{outline:none}
+.onboarding-profile-intro{font-size:14px;line-height:1.7;color:#78758b;margin:0 0 28px;max-width:720px}
+.onboarding-profile-page :is(a,button):focus-visible{outline:3px solid #8b61bb;outline-offset:4px}
+@media(max-width:600px){.onboarding-profile-page{padding:28px 20px 40px}.onboarding-profile-header{align-items:flex-start;flex-wrap:wrap;gap:20px;margin-bottom:28px}.onboarding-profile-header nav{gap:20px}.onboarding-profile-page>h1{font-size:28px}}
 </style>

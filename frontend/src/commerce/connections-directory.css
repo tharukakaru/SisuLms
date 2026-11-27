@@ -1,0 +1,68 @@
+/* Shared directory presentation for student, teacher and institute accounts. */
+#main-content .connections-page {
+ --directory-accent:#572b91; --directory-soft:#f2ecf8; --directory-ink:#292233;
+ --directory-muted:#6a6175; --directory-line:#e5dfec; --directory-surface:#faf9fc;
+}
+#main-content .connections-page.directory-listing {max-width:1440px;margin-inline:auto}
+#main-content .directory-listing>.page-heading {align-items:center;gap:24px;margin-bottom:26px}
+#main-content .directory-listing>.page-heading .eyebrow {display:none}
+#main-content .directory-listing>.page-heading h1 {font-size:clamp(27px,2.8vw,34px);color:var(--directory-ink);line-height:1.25;letter-spacing:-.9px}
+#main-content .directory-listing>.page-heading p {font-size:14px;color:var(--directory-muted);line-height:1.65;max-width:720px;margin-top:10px}
+#main-content .connections-page :is(.button,.directory-kind-tabs button) {min-height:44px;border-radius:10px;font-size:13px;font-weight:600;padding:11px 16px;gap:8px;line-height:1.4;transition:background-color .15s,border-color .15s}
+#main-content .connections-page .button.primary {background:var(--directory-accent)!important;color:#fff!important;border:1px solid var(--directory-accent);box-shadow:none}
+#main-content .connections-page .button.subtle {background:#fff;color:var(--directory-accent)!important;border:1px solid #cfc0e0;box-shadow:none}
+#main-content .connections-page .button:hover:not(:disabled) {filter:brightness(.97)}
+#main-content .connections-page :is(button,a,input,summary):focus-visible {outline:3px solid #9872c7;outline-offset:3px}
+#main-content .directory-toolbar {padding:22px;border:1px solid var(--directory-line);background:var(--directory-surface);border-radius:16px;margin-bottom:26px}
+#main-content .directory-search-label {display:grid;gap:9px;color:var(--directory-ink);font-size:13px;font-weight:600;max-width:720px}
+#main-content .directory-toolbar .connection-search {max-width:none;width:100%;margin:0;min-height:50px;display:flex;align-items:center;gap:12px;padding:0 14px;border:1px solid #bcaccd;background:#fff;border-radius:10px}
+#main-content .directory-toolbar .connection-search>svg {flex-shrink:0;color:var(--directory-muted)}
+#main-content .directory-toolbar .connection-search input {width:100%;flex:1;min-width:0;border:0;border-radius:0;min-height:48px;padding:10px 0;color:var(--directory-ink);background:transparent;font-size:14px;font-weight:400}
+#main-content .directory-toolbar input::placeholder {color:#776b83;opacity:1}
+#main-content .directory-clear {display:grid;place-items:center;min-width:38px;min-height:42px;border:0;border-radius:8px;background:transparent;color:var(--directory-muted);cursor:pointer}
+#main-content .directory-clear:hover {background:var(--directory-soft)}
+#main-content .directory-filter-row {display:flex;gap:18px;align-items:center;justify-content:space-between;margin-top:18px;flex-wrap:wrap}
+#main-content .directory-filter-row .directory-kind-tabs {display:flex;flex-wrap:wrap;gap:6px;width:fit-content;margin:0;padding:4px;border:1px solid var(--directory-line);border-radius:11px;background:#fff}
+#main-content .directory-kind-tabs button {display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;background:transparent;color:var(--directory-muted)}
+#main-content .directory-kind-tabs button[aria-pressed=true] {background:var(--directory-accent)!important;color:#fff!important}
+#main-content .directory-result-count {font-size:13px;color:var(--directory-muted)}
+#main-content .directory-listing .connection-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:22px;align-items:stretch}
+#main-content .directory-listing .connection-card {display:flex;flex-direction:column;gap:0;padding:24px;min-width:0;border:1px solid var(--directory-line);border-radius:16px!important;background:#fff;box-shadow:0 3px 10px #29223304;overflow:hidden}
+#main-content .directory-card-header {display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
+#main-content .directory-card-header .connection-avatar {width:58px;height:58px;flex-shrink:0;display:grid;place-items:center;border-radius:16px;background:var(--directory-soft);color:var(--directory-accent);box-shadow:none}
+#main-content .directory-card-header .connection-avatar img {width:100%;height:100%;object-fit:cover;border-radius:inherit}
+#main-content .directory-role {display:inline-flex;align-items:center;border-radius:6px;background:var(--directory-soft);padding:5px 9px;font-size:12px;color:var(--directory-accent);font-weight:600}
+#main-content .directory-role.institute {background:#eaf4f0;color:#236749}
+#main-content .directory-card-identity h2 {font-size:19px;line-height:1.4;letter-spacing:-.3px;margin:0 0 5px;color:var(--directory-ink);overflow-wrap:anywhere}
+#main-content .directory-card-identity .directory-handle {font-size:13px;line-height:1.5;margin:0;color:var(--directory-muted);overflow-wrap:anywhere}
+#main-content .directory-card-identity .connection-verification {display:flex;align-items:center;gap:6px;color:#236749;font-size:12px;margin-top:12px}
+#main-content .connection-card .directory-tagline {font-size:13px;line-height:1.65;color:var(--directory-muted);margin:12px 0 0;overflow-wrap:anywhere}
+#main-content .directory-card-meta {display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px;font-size:12px;color:var(--directory-muted);margin-top:18px}
+#main-content .directory-card-meta>span {display:inline-flex;align-items:center;gap:6px}
+#main-content .connection-card>.directory-lms-id {margin:12px 0 0;font-size:11px;letter-spacing:.3px;color:var(--directory-muted);font-weight:500}
+#main-content .connection-card>.provider-social-links {justify-content:flex-start;margin:12px 0 0;gap:7px;flex-wrap:wrap}
+#main-content .connection-card .directory-card-actions {display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:10px;border-top:1px solid var(--directory-line);padding-top:18px;margin-top:auto;position:relative;top:0}
+#main-content .connection-card>:is(.directory-lms-id,.provider-social-links,.directory-card-meta):has(+.directory-card-actions) {margin-bottom:20px}
+#main-content .directory-card-actions .button {margin:0;padding:11px 9px;white-space:normal;justify-content:center}
+#main-content .directory-card-actions .button svg {flex-shrink:0}
+#main-content .directory-card-actions .directory-register {grid-column:1/-1}
+#main-content .connection-card>.directory-cover {width:calc(100% + 48px);max-width:none;height:110px;aspect-ratio:auto;object-fit:cover;border-radius:0;margin:-24px -24px 20px}
+#main-content .directory-loading,#main-content .directory-empty,#main-content .directory-load-error {min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;border:1px dashed #d5c7e5;border-radius:16px;background:var(--directory-surface);padding:36px 24px;color:var(--directory-muted)}
+#main-content .directory-empty h2 {font-size:21px;color:var(--directory-ink);margin:0}
+#main-content .directory-empty p,#main-content .directory-load-error p {max-width:450px;font-size:14px;line-height:1.65;margin:0}
+#main-content .directory-empty>svg,#main-content .directory-loading>svg {color:var(--directory-accent)}
+#main-content .directory-pagination {display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:20px;padding:20px 0;margin-top:22px;border-top:1px solid var(--directory-line);font-size:13px;color:var(--directory-muted)}
+#main-content .directory-pagination>div {display:flex;gap:10px}
+@media(max-width:650px){
+ #main-content .directory-listing>.page-heading {flex-direction:column;align-items:flex-start;gap:16px}
+ #main-content .directory-toolbar {padding:16px}
+ #main-content .directory-filter-row {gap:14px}
+ #main-content .directory-filter-row .directory-kind-tabs {width:100%;flex-wrap:nowrap;gap:3px}
+ #main-content .connections-page .directory-kind-tabs button {flex:1;min-width:0;padding:10px 5px;font-size:12px;gap:5px}
+ #main-content .directory-kind-tabs button svg {width:15px}
+ #main-content .directory-listing .connection-grid {grid-template-columns:1fr;gap:18px}
+ #main-content .directory-listing .connection-card {padding:22px}
+ #main-content .connection-card>.directory-cover {width:calc(100% + 44px);margin:-22px -22px 20px}
+ #main-content .directory-pagination {gap:12px;flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){#main-content .connections-page *{transition:none!important}}

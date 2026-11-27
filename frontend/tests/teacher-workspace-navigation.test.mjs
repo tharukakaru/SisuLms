@@ -2,6 +2,15 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {classroomNavigation,teacherWorkspacePage} from '../src/classroomNavigation.js'
 const pages=(role,options)=>classroomNavigation(role,options).map(x=>x.id)
+
+test('Join institute has a dedicated teacher route in personal and institute workspaces',()=>{
+ for(const instituteTeacher of [false,true]){
+  assert.ok(pages('Teacher',{instituteTeacher,unifiedTeacher:true}).includes('join-institute'))
+  assert.equal(teacherWorkspacePage('join-institute',instituteTeacher),'join-institute')
+ }
+ for(const role of ['Student','Admin'])assert.ok(!pages(role,{unifiedTeacher:true}).includes('join-institute'))
+ assert.ok(!pages('Teacher').includes('join-institute'))
+})
 test('institute teacher retains teaching routes without personal business billing',()=>{
  const nav=pages('Teacher',{instituteTeacher:true})
  for(const id of ['dashboard','classrooms','schedule','connections','profile','subscription'])assert.ok(nav.includes(id))

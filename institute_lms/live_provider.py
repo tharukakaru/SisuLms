@@ -20,12 +20,13 @@ def participant(room,user,name,teacher,publish=False):
     token=api.AccessToken(key,secret).with_identity(user).with_name(name).with_ttl(timedelta(minutes=2)).with_grants(grant).to_jwt()
     return {'url':url,'token':token,'expires_in':120,'can_publish':bool(teacher or publish)}
 
-def operation(action,room,egress=None,object_key=None):
+def operation(action,room,egress=None,object_key=None,identity=None):
     api,url,key,secret=settings()
     async def run():
         from aiohttp import ClientTimeout
         client=api.LiveKitAPI(url.replace('wss://','https://'),key,secret,timeout=ClientTimeout(total=30))
         try:
+            if action=='participant':return await client.room.get_participant(api.RoomParticipantIdentity(room=room,identity=identity))
             if action=='start':return await client.room.create_room(api.CreateRoomRequest(name=room,empty_timeout=300,max_participants=int(frappe.conf.get('il_live_max_participants',100))))
             if action=='end':return await client.room.delete_room(api.DeleteRoomRequest(room=room))
             if action=='record':

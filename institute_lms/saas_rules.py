@@ -80,6 +80,9 @@ def verify_manifest(value, signature, key, tenant, site, revision, now=None):
     resolve(value['features'], value['limits'], {'support_tier':value.get('support_tier','standard')})
     if 'base_features' in value or 'base_limits' in value:
         resolve(value.get('base_features',{}), value.get('base_limits',{}))
+    if 'commercial_plan' in value:
+        if value['commercial_plan'] not in ('Individual', 'Silver', 'Gold', 'Platinum'):
+            raise ValueError('Invalid commercial plan')
     if value.get('state') not in STATES or type(value.get('enabled')) is not bool: raise ValueError('Invalid manifest state')
     return value
 

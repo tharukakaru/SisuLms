@@ -85,7 +85,7 @@ onMounted(load);watch(()=>[props.section,props.classroom,props.view],load)
 
 </script>
 
-<template><section class="release"><h2 v-if="embedded">{{section==='liveclasses'?(view==='recordings'?'Recorded SISU sessions':'Live inside SISU'):'Recorded lessons'}}</h2><h1 v-else>{{titles[section]}}</h1><p v-if="busy" role="status">Loading…</p><p v-if="error" role="alert" class="error">{{error}}</p><p v-if="notice" role="status">{{notice}}</p><button class="button subtle" @click="load" :disabled="busy">Refresh</button>
+<template><section class="release"><h2 v-if="embedded">{{section==='liveclasses'?(view==='recordings'?'Recorded SISU sessions':'Live inside SISU'):'Recorded lessons'}}</h2><div v-else class="page-heading"><div><h1>{{titles[section]}}</h1><p v-if="section==='storage'">Manage your upload space and review items that need attention.</p></div><button class="button subtle" @click="load" :disabled="busy">{{busy?'Refreshing…':'Refresh'}}</button></div><p v-if="busy" role="status">Loading…</p><p v-if="error" role="alert" class="error">{{error}}</p><p v-if="notice" role="status">{{notice}}</p><button v-if="embedded" class="button subtle" @click="load" :disabled="busy">Refresh</button>
 
 <LiveRoom v-if="grant" :grant="grant" @leave="grant=null"/><video v-if="video" :src="video.url" controls playsinline style="max-width:100%"/>
 

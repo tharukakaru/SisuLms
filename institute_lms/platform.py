@@ -3,6 +3,7 @@ import json
 import uuid
 from datetime import timedelta, datetime
 import frappe
+from .message_templates import sendmail
 from frappe.utils import now_datetime, get_datetime
 from .saas import managed, audit
 from .saas_rules import hostname, resolve, sign, policy, STATES
@@ -15,9 +16,11 @@ def owner():
     from .registration import require_owner
     require_owner()
 
-def organization(name, administrator=False):
+def organization(name, administrator=False, for_update=False):
     control()
-    d=frappe.get_doc('IL Organization', name)
+    d=frappe.get_doc('IL Organization', name, for_update=for_update)
+    if d.get('retired') or d.get('removal_status'):
+        frappe.throw('Organization permanently retired', frappe.PermissionError)
     from .wallet import admin_actor
     if not admin_actor() and (not administrator or frappe.session.user=='Guest' or d.admin_contact != frappe.session.user):
         frappe.throw('Organization unavailable', frappe.PermissionError)
@@ -25,7 +28,7 @@ def organization(name, administrator=False):
     return d
 
 @frappe.whitelist(methods=['POST'])
-def register(title, code, site_hostname, admin_contact, plan='STARTER'):
+def register(title, code, site_hostname, admin_contact, plan='Individual'):
     owner()
     from .domain import institute_code
     from .contact import email_address
@@ -34,7 +37,8 @@ def register(title, code, site_hostname, admin_contact, plan='STARTER'):
         email=email_address(admin_contact)
     except (ValueError,TypeError) as exc:
         frappe.throw(str(exc))
-    if plan != 'STARTER' or not 1<=len(str(title).strip())<=120: frappe.throw('Invalid organization')
+    from .plan_catalog import current
+    if plan not in current()['plans'] or not 1<=len(str(title).strip())<=120: frappe.throw('Invalid organization')
     # Exact retries return the original; conflicting identities cannot be adopted.
     existing=frappe.db.get_value('IL Organization', {'site_hostname':host}, 'name')
     if existing:
@@ -48,13 +52,42 @@ def register(title, code, site_hostname, admin_contact, plan='STARTER'):
     d=managed(frappe.get_doc({'doctype':'IL Organization','tenant_id':tenant,
         'title':title.strip(),'institute_code':code,'site_hostname':host,'admin_contact':email,
         'plan':plan,'enabled':1,'provisioning_state':'registered','revision':0}))
-    p=frappe.get_doc('IL SaaS Plan', plan)
-    managed(frappe.get_doc({'doctype':'IL Subscription','tenant_id':tenant,'plan':plan,
+    p=frappe.get_doc('IL SaaS Plan', 'STARTER')
+    managed(frappe.get_doc({'doctype':'IL Subscription','tenant_id':tenant,'plan':'STARTER',
         'state':'active','enabled':1,'features':p.features,'limits':p.limits,'overrides':'{}',
         'base_features':p.features,'base_limits':p.limits}))
     job=managed(frappe.get_doc({'doctype':'IL Provisioning Job','organization':d.name,'status':'pending'}))
     audit('Register organization',d.name,'Provisioning job '+job.name)
     return {'tenant_id':d.name,'job':job.name,'existing':False}
+
+
+@frappe.whitelist(methods=['POST'])
+def update_commercial_plan(tenant, plan, reason):
+    owner()
+    from .plan_catalog import current
+    if plan not in current()['plans']:
+        frappe.throw('Choose a published commercial plan')
+    if len(str(reason).strip()) < 10:
+        frappe.throw('Provide an audit reason of at least 10 characters')
+
+    frappe.db.sql(
+        'SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',
+        (tenant,)
+    )
+    d = organization(tenant)
+    previous = d.plan
+
+    if previous == plan:
+        return {'tenant_id': d.name, 'plan': plan, 'changed': False}
+
+    d.plan = plan
+    managed(d)
+    audit(
+        'Change commercial plan',
+        d.name,
+        str(previous) + ' -> ' + plan + ': ' + str(reason).strip()[:500]
+    )
+    return {'tenant_id': d.name, 'plan': plan, 'changed': True}
 
 @frappe.whitelist()
 def organizations(page=0):
@@ -81,7 +114,7 @@ def configure_plan(plan, features, limits, price_minor, period_days=30, reason='
 
 @frappe.whitelist(methods=['POST'])
 def update_organization(tenant, enabled, reason, custom_domain=None):
-    owner();d=organization(tenant)
+    owner();d=organization(tenant,for_update=True)
     if type(enabled) is not bool or not str(reason).strip(): frappe.throw('Boolean status and reason required')
     s=frappe.get_doc('IL Subscription',frappe.db.get_value('IL Subscription',{'tenant_id':tenant},'name'),for_update=True)
     if custom_domain:
@@ -94,7 +127,7 @@ def update_organization(tenant, enabled, reason, custom_domain=None):
 
 @frappe.whitelist(methods=['POST'])
 def override(tenant, values, reason):
-    owner();organization(tenant)
+    owner();organization(tenant,for_update=True)
     s=frappe.get_doc('IL Subscription',frappe.db.get_value('IL Subscription',{'tenant_id':tenant},'name'),for_update=True)
     if not str(reason).strip(): frappe.throw('An audit reason is required')
     values=json.loads(values) if isinstance(values,str) else values
@@ -104,7 +137,7 @@ def override(tenant, values, reason):
 
 @frappe.whitelist(methods=['POST'])
 def trial(tenant, days, reason):
-    owner();organization(tenant)
+    owner();organization(tenant,for_update=True)
     from .pricing_rules import integer
     days=integer(days,'Trial days',30)
     if not days or not str(reason).strip():frappe.throw('Bounded trial and reason required')
@@ -118,7 +151,7 @@ def trial(tenant, days, reason):
 
 @frappe.whitelist(methods=['POST'])
 def subscription_state(tenant, state, reason, grace_until=None):
-    owner();organization(tenant)
+    owner();organization(tenant,for_update=True)
     # Active is reserved for verified settlement. Trials have a separate bounded flow.
     if state not in ('grace','past_due','suspended','cancelled','expired') or not str(reason).strip(): frappe.throw('Invalid state change')
     s=frappe.get_doc('IL Subscription',frappe.db.get_value('IL Subscription',{'tenant_id':tenant},'name'),for_update=True)
@@ -131,13 +164,17 @@ def subscription_state(tenant, state, reason, grace_until=None):
 
 @frappe.whitelist(methods=['POST'])
 def manifest(tenant):
-    owner();organization(tenant)
+    owner();organization(tenant,for_update=True)
     return signed_policy(tenant)
 
 def signed_policy(tenant):
     control()
     d=frappe.get_doc('IL Organization',tenant)
+    if d.get('retired') or d.get('removal_status'):
+        frappe.throw('Organization permanently retired', frappe.PermissionError)
     frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(d.name,));d=frappe.get_doc('IL Organization',d.name,for_update=True)
+    if d.get('retired') or d.get('removal_status'):
+        frappe.throw('Organization permanently retired', frappe.PermissionError)
     s=frappe.get_doc('IL Subscription',frappe.db.get_value('IL Subscription',{'tenant_id':tenant},'name'),for_update=True)
     key=(frappe.conf.get('il_tenant_signing_keys') or {}).get(tenant)
     if not isinstance(key,str) or len(key)<32:frappe.throw('Operator must configure a tenant-specific signing key')
@@ -149,6 +186,9 @@ def signed_policy(tenant):
           'starts_at':str(s.starts_at) if s.starts_at else None,'ends_at':str(s.ends_at) if s.ends_at else None,
           'grace_until':str(s.grace_until) if s.grace_until else None,
           'issued_at':str(now),'lease_until':str(now+timedelta(hours=24))}
+    from .plan_catalog import current
+    if d.plan in current()['plans']:
+        data['commercial_plan'] = d.plan
     data['notices']=frappe.get_all('IL Subscription Notice',filters={'tenant_id':tenant,'acknowledged':0},fields=['name','event_key','event_type','body'],order_by='creation asc',limit_page_length=50)
     d.revision=data['revision'];managed(d);audit('Issue manifest',tenant,str(d.revision))
     return {'payload':json.dumps(data),'signature':sign(data,key)}
@@ -161,25 +201,48 @@ def provisioning_spec(job):
             'schema_version':1}
 
 @frappe.whitelist(methods=['POST'])
-def provisioning_result(job, status, reason):
+def provisioning_result(job, status, reason, verified=False):
     owner()
-    if status not in ('running','ready','failed') or not str(reason).strip():frappe.throw('Status and reason required')
-    j=frappe.get_doc('IL Provisioning Job',job);d=organization(j.organization)
+    if status not in ('running','ready','failed') or not 10<=len(str(reason or '').strip())<=1000:frappe.throw('Choose a status and enter a progress note of at least 10 characters.')
+    if status=='ready' and verified not in (True,1,'1'):
+        frappe.throw('Confirm that website setup, HTTPS and administrator sign-in have been verified.')
+    j=frappe.get_doc('IL Provisioning Job',job)
+    d=organization(j.organization,for_update=True)
+    j=frappe.get_doc('IL Provisioning Job',job,for_update=True)
+    if j.organization!=d.name or j.status=='retired':
+        frappe.throw('Provisioning job unavailable',frappe.PermissionError)
+    if status=='ready' and j.status!='running':frappe.throw('Provisioning must be running before completion')
+    if status=='ready':
+        from .provision_verification import require_verified
+        require_verified(j,d)
     j.status=status;j.detail=str(reason)[:1000];managed(j);d.provisioning_state=status;managed(d)
     audit('Provisioning '+status,d.name,reason)
     return {'status':status}
 
 @frappe.whitelist(methods=['POST'])
 def invite_billing_contact(tenant):
-    owner();d=organization(tenant)
+    owner();d=organization(tenant,for_update=True)
     if not frappe.db.exists('Email Account',{'enable_outgoing':1}):frappe.throw('Configure outgoing email first')
-    frappe.get_doc('User',d.admin_contact).reset_password(send_email=True)
+    from html import escape
+    user=frappe.get_doc('User',d.admin_contact)
+    if not user.enabled:frappe.throw('The billing contact login is disabled. Enable it before sending an invitation.')
+    # Frappe versions expose the token generator under different names.
+    reset=getattr(user,'_reset_password',None) or getattr(user,'reset_password',None)
+    if not callable(reset):frappe.throw('Password setup is unavailable on this server. Contact the platform operator.')
+    validate=getattr(user,'validate_reset_password',None)
+    if callable(validate):validate()
+    link=reset(send_email=False).replace('/update-password?', '/sisu_password?', 1)
+    # Use the configured outgoing account, not the platform owner's login email.
+    # Queue in this transaction; do not claim inbox delivery or send before commit.
+    sendmail(frappe, recipients=[d.admin_contact],subject='Your SISU institute billing access',
+        message='<p>Your billing access for '+escape(d.title)+' is ready.</p><p><a href="'+escape(link,quote=True)+'">Set your password and sign in</a></p><p>This invitation is for billing access. Website setup is completed separately.</p>',
+        delayed=True,redact_message_after_send=True)
     audit('Invite billing contact',tenant,'Password setup email queued')
     return {'queued':True}
 
 @frappe.whitelist(methods=['POST'])
 def reactivate(tenant,reason):
-    owner();organization(tenant)
+    owner();organization(tenant,for_update=True)
     s=frappe.get_doc('IL Subscription',frappe.db.get_value('IL Subscription',{'tenant_id':tenant},'name'),for_update=True)
     if not str(reason).strip() or s.state!='suspended' or not s.last_payment or not s.ends_at or get_datetime(s.ends_at)<=datetime.utcnow():
         frappe.throw('Only an unexpired previously settled subscription can be restored')

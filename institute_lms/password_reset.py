@@ -1,6 +1,7 @@
 """Email-approved password changes bound to the initiating signed-in session."""
 import hashlib,hmac,secrets,time
 import frappe
+from .message_templates import add_email_design
 
 def key(token):
     if not isinstance(token,str) or not 40<=len(token)<=90:frappe.throw('This password reset link is invalid.')
@@ -30,6 +31,8 @@ def send_link(user,url):
     message=EmailMessage();message['From']='SISU Academy <noreply@sisuacademylk.com>';message['To']=user
     message['Subject']='Confirm your SISU password reset';message['Message-ID']=make_msgid(domain='sisuacademylk.com')
     message.set_content('You requested a new SISU password. Open this link and choose Confirm password reset:\n\n'+url+'\n\nThen return to your original Settings tab to choose your new password. This link expires in 10 minutes. If this was not you, do not confirm it; your password has not changed.')
+    from .message_templates import paragraph, action
+    add_email_design(message, paragraph('You requested a new SISU password.') + action('Confirm password reset', url) + paragraph('Then return to your original Settings tab to choose your new password. This link expires in 10 minutes. If this was not you, do not confirm it; your password has not changed.'), label='ACCOUNT SECURITY')
     mail=frappe.get_doc({'doctype':'Email Queue','sender':message['From'],'email_account':account.name,'message':message.as_string(),'message_id':message['Message-ID'],'status':'Not Sent','recipients':[{'recipient':user,'status':'Not Sent'}]}).insert(ignore_permissions=True)
     frappe.db.commit()
     try:mail.send(force_send=True)

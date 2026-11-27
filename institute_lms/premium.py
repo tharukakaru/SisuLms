@@ -19,7 +19,7 @@ def configure_offer(tenant,amount_minor,reason,enabled=True):
     from .platform import owner,organization
     from .pricing_rules import integer
     from .owner_pricing import save
-    owner();org=organization(tenant)
+    owner();org=organization(tenant,for_update=True)
     amount=integer(amount_minor,'Monthly price')
     if type(enabled) is not bool or amount<=0 or not 3<=len(str(reason).strip())<=500:frappe.throw('Positive monthly price and audit reason required')
     frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(tenant,))

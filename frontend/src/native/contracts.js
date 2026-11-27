@@ -1,5 +1,6 @@
 export function object(value) { if (typeof value === 'string') { try { return JSON.parse(value) } catch { return {} } } return value && typeof value === 'object' ? value : {} }
 export function errorDetails(data = {}, status = 0) {
+  if(status===403 && data.workspace_access_changed===true)return {message:'Your access to this institute has changed. Choose an available workspace to continue.',code:'workspace_access_changed',status}
   let message = status === 401 ? 'Sign in to continue.' : status === 403 ? 'Access denied. Check your membership and subscription.' : 'The service could not complete this request. Try refreshing or contact your administrator.'
   try { message = JSON.parse(JSON.parse(data._server_messages)[0]).message.replace(/<[^>]*>/g, '') } catch {}
   const code = status === 401 ? 'authentication' : /quota|allowance|capacity|limit|allocation/i.test(message) ? 'quota' : /index|source|evidence/i.test(message) ? 'knowledge' : /provider|configured|OpenAI/i.test(message) ? 'provider' : status === 403 ? 'forbidden' : 'validation'

@@ -164,6 +164,8 @@ def bootstrap():
     institute_profile = frappe.db.get_value("IL Public Profile",
         {"workspace": inst.name, "kind": "Institute"}, "name")
     from .campus_context import enabled as shared_campus
+    from .signup_environment import unified_teacher_enabled
+    member['unified_teacher'] = bool(member.get('role') == 'Teacher' and unified_teacher_enabled(getattr(frappe,'conf',{})))
     member["institute_teacher"] = bool(member.get("role") == "Teacher" and institute_profile and
         (shared_campus() or frappe.db.exists("IL Profile Relationship", {
             "profile": institute_profile, "user": frappe.session.user,
@@ -266,6 +268,11 @@ def create_internal_classroom(data: dict | str):
 def _save_classroom(data, internal=False):
     inst, member = identity()
     require_role(member, "Teacher", "Admin")
+    from .signup_environment import unified_teacher_enabled
+    if member.role == 'Teacher' and unified_teacher_enabled(getattr(frappe,'conf',{})) and frappe.db.exists('IL Public Profile',{'workspace':inst.name,'kind':'Institute'}):
+        # Assigned institute classrooms are edited through their existing permission checks.
+        incoming = payload(data)
+        if not incoming.get('name'):frappe.throw('Switch to Personal to create your own class. Your institute assigns institute classes.',frappe.PermissionError)
     data = payload(data)
     if internal:
         from .internal_classrooms import validate_request
@@ -675,7 +682,24 @@ def create_enrollment(inst, room, student, installments):
 @frappe.whitelist()
 def enrollments(classroom: str, page: int = 0):
     inst, _, room = classroom_for(classroom, write=True)
-    return frappe.get_all("IL Enrollment", filters={"classroom": room.name}, fields=["*"], limit_start=paginate(page, 100), limit_page_length=100)
+    rows = frappe.get_all("IL Enrollment", filters={"classroom": room.name}, fields=["*"], limit_start=paginate(page, 100), limit_page_length=100)
+    # Resolve display names only after classroom authorization, in the same tenant.
+    # Do not expose private contact details or fetch a foreign member by ID alone.
+    students = list({row.student for row in rows})
+    people = frappe.get_all('IL Member', filters={'institute': inst.name,
+        'role': 'Student', 'name': ['in', students]}, fields=['name', 'full_name'],
+        limit_page_length=100) if students else []
+    names = {person.name: person.full_name for person in people}
+    from .student_count import attendance_for
+    from frappe.utils import now_datetime
+    attended = attendance_for(inst.name, [room.name], now_datetime().strftime('%Y-%m'))
+    for row in rows:
+        row['student_name'] = names.get(row.student) or 'Student name unavailable'
+        row['student_number'] = row.student
+        row['attended_sessions'] = [dict(name=a.session,title=a.session_title,starts_at=a.starts_at)
+                                    for a in attended if a.member==row.student]
+        row['session_count'] = len({a['name'] for a in row['attended_sessions']})
+    return rows
 
 
 @frappe.whitelist(methods=["POST"])

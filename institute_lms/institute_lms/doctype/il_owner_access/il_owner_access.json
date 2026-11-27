@@ -1,10 +1,14 @@
 {
   "doctype": "DocType", "name": "IL Owner Access", "module": "Institute LMS",
   "custom": 0, "engine": "InnoDB", "autoname": "hash", "track_changes": 1,
-  "field_order": ["user", "enabled", "granted_by", "reason"],
+  "field_order": ["user", "full_name", "access_level", "enabled", "phone", "accepted_at", "granted_by", "reason"],
   "fields": [
     {"fieldname": "user", "label": "User", "fieldtype": "Link", "options": "User", "unique": 1, "reqd": 1},
+    {"fieldname": "full_name", "label": "Full Name", "fieldtype": "Data"},
+    {"fieldname": "access_level", "label": "Access Level", "fieldtype": "Select", "options": "Admin\nAdministrator", "default": "Admin"},
     {"fieldname": "enabled", "label": "Enabled", "fieldtype": "Check", "default": "0"},
+    {"fieldname": "phone", "label": "Verified Mobile", "fieldtype": "Data", "read_only": 1},
+    {"fieldname": "accepted_at", "label": "Accepted At", "fieldtype": "Datetime", "read_only": 1},
     {"fieldname": "granted_by", "label": "Granted By", "fieldtype": "Link", "options": "User", "read_only": 1},
     {"fieldname": "reason", "label": "Audit Reason", "fieldtype": "Small Text", "reqd": 1}
   ],

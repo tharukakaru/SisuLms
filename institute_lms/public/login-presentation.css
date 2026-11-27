@@ -1,0 +1,96 @@
+body.sisu-login{background:#fff!important;color:#211d35}.sisu-login .navbar,.sisu-login .web-footer{display:none}.sisu-login .container{max-width:none!important;padding:0}.sisu-login-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:6vw;max-width:1440px;margin:auto;padding:24px;min-height:100vh}.sisu-login-story{color:#56288d;display:flex;flex-direction:column;min-width:0}.sisu-login-brand{display:block;position:relative;overflow:hidden;width:160px;aspect-ratio:1444 / 448;margin:36px 40px 72px}.sisu-login-brand img{position:absolute;width:138.504155%;max-width:none!important;max-height:none!important;height:auto;left:-19.598338%;top:-179.241071%;object-fit:contain}.sisu-login-copy{padding:0 40px}.sisu-login-copy small{letter-spacing:1.4px;font-size:12px}.sisu-login-copy h1{font-size:clamp(36px,4vw,58px);font-weight:800;line-height:1.08;letter-spacing:-1.5px;color:#56288d;margin:24px 0}.sisu-login-copy p{font-size:18px;font-weight:600;line-height:1.5}.sisu-login-art{width:90%;align-self:center;object-fit:contain}.sisu-login-story footer{background:url('/assets/institute_lms/login-footer.svg') center top/cover;padding:44px 40px;min-height:160px;border-radius:0 0 32px 32px}.sisu-login-story footer p{margin:12px 0 0}.sisu-login-forms{align-self:center;min-width:0;padding:40px 28px 40px 0}.sisu-login-back{color:#56288d;display:inline-block;margin-bottom:24px}.sisu-login .page-card{max-width:none!important;box-shadow:none!important;border:0!important;padding:0!important;background:white!important}.sisu-login .page-card-head{padding:0!important;margin:0 0 36px!important;text-align:left!important}.sisu-login .page-card-head img{display:none}.sisu-login .page-card-head h4,.sisu-login .page-card-head h2{font-size:38px;font-weight:800;color:#211d35;margin-bottom:20px}.sisu-login .page-card-head p{font-size:16px;color:#858094}.sisu-login .for-login,.sisu-login .for-forgot,.sisu-login .for-email-login{padding:0;margin:0}.sisu-login .form-control{height:54px;border:1px solid #e7e3ef;border-radius:14px;background:#fcfbfe;font-size:16px;padding:12px 16px}.sisu-login .form-group{margin-bottom:22px}.sisu-login .btn-primary{background:#56288d!important;border-color:#56288d!important;border-radius:999px;min-height:54px;font-weight:600}.sisu-login .btn-default{border-radius:14px;min-height:44px}.sisu-login .form-signin{max-width:none}.sisu-login .page-card-body{padding:0!important}.sisu-login .toggle-password{top:17px}.sisu-login a:focus-visible{outline:2px solid #7b50a8;outline-offset:3px}@media(max-width:850px){.sisu-login-layout{display:block;max-width:600px}.sisu-login-story{display:none}.sisu-login-forms{padding:32px 12px}.sisu-login .page-card-head h4{font-size:32px}}
+
+/* Native login fields/buttons: override framework sizing without changing handlers. */
+body.sisu-login .sisu-login-forms input[type="email"],
+body.sisu-login .sisu-login-forms input[type="password"],
+body.sisu-login .sisu-login-forms input[type="text"]{box-sizing:border-box!important;width:100%!important;height:54px!important;min-height:54px!important;padding:14px 16px!important;border:1px solid #e9e5f0!important;border-radius:15px!important;background:#fcfbfe!important;color:#211d35!important;font-size:16px!important;box-shadow:none!important}
+body.sisu-login .sisu-login-forms input::placeholder{color:#8b879b!important;opacity:1}
+body.sisu-login .sisu-login-forms input:focus{outline:2px solid #c9b4e6!important;outline-offset:1px}
+body.sisu-login .sisu-login-forms .form-group label{color:#211d35!important;font-size:14px!important;margin-bottom:9px!important}
+body.sisu-login .sisu-login-forms button[type="submit"],
+body.sisu-login .sisu-login-forms .btn-login,
+body.sisu-login .sisu-login-forms .btn-primary{display:flex!important;align-items:center!important;justify-content:center!important;gap:14px!important;width:100%!important;min-height:56px!important;padding:15px 24px!important;border:1px solid #56288d!important;border-radius:999px!important;background:#56288d!important;color:white!important;font-size:16px!important;font-weight:600!important;box-shadow:none!important}
+body.sisu-login .sisu-login-forms .btn-login::after{content:'→';font-size:23px;line-height:1}
+body.sisu-login .sisu-login-forms .btn-login:hover{background:#472075!important;border-color:#472075!important}
+body.sisu-login .sisu-login-forms button:focus-visible{outline:2px solid #aa84d1!important;outline-offset:3px}
+body.sisu-login .sisu-login-forms .toggle-password{top:17px!important;right:14px!important}
+
+/* Dedicated owner entry; shared Frappe form behavior stays intact. */
+body.sisu-owner-login{background:#f7f5fa!important}
+.sisu-owner-login .sisu-login-layout{display:flex;align-items:center;justify-content:center;max-width:560px;padding:32px 20px;gap:0}
+.sisu-owner-login .sisu-login-story,.sisu-owner-login .sign-up-message{display:none!important}
+.sisu-owner-login .sisu-login-forms{width:100%;padding:36px;background:#fff;border-radius:16px;box-shadow:0 12px 40px #211d3510}
+.sisu-owner-login .sisu-login-brand{width:116px;margin:0 0 32px}
+.sisu-owner-login .page-card-head{margin-bottom:28px!important}
+.sisu-owner-login .page-card-head h4,.sisu-owner-login .page-card-head h2{font-size:30px;line-height:1.2;letter-spacing:-.02em;margin:0 0 12px}
+.sisu-owner-login .page-card-head p{color:#6b607b;line-height:1.6;margin:0}
+body.sisu-owner-login .sisu-login-forms input::placeholder{color:#746880!important}
+body.sisu-owner-login .sisu-login-forms .btn-primary{border-radius:12px!important}
+.sisu-owner-campus{border-top:1px solid #e7e1ee;margin-top:28px;padding-top:24px;text-align:center}
+.sisu-owner-campus p{color:#6b607b;font-size:14px;margin:0 0 12px}
+.sisu-owner-campus-link{display:flex;align-items:center;justify-content:center;min-height:48px;padding:12px 16px;border:1px solid #d3c1e7;border-radius:12px;color:#56288d;font-weight:600;text-decoration:none}
+.sisu-owner-campus-link:hover{background:#f5f0fa;color:#472075;text-decoration:none}
+.sisu-owner-login ::selection{background:#e5d8f3;color:#211d35}
+.sisu-owner-login input{caret-color:#56288d}
+@media(max-width:480px){.sisu-owner-login .sisu-login-layout{padding:20px 12px}.sisu-owner-login .sisu-login-forms{padding:28px 22px}.sisu-owner-login .page-card-head h4{font-size:28px}}
+body.sisu-owner-login .sisu-login-forms button[type="submit"]{border-radius:12px!important}
+.sisu-owner-login .sisu-login-forms .es-button{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px}
+.sisu-owner-login .page-content{padding-top:0!important;padding-bottom:0!important}
+.sisu-owner-login .page-card{min-height:0!important}.sisu-owner-login .page-card-head{gap:8px!important}.sisu-owner-login .form-login{gap:20px!important}
+
+/* Share the same presentation across password, recovery and email-link routes. */
+.sisu-login .for-login-with-email-link,.sisu-login .for-reset-password{padding:0;margin:0}
+.sisu-login .page-card{min-height:0!important}
+.sisu-login .page-content{padding-top:0!important;padding-bottom:0!important}
+.sisu-login .page-card-head{gap:8px!important}
+.sisu-login .for-reset-password .sign-up-message{display:none}
+.sisu-login .sisu-login-forms .es-button{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px}
+.sisu-login .sisu-login-forms button:disabled{opacity:.55;cursor:not-allowed}
+.sisu-login .sisu-login-forms .password-field input{padding-right:48px!important}
+/* Server-rendered identity also covers the first paint before decoration. */
+.sisu-login .app-logo{display:none}
+.sisu-login-back{min-height:44px;display:inline-flex;align-items:center}
+
+.sisu-mobile-brand{display:none}
+@media(max-width:850px){.sisu-mobile-brand{display:block;width:116px;margin:0 0 24px}.sisu-login .sisu-login-forms{padding-top:16px}}
+
+/* Keep Show/Hide inside the field with a full-size pointer and keyboard target. */
+body.sisu-login .sisu-login-forms .password-field{position:relative;width:100%}
+body.sisu-login .sisu-login-forms .password-field input{padding-right:88px!important}
+body.sisu-login .sisu-login-forms .sisu-password-toggle{position:absolute;inset:5px 5px 5px auto;display:inline-flex;align-items:center;justify-content:center;min-width:70px;height:44px;min-height:44px;margin:0;padding:0 12px;border:0;border-radius:10px;background:#f0e9f8;color:#592b91;font-family:inherit;font-size:14px;font-weight:600;line-height:1;cursor:pointer;z-index:1}
+body.sisu-login .sisu-login-forms .sisu-password-toggle:hover{background:#e5d8f2}
+body.sisu-login .sisu-login-forms .sisu-password-toggle:focus-visible{outline:2px solid #7952b3!important;outline-offset:2px}
+
+/* Compact second-factor screen; Frappe still owns authentication and submission. */
+.sisu-owner-login .page-content-wrapper{padding-top:0!important;min-height:0!important}
+.sisu-owner-login .sisu-mfa-cooldown{margin:0 0 18px;padding:12px 14px;border-radius:8px;background:#f2ecf8;color:#54278a;font-size:13px;line-height:1.6;font-variant-numeric:tabular-nums}
+.sisu-owner-login.sisu-mfa-screen .login-content,
+.sisu-owner-login.sisu-mfa-screen .for-login,
+.sisu-owner-login.sisu-mfa-screen .page_content,
+.sisu-owner-login.sisu-mfa-screen main{min-height:0!important;height:auto!important;padding-bottom:0!important}
+.sisu-mfa-screen .sisu-login-brand{margin-bottom:28px}
+.sisu-mfa-screen #twofactor_div .page-card-head{display:block;margin-bottom:24px!important}
+.sisu-mfa-screen #twofactor_div h2{font-size:28px;line-height:1.25;letter-spacing:-.02em;margin:0 0 10px;color:#292334}
+.sisu-mfa-screen #twofactor_div .page-card-head p{font-size:14px;line-height:1.65;color:#6b607b}
+.sisu-mfa-screen #otp_div{padding:14px 16px;margin:0 0 24px;background:#f5f0fa;border-radius:10px;color:#51415f;font-size:14px;line-height:1.65;overflow-wrap:anywhere}
+.sisu-mfa-screen #otp_div>div{padding-bottom:0!important;color:inherit!important}
+.sisu-mfa-screen .sisu-mfa-label{display:block;font-size:14px;font-weight:600;color:#292334;margin:0 0 10px}
+body.sisu-owner-login .sisu-login-forms #login_token{height:64px!important;padding:12px 16px!important;font-size:28px!important;letter-spacing:.45em!important;text-indent:.45em;text-align:center;font-variant-numeric:tabular-nums;border:1px solid #bca8d2!important;border-radius:10px!important;background:#fff!important}
+body.sisu-owner-login .sisu-login-forms #login_token:focus{outline:2px solid #592c91!important;outline-offset:3px}
+.sisu-mfa-screen #sisu-mfa-hint{font-size:12px;line-height:1.65;color:#6b607b;margin:12px 0 22px}
+body.sisu-owner-login .sisu-login-forms #verify_token{width:100%;min-height:50px!important;margin-top:0!important;border:0!important;border-radius:10px!important;background:#592c91!important;color:#fff!important;font-size:15px!important;font-weight:650!important;cursor:pointer}
+body.sisu-owner-login .sisu-login-forms #verify_token:hover{background:#482275!important}
+.sisu-mfa-back{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:12px;font-size:13px;font-weight:600;color:#592c91;text-decoration:underline;text-underline-offset:3px}
+.sisu-mfa-help{font-size:12px;line-height:1.65;color:#6b607b;text-align:center;margin:6px 0 0}
+.sisu-mfa-screen .sisu-owner-campus{margin-top:24px;padding-top:20px}
+.sisu-mfa-screen .sisu-owner-campus p{font-size:12px;margin-bottom:8px}
+.sisu-mfa-screen .sisu-owner-campus-link{min-height:40px;padding:8px 12px;font-size:13px;border-radius:8px}
+@media(max-width:480px){.sisu-mfa-screen .sisu-login-layout{padding:16px 12px}.sisu-mfa-screen .sisu-login-forms{padding:26px 22px}.sisu-mfa-screen #twofactor_div h2{font-size:26px}}
+/* Teacher signup finishes on the sign-in screen, with one dismissible notice. */
+.sisu-signup-success{box-sizing:border-box;width:min(440px,calc(100% - 32px));max-height:calc(100dvh - 32px);padding:32px;border:0;border-radius:16px;background:#fff;color:#292334;box-shadow:0 20px 60px #21123330;text-align:center;overflow:auto}
+.sisu-signup-success::backdrop{background:#24173580}
+.sisu-signup-success h2{margin:0 0 12px;font-size:26px;line-height:1.25;font-weight:750;letter-spacing:-.02em}
+.sisu-signup-success p{margin:0 0 28px;color:#665773;font-size:16px;line-height:1.6}
+.sisu-signup-success button{display:block;width:100%;min-height:48px;border:0;border-radius:10px;background:#562b90;color:#fff;font:inherit;font-weight:650;cursor:pointer}
+.sisu-signup-success button:hover{background:#452071}
+.sisu-signup-success button:focus-visible{outline:3px solid #9774c8;outline-offset:3px}

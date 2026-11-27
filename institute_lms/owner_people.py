@@ -150,7 +150,7 @@ def detail(site, user, section='connections', page=0):
               WHERE v.invite_email=%s OR v.institute=%s ORDER BY v.creation DESC,v.name"""
             result=window(c,sql,(user,inst),page)
         else:
-            sql="""SELECT name,display_name,role,plan,next_plan,enabled,trial_started,trial_until,paid_until,cancel_at_end
+            sql="""SELECT name,display_name,role,plan,next_plan,enabled,trial_started,trial_until,paid_until,cancel_at_end,modified
               FROM `tabIL Account Subscription` WHERE user=%s OR (institute=%s AND role='Institute') ORDER BY creation DESC,name"""
             result=window(c,sql,(user,inst),page)
     return dict(result,person=person,section=section,site=site)
@@ -188,3 +188,37 @@ def review(site, user, decision, reason):
             frappe.throw('The campus could not save this review. Check its error log and try again.')
         time.sleep(0.4)
     frappe.throw('The campus is taking longer than expected. Refresh in a minute to see whether the review was saved.')
+
+
+@frappe.whitelist(methods=['POST'])
+def change_institute_plan(site, user, subscription, plan, expected_modified, reason):
+    """Queue a manager-authorized change on a configured reporting campus."""
+    import time
+    from frappe.utils.background_jobs import get_queue
+    from .account_billing_rules import PLANS
+    authorize()
+    reason = str(reason or '').strip()
+    if plan not in PLANS or not reason or len(reason) > 500:
+        frappe.throw('Choose a plan and give a reason of up to 500 characters.')
+    with campus(site) as c:
+        rows = fetch(c, "SELECT name FROM `tabIL Public Profile` WHERE user=%s AND kind='Institute' AND status='Verified'", (user,))
+    if len(rows) != 1:
+        frappe.throw('Select a verified institute account.')
+    job = get_queue('short').enqueue_call('frappe.utils.background_jobs.execute_job', timeout=120,
+        kwargs={'site': site, 'user': 'Administrator', 'method': 'institute_lms.owner_plan_change.apply',
+                'event': None, 'job_name': 'owner_institute_plan', 'is_async': True,
+                'kwargs': {'profile': rows[0]['name'], 'user': user, 'subscription': subscription,
+                           'plan': plan, 'expected_modified': expected_modified, 'reason': reason,
+                           'reviewer': frappe.session.user}})
+    deadline = time.monotonic() + 25
+    while time.monotonic() < deadline:
+        status = job.get_status(refresh=True)
+        if status == 'finished':
+            result = job.return_value() or {}
+            if not result.get('ok'):
+                frappe.throw('The campus refused this change. Refresh the subscription and check the campus error log.')
+            return result
+        if status in ('failed', 'stopped', 'canceled'):
+            frappe.throw('The change could not be confirmed. Refresh before retrying; check the campus error log.')
+        time.sleep(0.4)
+    return {'ok': False, 'pending': True, 'message': 'Change is still processing. Refresh in a minute before making another change.'}

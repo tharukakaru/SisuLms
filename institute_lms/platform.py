@@ -90,9 +90,11 @@ def update_commercial_plan(tenant, plan, reason):
     return {'tenant_id': d.name, 'plan': plan, 'changed': True}
 
 @frappe.whitelist()
-def organizations(page=0):
+def organizations(page=0, query=""):
     owner()
-    rows=frappe.get_all('IL Organization',fields=['name','title','institute_code','site_hostname','custom_domain','admin_contact','enabled','provisioning_state','plan','creation'],
+    query = str(query or '').strip()[:120]
+    search = [[field, 'like', '%' + query + '%'] for field in ('title','institute_code','site_hostname','admin_contact')] if query else None
+    rows=frappe.get_all('IL Organization',or_filters=search,fields=['name','title','institute_code','site_hostname','custom_domain','admin_contact','enabled','provisioning_state','plan','creation'],
                         order_by='creation desc',limit_start=max(0,min(int(page),10000))*50,limit_page_length=50)
     for row in rows:
         s=frappe.db.get_value('IL Subscription',{'tenant_id':row.name},['state','ends_at','limits','overrides'],as_dict=True)

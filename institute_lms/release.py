@@ -54,10 +54,10 @@ def billing():
 
 
 @frappe.whitelist()
-def control_room(page=0):
+def control_room(page=0, query=""):
     from .platform import owner,organizations
     owner();data={'plans':frappe.get_all('IL SaaS Plan',fields=['name','features','limits','price_minor','period_days','version'],limit_page_length=3),'usage_available':False}
-    data['organizations']=organizations(page=page)
+    data['organizations']=organizations(page=page, query=query)
     data['jobs']=frappe.get_all('IL Provisioning Job',fields=['name','organization','status','detail','modified'],order_by='modified desc',limit_page_length=100)
     for job in data['jobs']:
         org=frappe.db.get_value('IL Organization',job.organization,['title','site_hostname'],as_dict=True) or {}

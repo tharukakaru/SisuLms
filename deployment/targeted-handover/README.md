@@ -1,3 +1,5 @@
+> Final status (27 November 2026): targeted application release deployed and verified on three live sites. Automatic institute deletion removed from scope by the client; root worker remains uninstalled. See docs/FINAL_HANDOVER_20261127.md. The preparation notes below are historical.
+
 # Targeted handover candidate - 27 November 2026
 
 This patch applies to the saved live-source export, not the feature branch or preview source. Do not merge the full feature branch into production to deploy this release.

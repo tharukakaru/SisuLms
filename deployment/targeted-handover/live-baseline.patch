@@ -1,0 +1,1751 @@
+--- a/institute_lms/billing_bridge.py
++++ b/institute_lms/billing_bridge.py
+@@ -39,6 +39,8 @@
+     value=json.loads(payload);tenant=value.get('tenant_id');key=(frappe.conf.get('il_tenant_signing_keys') or {}).get(tenant)
+     if not key or not hmac.compare_digest(sign(value,key),str(signature)):frappe.throw('Invalid request',frappe.PermissionError)
+     org=frappe.get_doc('IL Organization',tenant)
++    if org.get('retired'):
++        frappe.throw('Organization permanently retired', frappe.PermissionError)
+     if not org.enabled or value.get('site_hostname')!=org.site_hostname or abs(time.time()-int(value.get('issued_at',0)))>60:
+         frappe.throw('Invalid request scope',frappe.PermissionError)
+     action=value.get('action');args=value.get('args') or {};nonce=value.get('nonce')
+--- a/institute_lms/billing_transport.py
++++ b/institute_lms/billing_transport.py
+@@ -17,6 +17,8 @@
+     from .platform import owner
+     owner();enabled()
+     org=frappe.get_doc('IL Organization',tenant)
++    if org.get('retired'):
++        frappe.throw('Organization permanently retired', frappe.PermissionError)
+     host=hostname(org.site_hostname)
+     if not org.enabled or host not in (frappe.conf.get('il_billing_transport_hosts') or []):
+         frappe.throw('Tenant billing host not enabled',frappe.PermissionError)
+--- a/institute_lms/commerce_events.py
++++ b/institute_lms/commerce_events.py
+@@ -52,6 +52,8 @@
+     key=(frappe.conf.get('il_tenant_signing_keys') or {}).get(e.get('tenant_id'))
+     if not key or not hmac.compare_digest(sign(value,key),str(signature)):frappe.throw('Invalid report signature',frappe.PermissionError)
+     org=frappe.get_doc('IL Organization',e['tenant_id'],for_update=True)
++    if org.get('retired'):
++        frappe.throw('Organization permanently retired', frappe.PermissionError)
+     if value.get('site_hostname')!=org.site_hostname or abs(time.time()-int(value.get('issued_at',0)))>120:frappe.throw('Invalid report scope',frappe.PermissionError)
+     import re
+     if (e['purpose'] not in ('lesson','class') or e['status'] not in ('paid','succeeded','failed','cancelled','refunded')
+--- /dev/null
++++ b/institute_lms/hosting_removal_adapter.py
+@@ -0,0 +1,288 @@
++"""Restricted Linux hosting adapter. Imported by the root-owned timer, never HTTP.
++
++Inventory is installed separately by the host administrator. A dashboard request
++cannot supply database credentials, filesystem paths, executables or shell code.
++Only dedicated databases/users and dedicated nginx tenant files are supported.
++"""
++import gzip
++import hashlib
++import http.client
++import time
++import json
++import os
++from pathlib import Path
++import re
++import shutil
++import subprocess
++import tarfile
++
++from .hosting_retirement import PROTECTED
++
++
++def private_file(path):
++    path = Path(path)
++    if path.is_symlink() or not path.is_file():
++        raise ValueError('Expected private regular file')
++    if os.name == 'posix' and (path.stat().st_uid != 0 or path.stat().st_mode & 0o077):
++        raise ValueError('Worker configuration must be root-owned, mode 0600')
++    return path
++
++
++def atomic_json(path, value):
++    temp = path.with_suffix('.tmp')
++    with temp.open('w', encoding='utf-8') as stream:
++        json.dump(value, stream, sort_keys=True)
++        stream.flush()
++        os.fsync(stream.fileno())
++    temp.replace(path)
++
++
++class BenchRemovalAdapter:
++    def __init__(self, config, identity):
++        self.config, self.identity = config, identity
++        self.row = config['tenants'][identity.tenant]
++        self.bench = Path(config['bench']).resolve(strict=True)
++        self.site = self.bench / 'sites' / identity.hostname
++        self.root = Path(config['backup_root']).resolve(strict=True) / identity.request_id
++        self.root.mkdir(mode=0o700, exist_ok=True)
++        self.route = Path(self.row['nginx_file'])
++        self.archived = self.root / 'retired-site'
++        self.defaults = private_file(self.row['mysql_defaults_file'])
++        for field in ('database', 'database_user'):
++            if not re.fullmatch(r'[a-zA-Z0-9_]{1,64}', self.row[field]):
++                raise ValueError('Invalid database identifier')
++        if self.row['database'] in {'mysql', 'sys', 'performance_schema', 'information_schema'}:
++            raise ValueError('Protected database')
++        if not re.fullmatch(r'[a-zA-Z0-9.%:_-]{1,255}', self.row['database_user_host']):
++            raise ValueError('Invalid database account host')
++        if self.row['hostname'] != identity.hostname or self.row['code'] != identity.code:
++            raise ValueError('Inventory identity mismatch')
++        if identity.hostname in PROTECTED or identity.hostname == config['control_site']:
++            raise ValueError('Protected site')
++        if self.route.is_symlink() or self.route.parent.resolve() != Path(config['nginx_directory']).resolve():
++            raise ValueError('Routing path outside approved directory')
++        self.db = self.row['database']
++        self.user = self.row['database_user']
++        self.account = "'%s'@'%s'" % (self.user, self.row['database_user_host'])
++
++    def run(self, args, **kwargs):
++        # Never shell=True. stderr stays private; callers expose only error codes.
++        return subprocess.run([str(x) for x in args], check=True, capture_output=True, **kwargs)
++
++    def sql(self, query):
++        return self.run(['/usr/bin/mariadb', '--defaults-extra-file=' + str(self.defaults),
++                         '--batch', '--skip-column-names'], input=query.encode()).stdout.decode().strip()
++
++    def bridge(self, method, **kwargs):
++        if method not in {'snapshot', 'progress', 'complete'}:
++            raise ValueError('Unsupported worker operation')
++        result = self.run(['sudo', '-H', '-u', 'sisu', '--', '/usr/local/bin/bench',
++                           '--site', self.config['control_site'], 'execute',
++                           'institute_lms.removal_control.' + method, '--kwargs', json.dumps(kwargs)], cwd=self.bench)
++        return json.loads(result.stdout.decode())
++
++    def authorize_request(self, identity):
++        result = self.bridge('snapshot', tenant=identity.tenant, request_id=identity.request_id)
++        if not result.get('completed'):
++            for key in ('tenant', 'hostname', 'code', 'request_id'):
++                if result[key] != getattr(identity, key):
++                    raise ValueError('Control-plane request mismatch')
++
++    def route_text(self):
++        return self.route.read_text(encoding='utf-8')
++
++    def verify_identity(self, identity, stage):
++        directory = self.site if self.site.exists() else self.archived
++        if directory.is_symlink() or not directory.is_dir():
++            raise ValueError('Site directory missing or symlinked')
++        cfg = json.loads((directory / 'site_config.json').read_text())
++        expected = {'db_name': self.db, 'db_host': self.row['database_host'], 'db_port': self.row['database_port']}
++        for field, value in expected.items():
++            if str(cfg.get(field, '127.0.0.1' if field == 'db_host' else 3306)) != str(value):
++                raise ValueError('Database identity mismatch')
++        if cfg.get('il_tenant_id') != identity.tenant:
++            raise ValueError('Site is not bound to this organization')
++        if cfg.get('db_user', cfg['db_name']) != self.user:
++            raise ValueError('Database principal mismatch')
++        for other in (self.bench / 'sites').iterdir():
++            if other == self.site or not (other / 'site_config.json').is_file():
++                continue
++            other_cfg = json.loads((other / 'site_config.json').read_text())
++            same_server = (str(other_cfg.get('db_host', '127.0.0.1')), str(other_cfg.get('db_port', 3306))) == (str(self.row['database_host']), str(self.row['database_port']))
++            if same_server and (other_cfg.get('db_name') == self.db or other_cfg.get('db_user', other_cfg.get('db_name')) == self.user):
++                raise ValueError('Database or user shared with another configured site')
++        # Verify credentials target the inventoried server, not a default socket/database.
++        defaults = self.defaults.read_text()
++        for key, value in [('host', self.row['database_host']), ('port', self.row['database_port'])]:
++            matches = re.findall(r'^\s*' + key + r'\s*=\s*(.*?)\s*$', defaults, re.M)
++            if matches != [str(value)]:
++                raise ValueError('Database credential endpoint mismatch')
++        route = self.route_text()
++        names = re.findall(r'^\s*server_name\s+([^;]+);', route, re.M)
++        if not names or any(name.split() != [identity.hostname] for name in names):
++            raise ValueError('Only a dedicated single-tenant nginx file is supported')
++        saved = self.root / 'routing.conf'
++        expected_hash = hashlib.sha256(saved.read_bytes()).hexdigest() if saved.exists() else self.row['nginx_sha256']
++        if not (self.root / 'quiesced.json').exists() and hashlib.sha256(self.route.read_bytes()).hexdigest() != expected_hash:
++            raise ValueError('Routing changed since inventory approval')
++
++    def check_dependencies(self, identity):
++        if (self.root / 'drop-intent.json').exists():
++            return
++        # Fail closed if the table inventory is different from the reviewed schema.
++        tables = set(self.sql("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA='%s'" % self.db).splitlines())
++        required = {'tabIL Account Invoice', 'tabIL Payout Request', 'tabIL Payment Attempt', 'tabIL Wallet'}
++        if not required <= tables:
++            raise ValueError('Financial schema requires operator review')
++        queries = ["SELECT COUNT(*) FROM `%s`.`tabIL Account Invoice` WHERE status IN ('Draft','Unpaid')",
++                   "SELECT COUNT(*) FROM `%s`.`tabIL Payout Request` WHERE status IN ('Pending','Processing')",
++                   "SELECT COUNT(*) FROM `%s`.`tabIL Payment Attempt` WHERE status IN ('created','pending')"]
++        if any(int(self.sql(q % self.db)) for q in queries):
++            raise ValueError('Unresolved tenant financial obligations')
++        optional = {
++            'tabIL Invoice': ('Unpaid', 'Overdue'),
++            'tabIL Provider Invoice': ('Unpaid', 'Under review'),
++            'tabIL Usage Invoice': ('Estimate', 'Unpaid'),
++            'tabIL Lecture Refund': ('Pending', 'Review'),
++        }
++        for table, statuses in optional.items():
++            if table in tables:
++                values = ','.join("'%s'" % value for value in statuses)
++                if int(self.sql('SELECT COUNT(*) FROM `%s`.`%s` WHERE status IN (%s)' % (self.db, table, values))):
++                    raise ValueError('Unresolved invoice or refund obligations')
++        # Non-zero wallet balances require reconciliation, never deletion by inference.
++        columns = set(self.sql("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='tabIL Wallet'" % self.db).splitlines())
++        balance_columns = sorted(columns & {'balance', 'balance_minor', 'available_balance', 'pending_balance', 'available_minor', 'held_minor'})
++        if not balance_columns:
++            raise ValueError('Wallet balance schema requires review')
++        if any(int(self.sql('SELECT COUNT(*) FROM `%s`.`tabIL Wallet` WHERE COALESCE(`%s`,0) != 0' % (self.db, col))) for col in balance_columns):
++            raise ValueError('Wallet balances must be reconciled')
++
++    def quiesce(self, identity):
++        marker = self.root / 'quiesced.json'
++        if marker.exists():
++            return
++        if not (self.root / 'routing.conf').exists():
++            shutil.copyfile(self.route, self.root / 'routing.conf')
++        cfg_path = self.site / 'site_config.json'
++        if not (self.root / 'configuration-original.json').exists():
++            shutil.copyfile(cfg_path, self.root / 'configuration-original.json')
++        grants = self.sql('SHOW GRANTS FOR ' + self.account).splitlines()
++        # Dedicated DB users only: global privileges and grants to other schemas are forbidden.
++        for grant in grants:
++            if 'GRANT USAGE ON *.*' not in grant and (' ON `' + self.db + '`.* TO ') not in grant:
++                raise ValueError('Database user has privileges outside this tenant')
++        if not (self.root / 'grants.json').exists():
++            atomic_json(self.root / 'grants.json', grants)
++        cfg_stat = cfg_path.stat()
++        cfg = json.loads(cfg_path.read_text());cfg['maintenance_mode'] = 1;cfg['pause_scheduler'] = 1
++        atomic_json(cfg_path, cfg)
++        os.chown(cfg_path, cfg_stat.st_uid, cfg_stat.st_gid)
++        os.chmod(cfg_path, cfg_stat.st_mode & 0o777)
++        # Preserve TLS/listen directives, but replace every location response with maintenance
++        # by adding a server-level return. Dedicated routing must have simple server blocks.
++        original = (self.root / 'routing.conf').read_text()
++        retired = re.sub(r'\bserver\s*\{', 'server {\n    return 410;', original)
++        self.route.write_text(retired)
++        try:
++            self.run(['/usr/sbin/nginx', '-t'])
++            self.run(['/usr/sbin/nginx', '-s', 'reload'])
++        except Exception:
++            self.route.write_text(original)
++            self.run(['/usr/sbin/nginx', '-t'])
++            self.run(['/usr/sbin/nginx', '-s', 'reload'])
++            raise
++        if any((' ON `' + self.db + '`.* TO ') in g for g in grants):
++            self.sql('REVOKE ALL PRIVILEGES ON `%s`.* FROM %s' % (self.db, self.account))
++        for identifier in self.sql("SELECT ID FROM information_schema.PROCESSLIST WHERE USER='%s'" % self.user).splitlines():
++            if not identifier.isdigit():
++                raise ValueError('Invalid database session identifier')
++            self.sql('KILL ' + identifier)
++        atomic_json(marker, {'routing_sha256': hashlib.sha256(self.route.read_bytes()).hexdigest()})
++        self.check_dependencies(identity)
++
++    def backup(self, identity):
++        sql_path = self.root / 'database.sql.gz'
++        with (self.root / 'dump-error.log').open('wb') as errors, gzip.open(sql_path, 'wb') as output:
++            process = subprocess.Popen(['/usr/bin/mariadb-dump', '--defaults-extra-file=' + str(self.defaults),
++                '--single-transaction', '--quick', '--skip-lock-tables', '--skip-add-locks', self.db], stdout=subprocess.PIPE, stderr=errors)
++            shutil.copyfileobj(process.stdout, output)
++            if process.wait():
++                raise RuntimeError('Database backup failed')
++        for label, folder in [('public_files', 'public/files'), ('private_files', 'private/files')]:
++            directory = self.site / folder
++            with tarfile.open(self.root / (label + '.tar.gz'), 'w:gz') as tar:
++                if directory.exists():
++                    for path in directory.rglob('*'):
++                        if path.is_symlink():
++                            raise ValueError('Upload symlink requires manual review')
++                    tar.add(directory, arcname='files')
++        paths = {'database': sql_path, 'public_files': self.root / 'public_files.tar.gz',
++                 'private_files': self.root / 'private_files.tar.gz', 'configuration': self.root / 'configuration-original.json'}
++        return {name: {'path': str(path), 'sha256': hashlib.file_digest(path.open('rb'), 'sha256').hexdigest()} for name, path in paths.items()}
++
++    def verify_restore_artifacts(self, identity, backups):
++        with gzip.open(backups['database']['path'], 'rb') as stream:
++            seen = False
++            for line in stream:
++                if line.startswith((b'CREATE DATABASE', b'DROP DATABASE', b'USE ')):
++                    raise ValueError('Backup contains cross-database directives')
++                seen |= b'CREATE TABLE' in line
++            if not seen:
++                raise ValueError('Database backup contains no schema')
++        for name in ('public_files', 'private_files'):
++            with tarfile.open(backups[name]['path']) as tar:
++                for member in tar:
++                    if member.issym() or member.islnk() or Path(member.name).is_absolute() or '..' in Path(member.name).parts:
++                        raise ValueError('Invalid upload backup member')
++                    if member.isfile():
++                        with tar.extractfile(member) as stream:
++                            while stream.read(1024 * 1024):
++                                pass
++        json.loads(Path(backups['configuration']['path']).read_text())
++
++    def routing_retired(self):
++        for attempt in range(20):
++            connection = http.client.HTTPConnection('127.0.0.1', int(self.config.get('probe_port', 80)), timeout=3)
++            try:
++                connection.request('GET', '/', headers={'Host': self.identity.hostname})
++                response = connection.getresponse()
++                if response.status == 410:
++                    return True
++            finally:
++                connection.close()
++            time.sleep(.1)
++        return False
++
++    def decommission(self, identity):
++        self.verify_identity(identity, 'backed_up')
++        marker = self.root / 'quiesced.json'
++        if not marker.exists() or hashlib.sha256(self.route.read_bytes()).hexdigest() != json.loads(marker.read_text())['routing_sha256']:
++            raise ValueError('Tenant routing is not quiesced')
++        if not self.routing_retired():
++            raise ValueError('Running nginx has not confirmed tenant retirement')
++        # The verified dump and uploads remain in the private archive for audit/recovery.
++        atomic_json(self.root / 'drop-intent.json', {'tenant': identity.tenant, 'database': self.db})
++        self.sql('DROP DATABASE IF EXISTS `%s`' % self.db)
++        self.sql('DROP USER IF EXISTS ' + self.account)
++        if self.site.exists():
++            if self.archived.exists():
++                raise ValueError('Conflicting retired site directory')
++            shutil.move(str(self.site), str(self.archived))
++        atomic_json(self.root / 'dropped.json', {'tenant': identity.tenant})
++
++    def verify_absent(self, identity):
++        database = self.sql("SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='%s'" % self.db)
++        user = self.sql("SELECT COUNT(*) FROM mysql.user WHERE User='%s' AND Host='%s'" % (self.user, self.row['database_user_host']))
++        marker = json.loads((self.root / 'quiesced.json').read_text())
++        return self.routing_retired() and database == '0' and user == '0' and not self.site.exists() and self.archived.is_dir() and hashlib.sha256(self.route.read_bytes()).hexdigest() == marker['routing_sha256']
++
++    def record_progress(self, identity, stage):
++        if stage != 'completed':
++            self.bridge('progress', tenant=identity.tenant, request_id=identity.request_id, stage=stage)
++
++    def complete_registry(self, identity, state):
++        self.bridge('complete', tenant=identity.tenant, request_id=identity.request_id, hostname=identity.hostname, code=identity.code)
++        # The root-owned inventory retains the audit identity; mark its reservation released.
++        # Reuse requires provisioning to replace the old 410 route deliberately.
++        atomic_json(self.root / 'completion.json', {'tenant': identity.tenant, 'request_id': identity.request_id, 'completed': True})
+--- /dev/null
++++ b/institute_lms/hosting_retirement.py
+@@ -0,0 +1,90 @@
++"""Host-independent removal state machine. Never exposed as a Frappe HTTP method.
++
++A reviewed host adapter must verify real database/routing ownership and execute
++fixed operations. No adapter is enabled by default; production is fail-closed.
++"""
++from dataclasses import dataclass
++import hashlib
++import json
++from pathlib import Path
++import re
++
++PROTECTED=frozenset({'sisuacademylk.com','www.sisuacademylk.com','platform.sisuacademylk.com','staging.sisuacademylk.com'})
++STAGES=('validated','quiesced','backed_up','decommissioned','verified','completed')
++
++@dataclass(frozen=True)
++class RemovalIdentity:
++    tenant: str
++    hostname: str
++    code: str
++    request_id: str
++
++    def validate(self, allowlist):
++        if not re.fullmatch(r'org-[a-f0-9]{32}', self.tenant):raise ValueError('Invalid tenant')
++        if (self.hostname in PROTECTED or not re.fullmatch(r'[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?',self.hostname)
++                or '..' in self.hostname or '.' not in self.hostname):raise ValueError('Protected or invalid hostname')
++        if not self.code or not re.fullmatch(r'[a-zA-Z0-9_-]{8,100}',self.request_id):raise ValueError('Invalid request identity')
++        if allowlist.get(self.tenant)!=self.hostname:raise ValueError('Tenant not approved by hosting inventory')
++
++
++def verify_backups(receipt, backup_root):
++    root=Path(backup_root).resolve(strict=True)
++    if set(receipt)!={'database','public_files','private_files','configuration'}:raise ValueError('Incomplete backup receipt')
++    for item in receipt.values():
++        path=Path(item['path'])
++        if path.is_symlink():raise ValueError('Backup symlink forbidden')
++        path=path.resolve(strict=True)
++        if root not in path.parents or not path.is_file() or path.stat().st_size==0:raise ValueError('Invalid backup path')
++        digest=hashlib.sha256()
++        with path.open('rb') as f:
++            for chunk in iter(lambda:f.read(1024*1024),b''):digest.update(chunk)
++        if digest.hexdigest()!=item['sha256']:raise ValueError('Backup checksum mismatch')
++
++
++def execute(identity, adapter, journal_path, backup_root, allowlist):
++    """Retry only the same bound request; never release a reservation before proof.
++
++    Adapter methods must be idempotent and report proof, not just command exit
++    codes. quiesce must not stop unrelated tenants. Financial/history export is
++    part of check_dependencies, not implied by a generic database backup.
++    """
++    identity.validate(allowlist)
++    journal_path=Path(journal_path)
++    bound=identity.__dict__
++    state=json.loads(journal_path.read_text()) if journal_path.exists() else {'identity':bound,'stage':None}
++    if state['identity']!=bound:raise ValueError('Journal belongs to another request')
++    if state['stage'] not in (None,*STAGES):raise ValueError('Unknown journal stage')
++    def persist(stage):
++        state['stage']=stage;state.pop('error',None)
++        temporary=journal_path.with_suffix('.tmp')
++        temporary.write_text(json.dumps(state,sort_keys=True),encoding='utf-8');temporary.replace(journal_path)
++        progress = getattr(adapter, 'record_progress', None)
++        if progress:progress(identity, stage)
++    def done(stage):return state['stage'] is not None and STAGES.index(state['stage'])>=STAGES.index(stage)
++    try:
++        adapter.authorize_request(identity) # Recheck manager and request identity on every retry.
++        if done('completed'):return state
++        # Adapter must recognize partially decommissioned resources only through this journal.
++        adapter.verify_identity(identity,state['stage'])
++        adapter.check_dependencies(identity) # Includes unsettled obligations and preservation proof.
++        if not done('validated'):persist('validated')
++        if not done('quiesced'):
++            adapter.quiesce(identity);persist('quiesced')
++        if not done('backed_up'):
++            state['backups']=adapter.backup(identity)
++            verify_backups(state['backups'],backup_root)
++            adapter.verify_restore_artifacts(identity,state['backups'])
++            persist('backed_up')
++        verify_backups(state['backups'],backup_root)
++        if not done('decommissioned'):
++            adapter.decommission(identity);persist('decommissioned')
++        if not adapter.verify_absent(identity):raise RuntimeError('Hosting absence not verified')
++        if not done('verified'):persist('verified')
++        adapter.complete_registry(identity,state) # Fixed, privileged, non-HTTP completion contract.
++        persist('completed')
++        return state
++    except Exception as exc:
++        state['error']=type(exc).__name__ # No credentials or subprocess output in dashboard errors.
++        temporary=journal_path.with_suffix('.tmp')
++        temporary.write_text(json.dumps(state,sort_keys=True),encoding='utf-8');temporary.replace(journal_path)
++        raise
+--- a/institute_lms/platform.py
++++ b/institute_lms/platform.py
+@@ -16,9 +16,11 @@
+     from .registration import require_owner
+     require_owner()
+ 
+-def organization(name, administrator=False):
++def organization(name, administrator=False, for_update=False):
+     control()
+-    d=frappe.get_doc('IL Organization', name)
++    d=frappe.get_doc('IL Organization', name, for_update=for_update)
++    if d.get('retired') or d.get('removal_status'):
++        frappe.throw('Organization permanently retired', frappe.PermissionError)
+     from .wallet import admin_actor
+     if not admin_actor() and (not administrator or frappe.session.user=='Guest' or d.admin_contact != frappe.session.user):
+         frappe.throw('Organization unavailable', frappe.PermissionError)
+@@ -112,7 +114,7 @@
+ 
+ @frappe.whitelist(methods=['POST'])
+ def update_organization(tenant, enabled, reason, custom_domain=None):
+-    owner();d=organization(tenant)
++    owner();d=organization(tenant,for_update=True)
+     if type(enabled) is not bool or not str(reason).strip(): frappe.throw('Boolean status and reason required')
+     s=frappe.get_doc('IL Subscription',frappe.db.get_value('IL Subscription',{'tenant_id':tenant},'name'),for_update=True)
+     if custom_domain:
+@@ -125,7 +127,7 @@
+ 
+ @frappe.whitelist(methods=['POST'])
+ def override(tenant, values, reason):
+-    owner();organization(tenant)
++    owner();organization(tenant,for_update=True)
+     s=frappe.get_doc('IL Subscription',frappe.db.get_value('IL Subscription',{'tenant_id':tenant},'name'),for_update=True)
+     if not str(reason).strip(): frappe.throw('An audit reason is required')
+     values=json.loads(values) if isinstance(values,str) else values
+@@ -135,7 +137,7 @@
+ 
+ @frappe.whitelist(methods=['POST'])
+ def trial(tenant, days, reason):
+-    owner();organization(tenant)
++    owner();organization(tenant,for_update=True)
+     from .pricing_rules import integer
+     days=integer(days,'Trial days',30)
+     if not days or not str(reason).strip():frappe.throw('Bounded trial and reason required')
+@@ -149,7 +151,7 @@
+ 
+ @frappe.whitelist(methods=['POST'])
+ def subscription_state(tenant, state, reason, grace_until=None):
+-    owner();organization(tenant)
++    owner();organization(tenant,for_update=True)
+     # Active is reserved for verified settlement. Trials have a separate bounded flow.
+     if state not in ('grace','past_due','suspended','cancelled','expired') or not str(reason).strip(): frappe.throw('Invalid state change')
+     s=frappe.get_doc('IL Subscription',frappe.db.get_value('IL Subscription',{'tenant_id':tenant},'name'),for_update=True)
+@@ -162,13 +164,17 @@
+ 
+ @frappe.whitelist(methods=['POST'])
+ def manifest(tenant):
+-    owner();organization(tenant)
++    owner();organization(tenant,for_update=True)
+     return signed_policy(tenant)
+ 
+ def signed_policy(tenant):
+     control()
+     d=frappe.get_doc('IL Organization',tenant)
++    if d.get('retired') or d.get('removal_status'):
++        frappe.throw('Organization permanently retired', frappe.PermissionError)
+     frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(d.name,));d=frappe.get_doc('IL Organization',d.name,for_update=True)
++    if d.get('retired') or d.get('removal_status'):
++        frappe.throw('Organization permanently retired', frappe.PermissionError)
+     s=frappe.get_doc('IL Subscription',frappe.db.get_value('IL Subscription',{'tenant_id':tenant},'name'),for_update=True)
+     key=(frappe.conf.get('il_tenant_signing_keys') or {}).get(tenant)
+     if not isinstance(key,str) or len(key)<32:frappe.throw('Operator must configure a tenant-specific signing key')
+@@ -200,7 +206,11 @@
+     if status not in ('running','ready','failed') or not 10<=len(str(reason or '').strip())<=1000:frappe.throw('Choose a status and enter a progress note of at least 10 characters.')
+     if status=='ready' and verified not in (True,1,'1'):
+         frappe.throw('Confirm that website setup, HTTPS and administrator sign-in have been verified.')
+-    j=frappe.get_doc('IL Provisioning Job',job);d=organization(j.organization)
++    j=frappe.get_doc('IL Provisioning Job',job)
++    d=organization(j.organization,for_update=True)
++    j=frappe.get_doc('IL Provisioning Job',job,for_update=True)
++    if j.organization!=d.name or j.status=='retired':
++        frappe.throw('Provisioning job unavailable',frappe.PermissionError)
+     if status=='ready' and j.status!='running':frappe.throw('Provisioning must be running before completion')
+     if status=='ready':
+         from .provision_verification import require_verified
+@@ -211,7 +221,7 @@
+ 
+ @frappe.whitelist(methods=['POST'])
+ def invite_billing_contact(tenant):
+-    owner();d=organization(tenant)
++    owner();d=organization(tenant,for_update=True)
+     if not frappe.db.exists('Email Account',{'enable_outgoing':1}):frappe.throw('Configure outgoing email first')
+     from html import escape
+     user=frappe.get_doc('User',d.admin_contact)
+@@ -232,7 +242,7 @@
+ 
+ @frappe.whitelist(methods=['POST'])
+ def reactivate(tenant,reason):
+-    owner();organization(tenant)
++    owner();organization(tenant,for_update=True)
+     s=frappe.get_doc('IL Subscription',frappe.db.get_value('IL Subscription',{'tenant_id':tenant},'name'),for_update=True)
+     if not str(reason).strip() or s.state!='suspended' or not s.last_payment or not s.ends_at or get_datetime(s.ends_at)<=datetime.utcnow():
+         frappe.throw('Only an unexpired previously settled subscription can be restored')
+--- a/institute_lms/policy_delivery.py
++++ b/institute_lms/policy_delivery.py
+@@ -11,6 +11,9 @@
+     keys=('enabled','plan','state','ends_at','grace_until','features','limits','overrides','base_features','base_limits','site_hostname')
+     if before and all(before.get(k)==doc.get(k) for k in keys):return
+     tenant=doc.name if doc.doctype=='IL Organization' else doc.tenant_id
++    if frappe.db.get_value('IL Organization', tenant, 'retired'):
++        return
++
+     # Registration inserts organization before its subscription; scheduler resolves later.
+     name=frappe.db.get_value('IL Policy Delivery',{'organization':tenant},'name')
+     d=frappe.get_doc('IL Policy Delivery',name) if name else frappe.get_doc({'doctype':'IL Policy Delivery','organization':tenant})
+@@ -21,10 +24,38 @@
+     rows=frappe.get_all('IL Policy Delivery',filters={'next_attempt':['<=',now_datetime()]},pluck='name',limit_page_length=50)
+     for name in rows:
+         with frappe.cache.lock('il_policy_delivery:'+name,timeout=120,blocking_timeout=1):
+-            d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
+-            sent_modified=str(d.modified)
++            tenant=frappe.db.get_value('IL Policy Delivery',name,'organization')
++
++            if not tenant:
++                frappe.db.rollback()
++                continue
++
+             try:
+-                org=frappe.get_doc('IL Organization',d.organization)
++                # Always lock the organization before its dependent records.
++                org=frappe.get_doc('IL Organization',tenant,for_update=True)
++                d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
++                sent_modified=str(d.modified)
++
++                if d.status=='Retired' or not d.next_attempt:
++                    frappe.db.commit()
++                    continue
++
++                from frappe.utils import get_datetime
++                if get_datetime(d.next_attempt)>now_datetime():
++                    frappe.db.commit()
++                    continue
++
++                if org.get('removal_status') and not org.get('retired'):
++                    frappe.db.commit()
++                    continue
++
++                if org.get('retired'):
++                    d.status='Retired'
++                    d.next_attempt=None
++                    managed(d)
++                    frappe.db.commit()
++                    continue
++
+                 from .site_policies import blockers
+                 if not org.enabled or blockers(org):
+                     d.next_attempt=now_datetime()+timedelta(minutes=5)
+@@ -41,6 +72,17 @@
+                 import json
+                 revision=json.loads(payload['payload'])['revision']
+                 if body.get('applied') is not True or body.get('revision')!=revision:raise ValueError('policy_acknowledgement_invalid')
++                # Reacquire organization lock after the network request.
++                org=frappe.get_doc('IL Organization',tenant,for_update=True)
++                d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
++
++                if org.get('retired') or d.status=='Retired':
++                    d.status='Retired'
++                    d.next_attempt=None
++                    managed(d)
++                    frappe.db.commit()
++                    continue
++
+                 for notice in json.loads(payload['payload']).get('notices',[]):
+                     n=frappe.get_doc('IL Subscription Notice',notice['name'],for_update=True);n.acknowledged=1;managed(n)
+                 d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
+@@ -51,7 +93,18 @@
+             except Exception:
+                 # Never persist provider response/configuration/keys in an error record.
+                 frappe.db.rollback()
++
++                # Preserve the same lock order during failure recovery.
++                org=frappe.get_doc('IL Organization',tenant,for_update=True)
+                 d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
++
++                if org.get('retired') or d.status=='Retired':
++                    d.status='Retired'
++                    d.next_attempt=None
++                    managed(d)
++                    frappe.db.commit()
++                    continue
++
+                 d.status='Failed';d.attempts=int(d.attempts or 0)+1;d.error_code='delivery_failed_check_configuration_or_connectivity'
+                 d.next_attempt=now_datetime()+timedelta(minutes=min(60,2**min(d.attempts,6)))
+             managed(d);frappe.db.commit()
+--- a/institute_lms/premium.py
++++ b/institute_lms/premium.py
+@@ -19,7 +19,7 @@
+     from .platform import owner,organization
+     from .pricing_rules import integer
+     from .owner_pricing import save
+-    owner();org=organization(tenant)
++    owner();org=organization(tenant,for_update=True)
+     amount=integer(amount_minor,'Monthly price')
+     if type(enabled) is not bool or amount<=0 or not 3<=len(str(reason).strip())<=500:frappe.throw('Positive monthly price and audit reason required')
+     frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(tenant,))
+--- a/institute_lms/profiles.py
++++ b/institute_lms/profiles.py
+@@ -43,6 +43,8 @@
+ @frappe.whitelist(methods=['POST'])
+ def save_profile(data):
+     signed_in()
++    # Serialize first-profile creation and automatic approval for this identity.
++    frappe.db.sql('SELECT name FROM `tabUser` WHERE name=%s FOR UPDATE', (frappe.session.user,))
+     if not frappe.db.exists('IL Verified Phone',{'user':frappe.session.user}):frappe.throw('Verify your mobile number first')
+     if isinstance(data,str):data=json.loads(data)
+     username=str(data.get('username','')).strip().lower()
+@@ -59,6 +61,7 @@
+     elif not p and not frappe.db.exists('IL Registration Request',{'email':frappe.session.user,'account_type':'Institute' if kind=='Institute' else 'Individual Teacher','status':'Approved'}):
+         frappe.throw('Your provider application must be approved first')
+     p=mine()
++    first_submission = p is None
+     identity_changed=not p or p.display_name!=str(data.get('display_name','')).strip() or p.country!=str(data.get('country','')).strip() or bool(p.is_school)!=bool(data.get('is_school'))
+     if p and (p.username!=username or p.kind!=kind):frappe.throw('Username and account type are permanent. Contact support for a reviewed change.')
+     if not p:
+@@ -78,6 +81,9 @@
+         if not enabled():
+             from .onboarding import activate
+             activate(p)
++    if kind=='Institute' and first_submission:
++        from .provider_review import approve_new_institute
++        approve_new_institute(p)
+     if kind!='Student' and p.status=='Pending':owner_notice('Provider profile awaits verification: @'+username,p.name)
+     if kind=='Institute' and p.status=='Pending' and identity_changed:
+         # Only on first submission or a re-review, not on every save.
+--- a/institute_lms/provider_review.py
++++ b/institute_lms/provider_review.py
+@@ -50,6 +50,35 @@
+     with authorized_insert(member):
+         member.insert(ignore_permissions=True)  # member_created hook opens the institute account
+     return institute.name
++
++
++def approve_new_institute(profile):
++    """Internal first-submission path; never called by a bulk migration or GET."""
++    user = frappe.session.user
++    if user == 'Guest' or profile.user != user or profile.kind != 'Institute' or profile.status != 'Pending':
++        frappe.throw('Verified institute onboarding required.', frappe.PermissionError)
++    if not frappe.db.exists('IL Registration Request', {
++        'email': user, 'account_type': 'Institute', 'status': 'Approved', 'email_verified': 1
++    }):
++        frappe.throw('Verify your institute registration email first.', frappe.PermissionError)
++    phone = frappe.db.get_value('IL Verified Phone', {'user': user}, ['phone', 'verified_at'], as_dict=True)
++    if not phone or not phone.phone or not phone.verified_at:
++        frappe.throw('Verify your mobile number first.', frappe.PermissionError)
++    result = apply(profile.name, 'Verified',
++                   'Automatically approved after verified institute onboarding.', 'Automatic institute onboarding')
++    if not result.get('ok'):
++        frappe.throw(result.get('message') or 'Institute setup could not be completed.')
++    profile.reload()
++    # Preserve existing settlement/trial dates. Onboarding approval cannot grant paid access.
++    if profile.workspace:
++        from .account_billing import account, save
++        inst = frappe.get_doc('IL Institute', profile.workspace)
++        member = frappe.get_doc('IL Member', frappe.db.get_value('IL Member',
++            {'institute': inst.name, 'user': user, 'role': 'Admin', 'active': 1}, 'name'))
++        subscription = account(inst, member, create=True, lock=True)
++        subscription.onboarding_payment_required = 1
++        save(subscription)
++    return result
+ 
+ 
+ def apply(profile, decision, reason, reviewer):
+--- a/institute_lms/release.py
++++ b/institute_lms/release.py
+@@ -38,7 +38,9 @@
+     from .platform import control,organization
+     from .wallet import signed_in,admin_actor
+     control();signed_in()
+-    filters={} if admin_actor() else {'admin_contact':frappe.session.user}
++    filters={'retired':0}
++    if not admin_actor():
++        filters['admin_contact']=frappe.session.user
+     rows=frappe.get_all('IL Organization',filters=filters,fields=['name','title','site_hostname','enabled'],limit_page_length=100)
+     for row in rows:
+         organization(row.name,administrator=True)
+@@ -74,7 +76,7 @@
+     from .owner_pricing import save
+     from .saas import audit
+     from .pricing_rules import integer
+-    owner();d=organization(tenant)
++    owner();d=organization(tenant,for_update=True)
+     amount=integer(amount_minor,'Price')
+     if not amount or period not in ('Monthly','Yearly') or not str(reason).strip():frappe.throw('Positive price, period and audit reason required')
+     frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(tenant,))
+--- /dev/null
++++ b/institute_lms/removal_control.py
+@@ -0,0 +1,67 @@
++"""Private hosting-worker bridge. No method in this module is whitelisted."""
++import frappe
++from .saas import managed
++
++
++def _organization(tenant, request_id):
++    if getattr(frappe.local, 'request', None) or not frappe.conf.get('il_control_plane'):
++        frappe.throw('Hosting worker context required', frappe.PermissionError)
++    org = frappe.get_doc('IL Organization', tenant, for_update=True)
++    if not request_id or org.get('removal_request_id') != request_id:
++        frappe.throw('Removal request identity changed')
++    from .owner_access import require_manager
++    previous = frappe.session.user
++    try:
++        frappe.set_user(org.removal_requested_by)
++        require_manager()
++    finally:
++        frappe.set_user(previous)
++    return org
++
++
++def pending():
++    if getattr(frappe.local, 'request', None) or not frappe.conf.get('il_control_plane'):
++        frappe.throw('Hosting worker context required', frappe.PermissionError)
++    return frappe.get_all('IL Organization', filters={'removal_status': ['in', ['Requested', 'Running']]},
++                         fields=['name', 'site_hostname', 'institute_code', 'removal_request_id'], limit_page_length=100)
++
++
++def snapshot(tenant, request_id):
++    org = _organization(tenant, request_id)
++    if org.get('retired'):
++        return {'completed': True}
++    if org.enabled or org.provisioning_state == 'running' or org.get('custom_domain'):
++        frappe.throw('Suspend the institute and resolve provisioning/custom-domain dependencies first')
++    if frappe.db.count('IL Payment Attempt', {'tenant_id': tenant, 'status': ['in', ['created', 'pending']]}):
++        frappe.throw('Unresolved control-plane payments')
++    return {'tenant': org.name, 'hostname': org.site_hostname, 'code': org.institute_code,
++            'request_id': org.removal_request_id, 'status': org.removal_status}
++
++
++def progress(tenant, request_id, stage, failed=False):
++    org = _organization(tenant, request_id)
++    if org.get('retired'):
++        return {'completed': True}
++    allowed = {'validated', 'quiesced', 'backed_up', 'decommissioned', 'verified', 'starting', 'failed'}
++    if stage not in allowed:
++        frappe.throw('Invalid removal progress')
++    org.removal_status = 'Failed' if failed else 'Running'
++    org.removal_progress = stage
++    managed(org)
++    frappe.db.commit()
++    return {'status': org.removal_status}
++
++
++def complete(tenant, request_id, hostname, code):
++    org = _organization(tenant, request_id)
++    if org.get('retired'):
++        return {'completed': True}
++    from .tenant_retirement import retire_organization
++    previous = frappe.session.user
++    try:
++        frappe.set_user(org.removal_requested_by)
++        result = retire_organization(tenant, org.removal_request_reason, hostname, code, decommission_verified=True)
++        frappe.db.commit()
++        return result
++    finally:
++        frappe.set_user(previous)
+--- a/institute_lms/site_policies.py
++++ b/institute_lms/site_policies.py
+@@ -27,7 +27,7 @@
+     owner()
+     from .pricing_rules import integer
+     page=integer(page,'Page',10000)
+-    rows=frappe.get_all('IL Organization',fields=['name','title','site_hostname','provisioning_state','enabled'],order_by='creation desc',limit_start=page*30,limit_page_length=31)
++    rows=frappe.get_all('IL Organization',filters={'retired':0},fields=['name','title','site_hostname','provisioning_state','enabled'],order_by='creation desc',limit_start=page*30,limit_page_length=31)
+     result=[]
+     for org in rows[:30]:
+         delivery=frappe.db.get_value('IL Policy Delivery',{'organization':org.name},['status','revision','acknowledged_at','next_attempt'],as_dict=True)
+@@ -40,12 +40,19 @@
+ @frappe.whitelist(methods=['POST'])
+ def retry(tenant,reason):
+     from .platform import owner,organization
+-    owner();org=organization(tenant)
++    owner()
+     if not isinstance(reason,str) or not 10<=len(reason.strip())<=1000:frappe.throw('Enter a reason of at least 10 characters.')
++
++    # Lock the organization before checking retirement or queuing delivery.
++    org=frappe.get_doc('IL Organization',tenant,for_update=True)
++
++    if org.get('retired'):
++        frappe.throw('Organization permanently retired',frappe.PermissionError)
++
++    organization(org.name)
++
+     missing=blockers(org)
+     if missing:frappe.throw(' '.join(missing))
+-    # Lock the organization to serialize a first delivery row and repeat clicks.
+-    frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(org.name,))
+     name=frappe.db.get_value('IL Policy Delivery',{'organization':org.name},'name')
+     doc=frappe.get_doc('IL Policy Delivery',name,for_update=True) if name else frappe.get_doc(dict(doctype='IL Policy Delivery',organization=org.name))
+     if name and doc.status=='Pending':return dict(queued=True,message='An update is already waiting for delivery. Refresh to check confirmation.')
+--- a/institute_lms/subscription_notices.py
++++ b/institute_lms/subscription_notices.py
+@@ -16,15 +16,29 @@
+     else:return
+     tenant=doc.get('tenant_id')
+     if not tenant:return
++
++    # Serialize notice creation against permanent tenant retirement.
++    org=frappe.get_doc('IL Organization',tenant,for_update=True)
++
++    if org.get('retired'):
++        return
++
+     key=notification_key(doc.doctype+':'+doc.name+':'+str(doc.get('status')),event)
+     if not frappe.db.exists('IL Subscription Notice',{'event_key':key}):
+         managed(frappe.get_doc({'doctype':'IL Subscription Notice','event_key':key,'tenant_id':tenant,'event_type':event,'body':body,'acknowledged':0}))
+-    # Serialize against issuance. Do not clear newer pending updates after delivery.
+-    frappe.db.sql('SELECT name FROM `tabIL Organization` WHERE name=%s FOR UPDATE',(tenant,))
++    # Organization lock is already held before notice creation.
++    # Do not clear newer pending updates after delivery.
+     name=frappe.db.get_value('IL Policy Delivery',{'organization':tenant},'name')
+     if name:
+         from frappe.utils import now_datetime
+-        d=frappe.get_doc('IL Policy Delivery',name,for_update=True);d.status='Pending';d.next_attempt=now_datetime();managed(d)
++        d=frappe.get_doc('IL Policy Delivery',name,for_update=True)
++
++        if d.status=='Retired':
++            return
++
++        d.status='Pending'
++        d.next_attempt=now_datetime()
++        managed(d)
+ 
+ def apply(institute,notices):
+     from .notification_service import emit,EVENTS
+--- a/institute_lms/subscription_payments.py
++++ b/institute_lms/subscription_payments.py
+@@ -30,7 +30,7 @@
+ def quote(tenant, plan):
+     from .platform import organization
+     from .registration import limit
+-    d=organization(tenant,administrator=True);limit('subscription-quote:'+frappe.session.user)
++    d=organization(tenant,administrator=True,for_update=True);limit('subscription-quote:'+frappe.session.user)
+     if not d.enabled or plan != 'PREMIUM AI':frappe.throw('Only the monthly Premium offer requires checkout')
+     from .premium import offer_for
+     offer=offer_for(tenant)
+@@ -54,8 +54,25 @@
+     from .platform import organization
+     from .payments_lk import provider_request
+     key,_,mode=config()
+-    frappe.db.sql('SELECT name FROM `tabIL Checkout Quote` WHERE name=%s FOR UPDATE',(quote,))
+-    q=frappe.get_doc('IL Checkout Quote',quote,for_update=True);organization(q.tenant_id,administrator=True)
++
++    tenant=frappe.db.get_value('IL Checkout Quote',quote,'tenant_id')
++    if not tenant:
++        frappe.throw('Subscription quote unavailable')
++
++    organization(tenant,administrator=True)
++
++    # Serialize checkout against permanent organization retirement.
++    org=frappe.get_doc('IL Organization',tenant,for_update=True)
++
++    if org.get('retired') or not org.enabled:
++        frappe.throw('Organization unavailable for checkout',frappe.PermissionError)
++
++    organization(tenant,administrator=True)
++
++    q=frappe.get_doc('IL Checkout Quote',quote,for_update=True)
++
++    if q.tenant_id!=tenant:
++        frappe.throw('Subscription quote identity changed',frappe.PermissionError)
+     if q.product!='Platform' or not q.plan_snapshot or q.status!='Open':frappe.throw('Subscription quote unavailable')
+     name=frappe.db.get_value('IL Payment Attempt',{'quote':quote},'name')
+     if name:a=frappe.get_doc('IL Payment Attempt',name,for_update=True)
+@@ -91,6 +108,34 @@
+     frappe.db.sql('SELECT name FROM `tabIL Subscription` WHERE name=%s FOR UPDATE',(name,))
+     s=frappe.get_doc('IL Subscription',name,for_update=True)
+     if frappe.db.exists('IL Payment Transaction',{'attempt':a.name}):return
++    if organization.get('retired'):
++        managed(frappe.get_doc({
++            'doctype': 'IL Payment Transaction',
++            'attempt': a.name,
++            'payment_id': payment['id'],
++            'tenant_id': a.tenant_id,
++            'amount_minor': a.amount_minor,
++            'currency': a.currency,
++            'settled_at': datetime.utcnow()
++        }))
++
++        # Record financial settlement without granting subscription access.
++        q=frappe.get_doc('IL Checkout Quote',a.quote,for_update=True)
++
++        if q.tenant_id!=a.tenant_id:
++            frappe.throw('Payment quote tenant mismatch',frappe.PermissionError)
++
++        q.status='Settled'
++        q.flags.pricing_service=True
++        q.save(ignore_permissions=True)
++
++        audit(
++            'Retired tenant payment requires reconciliation',
++            a.tenant_id,
++            a.name
++        )
++        return
++
+     snapshot=json.loads(a.snapshot);now=datetime.utcnow()
+     base=max(now,get_datetime(s.ends_at)) if s.ends_at and s.plan==snapshot['plan'] else now
+     from .full_rules import month_end
+@@ -121,9 +166,27 @@
+     if not incoming:return {'accepted':True,'settled':False}
+     p=event.get('data')
+     if not isinstance(p,dict) or not isinstance(p.get('reference'),str):frappe.throw('Invalid payment identity')
+-    rows=frappe.db.sql('SELECT name FROM `tabIL Payment Attempt` WHERE name=%s FOR UPDATE',(p['reference'],))
+-    if not rows:frappe.throw('Unknown subscription attempt')
+-    a=frappe.get_doc('IL Payment Attempt',p['reference'])
++    tenant=frappe.db.get_value(
++        'IL Payment Attempt',
++        p['reference'],
++        'tenant_id'
++    )
++
++    if not tenant:
++        frappe.throw('Unknown subscription attempt')
++
++    # Lock the organization before its payment attempt.
++    # Retired organizations must still accept verified financial events.
++    org=frappe.get_doc('IL Organization',tenant,for_update=True)
++
++    a=frappe.get_doc(
++        'IL Payment Attempt',
++        p['reference'],
++        for_update=True
++    )
++
++    if a.tenant_id!=tenant:
++        frappe.throw('Payment tenant identity changed',frappe.PermissionError)
+     binding={'name':a.name,'amount':a.amount_minor/100,'gateway_checkout_id':a.checkout_id}
+     if incoming=='succeeded':valid=valid_payment(p,binding,mode)
+     else:
+--- /dev/null
++++ b/institute_lms/tenant_retirement.py
+@@ -0,0 +1,304 @@
++"""Controlled retirement of decommissioned SaaS tenants."""
++
++import uuid
++import frappe
++from frappe.utils import now_datetime
++from .saas import managed, audit
++from .platform import owner
++
++
++def retire_organization(
++    tenant,
++    reason,
++    expected_hostname,
++    expected_code,
++    decommission_verified=False
++):
++    owner()
++    from .owner_access import require_manager
++    require_manager()
++    if getattr(frappe.local, 'request', None):
++        frappe.throw('Retirement completion is restricted to the hosting worker', frappe.PermissionError)
++
++    if decommission_verified is not True:
++        frappe.throw("Site decommissioning must be verified")
++
++    reason = str(reason or "").strip()
++
++    if not 10 <= len(reason) <= 500:
++        frappe.throw("Provide a retirement reason of 10-500 characters")
++
++    org = frappe.get_doc(
++        "IL Organization", tenant, for_update=True
++    )
++
++    if org.get("retired"):
++        return {
++            "tenant_id": org.name,
++            "retired": True,
++            "changed": False
++        }
++
++    if org.site_hostname != expected_hostname:
++        frappe.throw("Organization hostname mismatch")
++
++    if org.institute_code != expected_code:
++        frappe.throw("Organization institute code mismatch")
++
++    subscriptions = frappe.get_all(
++        "IL Subscription",
++        filters={"tenant_id": tenant},
++        pluck="name"
++    )
++
++    if len(subscriptions) != 1:
++        frappe.throw("Unexpected subscription count")
++
++    subscription = frappe.get_doc(
++        "IL Subscription",
++        subscriptions[0],
++        for_update=True
++    )
++
++    pending_payments = frappe.db.count(
++        "IL Payment Attempt",
++        {
++            "tenant_id": tenant,
++            "status": ["in", ["created", "pending"]]
++        }
++    )
++
++    if pending_payments:
++        frappe.throw(
++            "Unresolved payment attempts require reconciliation"
++        )
++
++    old_hostname = org.site_hostname
++    old_code = org.institute_code
++    old_domain = org.custom_domain
++
++    retired_hostname = org.name + ".invalid"
++    retired_code = "RETIRED-" + org.name
++
++    org.original_site_hostname = old_hostname
++    org.original_institute_code = old_code
++
++    org.removal_status = "Completed"
++    org.retired = 1
++    org.retired_at = now_datetime()
++    org.retired_by = frappe.session.user
++    org.retirement_reason = reason
++
++    org.enabled = 0
++    org.site_hostname = retired_hostname
++    org.institute_code = retired_code
++    org.custom_domain = None
++
++    org.flags.tenant_retirement = True
++    managed(org)
++
++    subscription.enabled = 0
++    subscription.state = "cancelled"
++    subscription.grace_until = None
++    managed(subscription)
++
++    provisioning_jobs = frappe.get_all(
++        "IL Provisioning Job",
++        filters={"organization": tenant},
++        pluck="name",
++        order_by="name asc"
++    )
++
++    for job_name in provisioning_jobs:
++        job = frappe.get_doc(
++            "IL Provisioning Job",
++            job_name,
++            for_update=True
++        )
++
++        if job.status == "retired":
++            continue
++
++        previous_status = job.status
++        job.status = "retired"
++        managed(job)
++
++        audit(
++            "Retire provisioning job",
++            tenant,
++            "Job: " + job.name
++            + "; Previous status: " + previous_status
++        )
++
++    delivery_name = frappe.db.get_value(
++        "IL Policy Delivery",
++        {"organization": tenant},
++        "name"
++    )
++
++    if delivery_name:
++        delivery = frappe.get_doc(
++            "IL Policy Delivery",
++            delivery_name,
++            for_update=True
++        )
++
++        delivery.status = "Retired"
++        delivery.next_attempt = None
++        managed(delivery)
++
++    audit(
++        "Permanently retire organization",
++        tenant,
++        "Hostname: " + old_hostname
++        + "; Code: " + old_code
++        + "; Custom domain: " + str(old_domain or "")
++        + "; Reason: " + reason
++    )
++
++    return {
++        "tenant_id": tenant,
++        "retired": True,
++        "changed": True,
++        "released_hostname": old_hostname,
++        "released_code": old_code
++    }
++
++
++@frappe.whitelist(methods=["GET"])
++def removal_preview(tenant):
++    owner()
++    from .owner_access import require_manager
++    require_manager()
++
++    org = frappe.get_doc("IL Organization", tenant)
++
++    if org.get("retired"):
++        frappe.throw("Organization is already retired")
++
++    pending = frappe.db.count(
++        "IL Payment Attempt",
++        {
++            "tenant_id": org.name,
++            "status": ["in", ["created", "pending"]]
++        }
++    )
++
++    transactions = frappe.db.count(
++        "IL Payment Transaction",
++        {"tenant_id": org.name}
++    )
++
++    blockers = []
++
++    if pending:
++        blockers.append("Unresolved payment attempts")
++
++    if org.provisioning_state == "running":
++        blockers.append("Website provisioning is running")
++
++    if org.enabled:
++        blockers.append("Institute must be suspended before removal")
++
++    return {
++        "tenant_id": org.name,
++        "title": org.title,
++        "code": org.institute_code,
++        "hostname": org.site_hostname,
++        "custom_domain": org.custom_domain,
++        "admin_contact": org.admin_contact,
++        "pending_payments": pending,
++        "financial_records": transactions,
++        "blockers": blockers,
++        "hosting_verified": False,
++        "removal_available": not blockers and org.get("removal_status") in (None, "", "Failed"),
++        "removal_status": org.get("removal_status") or "",
++        "progress": org.get("removal_progress") or ""
++    }
++
++
++@frappe.whitelist(methods=["POST"])
++def request_removal(tenant, code, hostname, reason):
++    owner()
++    from .owner_access import require_manager
++    require_manager()
++
++    reason = str(reason or "").strip()
++
++    if not 10 <= len(reason) <= 500:
++        frappe.throw("Provide a reason of 10-500 characters")
++
++    org = frappe.get_doc(
++        "IL Organization", tenant, for_update=True
++    )
++
++    if org.get("retired"):
++        frappe.throw("Organization already retired")
++
++    if org.site_hostname != hostname:
++        frappe.throw("Website identity mismatch")
++
++    if org.institute_code != code:
++        frappe.throw("Institute code mismatch")
++
++    if org.enabled:
++        frappe.throw("Suspend the institute first")
++
++    if org.provisioning_state == "running":
++        frappe.throw("Website provisioning is still running")
++
++    protected = {
++        "platform.sisuacademylk.com",
++        "sisuacademylk.com",
++        "www.sisuacademylk.com",
++        "staging.sisuacademylk.com",
++        frappe.local.site
++    }
++
++    if org.site_hostname.lower() in protected:
++        frappe.throw("Protected website cannot be removed",
++                     frappe.PermissionError)
++
++    if frappe.db.count("IL Payment Attempt", {
++        "tenant_id": tenant,
++        "status": ["in", ["created", "pending"]]
++    }):
++        frappe.throw("Unresolved payments require reconciliation")
++
++    if org.get("removal_status") in ("Requested", "Running"):
++        return {"requested": True, "duplicate": True}
++
++    if org.get("removal_status") == "Failed":
++        org.removal_status = "Requested"
++        managed(org)
++        return {"requested": True, "status": "Requested", "retry": True}
++    if org.get("removal_status"):
++        frappe.throw("Existing removal requires review")
++
++    org.removal_request_id = uuid.uuid4().hex
++    org.removal_status = "Requested"
++    org.removal_requested_at = now_datetime()
++    org.removal_requested_by = frappe.session.user
++    org.removal_request_reason = reason
++
++    managed(org)
++
++    audit(
++        "Institute removal requested",
++        org.name,
++        "Website: " + hostname + "; Reason: " + reason
++    )
++
++    return {"requested": True, "status": "Requested"}
++
++
++@frappe.whitelist(methods=['GET'])
++def removal_status(tenant):
++    owner()
++    from .owner_access import require_manager
++    require_manager()
++    org = frappe.get_doc('IL Organization', tenant)
++    return {'tenant_id': org.name, 'status': org.get('removal_status') or '',
++            'retired': bool(org.get('retired')), 'progress': org.get('removal_progress') or '',
++            'requested_at': org.get('removal_requested_at'),
++            'completed_at': org.get('retired_at')}
+--- /dev/null
++++ b/scripts/hosting-removal-worker.py
+@@ -0,0 +1,68 @@
++#!/usr/bin/env python3
++"""Run from a root-owned installation, with an explicitly reviewed host inventory."""
++import argparse
++import fcntl
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++
++from institute_lms.hosting_removal_adapter import BenchRemovalAdapter, private_file
++from institute_lms.hosting_retirement import RemovalIdentity, execute
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--config', required=True, type=Path)
++    args = parser.parse_args()
++    if os.geteuid() != 0:
++        parser.error('Root-owned hosting service required')
++    os.umask(0o077)
++    config = json.loads(private_file(args.config).read_text())
++    if config.get('version') != 1 or config.get('enabled') is not True:
++        parser.error('Reviewed hosting inventory is not enabled')
++    root = Path(config['backup_root'])
++    if not root.is_absolute() or root.is_symlink():
++        parser.error('Absolute private backup directory required')
++    root.mkdir(mode=0o700, parents=True, exist_ok=True)
++    if root.stat().st_uid != 0 or root.stat().st_mode & 0o077:
++        parser.error('Unsafe backup directory owner/mode')
++    with (root / 'worker.lock').open('a') as lock:
++        try:
++            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except BlockingIOError:
++            print('Another removal worker is running');return
++        result = subprocess.run(['sudo', '-H', '-u', 'sisu', '--', '/usr/local/bin/bench',
++            '--site', config['control_site'], 'execute', 'institute_lms.removal_control.pending'],
++            cwd=config['bench'], check=True, capture_output=True, text=True)
++        failed = False
++        for row in json.loads(result.stdout):
++            if row['name'] not in config['tenants']:
++                print('Request awaits approved hosting inventory:', row['name']);continue
++            identity = RemovalIdentity(row['name'], row['site_hostname'], row['institute_code'], row['removal_request_id'])
++            adapter = None
++            try:
++                identity.validate({k: v['hostname'] for k, v in config['tenants'].items()})
++                adapter = BenchRemovalAdapter(config, identity)
++                adapter.authorize_request(identity)
++                adapter.bridge('progress', tenant=identity.tenant, request_id=identity.request_id, stage='starting')
++                execute(identity, adapter, adapter.root / 'journal.json', root,
++                        {k: v['hostname'] for k, v in config['tenants'].items()})
++                print('Removal verified:', identity.tenant)
++            except Exception as exc:
++                failed = True
++                # Do not emit subprocess stderr, credentials or customer records.
++                print('Removal stopped:', identity.tenant, type(exc).__name__)
++                if adapter:
++                    try:
++                        adapter.bridge('progress', tenant=identity.tenant, request_id=identity.request_id,
++                                       stage='failed', failed=True)
++                    except Exception:
++                        print('Control-plane status update failed; private journal remains authoritative')
++        if failed:
++            sys.exit(1)
++
++
++if __name__ == '__main__':
++    main()
+--- a/frontend/src/native/ControlPlane.vue
++++ b/frontend/src/native/ControlPlane.vue
+@@ -53,7 +53,7 @@
+  }
+ }
+ async function action(method,args){await run(async()=>{const result=await request('platform',method,args);if(method==='register'){form.value=emptyRegistration();page.value=0}manifest.value=null;note.value=method==='register'?'Institute setup request saved. Continue in Provisioning; the institute website is not active yet.':result.queued?'Invitation queued. Inbox delivery has not been confirmed.':result.requires_manifest_delivery?'Saved. Check Site policies for confirmation that the institute website received the update.':'Saved to the control plane.';await load()})}
+-async function choose(o){if(busy.value)return;reason.value='';state.value='';grace.value='';days.value=7;manifest.value=null;commercial.value=null;tenant.value=o.name;selectedCommercialPlan.value=['Individual','Silver','Gold','Platinum'].includes(o.plan)?o.plan:'';domain.value=o.custom_domain||'';override.value=JSON.stringify(object(o.subscription?.overrides),null,2);await run(async()=>{commercial.value=await request('premium','summary',{tenant:o.name},'GET');monthlyPrice.value=commercial.value.offer?.amount_minor||0;priceEnabled.value=!!commercial.value.offer?.available});await nextTick();document.getElementById('organization-management')?.scrollIntoView({behavior:'smooth',block:'start'})}
++async function choose(o){if(busy.value)return;resetRemoval();reason.value='';state.value='';grace.value='';days.value=7;manifest.value=null;commercial.value=null;tenant.value=o.name;selectedCommercialPlan.value=['Individual','Silver','Gold','Platinum'].includes(o.plan)?o.plan:'';domain.value=o.custom_domain||'';override.value=JSON.stringify(object(o.subscription?.overrides),null,2);await run(async()=>{commercial.value=await request('premium','summary',{tenant:o.name},'GET');monthlyPrice.value=commercial.value.offer?.amount_minor||0;priceEnabled.value=!!commercial.value.offer?.available});await nextTick();document.getElementById('organization-management')?.scrollIntoView({behavior:'smooth',block:'start'})}
+ async function openHostedSite(site){let org;await run(async()=>{org=await request('site_policies','organization_details',{tenant:site.name},'GET');const i=data.value.organizations.findIndex(o=>o.name===org.name);if(i>=0)data.value.organizations[i]=org;else data.value.organizations.unshift(org)});if(org){await selectTab('Organizations');await choose(org)}}
+ async function loadAudit(){auditRows.value=await request('owner_operations','audit',{page:auditPage.value},'GET')}
+ async function selectTab(name){if(!ownerSections.some(s=>s.name===name&&(!s.managersOnly||ownerAccess.value?.can_manage)))return;tab.value=name;navigationOpen.value=false;window.history.replaceState(null,'','#'+encodeURIComponent(name));if(name==='Audit log')await run(loadAudit);await nextTick();document.getElementById('owner-page-title')?.focus()}
+@@ -73,6 +73,60 @@
+ async function saveOffer(){await run(async()=>{await request('premium','configure_offer',{tenant:tenant.value,amount_minor:monthlyPrice.value,enabled:priceEnabled.value,reason:reason.value});commercial.value=await request('premium','summary',{tenant:tenant.value},'GET');note.value='Monthly offer saved. Payments remain subject to the existing pause; no charge or activation occurred.'})}
+ async function exportManifest(){await run(async()=>{manifest.value=await request('platform','manifest',{tenant:tenant.value});note.value='Signed policy generated. Download and deliver it using the institute operator workflow; it has not been applied remotely.'})}
+ function downloadManifest(){const url=URL.createObjectURL(new Blob([JSON.stringify(manifest.value,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='sisu-policy-'+tenant.value+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
++
++const removalPreview=ref(null)
++const removalReason=ref('')
++const removalCode=ref('')
++const removalOpen=ref(false)
++
++function resetRemoval(){
++ removalPreview.value=null
++ removalReason.value=''
++ removalCode.value=''
++ removalOpen.value=false
++}
++
++
++
++async function submitRemoval(){
++ const preview=removalPreview.value
++ if(!preview||preview.tenant_id!==tenant.value)return
++ if(removalCode.value!==preview.code)return
++ if(!window.confirm('Submit removal request for '+preview.title+'?'))return
++
++ await run(async()=>{
++  await request('tenant_retirement','request_removal',{
++   tenant:preview.tenant_id,
++   hostname:preview.hostname,
++   code:removalCode.value,
++   reason:removalReason.value
++  })
++  removalPreview.value.removal_status='Requested'
++  removalPreview.value.removal_available=false
++  note.value='Removal requested. The hosting worker will verify backups before retiring the website and dedicated database.'
++ })
++}
++
++async function refreshRemoval(){
++ if(!removalPreview.value)return
++ await run(async()=>{const result=await request('tenant_retirement','removal_status',{tenant:removalPreview.value.tenant_id},'GET');removalPreview.value.removal_status=result.status;removalPreview.value.progress=result.progress;removalPreview.value.removal_available=result.status==='Failed';if(result.retired){note.value='Removal completed. The website and dedicated database are retired; private backups and audit history are retained.';await load()}})
++}
++
++async function reviewRemoval(){
++ resetRemoval()
++ const target=tenant.value
++ removalOpen.value=true
++ await run(async()=>{
++  const result=await request(
++   'tenant_retirement',
++   'removal_preview',
++   {tenant:target},
++   'GET'
++  )
++  if(tenant.value===target)removalPreview.value=result
++ })
++}
++
+ onMounted(()=>{run(async()=>{await load();if(tab.value==='Audit log')await loadAudit()});loadOperator()})
+ </script>
+ <template><div class="owner-shell">
+@@ -115,6 +169,67 @@
+ <section class="manage-section"><h3>Website & account access</h3><p>Save a custom domain or manage access to this institute. Domain setup and policy updates still need to be applied by the hosting operator.</p><label>Custom website domain<input v-model="domain" placeholder="learn.yourinstitute.com"><small>Optional. Enter the domain only, without https://.</small></label><div class="manage-actions"><button class="button primary" :disabled="busy||!reason.trim()" @click="action('update_organization',{tenant,enabled:!!selectedOrganization?.enabled,custom_domain:domain,reason})">Save domain</button><button v-if="!selectedOrganization?.enabled" class="button subtle" :disabled="busy||!reason.trim()" @click="action('update_organization',{tenant,enabled:true,reason})">Enable institute</button><button v-else class="button subtle" :disabled="busy||!reason.trim()" @click="action('update_organization',{tenant,enabled:false,reason})">Suspend institute</button></div><p>Billing contact: <strong>{{selectedOrganization?.admin_contact}}</strong></p><button class="button subtle" :disabled="busy" @click="action('invite_billing_contact',{tenant})">Send billing sign-in email</button></section>
+ <section class="manage-section"><h3>Subscription & trial</h3><p>Choose a status change, restore an eligible paid subscription, or grant a one-time trial. Paid activation still requires a verified payment.</p><label>Change subscription status<select v-model="state"><option disabled value="">Choose a new status</option><option v-for="s in ['grace','past_due','suspended','cancelled','expired']" :value="s">{{statusLabel(s)}}</option></select></label><label v-if="state==='grace'">Grace period ends<input v-model="grace" type="datetime-local"></label><div class="manage-actions"><button class="button primary" :disabled="busy||!reason.trim()||!state||(state==='grace'&&!grace)" @click="action('subscription_state',{tenant,state,reason,grace_until:grace||null})">Save status</button><button class="button subtle" :disabled="busy||!reason.trim()" @click="action('reactivate',{tenant,reason})">Restore paid subscription</button></div><label>Trial length (days)<input type="number" min="1" max="30" v-model.number="days"></label><small>1–30 days. The system checks whether this institute is eligible.</small><button class="button subtle" :disabled="busy||!reason.trim()||days<1||days>30" @click="action('trial',{tenant,days,reason})">Grant trial</button></section>
+ <section class="manage-section" v-if="commercial"><h3>Hosted-site monthly offer</h3><p>This is a separate hosted-site contract. Current Individual, Silver, Gold and Platinum packages are managed in Plans.</p><p>{{commercial.offer.available?'A monthly offer is configured for this institute.':commercial.offer.message}}</p><form @submit.prevent="saveOffer"><label>Monthly price (LKR)<input type="number" min="0.01" step="0.01" v-model.number="monthlyLkr" required></label><label class="check"><input type="checkbox" v-model="priceEnabled"> Make this offer available</label><button class="button primary" :disabled="busy||reason.trim().length<3">Save monthly offer</button></form><p>Saving an offer does not charge the institute or activate a subscription.</p><h4>Payment receipts</h4><p v-if="!commercial.receipts.length">No completed payments yet.</p><p v-for="receipt in commercial.receipts" :key="receipt.name">{{receipt.currency}} {{(receipt.amount_minor/100).toFixed(2)}} · {{receipt.paid_at}}<small>Receipt {{receipt.name}}</small></p></section>
++
++<section v-if="ownerAccess?.can_manage" class="manage-section removal-section">
++ <h3>Remove institute</h3>
++ <p>Review institute removal, financial dependencies and hosting requirements. Shared accounts and financial history must be preserved.</p>
++
++ <button type="button" class="button removal-button"
++  :disabled="busy||!selectedOrganization"
++  @click="reviewRemoval">
++  Review institute removal
++ </button>
++
++ <div v-if="removalOpen" class="removal-review">
++  <template v-if="removalPreview">
++   <h3>{{removalPreview.title}}</h3>
++   <p><strong>Institute code:</strong> {{removalPreview.code}}</p>
++   <p><strong>Website:</strong> {{removalPreview.hostname}}</p>
++   <p><strong>Billing contact:</strong> {{removalPreview.admin_contact}}</p>
++
++   <h4>Removal checks</h4>
++   <p v-if="removalPreview.removal_status">
++    <strong>Removal status:</strong> {{removalPreview.removal_status}} <span v-if="removalPreview.progress">· {{removalPreview.progress}}</span>
++    <button type="button" class="button subtle" :disabled="busy" @click="refreshRemoval">Refresh removal status</button>
++   </p>
++   <p>Pending payments: {{removalPreview.pending_payments}}</p>
++   <p>Financial records to retain: {{removalPreview.financial_records}}</p>
++
++   <div v-if="removalPreview.blockers.length" class="error">
++    <strong>Removal requirements</strong>
++    <ul>
++     <li v-for="item in removalPreview.blockers" :key="item">{{item}}</li>
++    </ul>
++   </div>
++
++   <p v-else>Control-plane preliminary checks passed.</p>
++   <p>Website identity, dependencies and backups require hosting verification.</p>
++
++   <label>Reason for removal
++    <textarea v-model="removalReason" rows="3" maxlength="500"
++     placeholder="Explain why this institute is being removed"/>
++   </label>
++
++   <label>Type {{removalPreview.code}} to confirm
++    <input v-model="removalCode" autocomplete="off"/>
++   </label>
++
++   <div class="manage-actions">
++    <button type="button" class="button removal-button"
++    :disabled="busy||!removalPreview.removal_available||removalCode!==removalPreview.code||removalReason.trim().length<10"
++    @click="submitRemoval">
++     {{removalPreview.removal_status==='Failed'?'Retry removal':'Request institute removal'}}
++    </button>
++    <button type="button" class="button subtle" @click="resetRemoval">
++     Cancel
++    </button>
++   </div>
++
++   <small>Removal is completed only after hosting and backup verification.</small>
++  </template>
++  <p v-else>Review information is not available yet.</p>
++ </div>
++</section>
+ <details class="manage-section"><summary>Advanced settings & website updates</summary><p>These settings are for the hosting operator. Changes saved here must be delivered to the institute website before they take effect.</p><p>Institute reference: {{tenant}}</p><h4>Custom subscription settings</h4><p>Use features, limits and support_tier. Empty objects use the subscription defaults.</p><label>Settings JSON<textarea v-model="override" rows="8" spellcheck="false"/></label><button class="button subtle" :disabled="busy||!reason.trim()" @click="saveOverrides">Save custom settings</button><h4>Website policy update</h4><p>Delivery status: {{commercial?.policy_delivery?.status||'No delivery recorded'}} · revision {{commercial?.policy_delivery?.revision||'—'}}</p><p>A signing key must be configured by the operator. Downloading an update does not apply it to the website.</p><div class="manage-actions"><button class="button subtle" :disabled="busy" @click="exportManifest">Prepare website policy update</button><button v-if="manifest" class="button subtle" @click="downloadManifest">Download signed update</button></div></details></article></template>
+ <template v-else-if="tab==='Plans'"><h2>Provider packages</h2><p>Individual, Silver, Gold and Platinum. Publish one shared catalogue for the main website and provider dashboards.</p><PlanEditor/></template><template v-else-if="tab==='Site policies'"><SitePolicies @plans="selectTab('Plans')" @manage="openHostedSite"/></template>
+ <template v-else-if="tab==='Provisioning'"><OwnerProvisioning :jobs="data.jobs" @updated="run(load)"/></template>
+@@ -143,3 +258,24 @@
+ <style scoped>
+ .owner-sidebar{overflow:hidden}.owner-brand{flex-shrink:0}.owner-navigation{min-height:0;overflow-y:auto;flex:1;padding-right:4px;scrollbar-width:thin;scrollbar-color:#d0c6dc transparent}.owner-account{flex-shrink:0;border-top:1px solid var(--line);padding-top:16px;margin-top:12px;background:#fff}.owner-account-person{display:flex;align-items:center;gap:10px;padding:0 4px 14px}.owner-account-person>div{min-width:0}.owner-account-person strong{display:block;font-size:13px;line-height:1.45;overflow-wrap:anywhere}.owner-account-person>div>span{display:block;font-size:11px;color:var(--muted);margin-top:3px}.owner-account-avatar{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;background:#eee6f7;color:#54258a;font-size:12px;font-weight:700;flex-shrink:0}.owner-account-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.owner-account-actions button{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:8px;min-height:42px;padding:8px 4px;font:inherit;font-size:12px;color:#51465f;cursor:pointer}.owner-account-actions button:hover,.owner-account-actions button.selected{background:#eee6f7;color:#54258a}.owner-account-actions button:focus-visible{outline:2px solid #592c91;outline-offset:2px}.owner-account-actions button:disabled{opacity:.6;cursor:wait}@media(max-width:760px){.owner-sidebar{overflow:visible}.owner-navigation{overflow:visible}.owner-account{display:flex;align-items:center;justify-content:space-between;gap:16px}.owner-account-person{padding:0;flex:1;min-width:0}.owner-account-actions{flex-shrink:0}.owner-account-actions button{padding:9px}.owner-account-avatar{display:none}}@media(max-width:380px){.owner-account{align-items:flex-start;flex-direction:column;gap:12px}.owner-account-actions{width:100%}}
+ </style>
++
++
++<style scoped>
++.removal-section h3{color:#8b2537}
++.removal-section .removal-button{
++ color:#8b2537;
++ background:#fff;
++ border:1px solid #d8a6ae;
++}
++.removal-section .removal-button:hover:not(:disabled){
++ background:#fff3f5;
++}
++.removal-review{
++ margin-top:18px;
++ padding:20px;
++ background:var(--surface-alt,#f6f3fa);
++ border:1px solid var(--line,#e6e0ed);
++ border-radius:12px;
++ overflow-wrap:anywhere;
++}
++</style>
+--- a/frontend/src/native/ProviderFirstLogin.vue
++++ b/frontend/src/native/ProviderFirstLogin.vue
+@@ -11,7 +11,7 @@
+ const emit=defineEmits(['completed'])
+ function verifiedPhone(value){verified.value=value;if(value&&props.unifiedTeacher&&props.session.onboarding_kind==='Teacher'&&props.session.provider_profile_required===false){emit('completed')}}
+ const confirmation=ref(null)
+-async function completed(){saved.value=true;if(props.unifiedTeacher&&props.session.onboarding_kind==='Teacher'){emit('completed');return}await nextTick();confirmation.value?.showModal()}
++async function completed(){saved.value=true;if(props.session.onboarding_kind==='Institute'){emit('completed');return}if(props.unifiedTeacher&&props.session.onboarding_kind==='Teacher'){emit('completed');return}await nextTick();confirmation.value?.showModal()}
+ const verified=ref(false),saved=ref(false),busy=ref(false),error=ref('')
+ async function login(){
+  if(!verified.value||!saved.value||busy.value)return
+--- a/institute_lms/institute_lms/doctype/il_organization/il_organization.json
++++ b/institute_lms/institute_lms/doctype/il_organization/il_organization.json
+@@ -15,7 +15,19 @@
+     "plan",
+     "enabled",
+     "provisioning_state",
+-    "revision"
++    "revision",
++    "retired",
++    "retired_at",
++    "retired_by",
++    "retirement_reason",
++    "original_site_hostname",
++    "original_institute_code",
++    "removal_status",
++    "removal_requested_at",
++    "removal_requested_by",
++    "removal_request_reason",
++    "removal_request_id",
++    "removal_progress"
+   ],
+   "fields": [
+     {
+@@ -79,6 +91,80 @@
+       "label": "Revision",
+       "fieldtype": "Int",
+       "default": 0
++    },
++    {
++      "fieldname": "retired",
++      "label": "Retired",
++      "fieldtype": "Check",
++      "default": "0",
++      "read_only": 1
++    },
++    {
++      "fieldname": "retired_at",
++      "label": "Retired At",
++      "fieldtype": "Datetime",
++      "read_only": 1
++    },
++    {
++      "fieldname": "retired_by",
++      "label": "Retired By",
++      "fieldtype": "Data",
++      "read_only": 1
++    },
++    {
++      "fieldname": "retirement_reason",
++      "label": "Retirement Reason",
++      "fieldtype": "Small Text",
++      "read_only": 1
++    },
++    {
++      "fieldname": "original_site_hostname",
++      "label": "Original Site Hostname",
++      "fieldtype": "Data",
++      "read_only": 1
++    },
++    {
++      "fieldname": "original_institute_code",
++      "label": "Original Institute Code",
++      "fieldtype": "Data",
++      "read_only": 1
++    },
++    {
++      "fieldname": "removal_status",
++      "label": "Removal Status",
++      "fieldtype": "Select",
++      "options": "\nRequested\nRunning\nFailed\nCompleted",
++      "read_only": 1
++    },
++    {
++      "fieldname": "removal_requested_at",
++      "label": "Removal Requested At",
++      "fieldtype": "Datetime",
++      "read_only": 1
++    },
++    {
++      "fieldname": "removal_requested_by",
++      "label": "Removal Requested By",
++      "fieldtype": "Data",
++      "read_only": 1
++    },
++    {
++      "fieldname": "removal_request_reason",
++      "label": "Removal Request Reason",
++      "fieldtype": "Small Text",
++      "read_only": 1
++    },
++    {
++      "fieldname": "removal_request_id",
++      "label": "Removal Request ID",
++      "fieldtype": "Data",
++      "read_only": 1
++    },
++    {
++      "fieldname": "removal_progress",
++      "label": "Removal Progress",
++      "fieldtype": "Data",
++      "read_only": 1
+     }
+   ],
+   "permissions": [],
+--- a/institute_lms/institute_lms/doctype/il_organization/il_organization.py
++++ b/institute_lms/institute_lms/doctype/il_organization/il_organization.py
+@@ -1,8 +1,50 @@
+ from frappe.model.document import Document
+ import frappe
+ 
++
+ class ILOrganization(Document):
+     def validate(self):
+-        if not self.flags.saas_service: frappe.throw("Use the authorized SaaS service", frappe.PermissionError)
++        if not self.flags.saas_service:
++            frappe.throw(
++                "Use the authorized SaaS service",
++                frappe.PermissionError
++            )
++
++        previous = self.get_doc_before_save()
++
++        if previous and previous.get("retired"):
++            frappe.throw(
++                "Retired organizations cannot be modified or reactivated",
++                frappe.PermissionError
++            )
++
++        if previous and previous.get("removal_status") and not self.flags.get("tenant_retirement"):
++            if self.enabled or any(self.get(k) != previous.get(k) for k in
++                    ("site_hostname", "institute_code", "custom_domain", "admin_contact", "plan")):
++                frappe.throw("Removal is pending; organization identity and activation are locked", frappe.PermissionError)
++
++        if self.get("retired"):
++            if not previous or not self.flags.get("tenant_retirement"):
++                frappe.throw(
++                    "Use the authorized tenant retirement service",
++                    frappe.PermissionError
++                )
++
++            if self.enabled:
++                frappe.throw("Retired organizations must be disabled")
++
++            for field in (
++                "retired_at",
++                "retired_by",
++                "retirement_reason",
++                "original_site_hostname",
++                "original_institute_code"
++            ):
++                if not self.get(field):
++                    frappe.throw("Missing retirement metadata: " + field)
++
+     def on_trash(self):
+-        frappe.throw("SaaS records require reviewed retention; direct deletion disabled", frappe.PermissionError)
++        frappe.throw(
++            "SaaS records require reviewed retention; direct deletion disabled",
++            frappe.PermissionError
++        )
+--- a/institute_lms/institute_lms/doctype/il_policy_delivery/il_policy_delivery.json
++++ b/institute_lms/institute_lms/doctype/il_policy_delivery/il_policy_delivery.json
+@@ -26,7 +26,7 @@
+       "fieldname": "status",
+       "label": "Status",
+       "fieldtype": "Select",
+-      "options": "Pending\nDelivered\nFailed"
++      "options": "Pending\nDelivered\nFailed\nRetired"
+     },
+     {
+       "fieldname": "revision",
+--- a/institute_lms/institute_lms/doctype/il_provisioning_job/il_provisioning_job.json
++++ b/institute_lms/institute_lms/doctype/il_provisioning_job/il_provisioning_job.json
+@@ -23,7 +23,7 @@
+       "label": "Status",
+       "fieldtype": "Select",
+       "default": "pending",
+-      "options": "pending\nrunning\nready\nfailed"
++      "options": "pending\nrunning\nready\nfailed\nretired"
+     },
+     {
+       "fieldname": "detail",
+--- a/institute_lms/institute_lms/doctype/il_provisioning_job/il_provisioning_job.py
++++ b/institute_lms/institute_lms/doctype/il_provisioning_job/il_provisioning_job.py
+@@ -3,6 +3,35 @@
+ 
+ class ILProvisioningJob(Document):
+     def validate(self):
+-        if not self.flags.saas_service: frappe.throw("Use the authorized SaaS service", frappe.PermissionError)
++        if not self.flags.saas_service:
++            frappe.throw("Use the authorized SaaS service", frappe.PermissionError)
++
++        previous = self.get_doc_before_save()
++
++        if previous and previous.status == "retired":
++            frappe.throw(
++                "Retired provisioning jobs cannot be modified",
++                frappe.PermissionError
++            )
++
++        if frappe.conf.get("il_control_plane") and self.organization:
++            org = frappe.get_doc(
++                "IL Organization", self.organization, for_update=True
++            )
++
++            if org.get("removal_status") and not org.get("retired"):
++                frappe.throw("Website removal is pending; provisioning is locked", frappe.PermissionError)
++
++            if org.get("retired"):
++                if self.is_new() or self.status != "retired":
++                    frappe.throw(
++                        "Provisioning unavailable for retired organizations",
++                        frappe.PermissionError
++                    )
++            elif self.status == "retired":
++                frappe.throw(
++                    "Organization must be retired first",
++                    frappe.PermissionError
++                )
+     def on_trash(self):
+         frappe.throw("SaaS records require reviewed retention; direct deletion disabled", frappe.PermissionError)
+--- a/institute_lms/institute_lms/doctype/il_subscription/il_subscription.py
++++ b/institute_lms/institute_lms/doctype/il_subscription/il_subscription.py
+@@ -3,6 +3,19 @@
+ 
+ class ILSubscription(Document):
+     def validate(self):
+-        if not self.flags.saas_service: frappe.throw("Use the authorized SaaS service", frappe.PermissionError)
++        if not self.flags.saas_service:
++            frappe.throw("Use the authorized SaaS service", frappe.PermissionError)
++
++        if frappe.conf.get("il_control_plane") and self.tenant_id:
++            org = frappe.get_doc(
++                "IL Organization", self.tenant_id, for_update=True
++            )
++
++            if org.get("retired"):
++                if self.enabled or self.state != "cancelled":
++                    frappe.throw(
++                        "Retired subscriptions must remain cancelled and disabled",
++                        frappe.PermissionError
++                    )
+     def on_trash(self):
+         frappe.throw("SaaS records require reviewed retention; direct deletion disabled", frappe.PermissionError)
